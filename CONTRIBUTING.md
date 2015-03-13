@@ -8,5 +8,5 @@ Group (which requires agreement to the terms of the W3C CLA). If any Pull
 Requests from you are inadvertently accepted and you are not a W3C Web NFC
 Community Group member, the act of making a Pull Request indicates that you
 represent that you have received permission to make Contributions on behalf of
-that your employer and that the Contribution is made under the terms of the W3C
+your employer and that the Contribution is made under the terms of the W3C
 CLA.
