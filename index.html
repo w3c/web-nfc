@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web NFC API</title>
+  <meta charset="UTF-8">
+  <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
+          class='remove'>
+  </script>
+  <script class="remove">
+    var respecConfig = {
+          specStatus:           "CG-DRAFT",
+          shortName:            "web-nfc",
+          noLegacyStyle:        true,
+          publishDate:          "",
+          previousPublishDate:  "",
+          previousMaturity:     "",
+          edDraftURI:           "http://w3c.github.io/web-nfc/",
+          crEnd:                "",
+          editors: [
+            { name: "Kenneth Rohde Christiansen", company: "Intel",
+                    companyURL: "http://www.intel.com/" },
+            { name: "Zoltan Kis", company: "Intel",
+                    companyURL: "http://www.intel.com/" },
+          ],
+          inlineCSS:    true,
+          noIDLIn:      true,
+          // extraCSS:     ["../ReSpec.js/css/respec.css"],
+          wg:           "Web NFC Community Group",
+          wgURI:        "https://www.w3.org/community/web-nfc/",
+          wgPublicList: "public-web-nfc",
+          otherLinks: [
+            {
+              key: "Repository",
+              data: [{
+                    value: "We are on Github.",
+                    href: "https://github.com/w3c/web-nfc"
+                }, {
+                    value: "File a bug.",
+                    href: "https://github.com/w3c/web-nfc/issues"
+                }, {
+                    value: "Commit history.",
+                    href: "https://github.com/w3c/web-nfc/commits/gh-pages"
+                }, {
+                    value: "Usage scenarios",
+                    href: "http://w3c.github.io/web-nfc/use-cases.html"
+                }
+              ]
+            },
+          ]
+    };
+  </script>
+</head>
+
+<body>
+
+<!-- - - - - - - - - - - - - - - - Abstract - - - - - - - - - - - - - - - - -->
+<section id="abstract">
+  <p>
+    Near Field Communication (NFC) enables wireless communication between two
+    devices at close proximity, usually less than a few centimeters.
+    NFC is an international standard (ISO/IEC 18092) defining an interface and
+    protocol for simple wireless interconnection of closely coupled devices
+    operating at 13.56 MHz
+    (see <a href="http://www.nfc-forum.org/specs/spec_list/">
+    http://www.nfc-forum.org/specs/spec_list/</a>).
+  </p>
+  <p>
+    This specification defines an API to manage selected NFC use-cases from web
+    pages, and to enable new use-cases based on NFC technology.
+  </p>
+</section>
+
+<!-- - - - - - - - - - - - Status of this document  - - - - - - - - - - - - -->
+<section id="sotd">
+  <p>
+    Implementors need to be aware that this specification is considered unstable.
+    Implementors who are not taking part in the discussions will find the
+    specification changing out from under them in incompatible ways. Vendors
+    interested in implementing this specification before it eventually reaches
+    the Candidate Recommendation phase should subscribe to the repository on
+    GitHub and take part in the discussions.
+  </p>
+  <p>
+    Significant changes to this document since last publication are
+    documented in the <a href="#Changes">Changes section</a>.
+  </p>
+</section>
+
+<!-- - - - - - - - - - - - - - - Conformance  - - - - - - - - - - - - - - - -->
+<section id="conformance">
+  <p>
+    This specification defines conformance criteria that apply to a single
+    product: the <dfn>user agent</dfn> that implements the interfaces
+    it contains.
+  </p>
+  <!-- the following paragraphs are auto-generated -->
+  <!--p>
+    The keywords MUST, MUST NOT, REQUIRED, SHOULD, SHOULD NOT, RECOMMENDED,
+    MAY, and OPTIONAL in this specification are to be interpreted as described
+    in [[RFC2119]].
+  </p>
+  <p>
+    As sections marked as non-normative, all authoring guidelines, diagrams,
+    examples, and notes in this specification are non-normative. Everything else
+    in this specification is normative.
+  </p-->
+  <p>
+    Implementations that use ECMAScript to implement the APIs defined in
+    this specification MUST implement them in a manner consistent with the
+    ECMAScript Bindings defined in the Web IDL specification [[!WEBIDL]], as
+    this specification uses that specification and terminology.
+  </p>
+</section>
+
+<!-- - - - - - - - - - - - - - -  Terminology - - - - - - - - - - - - - - - -->
+<section> <h2>Terminology</h2>
+  <p>
+    The
+    <a href="http://dev.w3.org/html5/spec/webappapis.html#eventhandler">
+    <code><dfn>EventHandler</dfn></code></a> interface represents a callback
+    used for event handlers as defined in [[!HTML5]].
+  </p>
+  <p>
+    The concepts
+    <a href="http://dev.w3.org/html5/spec/webappapis.html#queue-a-task">
+      <dfn>queue a task</dfn></a> and
+    <a href="http://dev.w3.org/html5/spec/webappapis.html#fire-a-simple-event">
+    <dfn>fire a simple event</dfn></a> are defined in [[!HTML5]].
+  </p>
+  <p>
+    The terms
+    <a href="http://dev.w3.org/html5/spec/webappapis.html#event-handlers">
+      <dfn>event handler</dfn></a> and
+    <a href="http://dev.w3.org/html5/spec/webappapis.html#event-handler-event-type">
+    <dfn>event handler event types</dfn></a> are defined in [[!HTML5]].
+  </p>
+  <p>
+    <a href='http://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects'>
+      <code><dfn>Promise</dfn></code></a>, and
+    <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-json.parse">
+      <code><dfn>JSON.parse</dfn></code></a> are defined in [[!ECMASCRIPT]].
+  </p>
+  <p>
+    The algorithms <a href="http://www.w3.org/TR/encoding/#utf-8-encode">
+    <dfn>utf-8 encode</dfn></a>, and
+    <a href="http://www.w3.org/TR/encoding/#utf-8-decode">
+    <dfn>utf-8 decode</dfn></a> are defined in [[!ENCODING]].
+  </p>
+  <p>
+    <a href="http://www.w3.org/TR/dom/#eventinit">
+      <dfn>EventInit</dfn></a>,
+    <a href="http://www.w3.org/TR/dom/#domexception">
+      <dfn>DOMException</dfn></a>,
+    <a href="http://www.w3.org/TR/dom/#aborterror">
+      <dfn>AbortError</dfn></a>,
+    <a href="http://www.w3.org/TR/dom/#syntaxerror">
+      <dfn>SyntaxError</dfn></a>,
+    <a href="http://www.w3.org/TR/dom/#notsupportederror">
+      <dfn>NotSupportedError</dfn></a>,
+    <a href="http://www.w3.org/TR/dom/#notfounderror">
+      <dfn>NotFoundError</dfn></a>, and
+    <a href="http://www.w3.org/TR/dom/#securityerror">
+      <dfn>SecurityError</dfn></a>
+    are defined in [[!DOM4]].
+  </p>
+  <p>
+    The term <dfn>web app</dfn> refers to a Web application, i.e. an application
+    implemented using Web technologies, and executing within the context of a
+    Web <a>user agent</a>, e.g. a Web browser or other Web-based runtime
+    environments.
+  </p>
+  <p>
+    The term <dfn>expressed permission</dfn> refers to an act by the user, e.g.
+    via user interface or host device platform features, via which the user
+    approves the permission of a <a>web app</a> to access the Web NFC API.
+  </p>
+  <p>
+    <code><a href="http://www.w3.org/TR/FileAPI/#blob"><dfn>Blob</dfn></a>
+    </code> is defined in [[!FILEAPI]].
+  </p>
+  <p>
+    <a href="http://heycam.github.io/webidl/#idl-DOMString">
+      <code><dfn>DOMString</dfn></code></a>,
+    <a href="http://heycam.github.io/webidl/#idl-ArrayBuffer">
+      <code><dfn>ArrayBuffer</dfn></code></a>,
+    <a href="http://heycam.github.io/webidl/#common-BufferSource">
+      <code><dfn>BufferSource</dfn></code></a> and
+    <a href="http://www.w3.org/TR/WebIDL/#idl-any">
+      <code><dfn>any</dfn></code></a>
+    are defined in [[!WEBIDL]].
+  </p>
+  <p>
+    <dfn>NFC</dfn> stands for Near Field Communications, short-range wireless
+    technology operating at 13.56 MHz which enables communication between
+    devices at a distance less than 10 cm. The NFC communications protocols and
+    data exchange formats, and are based on existing radio-frequency
+    identification (RFID) standards, including ISO/IEC 14443 and FeliCa.
+    The NFC standards include ISO/IEC 18092[5] and those defined by the NFC
+    Forum. See http://www.nfc-forum.org/specs/spec_list/ for a complete listing.
+  </p>
+  <p>
+    An <dfn>NFC adapter</dfn> is the software entity in the underlying
+    platform which provides access to NFC functionality implemented in a
+    given hardware element (NFC chip). A device may contain multiple NFC
+    adapters.
+  </p>
+  <p>
+    An <dfn>NFC tag</dfn> is a passive, unpowered NFC device.
+    The <a>NFC tag</a> is powered by magnetic induction when an active NFC
+    device is in proximity range. A <a>NFC tag</a> contains a single
+    <a>NDEF message</a>.
+    <p class="note">
+      The way of reading the message may happen through proprietary
+      technologies, which require the reader and the tag to be of the same
+      manufacturer. Implementations are expected to encapsulate this.
+    </p>
+  </p>
+  <p>
+    An <dfn>NFC peer</dfn> is another device, which can interact with other
+    devices in order to exchange data using NFC.
+  </p>
+  <p>
+    An <dfn>NDEF message</dfn> encapsulates one or more application-defined
+    <a>NDEF record</a>s. <dfn>NDEF</dfn> stands for NFC Forum Data Exchange
+    Format, a lightweight binary message format. NDEF messages can be stored on
+    a <a>NFC tag</a> or exchanged between NFC-enabled devices.
+  </p>
+  <p>
+    An <dfn>NDEF record</dfn> has a maximum payload of 2^32-1 bytes. The record
+    also contains information about the payload size, type, and an optional
+    identifier. NFC Forum standardized a small set of useful data types to be
+    used in <a>NDEF record</a>s, for instance text, URL, media. In addition,
+    there are record types designed for more complex interactions, such as
+    Smart Poster, and handover records.
+  </p>
+  <p>
+    Part of the <a>NDEF record</a> is the <dfn>TNF</dfn> field, standing for
+    Type Name Format. It can take binary values representing the following
+    types:
+    <table class="simple" border="1">
+      <tr>
+        <th><strong>TNF value</strong></th>
+        <th><strong>NDEF record type</strong></th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td><dfn>Empty</dfn></td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>NFC Forum <dfn>Well-Known Type</dfn>
+        </td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><dfn>Media Type</dfn></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><dfn>Absolute URI</dfn></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>NFC Forum <dfn>External Type</dfn></td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><dfn>Unknown</dfn></td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><dfn>Unchanged</dfn></td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td><dfn>Reserved</dfn></td>
+      </tr>
+    </table>
+    <br>
+    NFC Forum <a>Well-Known Type</a> includes record types <i>text</i>,
+    <i>URI</i>, <i>Smart Poster</i> (containing a URI or other
+    data and possible actions).
+  </p>
+  <p>An <dfn>NFC handover</dfn> defines NFC Forum Well Known Types and the
+    corresponding message structure that allows negotiation and activation of
+    an alternative communication carrier, such as Bluetooth or WiFi.
+    The negotiated communication carrier would then be used (separately) to
+    perform certain activities between the two devices, such as sending photos
+    to the other device, printing to a Bluetooth printer or streaming video to
+    a television set.
+  </p>
+  <p>
+    The term <dfn>sufficient permission</dfn> in this document means that a
+    <a>web app</a> which is invoking the methods of this API has been checked to
+    comply with the security policies set by the underlying platform and API
+    implementation in the moment and context of invoking the API method.
+  </p>
+  <p>
+    The term
+    <a href="http://www.w3.org/TR/2011/WD-html5-20110113/urls.html#document-base-url">
+    <dfn>document base URL</dfn></a> is defined in [[!HTML5]].
+  </p>
+  <p>
+    The term <dfn>URL scope</dfn> is introduced in this document for NFC
+    operations as a sub-domain match to the <a>web app</a>'s
+    document URL, which includes the domain of the calling <a>web app</a>.
+    The URL scope is stored in the <var>identifier</var> field of an
+    <a>NDEF record</a>.
+  </p>
+</section> <!-- Terminology -->
+
+<!-- - - - - - - - - - - - - - -  Introduction  - - - - - - - - - - - - - - -->
+<section class="informative"> <h2>Introduction</h2>
+  <p>
+    There are three groups of user scenarios for NFC:
+    <ul>
+      <li>
+        Hold a device close to a passive wireless tag (which could be in the
+        form of a plastic card) to read and write or overwrite data (in the
+        case the tag is not read-only).
+      </li>
+      <li>
+        Hold two powered devices, e.g. phones or tablets, close to each other
+        in order to push data from one to the other, or to initiate a connection
+        using another wireless carrier such as Bluetooth or WiFi.
+      </li>
+      <li>Card emulation
+       <ol>
+        <li>
+          With a secure element: for payments by holding your phone close to a
+          point-of-sales terminal, instead of swiping a payment card.
+        </li>
+        <li>With host card emulation: for allowing use-cases like using a phone
+          as a hotel room key card.
+        </li>
+       </ol>
+      </li>
+    </ul>
+  </p>
+  <p>
+    NFC works using magnetic induction, meaning that the reader will emit a
+    small electric charge which then creates a magnetic field. This field powers
+    the passive device which turns it in to electrical impulses to communicate
+    data. Thus, when the devices are within range, a read is always performed
+    (see NFC Analog Specification and NFC Digital Protocol, NFC Forum, 2006).
+    The peer-to-peer connection works in a similar way, as the device
+    periodically switches into a so-called initiator mode in order to scan for
+    targets, for then to fall back into target mode. If a target is found, the
+    data is read the same way as for tags.
+  </p>
+  <p>
+    As <a>NFC</a> is based on existing RFID standards, many NFC chipsets support
+    reading legacy RFIDs tags, but many of these are only supported by single
+    vendors and not part of the NFC standards. Though certain devices support
+    reading and writing to these, it is not a goal of this specification to
+    support proprietary tags or support interoperability with legacy systems.
+  </p>
+  <p>
+    The NFC Forum has mandated the support of four different tag types to be
+    operable with NFC devices. The same is required on operating systems such as
+    Android.
+    <ol>
+      <li>
+        <b>NFC Forum Type 1</b>: This tag is based on the ISO/IEC 14443-3A
+        (also known as NFC-A,  as defined in ISO/IEC 14443-3:2011, Part 3:
+        Initialization and anticollision). The tags are rewritable and can be
+        configured to become read-only. Memory size can be between 96 bytes and
+        2 Kbytes. Communication speed is 106 kbit/sec.
+      </li>
+      <li><b>NFC Forum Type 2</b>: This tag is also based on the
+        ISO/IEC 14443-3A (NFC-A). The tags are rewritable and can be configured
+        to become read-only. Memory size can be between 48 bytes and 2 Kbytes.
+        Communication speed is 106 kbit/sec. In contrast to Type 1, Type 2 has
+        anti-collision protection for dealing with multiple tags within the NFC
+        field.
+      </li>
+      <li><b>NFC Forum Type 3</b>: This tag is based on the Japanese Industrial
+        Standard (JIS) X 6319-4, commonly known as FeliCa. The tags are
+        preconfigured to be either rewritable or read-only. Memory availability
+        is variable, theoretical memory limit is 1MByte per service.
+        Communication speed is 106 kbit/sec.  Like Type 2, it supports
+        anti-collision protection.
+      </li>
+      <li><b>NFC Forum Type 4</b> (November 2010): This tag is based on the
+        ISO/IEC 14443 like Type 1 and 2, but it support either NFC-A or NFC-B
+        for communication. On top of that the tag may support the Data Exchange
+        Protocol (aka ISO-DEP) defined in ISO/IEC 14443 (ISO/IEC 14443-4:2008
+        Part 4: Transmission protocol). Like Type 3, the tags are preconfigured
+        to be either rewritable or read-only. Variable memory, up to 32 KB per
+        service. Supports three different communication speeds 106 or 212 or
+        424 Kbits/s.
+      </li>
+    </ol>
+  </p>
+  <p>
+    In addition to data types standardized for <a>NDEF record</a>s by the NFC
+    Forum, many commercial products, e.g. bus cards, door openers etc, use
+    different card specific data and protocol extensions which require specific
+    NFC chips (same vendor of card and reader) in order to work.
+  </p>
+  <p>
+    Card emulation mode capabilities also depend on the NFC chip in the device.
+    For payments, a Secure Element is often needed.
+  </p>
+  <section class="informative"> <h3>Use Cases</h3>
+    <p>
+      A few Web NFC user scenarios are described in
+      <a href="http://w3c.github.io/web-nfc/use-cases.html">this</a> document.
+      These user scenarios can be grouped along
+      criteria based on security, privacy and feature categories, resulting in
+      generic flows as follows.
+    </p>
+    <section> <h3>Reading <a>NFC tag</a>s</h3>
+      <ol>
+        <li>
+          Reading arbitrary tags when no web site is open:
+          when the user touches a device to an <a>NFC tag</a> when no web site
+          is currently open, the <a>user agent</a> can open a website to handle
+          that tag. If multiple websites can handle the tag, a choice is
+          presented to the user to pick the preferred web site for handling the
+          tag.
+          Web sites have a programmatic means to tell the <a>user agent</a>
+          they are able and interested to handle <a>NFC tag</a>s of certain
+          type.
+        </li>
+        <li>
+          Reading arbitrary tags when a website is currently open:
+          if the user has a website open and that website has indicated that
+          it's able to read a set of tags, it might be fine to allow that
+          website to read a readonly tag that the user taps without presenting
+          any permission or security dialog to the user.
+        </li>
+        <li>
+          Reading "Web NFC" tags: if there is a mechanism which <a>NFC tag</a>s
+          use to indicate which website that they can be read by, the user can
+          tap on the tag and we can open the web site automatically. There is
+          no need for the user to have visited the web site first or to have
+          the website open, and the <a>user agent</a> is not required to display
+          a dialogue asking the user which website to use.
+        </li>
+      </ol>
+    </section>
+    <section> <h3>Writing <a>NFC tag</a>s</h3>
+      <ol>
+        <li>
+          Writing to arbitrary writable tags: the user opens a web page which
+          can write an <a>NFC tag</a>. This use case should be restricted or
+          de-scoped for security and privacy reasons.
+        </li>
+        <li>
+          Writing to "Web NFC" tags: if a tag indicates that it is connected to
+          a given website, then <a>user agent</a>s may allow that web site to
+          write to the tag without any special security dialogs.
+        </li>
+      </ol>
+    </section>
+    <section> <h3>Sending data to <a>NFC peer</a>s</h3>
+      <p>
+        In general, sending data to another Web NFC capable device requires that
+        on the initiating device the user would first have to navigate to a web
+        site. The user would then touch the device against another Web NFC
+        equipped device, and data transfer would occur. On the receiving device
+        the <a>user agent</a> will dispatch the content to a web site registered
+        to handle the content and in case of multiple such web sites, the one
+        chosen by the second user.
+      </p>
+    </section>
+    <section> <h3>Handover to another wireless connection type</h3>
+      <p>
+        NFC supports handover protocols to Bluetooth or WiFi connectivity for
+        the purpose of larger volume data transfer. The user touches another
+        NFC capable device, and as a result configuration data is sent for a
+        new Bluetooth or WiFi connection, which is then established between the
+        devices.
+      </p>
+    </section>
+    <section> <h3>Payment scenarios</h3>
+      <p>
+        The user buys goods in a store, and payments options include NFC.
+        In general, touching the device to the point of sales terminal receiver
+        area will result in a transaction between the secure element from the
+        device and the point of sales terminal. With the Web NFC API, if the
+        user navigates to a web site before paying, there may be interaction
+        with that site regarding the payment, e.g. the user could get points and
+        discounts, or get delivered application or service specific data (e.g.
+        tickets, keys, etc) to the device.
+      </p>
+    </section>
+  </section> <!-- Use Cases -->
+
+  <section> <h3>Features</h3>
+    <p>High level features for the Web NFC specification include the following:
+      <ol>
+        <li>Support devices with single or multiple NFC adapters.</li>
+        <li>Support communication with active (powered devices such as readers,
+          phones) and passive (smart cards, tags, etc) devices.</li>
+        <li>Allow users to act on (e.g. read, write or transceive) discovered
+          NFC devices (passive and active) as well as access the NDEF records
+          which were read in the process.</li>
+        <li>Allow the user to write a payload via NDEF records to compatible
+          devices, such as writeable tags, when they come in range.</li>
+        <li>[future] Allow manual connection for various technologies such as
+          NFC-A and NFC-F depending on secondary device.</li>
+        <li>[future] Allow <a>NFC handover</a> to Bluetooth or WiFi.</li>
+        <li>[future] Allow card emulation with secure element or host card
+          emulation.
+        </li>
+      </ol>
+    </p>
+    <p>
+      NFC is usually deeply integrated into device platforms (e.g. Android,
+      Windows, etc), because end-to-end user experience implications (e.g.
+      users need to be presented platform specific dialogs for selecting
+      applications and actions). Also, privacy and security related issues
+      require platform specific solutions.
+    </p>
+    <p>
+      The various integrated technologies, wide variety of use cases, and
+      platform integration issues make standardization of NFC for the web a
+      challenge.
+      Therefore this specification makes a few simplifications in what use cases
+      and data types are possible to handle by users of this API:
+      <ul>
+        <li>Expose data types already known to web browsers as MIME types.</li>
+        <li>Use the web security model.</li>
+        <li>Implementations encapsulate <a>NDEF record</a> handling and the API
+          exposes only data and control events.
+        </li>
+      </ul>
+    </p>
+  </section> <!-- Features-->
+
+  <section> <h3>Technical requirements</h3>
+    <p>The following high level technical requirements result from the
+      enumerated use cases and high level features:
+      <ol>
+        <li>Enumerate NFC adapters.</li>
+        <li>Set up watchers to read for a given scope (a default scope being
+          set by implementations to the origin of the page).</li>
+        <li>Provide event for read completed as NDEF records from tag or peer
+          device. Expose payload as MIME type. Eventually expose binary content
+          of NDEF records.</li>
+        <li>Set a predefined payload, or full binary NDEF records that the user
+          can push to another device when within range. Provide event for
+          completed push.
+        </li>
+        <li>[future] Manage manual connections for various NFC technologies.
+          Provide proximity events when tags and peers appear and disappears
+        </li>
+        <li>[future] Set up the card content to be read by other devices for
+          Host Card Emulation.
+        </li>
+        <li>[future] Configure a predefined handover to Bluetooth or WiFi.</li>
+      </ol>
+    </p>
+  </section> <!-- Technical requirements -->
+
+  <!-- - - - - - - - - - - - - Data types and content - - - - - - - - - - - - -->
+  <section> <h3>Mapping data types to NDEF messages</h3>
+    <p> The following types can be used when writing <a>NFC tag</a>s, sending
+      data to <a>NFC peer</a>s, and when reading <a>NDEF message</a>s.
+    </p>
+    <dl class="idl"
+        title = "typedef NdefData = DOMString or URL or Blob or JSON">
+    </dl>
+    <p>
+      <code>NdefData</code> denotes the data types
+      supported as <a>NDEF record</a> payload in read and write operations in
+      this API.
+    </p>
+    <p>
+      The mapping from supported <code><dfn>NdefData</dfn></code> to
+      <a>NDEF record</a> types is as follows:
+    </p>
+    <table class="simple" border="1">
+      <tr>
+        <th>NdefData</th>
+        <th>NDEF record type</th>
+      </tr>
+      <tr>
+        <td><strong>DOMString</strong></td>
+        <td>NFC Forum Well Known Type (<a>TNF</a>=1) with type <i>Text</i></td>
+      </tr>
+      <tr>
+        <td><strong>URL</strong></td>
+        <td><ul>
+          <li>NFC Forum Well Known Type (<a>TNF</a>=1) with type <i>URI</i></li>
+          <li>NFC Forum Well Known Type (<a>TNF</a>=1) with type
+            <i>Smart Poster</i>
+          </li>
+          <li>Absolute URI as defined in RFC 3986 (<a>TNF</a>=3)</li>
+        </ul></td>
+      </tr>
+      <tr>
+        <td><strong>JSON</strong></td>
+        <td>Media-type as defined in RFC 2046 (<a>TNF</a>=2) with associated
+          <i>MIME type</i> <code>"application/webnfc+json"</code>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Blob</strong></td>
+        <td>
+          <ul>
+            <li>Media-type as defined in RFC 2046 (<a>TNF</a>=2)</li>
+            <li>NFC Forum External Type (<a>TNF</a>=4)</li>
+            <li>Unknown (<a>TNF</a>=5)</li>
+            <li>Any <a>NDEF record</a> type that is not covered by DOMString,
+              URL and JSON types.
+            </li>
+          </ul>
+        </td>
+      </tr>
+    </table>
+  </section> <!-- Data types and content -->
+</section> <!-- Introduction -->
+
+
+<!-- - - - - - - - - - - - - - - Usage Examples - - - - - - - - - - - - - - -->
+<section class="informative"> <h2>Examples</h2>
+  <p>
+    This section shows how developers can make use of the various features of
+    this specification.
+  </p>
+  <pre title="Read and write tag" class="example highlight">
+    navigator.nfc.findAdapters().then(function(adapters) {
+      var adapter = adapters[0];
+      var scope = "example.com/tag/updater";
+
+      adapter.onread = (msg) => {
+        var timesRead = (msg.data.length > 0) ? msg.data[0].json().timesRead : 0;
+        if (msg.writeable)
+          adapter.write([{ timesRead: (timesRead + 1) % 1000 }], scope);
+        else
+          console.log("Read-only tag; value = " + timesRead);
+      };
+
+      var watchOptions = {
+          scope: scope,
+          watchType: "tag-only"
+      };
+      adapter.watch(watchOptions).then(function() {
+          console.log("We are now watching tags via NFC");
+        });
+    }).catch(function(err) {
+      console.log("No NFC adapters found");
+    });
+  </pre>
+  <pre title="Save and restore game progress with another device"
+       class="example highlight">
+    navigator.nfc.findAdapters().then(function(adapters) {
+      var adapter = adapters[0];
+      var scope = "/example.com/mygame";
+
+      adapter.onread = (event) => {
+        console.log("Game state received from: " + event.scope);
+        console.log("Game state: " + event.data.json());
+      };
+
+      adapter.onpush = (event) => {  // update values
+        console.log("Successfully pushed a message to: " + event.scope);
+        updateGameState();
+      }
+
+      // fetch game state and update push message
+      function updateGameState() {
+        var msg =  [ { level: 3, points: 4500, lives: 3 } ];
+        adapter.setPushMessage(msg, scope).then(function() {
+          console.log("Game state updated for push");
+        });
+      };
+
+      var withOptions = {
+          scope: scope,
+          watchType: "peer-only"
+      };
+      adapter.watch(withOptions).then(function() {
+        console.log("We are now watching game progress via NFC");
+      });
+    });
+  </pre>
+</section> <!-- Usage examples -->
+
+
+<!-- - - - - - - - - - - - - Security and Privacy - - - - - - - - - - - - - -->
+<section> <h2>Security and Privacy Considerations</h2>
+  <p>
+    <a title="user agent">User agents</a> MUST NOT provide Web NFC API access
+    to <a>web app</a>s without the
+    <a>expressed permission</a> of the user. User agents must acquire consent
+    for permission through a user interface for each call to the methods of this
+    API, unless a prearranged trust relationship applies.
+  </p>
+  <p>
+    User agents may support prearranged trust relationships that do not require
+    such per-request user interfaces.
+  </p>
+  <p class="note">
+    Considering adding the following:
+    User agents MUST implement the WebNFC API to be HTTPS-only. SSL-only support
+    provides better protection for the user against man-in-the-middle attacks
+    intended to obtain push registration data. Browsers may ignore this rule
+    for development purposes only.
+  </p>
+  <p>
+    Permissions that are preserved beyond the current browsing session must be
+    revocable.
+  </p>
+</section> <!-- Security and Privacy  -->
+
+<!-- - - - - - - - - - - Extended interface Navigator - - - - - - - - - - - -->
+<section> <h2>Extensions to the <strong>Navigator</strong> interface</h2>
+  <p>
+    The HTML specification defines a
+    <a href="http://www.whatwg.org/specs/web-apps/current-work/#dom-navigator">
+    <code>Navigator</code></a> interface [HTML] which this specification
+    extends.
+  </p>
+  <dl title="partial interface Navigator" class="idl">
+    <dt>readonly attribute NFC nfc</dt>
+  </dl>
+  <!-- - - - - - - - - - - - nfc attribute  - - - - - - - - - - - -->
+  <section> <h3>The <strong>nfc</strong> attribute</h3>
+  <p>
+    When getting the <dfn id="widl-Navigator-nfc">nfc</dfn> attribute, the
+    <a>user agent</a> MUST return the <a>NFC</a> object, which provides
+    NFC related functionality.
+  </p>
+  </section> <!-- nfc attribute -->
+</section> <!-- Navigator -->
+
+<section> <h2>The <strong>NFC</strong> interface</h2>
+  <dl title="interface NFC" class="idl">
+    <dt>Promise&lt;sequence&lt;NfcAdapter&gt;&gt; findAdapters()</dt>
+  </dl>
+  <p>
+    Implementations might expose multiple NFC adapters. By using the
+    <dfn id="widl-NFC-findAdapters-Promise-sequence-NfcAdapter">
+    findAdapters</dfn>() method, <a>web app</a>s can obtain adapter objects
+    providing NFC functionality,
+    in a similar way to that of service worker extensions [[SERVICE-WORKERS]].
+    When this method is invoked, the <a>user agent</a> MUST run the following
+    steps:
+    <ol id="steps-findAdapters">
+      <li>Let <var>promise</var> be a new <a><code>Promise</code></a> object.
+      </li>
+      <li>
+        Return <var>promise</var> and continue the following steps
+        asynchronously.
+      </li>
+      <li>
+        If there are no <a>sufficient permission</a>s to use this method,
+        that is, to use NFC technology from the calling <a>web app</a>,
+        then reject <var>promise</var> with a new
+        <code><a>DOMException</a></code> object whose <var>name</var> property
+        is set to <code>"<a>SecurityError</a>"</code>, and terminate these
+        steps.
+      </li>
+      <li>
+        If there is no support for <a>NFC adapter</a> handling functionality in
+        hardware, software, or due to physical incompatibility,
+        then reject <var>promise</var> with a new
+        <code><a>DOMException</a></code> object whose <var>name</var> property
+        is set to <code>"<a>NotSupportedError</a>"</code>, and terminate
+        these steps.
+      </li>
+      <li>
+        Make a request to the underlying platform to initialize NFC
+        functionality and enumerate available adapters. If the request fails,
+        then reject <var>promise</var> with a new
+        <code><a>DOMException</a></code> object whose <var>name</var>
+        property is set to <code>"<a>NotSupportedError</a>"</code>,
+        and terminate these steps.
+      </li>
+      <li>
+        If the request is successful, then resolve <var>promise</var> with an
+        array of <code><a>NfcAdapter</a></code> objects. Implementations SHOULD
+        maintain a default adapter, which SHOULD be exposed as the first
+        element in the returned array.
+      </li>
+    </ol>
+  </p>
+</section> <!-- NFC interface -->
+
+<section> <h2>The <strong>NfcAdapter</strong> interface</h2>
+  <dl title="interface NfcAdapter : EventHandler" class="idl">
+    <dt>attribute EventHandler onread</dt>
+    <!--dt>attribute EventHandler onbeforepush</dt-->
+    <dt>attribute EventHandler onpush</dt>
+    <dt>Promise&lt;long&gt; watch(WatchOptions? options)</dt>
+    <dt>Promise&lt;void&gt; clearWatch(optional long id)</dt>
+    <dt>Promise&lt;void&gt; write((NdefData[] data, optional USVString scope)</dt>
+    <dt>Promise&lt;void&gt; setPushMessage((NdefData[] data, optional USVString scope)</dt>
+    <dt>Promise&lt;void&gt; clearPushMessage(optional USVString scope)</dt>
+  </dl>
+  <p>
+    The <code>NfcAdapter</code> interface handles incoming <a>NDEF message</a>s,
+    exposed by the <code><a>NdefReadEvent</a></code> event, both from
+    <a>NFC tag</a>s and <a>NFC peer</a>s. By default, listening to this event
+    SHOULD be disabled. Applications can subscribe to <a>NDEF message</a>s
+    originating from a given <a>URL scope</a> by using the <code>watch()</code>
+    method. Applications can write to an <a>NFC tag</a>, and set up push
+    messages to <a>NFC peer</a>s.
+  </p>
+
+  <!-- Events -->
+  <section> <h3>Events used with the <strong>NfcAdapter</strong> interface</h3>
+  <p>
+    The following are the event handlers implemented by the
+    <code><a>NfcAdapter</a></code> interface.
+  </p>
+  <table class="simple">
+    <tr>
+      <th>event handler</th>
+      <th>event name   </th>
+      <th>event type   </th>
+    </tr>
+    <tr>
+      <td><code><dfn id="widl-NfcAdapter-onread">onread</dfn></code></td>
+      <td><code>read</code></td>
+      <td><code><a>NdefReadEvent</a></code></td>
+    </tr>
+    <!--tr>
+      <td>
+        <code><dfn id="widl-NfcAdapter-onbeforepush">onbeforepush</dfn></code>
+      </td>
+      <td><code>beforepush</code></td>
+      <td><code>Event</code></td>
+    </tr-->
+    <tr>
+      <td><code><dfn id="widl-NfcAdapter-onpush">onpush</dfn></code></td>
+      <td><code>push</code></td>
+      <td><code><a>NdefPushEvent</a></code></td>
+    </tr>
+  </table>
+
+  <section> <h3>The <strong>read</strong> event</h3>
+  <p>
+    The <code>read</code> event is used for notifying the adapter
+    object about a message dispatched to the <a>web app</a> via NFC.
+  </p>
+  </section>
+
+  <section> <h3>The <strong>push</strong> event</h3>
+  <p>
+    As messages are not automatically pushed to peers when they detect each
+    other, but most often requires some kind of user interaction, the
+    <code>push</code> event is used for notifying the adapter object about a
+    message successfully pushed to an <a>NFC peer</a> with a matching
+    <a>URL scope</a> in range via NFC.
+</p>
+  </section>
+
+  <!--section> <h3>The <strong>beforepush</strong> event</h3>
+  <p>
+    The <code>beforepush</code> event is used for notifying the <a>web app</a>
+    about an <a>NFC peer</a> in range to which the preconfigured push message
+    can be delivered via NFC. By nature, this is asynhronous and non-blocking,
+    so there is no guarantee that the event handler will be executed before the
+    touch event triggering pushing the actual message. But this could be used
+    by applications to update the push message for the next touch event, and
+    could instruct users to touch again, if needed.
+  </p>
+  </section-->
+
+  <!-- NdefPushEvent -->
+  <section> <h3>The <strong>NdefPushEvent</strong> interface</h3>
+  <dl title="interface NdefPushEvent : Event" class="idl">
+    <dt>readonly attribute USVString scope</dt>
+    <dt>ArrayBuffer readAsMessageBuffer()</dt>
+  </dl>
+  <p>
+    The <code><dfn id="widl-NdefPushEvent-scope">scope</dfn></code> property
+    represents the <a>URL scope</a> of the <a>NDEF message</a>.
+  </p>
+  <p>
+    When the <code><dfn id="widl-NdefPushEvent-readAsMessageBuffer">
+    readAsMessageBuffer</dfn></code> method is invoked, the
+    <a>user agent</a> MUST run the following steps:
+    <ol id="steps-readAsMessageBuffer">
+      <li>
+        Let <var>arrayBuffer</var> be a new <a><code>ArrayBuffer</code></a>
+        object.
+      </li>
+      <li>
+        Read the content of the full <a>NDEF message</a> raw binary data and
+        copy it to <var>arrayBuffer</var>.
+      </li>
+      <li>
+        Return <var>arrayBuffer</var>.
+      </li>
+    </ol>
+  </p>
+  </section> <!-- NdefReadEvent -->
+
+  <!-- NdefReadEvent -->
+  <section> <h3>The <strong>NdefReadEvent</strong> interface</h3>
+  <p>
+    In this specification, <a>NDEF message</a> content is delivered by an
+    <a>NdefReadEvent</a> event.
+  </p>
+  <dl title="NdefReadEvent implements NdefPushEvent" class="idl"></dl>
+  <p> The <code>NdefReadEvent</code> has all properties and methods of the
+    <code><a>NdefPushEvent</a></code> interface, and the following additional
+    properties:
+  </p>
+  <dl title="interface NdefReadEvent : Event" class="idl">
+    <dt>readonly attribute boolean passive</dt>
+    <dt>readonly attribute boolean writeable</dt>
+    <dt>readonly attribute NdefRecordData[] data</dt>
+  </dl>
+  <p>
+    The <code><dfn id="widl-NdefReadEvent-passive">passive</dfn></code>
+    property MUST return <code>true</code> if the source of the NFC data is
+    a passive <a>NFC tag</a>, and <code>false</code> otherwise.
+  </p>
+  <p>
+    The <code><dfn id="widl-NdefReadEvent-writeable">writeable</dfn></code>
+    property MUST return <code>true</code> if the source of the NFC data is
+    a passive <a>NFC tag</a> which is writeable, and <code>false</code>
+    otherwise.
+  </p>
+  <p>
+    The <code><dfn id="widl-NdefReadEvent-data">data</dfn></code>
+    property represents the array of <code><a>NdefRecordData</a></code>
+    content corresponding to the array of <a>NDEF record</a>s payload data of
+    the <a>NDEF message</a>.
+  </p>
+  </section> <!-- NdefReadEvent -->
+
+  <!-- NdefRecordData -->
+  <section><h3>The <strong>NdefRecordData</strong> interface</h3>
+    <p>
+      The content of the <a>NDEF message</a> is exposed by the following
+      interface:
+    </p>
+    <dl title="[NoInterfaceObject] interface NdefRecordData" class="idl">
+      <dt>readonly attribute DOMString contentType</dt>
+      <dt>DOMString url ()</dt>
+      <dt>Blob blob ()</dt>
+      <dt>any json ()</dt>
+      <dt>DOMString text ()</dt>
+      <dt>ArrayBuffer arrayBuffer ()</dt>
+    </dl>
+    <p>
+      <a>NdefRecordData</a> objects have associated data read by the NFC chip
+      upon creation.
+    </p>
+    <p>
+      The <code>
+      <dfn id="widl-NdefRecordData-contentType">contentType</dfn></code>
+      attribute describes the type of data such as MIME type and additional
+      information for text messages, e.g.
+      <code>"text/plain;charset=UTF-8;"</code>
+    </p>
+    <p>
+      The <code><dfn id="widl-NdefRecordData-url-DOMString">url()</dfn></code>
+      method, when invoked, MUST return a <a><code>DOMString</code></a>
+      representing any URL stored in the <a>NDEF message</a> or
+      <code>undefined</code>.
+    </p>
+    <p>
+      The <code><dfn id="widl-NdefRecordData-blob-Blob">blob()</dfn></code>
+      method, when invoked, MUST return a <a><code>Blob</code></a> whose
+      contents are <var>bytes</var>.
+    </p>
+    <p>
+      The <code><dfn id="widl-NdefRecordData-json-any">json()</dfn></code>
+      method, when invoked, MUST return the result of invoking the initial
+      value of <a><code>JSON.parse</code></a> with the result of running
+      <a>utf-8 decode</a> on <var>bytes</var> as argument.
+      Re-throw any exceptions thrown by <a><code>JSON.parse</code></a>.
+    </p>
+    <p>
+      The <code><dfn id="widl-PushMessageData-text-DOMString">text()</dfn>
+      </code> method, when invoked, MUST return the result of running
+      <a>utf-8 decode</a> on<var>bytes</var>.
+    </p>
+    <p>
+      The <code><dfn id="widl-NdefRecordData-arrayBuffer-ArrayBuffer">
+      arrayBuffer()</dfn></code> method, when invoked, MUST return an
+      <a><code>ArrayBuffer</code></a> whose contents are <var>bytes</var>.
+    </p>
+  </section> <!-- NdefRecordData interface -->
+  </section> <!-- Events -->
+
+  <!-- watch() method -->
+  <section> <h3>The <strong>watch()</strong> method</h3>
+    <p>
+      The <code>
+      <dfn id="widl-NfcAdapter-watch-Promise-long--WatchOptions-options">
+      watch</dfn>()</code> method enables listening to incoming
+      <a>NDEF message</a>s.
+    </p>
+    <p>
+      As <a>web app</a>s might not be interested in all peer and tag messages,
+      filtering is possible for watched messages:
+      <ol>
+        <li>
+          Messages have an associated identifier represented as a
+          <a>URL scope</a>, which enables filtering based on this scope.
+        </li>
+        <li>
+          Based on content types the <a>web app</a> can or wants to handle.
+        </li>
+        <li>
+          Watch only <a>NFC tag</a>s, only <a>NFC peer</a>s, or both.
+        </li>
+      </ol>
+    </p>
+
+    <p class="note">
+      Future versions may add additional filtering criteria, e.g. based on
+      NFC Forum Tag types (such as Type 1 to 4), and NFC technologies (such as
+      NFC-A, NFC-B, etc).
+    </p>
+    <p>
+      When writing to tags or pushing messages to peers, the
+      <a>document base URL</a> serves as the default scope, though another
+      <a>URL scope</a> can be set with the restriction that it MUST include the
+      document domain (e.g. http://www.w3.org).
+    </p>
+    <p>
+      To describe which messages an application is interested in, the following
+      dictionary is used:
+    </p>
+
+    <section> <h3>The <strong>WatchOptions</strong> dictionary</h3>
+      <dl class="idl" title="enum WatchType">
+        <dt>tag-only</dt>
+        <dd>Only <a>NFC tag</a>s are watched.</dd>
+
+        <dt>peer-only</dt>
+        <dd>Only <a>NFC peer</a>s are watched.</dd>
+
+        <dt>all</dt>
+        <dd>Both <a>NFC tag</a>s and <a>NFC peer</a>s are watched.</dd>
+      </dl>
+
+      <dl title="dictionary WatchOptions" class="idl">
+        <dt>DOMString? scope</dt>
+        <dt>DOMString[] acceptedContentTypes</dt>
+        <dt>WatchType watchType</dt>
+      </dl>
+      <p>
+        The <dfn id="widl-WatchOptions-scope">scope</dfn> property
+        denotes the <a>URL scope</a> for which all messages MUST belong to.
+        If the value is <code>null</code> or <code>undefined</code>,
+        then implementations SHOULD use the <a>web app</a>'s
+        <a>document base URL</a>.
+      </p>
+      <p>
+        The
+        <dfn id="widl-WatchOptions-acceptedContentTypes">
+        acceptedContentTypes</dfn> property denotes the list of MIME types, that
+        the registrations wants to handle.
+      </p>
+      <p>
+        The <dfn id="widl-WatchOptions-watchType">watchType</dfn> property
+        tells whether to watch:
+        <ul>
+          <li>
+            <a>NFC tag</a>s only, denoted by the value
+            <code><dfn id="idl-def-WatchType.tag-only">'tag-only'</dfn></code>.
+          </li>
+          <li>
+            <a>NFC peer</a>s only, denoted by the value
+            <code><dfn id="idl-def-WatchType.peer-only">'peer-only'</dfn></code>.
+          </li>
+          <li>
+            Both <a>NFC tag</a>s and <a>NFC peer</a>, denoted by the value
+            <code><dfn id="idl-def-WatchType.all">'all'</dfn></code>.
+          </li>
+      </p>
+      <pre
+        title="Filter accepting only JSON based messages from http://www.w3.org"
+        class="example highlight">
+      var watchOptions = {
+        scope: "http://www.w3.org",
+        acceptedContentTypes: ["application/manifest+json", "application/json", "text/json"]
+      }
+      </pre>
+      <pre
+        title="Filter which only accept JSON based messages from tags with scope https://01.org/registration for authentication"
+        class="example highlight">
+      var watchOptions = {
+        scope: "https://01.org/registration",
+        acceptedContentTypes: ["application/json"],
+        watchType: 'tag-only'
+      }
+      </pre>
+    </section> <!-- WatchOptions -->
+
+    <!-- within-scope algorithm -->
+    <section> <h3>The <strong><dfn>within-scope</dfn></strong> algorithm</h3>
+      <p>
+        <strong>Inputs</strong>:
+          <ol>
+            <li><var>url</var>, a URL to be checked for being within scope;</li>
+            <li><var>registeredScope</var>, the <a>URL scope</a> to
+              check <var>url</var> against.
+            </li>
+          </ol>
+      </p>
+      <p><strong>Output</strong>: <code>true</code> or <code>false</code></p>
+      <p>
+        When filtering <a>NDEF message</a>s with identifiers associated with
+        <var>url</var>, based on <a>URL scope</a>, run the following steps
+        atomically.
+        <ol>
+          <li>
+            If <var>registeredScope</var> is <code>undefined</code>, then let
+            <var>scope</var> be the calling <a>web app</a>'s
+            <a>document base URL</a>.
+          </li>
+          <li>
+            Otherwise let <var>scope</var> be <var>registeredScope</var>.
+          </li>
+          <li>
+            If <var>url</var> is a sub-domain of <var>scope</var>,
+            and <var>scope</var> ends with <code>"/*"</code>, then
+            return <code>true</code>.
+          </li>
+          <li>
+            If <var>url</var> is an exact match of <var>scope</var>,
+            return <code>true</code>.
+          </li>
+          <li>
+            Otherwise return <code>false</code>.
+          </li>
+        </ol>
+      </p>
+    </section> <!-- within-scope algorithm -->
+
+    <p>
+      When the <code>
+      <a id="widl-NfcAdapter-watch-Promise-WatchOptions-options">
+      watch</a>()</code> method is invoked, the <a>user agent</a> MUST run
+      the following steps:
+      <ol id="steps-watch">
+        <li>Let <var>promise</var> be a new <a><code>Promise</code></a> object.
+        </li>
+        <li>
+          Return <var>promise</var> and continue the following steps
+          asynchronously.
+        </li>
+        <li>
+          If there are no sufficient permissions to use this method,
+          then reject <var>promise</var> with a new
+          <code><a>DOMException</a></code> object whose <var>name</var> property
+          is set to <code>"<a>SecurityError</a>"</code>,
+          and terminate these steps.
+        </li>
+        <li>
+          Parse the argument <var>options</var>. If it is invalid in the given
+          platform, then reject <var>promise</var> with a new
+          <code><a>DOMException</a></code> object whose <var>name</var> property
+          is set to <code>"<a>SyntaxError</a>"</code>, and terminate these steps.
+        </li>
+        <li>
+          Make a request to the underlying platform to listen to
+          <a>NDEF message</a>s, and set up <a>within-scope</a> filtering for
+          <var>options.scope</var>, and also set up filtering for accepted
+          content types, as described by the
+          <var>options.acceptedContentTypes</var> parameter.
+        </li>
+        <li>
+          As a consequence, fire <code>read</code> events only for
+          messages, whose <a>URL scope</a> is <a>within-scope</a> for any of the
+          elements of the list of <a>URL scope</a>s registered during successive
+          calls of the <code>watch()</code> method,
+          and for which the content type matches the list of accepted content
+          types.
+        </li>
+        <li>
+          If the request fails, then reject <var>promise</var> with a new
+          <code><a>DOMException</a></code> object whose <var>name</var> property
+          is set to <code>"NotSupportedError"</code> , and terminate these steps.
+        </li>
+        <li>
+          If the request is successful, then resolve <var>promise</var> with an
+          identifier for the listener, which later can be used with the
+          <code>clearWatch()</code> method to remove the listener.
+        </li>
+        <li>
+          Whenever the <a>user agent</a> detects an <a>NFC tag</a> or
+          <a>NFC peer</a> data that matches the filtering options set by the
+          watcher, <a>queue a task</a> to fire an <code>"read"</code> event at
+          the adapter object.
+        </li>
+      </ol>
+    </p>
+  </section> <!-- watch() method -->
+
+  <!-- The clearWatch() method -->
+  <section><h3>The <strong>clearWatch</strong>() method</h3>
+    <p>
+      When the <code><dfn id="widl-NfcAdapter-clearWatch-Promise-void--long-id">
+      clearWatch</dfn>()</code> method is invoked, the <a>user agent</a>
+      MUST run the following steps:
+      <ol id="steps-clearWatch">
+        <li>Let <var>promise</var> be a new <a><code>Promise</code></a> object.
+        </li>
+        <li>
+          Return <var>promise</var> and continue the following steps
+          asynchronously.
+        </li>
+        <li>
+          If there are no sufficient permissions to use this method,
+          then reject <var>promise</var> with a new
+          <code><a>DOMException</a></code> object whose <var>name</var> property
+          is set to <code>"<a>SecurityError</a>"</code>,
+          and terminate these steps.
+        </li>
+        <li>
+          If the parameter <var>id</var> is <code>undefined</code>, then make
+          a request to the underlying platform to remove all listeners and
+          filters set by successive calls of the <code><a>watch</a>()</code>
+          method.
+        </li>
+        <li>
+          Otherwise, make a request to the underlying platform to remove the
+          listener corresponding to the value of <var>id</var>.
+        </li>
+        <li>
+          If the request fails, then reject <var>promise</var> with a new
+          <code><a>DOMException</a></code> object whose <var>name</var> property
+          is set to <code>"NotSupportedError"</code>, and terminate these steps.
+        </li>
+        <li>
+          If the request is successful, then resolve <var>promise</var>.
+        </li>
+      </ol>
+    </p>
+  </section> <!-- clearWatch() -->
+
+
+  <!-- The write() method -->
+  <section><h3>The <strong>write</strong>() method</h3>
+    <p>
+      The <code><dfn id="widl-NfcAdapter-write-Promise-void--NdefDataArray-data-USVString-scope">
+      write</dfn>()</code> method is used for writing an <a>NFC tag</a>, if
+      possible. When this method is invoked, the <a>user agent</a> MUST run the
+      following steps:
+      <ol id="steps-write">
+        <li>
+          Let <var>promise</var> be a new <a><code>Promise</code></a> object.
+        </li>
+        <li>
+          Return <var>promise</var> and continue the following steps
+          asynchronously.
+        </li>
+        <li>
+          If there are no sufficient permissions to use this method, then reject
+          <var>promise</var> with a new <code><a>DOMException</a></code> object
+          whose <var>name</var> property is set to
+          <code>"<a>SecurityError</a>"</code>, and terminate these steps.
+        </li>
+        <li>
+          If there is no support for the functionality of writing an
+          <a>NFC tag</a> in proximity range, then reject <var>promise</var> with
+          a new <code><a>DOMException </a></code> object whose <var>name</var>
+          property is set to <code>"<a>NotSupportedError</a>"</code>, and
+          terminate these steps.
+        </li>
+        <li>
+          Parse the argument <var>scope</var>. If it is invalid in the given
+          platform, then reject <var>promise</var> with a new
+          <code><a>DOMException</a></code>
+          object whose <var>name</var> property is set
+          to <code>"<a>SyntaxError</a>"</code>, and terminate these steps.
+          If the value is <code>undefined</code>, then attribute to
+          <var>scope</var> the <code>DOMString</code> describing the
+          <a>document base URL</a>.
+        </li>
+        <li>
+          For each element the array argument <var>data</var>, check the type
+          to be one of the types defined in <code><a>NdefData</a></code>.
+          If the value is invalid on the given platform, then reject
+          <var>promise</var> with a new <code><a>DOMException</a></code>
+          object whose <var>name</var> property is set to
+          <code>"<a>SyntaxError</a>"</code>, and terminate these steps.
+          For each valid element create an <a>NDEF record</a>.
+          The implementation choose the best suitable <a>NDEF record</a> format
+          for the given platform.
+          Each element in the input array given in <var>data</var> SHOULD
+          map to a separate <a>NDEF record</a> in the <a>NDEF message</a> to be
+          sent.
+          Assemble an <a>NDEF message</a> from the <a>NDEF record</a>s and
+          referred to as <var>output</var>.
+        </li>
+        <li>
+          Make a request to the underlying platform to write <var>output</var>
+          with the <a>URL scope</a> provided by <var>scope</var>
+          to the <a>NFC tag</a> in proximity range. If the request fails, then
+          reject <var>promise</var> with a new <code><a>DOMException</a></code>
+          object whose <var>name</var> property is set to
+          <code>"NotSupportedError"</code>, and terminate these steps.
+        </li>
+        <li>
+          If the request is successful, then resolve <var>promise</var>.
+        </li>
+      </ol>
+    </p>
+  </section> <!-- write() method -->
+
+  <section><h3>The <strong>setPushMessage()</strong> method</h3>
+    <p>
+      The <code>
+      <dfn id="widl-NfcAdapter-setPushMessage-Promise-void--NdefDataArray-data-USVString-scope">
+      setPushMessage</dfn>()</code> method is used for setting the messages
+      which the user can push to another peer when it gets into proximity range.
+      When this method is invoked, the <a>user agent</a> MUST run the following
+      steps:
+      <ol id="steps-setPushMessage">
+        <li>
+          Let <var>promise</var> be a new <a><code>Promise</code></a> object.
+        </li>
+        <li>
+          Return <var>promise</var> and continue the following steps
+          asynchronously.
+        </li>
+        <li>
+          If there are no sufficient permissions to use this method, then reject
+          <var>promise</var> with a new <code><a>DOMException</a></code> object
+          whose <var>name</var> property is set to
+          <code>"<a>SecurityError</a>"</code>, and terminate these steps.
+        </li>
+        <li>
+          If there is no support for the functionality of sending data to an
+          <a>NFC peer</a> in proximity range, then reject <var>promise</var>
+          with a new <code><a>DOMException </a></code> object whose
+          <var>name</var> property is set to
+          <code>"<a>NotSupportedError</a>"</code>, and terminate these steps.
+        </li>
+        <li>
+          Parse the argument <var>scope</var>. If it is invalid in the given
+          platform, then reject <var>promise</var> with a new
+          <code><a>DOMException</a></code>
+          object whose <var>name</var> property is set
+          to <code>"<a>SyntaxError</a>"</code>, and terminate these steps.
+          If the value is <code>undefined</code>, then attribute to
+          <var>scope</var> the <code>DOMString</code> describing the
+          <a>document base URL</a>.
+        </li>
+        <li>
+          For each element the array argument <var>data</var>, check the type
+          to be one of the types defined in <code><a>NdefData</a></code>.
+          If the value is invalid on the given platform, then reject
+          <var>promise</var> with a new <code><a>DOMException</a></code>
+          object whose <var>name</var> property is set to
+          <code>"<a>SyntaxError</a>"</code>, and terminate these steps.
+          For each valid element create an <a>NDEF record</a>.
+          The implementation choose the best suitable <a>NDEF record</a> format
+          for the given platform.
+          Each element in the input array given in <var>data</var> SHOULD
+          map to a separate <a>NDEF record</a> in the <a>NDEF message</a> to be
+          sent.
+          Assemble an <a>NDEF message</a> from the <a>NDEF record</a>s and
+          referred to as <var>output</var>.
+        </li>
+        <li>
+          Make a request to the underlying platform to send <var>output</var>
+          to the <a>NFC peer</a>s in proximity range. If the request fails, then
+          reject <var>promise</var> with a new <code><a>DOMException</a></code>
+          object whose <var>name</var> property is set to
+          <code>"NotSupportedError"</code>, and terminate these steps.
+        </li>
+        <li>
+          If the request is successful, then resolve <var>promise</var>.
+        </li>
+      </ol>
+    </p>
+  </section> <!-- setPushMessage() method -->
+
+  <!-- The clearPushMessage() method -->
+  <section><h3>The <strong>clearPushMessage</strong>() method</h3>
+  <p>
+    When the <code>
+    <dfn id="widl-NfcAdapter-clearPushMessage-Promise-void--USVString-scope">
+    clearPushMessage</dfn>()</code> method is invoked, the
+    <a>user agent</a> MUST run the following steps:
+    <ol id="steps-clearPushMessage">
+      <li>Let <var>promise</var> be a new <a><code>Promise</code></a> object.
+      </li>
+      <li>
+        Return <var>promise</var> and continue the following steps
+        asynchronously.
+      </li>
+      <li>
+        If there are no sufficient permissions to use this method,
+        then reject <var>promise</var> with a new
+        <code><a>DOMException</a></code> object whose <var>name</var> property
+        is set to <code>"<a>SecurityError</a>"</code>,
+        and terminate these steps.
+      </li>
+      <li>
+        If the parameter <var>scope</var> is <code>undefined</code>, then make
+        a request to the underlying platform to remove and cancel pushing any
+        previously set messages to <a>NFC peer</a> devices in range or coming
+        into range.
+      </li>
+      <li>
+        Otherwise, make a request to the underlying platform to remove and
+        cancel pushing messages to <a>NFC peer</a> devices in range or coming
+        into range, whose <a>URL scope</a> is <a>within-scope</a> for
+        <var>scope</var>.
+      </li>
+      <li>
+        If the request fails, then reject <var>promise</var> with a new
+        <code><a>DOMException</a></code> object whose <var>name</var> property
+        is set to <code>"NotSupportedError"</code>, and terminate these steps.
+      </li>
+      <li>
+        If the request is successful, then resolve <var>promise</var>.
+      </li>
+    </ol>
+  </p>
+  </section> <!-- clearPushMessage() -->
+</section>
+
+<!-- - - - - - - - - - - - - - -  Changes - - - - - - - - - - - - - - - - - -->
+<section class="appendix" id="Changes"><h2>Changes</h2>
+  <p>
+    The following is a list of substantial changes to the document. For a
+    complete list of changes, see the <a href=
+    "https://github.com/w3c/web-nfc/commits/gh-pages">change log on
+    Github</a>. You can also view the <a href=
+    "https://github.com/w3c/web-nfc/issues?page=1&amp;state=closed">
+    recently closed bugs</a>.
+  </p>
+  <ul>
+    <li>Redesigned the API to follow contemporary web design patterns</li>
+    <li>Change of editors</li>
+  </ul>
+</section>
+
+
+<!-- - - - - - - - - - - - - - - Acknowledgements - - - - - - - - - - - - - -->
+<section> <h2>Acknowledgements</h2>
+  <p>
+    The editors would like to express their gratitude to the former editors
+    Luc Yriarte and Samuel Ortiz, and also to Don Coleman, Salvatore Iovene and
+    Jeffrey Yasskin for their technical guidance, implementation feedback and
+    support.
+  </p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web NFC API Use Cases</title>
+  <meta charset="UTF-8">
+  <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
+          class='remove'>
+  </script>
+  <script class="remove">
+    var respecConfig = {
+          specStatus:           "CG-DRAFT",
+          shortName:            "web-nfc",
+          noLegacyStyle:        true,
+          publishDate:          "",
+          previousPublishDate:  "",
+          previousMaturity:     "",
+          edDraftURI:           "http://w3c.github.io/web-nfc/",
+          crEnd:                "",
+          editors: [
+            { name: "Kenneth Rohde Christiansen", company: "Intel",
+                    companyURL: "http://www.intel.com/" },
+            { name: "Zoltan Kis", company: "Intel",
+                    companyURL: "http://www.intel.com/" },
+          ],
+          inlineCSS:    true,
+          noIDLIn:      true,
+          // extraCSS:     ["../ReSpec.js/css/respec.css"],
+          wg:           "Web NFC Community Group",
+          wgURI:        "https://www.w3.org/community/web-nfc/",
+          wgPublicList: "public-web-nfc",
+          otherLinks: [
+            {
+              key: "Repository",
+              data: [{
+                    value: "We are on Github.",
+                    href: "https://github.com/w3c/web-nfc"
+                }, {
+                    value: "File a bug.",
+                    href: "https://github.com/w3c/web-nfc/issues"
+                }, {
+                    value: "Commit history.",
+                    href: "https://github.com/w3c/web-nfc/commits/gh-pages"
+                }
+              ]
+            },
+          ]
+    };
+  </script>
+</head>
+
+<body>
+
+<!-- - - - - - - - - - - - - - - - Abstract - - - - - - - - - - - - - - - - -->
+<section id="abstract">
+  <p>
+    This document provides a collection of use cases and usage scenarios for
+    web pages and applications using Near Field Communication (NFC).
+    More information about Web NFC can be found
+    <a href="http://w3c.github.io/web-nfc/index.html#abstract">here</a>.
+  </p>
+  <p>
+    This specification defines an API to manage selected NFC use-cases from Web
+    applications and pages, and to enable new use-cases based on NFC technology.
+  </p>
+</section>
+
+<section id="sotd">
+  <p>
+    This document provides informative background to the
+    <a href="http://w3c.github.io/web-nfc/index.html">Web NFC specification</a>.
+    Comments on the document should be filed as issues at
+    <a href="https://github.com/w3c/web-nfc/issues">
+    https://github.com/w3c/web-nfc/issues</a>.
+  </p>
+</section>
+
+<section> <h2>Terminology</h2>
+  <p>
+    For NFC terminology see the
+    <a href="http://w3c.github.io/web-nfc/index.html#terminology">
+    Web NFC specification</a>.
+  </p>
+</section>
+
+<section class="informative"> <h2>Use Cases</h2>
+  <p>
+    A few NFC user scenarios have been enumerated
+    <a href="http://www.w3.org/2009/dap/wiki/Near_field_communications_%28NFC%29#Use_cases_submitted_to_DAP_mailing_list">
+    here</a>. For the Web NFC API in particular, a few examples of intended
+    user scenarios follow next.
+  </p>
+  <section> <h3>Reading generic information in a museum</h3>
+    <p>
+      The user touches an NFC capable device to information points of works of
+      arts in a museum, obtaining information about the exposed items. Also,
+      by touching information points in halls, the user can get suggested
+      itineraries, schedule and other information to the personal device for
+      later consultation.
+    </p>
+  </section>
+  <section> <h3>Reading information in administration office</h3>
+    <p>
+      In a population administration office, the user touches in information
+      point in order to save a list of documents required for renewing a
+      passport, and obtaining a the next queuing number for the clerk.
+    </p>
+  </section>
+  <section> <h3>Updating tag information</h3>
+    <p>
+      A museum employee touches information points with a special device which
+      can write to the museum's NFC tags in order to update (read, then write)
+      information on them.
+    </p>
+  </section>
+  <section> <h3>Sending image to another Web NFC capable device</h3>
+    <p>
+      While a user is actively interacting with web site, e.g.
+      https://images.example.com/, and if the user taps the device with
+      another device where another user is actively interacting with the
+      same web site https://images.example.com/, then they can initiate
+      sending an image from one device to the other, using the NFC
+      connection or by handover to Bluetooth or WiFi connection.
+      The second device may be for instance a TV set to show the picture,
+      or a personal computer for image processing.
+    </p>
+  </section>
+  <section><h3>Handover to Bluetooth</h3>
+    <p>
+      NFC supports handover protocols to Bluetooth or WiFi connectivity for
+      the purpose of larger volume data transfer. The user touches another
+      NFC capable device, and as a result configuration data is sent for a
+      new Bluetooth or WiFi connection, which is then established between the
+      devices.
+    </p>
+    <p>
+     A related use case for gaming has been described
+     <a href=":https://webbluetoothcg.github.io/web-bluetooth/use-cases.html">
+     here</a>.
+     Other use cases may include bulk transfer of contacts cards, photos,
+     and other data.
+    </p>
+  </section>
+  <section> <h3>Payment to another user</h3>
+    <p>
+      The user navigates to a web site which manages seller and buyer accounts
+      and touches the device to another device of another user. A payment can
+      be made between the two users' accounts.
+    </p>
+  </section>
+  <section> <h3>Payment for services</h3>
+    <p>
+      On an automated point of sales terminal, such as ticketing machines,
+      the user navigates to a web site which offers the paid service.
+      By touching the receiver area of the point of sales, the payment can be
+      done and the ticket can be delivered electronically to the user's
+      device.
+    </p>
+  </section>
+</section>
+
+<section id="acknowledgments"> <h2>Acknowledgments</h2>
+  <p>
+    The editors would like to express their gratitude to Jonas Sicking and
+    Jeffrey Yasskin.
+  </p>
+</section>
+
+</body>
+</html>

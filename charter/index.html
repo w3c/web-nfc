@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <title>
+    Web NFC Community Group Charter
+  </title>
+  <link rel="stylesheet" href="https://www.w3.org/2005/10/w3cdoc.css" type=
+  "text/css" media="screen" />
+  <link rel="stylesheet" type="text/css" href=
+  "https://www.w3.org/Guide/pubrules-style.css" />
+  <link rel="stylesheet" type="text/css" href=
+  "https://www.w3.org/2006/02/charter-style.css" />
+  <style type="text/css">
+/*<![CDATA[*/
+    .editorial { background-color: yellow }
+    dt { font-weight: bold; margin-top: 0.3em }
+  /*]]>*/
+  </style>
+</head>
+
+<body>
+
+<section>
+  <h1 id="title">
+    Web NFC API Community Group Charter
+  </h1>
+  <ul>
+    <li>This Charter: <a href=”https://w3c.github.io/web-nfc/charter/”>
+    http://w3c.github.io/web-nfc/charter/</a></li>
+    <li>Start Date: 2015-03-12</li>
+    <li>Last Modified: 2015-03-12</li>
+  </ul>
+</section>
+
+<section><h2>Goals</h2>
+  <p>
+    Near-field communication (NFC) is a form of short range wireless
+    communication in which NFC devices such as mobile phones can communicate
+    with each other over a typical distance of 4cm or less. NFC allows for two
+    way communication. The NFC Forum defines base standards for how smart cards
+    are emulated by NFC devices and NFC Forum tags are formatted and the
+    protocols for communicating between devices. There are three modes of
+    operation:
+    <ul>
+      <li>read/write mode - the NFC device can read or write records, each of
+      which has a type. There are currently several defined record types (Text,
+      URI, Smart Poster, etc.). Records can be set to read-only, and protected
+      through encryption and digital signatures.</li>
+      <li>peer to peer mode - where two NFC devices exchange data, for example,
+      data for setting up WiFi access, or data representing a business card.
+      </li>
+      <li>card emulation mode - where an NFC device emulates a smart card, e.g.
+      allowing an NFC enabled phone to be used for contactless ticketing and
+      payment applications. Emulated cards may have limited storage
+      capabilities, e.g. the MiFare Classic 1K with 1024 bytes of data storage
+      split across 16 sectors.
+      </li>
+    </ul>
+  </p>
+
+  <p>
+    The main benefit of NFC is the speed and simplicity of operation for end
+    users. Touch a card to a reader to pay for ride on the metro. Touch an NFC
+    phone to a tag on a poster to view the web site for the associated event.
+    Touch two NFC phones together to exchange business cards.
+  </p>
+
+  <p>
+    In some cases no set up is needed as the card's record type is recognized
+    by the NFC device's operating system, which automatically launches the
+    appropriate application, such as the web browser. In other cases, as in
+    peer to peer mode, the device will first need to run the corresponding
+    application, which may involve asking the user to select what information
+    to share.
+  </p>
+
+  <p>
+    The Web Near Field Communication Community Group will define an API for Web
+    page scripts to use the NFC data exchange format and APDUs, enabling a
+    range of use cases for reading, writing, emulating cards and data exchange
+    with peer NFC devices. Further background information can be found on the
+    NFC Wiki.
+  </p>
+</section>
+
+<section><h2>Scope of Work</h2>
+  <p>
+    The goal is to provide a Web NFC API that satisfies the most important use
+    cases for NFC from Web pages. We believe that means that the API will not
+    expose full, low level NFC functionality, but rather a higher level subset
+    that is safe for Web pages, protects user privacy, and doesn't annoy users
+    with unnecessary or complex permission requests.
+  </p>
+  <p>
+    The scope of the Web Near Field Communications Community Group is limited to
+    the development of APIs for Web page scripts to perform the following
+    operations with NFC devices:
+    <ul>
+      <li>Reading NDEF messages</li>
+      <li>Writing NDEF messages</li>
+      <li> Setting NFC tags to read-only</li>
+      <li> Peer to peer exchange of NDEF messages between NFC devices</li>
+      <li>Optionally, manual connection for various technologies, e.g. NFC-A
+        and NFC-F</li>
+      <li>Optionally, initiation of NFC Card emulation mode for NFC devices,
+        to allow the use of a device for payments or for unlocking electronic
+        door locks.</li>
+      <li> Optionally, initiation of handover mode to Bluetooth or WiFi
+      technology.</li>
+    </ul>
+  </p>
+  <p>
+    The APIs will be designed to permit execution in the Web browser context,
+    using the security model of the Web. The very short range of NFC devices
+    requires users to make a conscious decision to put one of the devices into
+    the appropriate mode and to bring the devices physically together, and
+    this should enable a simpler security model that minimizes the need for
+    applications to ask for explicit user permission. The need for direct user
+    involvement under circumstances will need to be explored.
+  </p>
+  <p>
+    The CG will explore permission models that take advantage of the
+    physical properties of the NFC connection to align user expectations with
+    the permissions actually granted to script. Aspects of the environment that
+    might go into the permission model include:
+    <ul>
+      <li>Whether the script is running in the frontmost tab or window.</li>
+      <li>Whether the script is running in an open tab or window (vs. a Service
+        Worker)</li>
+      <li>Whether the script has been vouched for by a trusted authority, such
+        as applications installed from a store or shipped with a device.</li>
+      <li>The user's interactions with permission and choice prompts.</li>
+      <li>Preferences expressed by the tag or peer NFC device itself.</li>
+      <li>Whether the application has been given additional trust by being
+        "installed", ie. added to the home screen.</li>
+    </ul>
+    The Community Group will also explore the
+    possibility of sites registering with the user agent for particular types
+    of messages. When multiple registrations are made for a particular type of
+    message, a chooser is shown to the user to select among sites to handle the
+    available message. Considerations like these could simplify user
+    interactions for granting permissions while preserving privacy and security.
+    The CG will explore permission systems that allows users to control in a
+    clear and concise way the nature of NFC interaction between pages and NFC
+    tags or devices. For instance, answering “yes” to a permission dialog for
+    using NFC during a read use case must not enable NFC usage in general, and
+    particularly must not enable a page to overwrite a writable tag in a way
+    the user did not clearly expect. Nor can it mean that a web site can
+    initiate a P2P communication with an NFC device which can have effects that
+    the user did not intend.
+    The Community Group may consider both an API for use by an untrusted
+    web site, as well as an enhanced API available to a web site is considered
+    trusted.
+  </p>
+  <p>
+    The CG will consider requiring that for riskier API's, the user has agreed
+    to allowing a potentially risky or experimental API for a particular trusted
+    web site.
+    The web site is known through use of HTTPS so some APIs could be restricted
+    to use only by known, trusted web sites. The CG could also consider use of
+    some APIs only for sites in the local network
+    (if permitted by the user). For example, where a device in the local network
+    offers a web page (using https), the user could grant that web page
+    permissions beyond what normally is allowed for random web pages. That
+    would allow for a set of APIs, one safe for any web site and then perhaps
+    others that require higher levels of trust and permission.
+  </p>
+</section>
+
+<section><h3>Out of Scope</h3>
+  <p>
+    The Community Group will be implemented on top of NFC implementations
+    provided by the platform.  Low level NFC specification is out of scope.
+  </p>
+</section>
+
+<section><h2>Deliverables</h2>
+  <section><h3>Community Group Reports that are Specifications</h3>
+    <p>
+      The CG will define a Web NFC API specification, suitable for use from Web
+      Browsers. The CG may also create a specification related to permissions
+      and security governing availability or use of APIs.  This could include
+      defining particular message content related to permissions and security.
+      The CG is free to arrange these specifications into one or more
+      specifications for convenience.  However, all Specifications being worked
+      on must be clearly indicated on the CG Web page.
+      Example of what the specification could look like:
+      <a href="http://w3c.github.io/nfc/index.html">
+      http://w3c.github.io/nfc/index.html</a>.
+    </p>
+  </section>
+  <section><h3>Community Group Reports that are not Specifications </h3>
+    <p>
+      The group MAY produce other Community Group Reports within the scope of
+      this charter but that are not Specifications covered by the CLA, for
+      instance use cases, permission ceremonies, security hardening reports,
+      etc.
+    </p>
+  </section>
+  <section><h3>Test Suites and Other Software</h3>
+    <p>
+      At present, there are no plans to create a test suite.  If, however, the
+      CG decides to develop a test suite, it will be developed in Open Source
+      using the W3C Software License.
+    </p>
+  </section>
+</section>
+
+<section><h2>Dependencies or Liaisons</h2>
+  <p>
+    This group’s specifications have no direct dependencies on any other
+    developing specification other than the Web Applications Working Group’s
+    Web IDL specification, which many W3C specs depend upon. However, several
+    other groups would provide valuable feedback and they will be asked to
+    review drafts.
+  </p>
+  <dl>
+    <dt>Device APIs Working Group</dt>
+    <dd>
+      The NFC Community Group will coordinate with the Device APIs Working Group
+      to ensure that the NFC API can be used effectively together with Web
+      Intents.
+    </dd>
+    <dt>HTML Working Group</dt>
+    <dd>
+      The NFC Community Group will coordinate with the HTML Working Group to
+      ensure that the NFC APIs conform to the privacy and security model for
+      Web browsers.
+    </dd>
+    <dt>Web Security Interest Group</dt>
+    <dd>
+      The Web Security Interest Group should be asked to review deliverables to
+      secure reviews on its deliverables from the Web Security Interest Group
+      to ensure they offer the right level of security.
+    </dd>
+    <dt>Privacy Interest Group</dt>
+    <dd>
+      The Privacy Interest Group should be asked to review deliverables for
+      privacy considerations.
+    </dd>
+    <dt>Web Cryptography Working Group</dt>
+    <dd>
+      Interaction with this group would be valuable for the potential synergies
+      between work on JavaScript cryptographic APIs and access to secure
+      elements on NFC devices.
+    </dd>
+    <dt>Web Bluetooth Community Group</dt>
+    <dd>
+      The Web Bluetooth Community Group should be asked to review deliverables
+      to take advantage of their general expertise in exposing wireless
+      technologies for Web standards. The NFC CG will closely follow the work
+      of the Web Bluetooth CG, exploring the similarities of the approach on
+      using these technologies by Web pages.
+    </dd>
+    <dt>Trust and Permissions Community Group</dt>
+    <dd>
+      The Trust and Permission Community Group may explore the notion of trusted
+      web sites, which would allow use of enhanced APIs that are available for
+      use only in trusted pages.
+    </dd>
+    <dt>WAI Protocols and Formats Working Group</dt>
+    <dd>
+      The WAI Protocols and Formats Working Group should be asked to review
+      deliverables in order to ensure the API supports accessibility
+      requirements, particularly with regard to interoperability with assistive
+      technologies, and inclusion in the deliverable of guidance for
+      implementing the group’s deliverables in ways that support accessibility
+      requirements.
+    </dd>
+    <dt>Internationalization Activity</dt>
+    <dd>
+      The Community Group will ask for reviews to ensure any I18N issues in the
+      API are addressed.
+    </dd>
+    <dt>NFC Forum</dt>
+    <dd>
+      The NFC Community Group will liaise with the NFC Forum to ensure that the
+      W3C NFC API is compatible with the NDEF specifications defined by the
+      NFC Forum.
+    </dd>
+    <dt>ISO and ECMA</dt>
+    <dd>
+      The NFC Community Group will build upon the capabilities provided by NFC
+      related standards developed by ISO/IEC/JTC 1 SC 6 and SC 17, and by Ecma
+      International.
+    </dd>
+  </dl>
+</section>
+
+<section><h1>Community and Business Group Process</h1>
+  <p>
+    Terms of in this charter that conflict with those of the Community and
+    Business Group Process are void.
+  </p>
+  <section><h2>Work Limited to Charter Scope</h2>
+    <p>
+      The group will not publish Community Group Reports that are Specifications
+      on topics other than those listed under "Community Group Reports that are
+      Specifications" above. See below for how to modify the charter. The CLA
+      applies to these Community Group Reports.
+    </p>
+  </section>
+  <section><h2>Contribution Mechanics</h2>
+    <p>
+      For these Reports, Community Group participants agree to send
+      contributions to either the group “contrib” list or to the general group
+      list, with subject line starting "“[short-name-for spec]".
+      When meeting discussion includes contributions, contributors are
+      expected to record those contributions explicitly on the mailing list as
+      described.
+    </p>
+  </section>
+  <section><h2>Chair Selection</h2>
+    <p>
+      Participants in this group choose their Chair(s) and can replace their
+      Chair(s) at any time using whatever means they prefer. However, if 5
+      participants — no two from the same organization — call for an election,
+      the group must use the following process to replace any current Chair(s)
+      with a new Chair, consulting the Community Development Lead on election
+      operations (e.g., voting infrastructure and using RFC 2777). Participants
+      announce their candidacies. Participants have 14 days to announce their
+      candidacies, but this period ends as soon as all participants have
+      announced their intentions. If there is only one candidate, that person
+      becomes the Chair. If there are two or more candidates, there is a vote.
+      Otherwise, nothing changes. Participants vote. Participants have 21 days
+      to vote for a single candidate, but this period ends as soon as all
+      participants have voted. The individual who receives the most votes — no
+      two from the same organization — is elected chair. In case of a tie,
+      RFC2777 is used to break the tie. An elected Chair may appoint co-Chairs.
+      Participants dissatisfied with the outcome of an election may ask the
+      Community Development Lead to intervene. The Community Development Lead,
+      after evaluating the election, may take any action including no action.
+    </p>
+  </section>
+  <section><h2>Decision Process</h2>
+    <p>
+      This group will seek to make decisions when there is consensus. When the
+      group discusses  an issue on the mailing list and there is a call from the
+      group for assessing consensus, after due consideration of different
+      opinions, the Chair should record a decision and any objections.
+      Participants may call for an online vote if they feel the Chair has not
+      accurately determined the consensus of the group or if the Chair refuses
+      to assess consensus. The call for a vote must specify the duration of the
+      vote which must be at least 7 days and should be no more than 14 days.
+      The Chair must start the vote within 7 days of the request. The decision
+      will be based on the majority of the ballots cast. It is the Chair’s
+      responsibility to ensure that the decision process is fair, respects the
+      consensus of the CG, and does not unreasonably favor or discriminate
+      against any group participant or their employer.
+    </p>
+  </section>
+  <section><h2>Transparency</h2>
+    <p>
+      The group will conduct all of its technical work on its public mailing
+      list. Any decisions reached at any meeting are tentative. Any group
+      participant may object to a decision reached at an online meeting within
+      7 days of publication of the decision on the mail list. That decision must
+      then be confirmed on the mail list by the Decision Process above.
+    </p>
+  </section>
+  <section><h2>Amendments to this Charter</h2>
+    <p>
+      The group can decide to work on a proposed amended charter, editing the
+      text using the Decision Process described above. The decision on whether
+      to adopt the amended charter is made by conducting a 30-day vote on the
+      proposed new charter. The new charter, if approved, takes effect on either
+      the proposed date in the charter itself, or 7 days after the result of
+      the election is announced, whichever is later. A new charter must receive
+      2/3 of the votes cast in the approval vote to pass. The group may make
+      simple corrections to the charter such as deliverable dates by the
+      simpler group decision process rather than this charter amendment process.
+      The group will use the amendment process for any substantive changes to
+      the goals, scope, deliverables, decision process or rules for amending
+      the charter.
+    </p>
+  </section>
+</body>
+</html>
