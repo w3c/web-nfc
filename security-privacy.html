@@ -73,7 +73,7 @@
 
 <section> <h2>Terminology</h2>
   <p>
-    For NFC terminology see the
+    For NFC terminology, please consult the
     <a href="http://w3c.github.io/web-nfc/index.html#terminology">
     Web NFC specification</a>.
   </p>
@@ -93,15 +93,15 @@
 <section class="informative"> <h2>Trust model</h2>
   <p>
     Web pages using the NFC API are not trusted.
-    This means that the user needs to be aware ofexactly what a web page is
+    This means that the user needs to be aware of exactly what a web page is
     intending to do with NFC at any given moment. Also, implementations SHOULD
     make sure that when the user authorizes an NFC operation, then only that
     action is run, without side effects, and exactly in the context and the
-    number of times the user allows.
+    number of times the user allows the execution of NFC operations.
   </p>
   <p>
     Web apps installed from a store, or web pages installed to home screen (with
-    manifest) MAY be trusted.
+    [[MANIFEST]]) MAY be considered trusted by the user agent.
   </p>
 </section>
 
@@ -124,7 +124,8 @@
         <th><strong>Comments</strong></th>
       </tr>
       <tr>
-        <td>Web page using the Web NFC API is able to collect user data </td>
+        <td>Web page using the Web NFC API collects user data without the
+          consent of the user</td>
         <td>use permissions and user prompts for accessing personal data,
           minimize user data exposed to NFC</td>
       </tr>
@@ -143,10 +144,9 @@
         <td>malicious tag may be involuntarily or voluntarily read by devices
           and the data read may constitute an attack vector on the user agent
         </td>
-        <td>This is a generic problem with all NFC tags; implementations need
-           security hardeninginvoluntary touch is low probability due to short
-           range and critical angle for reading; it’s easier to attack
-           elsewhere (e.g. WiFi and Bluetooth)
+        <td>This is a generic problem with all existing NFC tags;
+           implementations need security hardening; involuntary touch is low probability due to short range and critical angle for reading;
+           it’s easier to attack elsewhere (e.g. WiFi and Bluetooth)
         </td>
       </tr>
       <tr>
