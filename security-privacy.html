@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web NFC API Security and Privacy Considerations</title>
+  <meta charset="UTF-8">
+  <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
+          class='remove'>
+  </script>
+  <script class="remove">
+    var respecConfig = {
+          specStatus:           "CG-DRAFT",
+          shortName:            "web-nfc",
+          noLegacyStyle:        true,
+          publishDate:          "",
+          previousPublishDate:  "",
+          previousMaturity:     "",
+          edDraftURI:           "http://w3c.github.io/web-nfc/",
+          crEnd:                "",
+          editors: [
+            { name: "Kenneth Rohde Christiansen", company: "Intel",
+                    companyURL: "http://www.intel.com/" },
+            { name: "Zoltan Kis", company: "Intel",
+                    companyURL: "http://www.intel.com/" },
+          ],
+          inlineCSS:    true,
+          noIDLIn:      true,
+          // extraCSS:     ["../ReSpec.js/css/respec.css"],
+          wg:           "Web NFC Community Group",
+          wgURI:        "https://www.w3.org/community/web-nfc/",
+          wgPublicList: "public-web-nfc",
+          otherLinks: [
+            {
+              key: "Repository",
+              data: [{
+                    value: "We are on Github.",
+                    href: "https://github.com/w3c/web-nfc"
+                }, {
+                    value: "File a bug.",
+                    href: "https://github.com/w3c/web-nfc/issues"
+                }, {
+                    value: "Commit history.",
+                    href: "https://github.com/w3c/web-nfc/commits/gh-pages"
+                }
+              ]
+            },
+          ],
+          localBiblio: {
+            "MANIFEST": {
+              href: "http://www.w3.org/TR/appmanifest/",
+              title: "Manifest for a web application",
+              publisher: "W3C",
+              date: "25 March 2015",
+            },
+          },
+
+    };
+  </script>
+</head>
+
+<body>
+
+<!-- - - - - - - - - - - - - - - - Abstract - - - - - - - - - - - - - - - - -->
+<section id="abstract">
+  <p>
+    This document provides a collection of security and privacy related topics
+    concerning web pages and applications using Near Field Communication (NFC).
+    More information about Web NFC can be found in the
+    <a href="http://w3c.github.io/web-nfc/index.html#abstract">Web NFC API</a>
+    specification.
+  </p>
+</section>
+
+<section id="sotd">
+  <p>
+    This document provides background for security and privacy related decisions
+    for the <a href="http://w3c.github.io/web-nfc/index.html">Web NFC API</a>.
+    Comments on the document should be filed as issues at
+    <a href="https://github.com/w3c/web-nfc/issues">
+    https://github.com/w3c/web-nfc/issues</a>.
+  </p>
+</section>
+
+<section> <h2>Terminology</h2>
+  <p>
+    For NFC terminology, please consult the
+    <a href="http://w3c.github.io/web-nfc/index.html#terminology">
+    Web NFC specification</a>.
+  </p>
+</section>
+
+<section class="informative"> <h2>Introduction</h2>
+  <p>
+    NFC technology involves multiple levels of security. Payments done with NFC
+    are considered to be at least as secure as with payment cards at hardware
+    level, but the whole software stack needs to be security hardened.
+    However, data transfer (reads, writes and push) involve more threats. This
+    document discusses some of the relevant threats and possible remedies, as
+    input to API design and implementation decisions.
+  </p>
+</section>
+
+<section class="informative"> <h2>Trust model</h2>
+  <p>
+    Web pages using the NFC API are not trusted.
+    This means that the user needs to be aware of exactly what a web page is
+    intending to do with NFC at any given moment. Also, implementations SHOULD
+    make sure that when the user authorizes an NFC operation, then only that
+    action is run, without side effects, and exactly in the context and the
+    number of times the user allows the execution of NFC operations.
+  </p>
+  <p>
+    Web apps installed from a store, or web pages installed to home screen (with
+    [[MANIFEST]]) MAY be considered trusted by the user agent.
+  </p>
+</section>
+
+<section class="informative"> <h2>Attacker model</h2>
+  <p>
+    The following patterns have been considered:
+    <ul>
+      <li>malicious web page and benign user: phishing user data</li>
+      <li>malicious web page prepared by malicious user: destroying tags</li>
+      <li>malicious or modified tags prepared for attacking devices.</li>
+    </ul>
+  </p>
+</section>
+
+<section class="informative"> <h2>Threats and possible solutions</h2>
+  <p>
+    <table class="simple" border="1">
+      <tr>
+        <th><strong>Threat</strong></th>
+        <th><strong>Comments</strong></th>
+      </tr>
+      <tr>
+        <td>Web page using the Web NFC API collects user data without the
+          consent of the user</td>
+        <td>use permissions and user prompts for accessing personal data,
+          minimize user data exposed to NFC</td>
+      </tr>
+      <tr>
+        <td>Malicious web page overwrites tags without user consent</td>
+        <td>Permission and user prompt needed for writing tags</td>
+      </tr>
+      <tr>
+        <td>malicious web page writes sensitive user data to tags and peer
+          devices</td>
+        <td>permission/user prompt for writing tags and peers, with a
+          possibility the user can check what data is sent, or fine grained
+          permissions on what kind of data could be sent</td>
+      </tr>
+      <tr>
+        <td>malicious tag may be involuntarily or voluntarily read by devices
+          and the data read may constitute an attack vector on the user agent
+        </td>
+        <td>This is a generic problem with all existing NFC tags;
+           implementations need security hardening; involuntary touch is low probability due to short range and critical angle for reading;
+           it’s easier to attack elsewhere (e.g. WiFi and Bluetooth)
+        </td>
+      </tr>
+      <tr>
+        <td>malicious smart poster tag attempts triggering an action on the
+          device which may be a threat</td>
+        <td>support for smart posters is not among the main use cases of Web
+          NFC; if and when supported, no automatic actions should be allowed,
+          the user must be made aware and given the ability to control what is
+          happening during the NFC communication</td>
+      </tr>
+    </table>
+  </p>
+</section>
+
+<section class="informative"> <h2>Security policies</h2>
+  <p>
+    In order to minimize attack surface using the Web NFC API, user agents MAY
+    implement multiple security policies, for example some of the following:
+    <ul>
+      <li>reading is not allowed from generic NFC tags but only from special
+        Web NFC tags</li>
+      <li>reading is allowed from generic tags, if the reading page scheme is
+        e.g. https</li>
+      <li>writing (updates) allowed only to existing special Web NFC tags where
+        the writing page origin fulfills certain conditions.</li>
+    </ul>
+    The Web NFC API specification may require the existence of some of the
+    policies above, and may make others optional. However, all the mechanisms
+    needed to implement these security policies should be supported by the
+    implementations.
+  </p>
+</section>
+
+<section class="informative"> <h2>Security mechanisms</h2>
+  <p>
+    In order to support security policies concerning the Web NFC API, certain
+    mechanisms need to be supported in all the implementations, such as:
+    <ul>
+      <li>a mechanism for telling apart “Web NFC tags” from generic NFC tags
+        </li>
+      <li>a mechanism for white-listing URL's that can read, or write a certain
+        Web NFC tag</li>
+      <li>a mechanism for black-listing URI's that can read, or write a certain
+        Web NFC tag.</li>
+    </ul>
+  </p>
+</section>
+
+<section class="informative"> <h2>Implementation details</h2>
+  <p>
+    This section contains discussion of implementation possibilities of security
+    related mechanisms.
+  </p>
+  <section> <h3>Web NFC tags</h3>
+    <p>
+      For making tags that can be read and written by the Web NFC API, and for
+      making sure that web pages cannot access generic NFC tags, the following
+      are possible:
+      <ul>
+        <li>Use the NDEF record <code>id</code> field in order to store the
+          origin of the page creating the record, which is also by default
+          allowed to modify the tag.</li>
+        <li>Use additional special NDEF records in each Web NFC tag, which are
+          hidden by the implementation. This solution depends on support for
+          writing multiple NDEF records per NDEF message.</li>
+        <li>Use additional data encoded into the NFC payload in a way which is
+          specific to Web NFC API. This solution is not desirable.</li>
+      </ul>
+    </p>
+    <section> <h3>Web NFC identification</h3>
+      <p>
+        For making Web NFC tags distinct from generic NFC tags, the use of a
+        special additional record is proposed. The preferred type of this
+        NDEF record is NFC Forum External Type (TNF=0x04), with the
+        External Type field set to e.g.
+        <code>urn:nfc:ext:w3.org:web-nfc-id</code>.
+      </p>
+      <p>
+        The payload of this NDEF record MAY contain additional data in order
+        to make statistically even less probable that a generic NFC tag would
+        accidentally match with a Web NFC tag. For this purpose, the simplest
+        would be to use a cryptographic hash, for instance the SHA256 hash of
+        a well known string such as "<code>w3.org/web-nfc</code>".
+        This would be public information. Together with the external type
+        namespaced to <code>w3.org:web-nfc</code>, this is considered to be
+        good enough for ensuring practical uniqueness of Web NFC tags.
+      </p>
+      <p>
+        If Web NFC tags become popular, more and more tags may be added the
+        special records identifying Web NFC tags, making them compatible with
+        the Web NFC API. This is completely fine, once the creator of the tag
+        understands to risks associated with accessing the tags from untrusted
+        web pages.
+      </p>
+    </section>
+    <section> <h3>Web NFC white list for reading</h3>
+      <p>
+        In addition to an identification record, Web NFC tags MAY also contain
+        additional special NDEF records containing a list of URL's as payload.
+        The preferred type of this NDEF record is NFC Forum External Type
+        (TNF=0x04), with the External Type field set to e.g.
+        <code>urn:nfc:ext:w3.org:web-nfc-wl-read</code>.
+        The payload is a string list of URL's, delimited by white space.
+      </p>
+    </section>
+    <section> <h3>Web NFC white list for writing</h3>
+      <p>
+        Web NFC tags MAY also contain another special NDEF record containing a
+        list of URL's permitted to write to the tag.
+        The preferred type of this NDEF record is NFC Forum External Type
+        (TNF=0x04), with the External Type field set to e.g.
+        <code>urn:nfc:ext:w3.org:web-nfc-wl-write</code>.
+        The payload is a string list of URL's, delimited by white space.
+      </p>
+    </section>
+    <section> <h3>Web NFC black list for reading</h3>
+      <p>
+        Web NFC tags MAY also contain another special NDEF record containing a
+        list of URL's specifically NOT permitted to read to the tag.
+        The preferred type of this NDEF record is NFC Forum External Type
+        (TNF=0x04), with the External Type field set to e.g.
+        <code>urn:nfc:ext:w3.org:web-nfc-bl-read</code>.
+        The payload is a string list of URL's, delimited by white space.
+      </p>
+    </section>
+    <section> <h3>Web NFC black list for writing</h3>
+      <p>
+        Web NFC tags MAY also contain another special NDEF record containing a
+        list of URL's specifically NOT permitted to write to the tag.
+        The preferred type of this NDEF record is NFC Forum External Type
+        (TNF=0x04), with the External Type field set to e.g.
+        <code>urn:nfc:ext:w3.org:web-nfc-bl-write</code>.
+        The payload is a string list of URL's, delimited by white space.
+      </p>
+    </section>
+  </section>
+</section>
+
+<section id="acknowledgments"> <h2>Acknowledgments</h2>
+  <p>
+    Big thanks to Jonas Sicking and Jeffrey Yasskin for the initiating thoughts,
+    and to Elena Reshetova and Sandeep Tamrakar for reviews and valuable
+    suggestions.
+  </p>
+</section>
+
+</body>
+</html>
