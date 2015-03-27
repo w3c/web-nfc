@@ -43,7 +43,16 @@
                 }
               ]
             },
-          ]
+          ],
+          localBiblio: {
+            "MANIFEST": {
+              href: "http://www.w3.org/TR/appmanifest/",
+              title: "Manifest for a web application",
+              publisher: "W3C",
+              date: "25 March 2015",
+            },
+          },
+
     };
   </script>
 </head>
@@ -163,7 +172,7 @@
 
 <section class="informative"> <h2>Security policies</h2>
   <p>
-    In order to minimize attack surface using the Web NFC API, user agents may
+    In order to minimize attack surface using the Web NFC API, user agents MAY
     implement multiple security policies, for example some of the following:
     <ul>
       <li>reading is not allowed from generic NFC tags but only from special
@@ -218,7 +227,7 @@
     </p>
     <section> <h3>Web NFC identification</h3>
       <p>
-        For making Web NFC tags different from generic NFC tags, the use of a
+        For making Web NFC tags distinct from generic NFC tags, the use of a
         special additional record is proposed. The preferred type of this
         NDEF record is NFC Forum External Type (TNF=0x04), with the
         External Type field set to e.g.
@@ -245,7 +254,7 @@
     <section> <h3>Web NFC white list for reading</h3>
       <p>
         In addition to an identification record, Web NFC tags MAY also contain
-        another special NDEF record containing a list of URL's as payload.
+        additional special NDEF records containing a list of URL's as payload.
         The preferred type of this NDEF record is NFC Forum External Type
         (TNF=0x04), with the External Type field set to e.g.
         <code>urn:nfc:ext:w3.org:web-nfc-wl-read</code>.
