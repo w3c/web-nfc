@@ -194,11 +194,11 @@
     In order to support security policies concerning the Web NFC API, certain
     mechanisms need to be supported in all the implementations, such as:
     <ul>
-      <li>a mechanism for telling apart “Web NFC tags” from generic NFC tags
-        </li>
-      <li>a mechanism for white-listing URL's that can read, or write a certain
+      <li>an identification mechanism for telling apart “Web NFC tags” from
+        generic NFC tags</li>
+      <li>a mechanism for whitelisting URL's that can read, or write a certain
         Web NFC tag</li>
-      <li>a mechanism for black-listing URI's that can read, or write a certain
+      <li>a mechanism for blacklisting URI's that can read, or write a certain
         Web NFC tag.</li>
     </ul>
   </p>
@@ -207,90 +207,112 @@
 <section class="informative"> <h2>Implementation details</h2>
   <p>
     This section contains discussion of implementation possibilities of security
-    related mechanisms.
+    related mechanisms. The following implementation alternatives are possible:
+    <ul>
+      <li>
+        Use additional NDEF records in an NDEF message containing
+        Web NFC specific metadata, such as identification, whitelists and
+        blacklists.
+      </li>
+        Use a specific Web NFC record format and encode the Web NFC specific
+        metadata into that.
+      </li>
+    </ul>
   </p>
-  <section> <h3>Web NFC tags</h3>
+  <section> <h3>Web NFC using additional NDEF records for metadata</h3>
     <p>
-      For making tags that can be read and written by the Web NFC API, and for
-      making sure that web pages cannot access generic NFC tags, the following
-      are possible:
+      A typical Web NFC NDEF message will contain the following
+      NDEF records:
       <ul>
-        <li>Use the NDEF record <code>id</code> field in order to store the
-          origin of the page creating the record, which is also by default
-          allowed to modify the tag.</li>
-        <li>Use additional special NDEF records in each Web NFC tag, which are
-          hidden by the implementation. This solution depends on support for
-          writing multiple NDEF records per NDEF message.</li>
-        <li>Use additional data encoded into the NFC payload in a way which is
-          specific to Web NFC API. This solution is not desirable.</li>
+        <li>Normal NDEF records carrying data.</li>
+        <li>
+          An additional NDEF record for identification.
+          The preferred type of this NDEF record is NFC Forum External Type
+          (TNF=0x04), with the External Type field set to e.g.
+          <code>urn:nfc:ext:w3.org:web-nfc-id</code>.
+        </li>
+        <li>
+          An optional additional NDEF record for whitelisting for
+          reading.
+          The preferred type of this NDEF record is NFC Forum External Type
+          (TNF=0x04), with the External Type field set to
+          <code>urn:nfc:ext:w3.org:web-nfc-wl-read</code>.
+          The payload is a string list of URL's, delimited by white space.
+        </li>
+        <li>
+          An optional additional NDEF record for whitelisting for
+          writing.
+          The preferred type of this NDEF record is NFC Forum External Type
+          (TNF=0x04), with the External Type field set to
+          <code>urn:nfc:ext:w3.org:web-nfc-wl-write</code>.
+          The payload is a string list of URL's, delimited by white space.
+        </li>
+        <li>
+          An optional additional NDEF record for blacklisting for
+          reading.
+          The preferred type of this NDEF record is NFC Forum External Type
+          (TNF=0x04), with the External Type field set to
+          <code>urn:nfc:ext:w3.org:web-nfc-bl-read</code>.
+          The payload is a string list of URL's, delimited by white space.
+        </li>
+        <li>
+          An optional additional NDEF record for blacklisting for
+          writing.
+          The preferred type of this NDEF record is NFC Forum External Type
+          (TNF=0x04), with the External Type field set to
+          <code>urn:nfc:ext:w3.org:web-nfc-bl-write</code>.
+          The payload is a string list of URL's, delimited by white space.
+        </li>
       </ul>
     </p>
-    <section> <h3>Web NFC identification</h3>
-      <p>
-        For making Web NFC tags distinct from generic NFC tags, the use of a
-        special additional record is proposed. The preferred type of this
-        NDEF record is NFC Forum External Type (TNF=0x04), with the
-        External Type field set to e.g.
-        <code>urn:nfc:ext:w3.org:web-nfc-id</code>.
-      </p>
-      <p>
-        The payload of this NDEF record MAY contain additional data in order
-        to make statistically even less probable that a generic NFC tag would
-        accidentally match with a Web NFC tag. For this purpose, the simplest
-        would be to use a cryptographic hash, for instance the SHA256 hash of
-        a well known string such as "<code>w3.org/web-nfc</code>".
-        This would be public information. Together with the external type
-        namespaced to <code>w3.org:web-nfc</code>, this is considered to be
-        good enough for ensuring practical uniqueness of Web NFC tags.
-      </p>
-      <p>
-        If Web NFC tags become popular, more and more tags may be added the
-        special records identifying Web NFC tags, making them compatible with
-        the Web NFC API. This is completely fine, once the creator of the tag
-        understands to risks associated with accessing the tags from untrusted
-        web pages.
-      </p>
-    </section>
-    <section> <h3>Web NFC white list for reading</h3>
-      <p>
-        In addition to an identification record, Web NFC tags MAY also contain
-        additional special NDEF records containing a list of URL's as payload.
-        The preferred type of this NDEF record is NFC Forum External Type
-        (TNF=0x04), with the External Type field set to e.g.
-        <code>urn:nfc:ext:w3.org:web-nfc-wl-read</code>.
-        The payload is a string list of URL's, delimited by white space.
-      </p>
-    </section>
-    <section> <h3>Web NFC white list for writing</h3>
-      <p>
-        Web NFC tags MAY also contain another special NDEF record containing a
-        list of URL's permitted to write to the tag.
-        The preferred type of this NDEF record is NFC Forum External Type
-        (TNF=0x04), with the External Type field set to e.g.
-        <code>urn:nfc:ext:w3.org:web-nfc-wl-write</code>.
-        The payload is a string list of URL's, delimited by white space.
-      </p>
-    </section>
-    <section> <h3>Web NFC black list for reading</h3>
-      <p>
-        Web NFC tags MAY also contain another special NDEF record containing a
-        list of URL's specifically NOT permitted to read to the tag.
-        The preferred type of this NDEF record is NFC Forum External Type
-        (TNF=0x04), with the External Type field set to e.g.
-        <code>urn:nfc:ext:w3.org:web-nfc-bl-read</code>.
-        The payload is a string list of URL's, delimited by white space.
-      </p>
-    </section>
-    <section> <h3>Web NFC black list for writing</h3>
-      <p>
-        Web NFC tags MAY also contain another special NDEF record containing a
-        list of URL's specifically NOT permitted to write to the tag.
-        The preferred type of this NDEF record is NFC Forum External Type
-        (TNF=0x04), with the External Type field set to e.g.
-        <code>urn:nfc:ext:w3.org:web-nfc-bl-write</code>.
-        The payload is a string list of URL's, delimited by white space.
-      </p>
-    </section>
+  </section>
+  <section> <h3>Web NFC using encoded metadata</h3>
+    <p>
+      Web NFC may also define an own format for accepted NDEF records,
+      where the preferred type of this NDEF record is NFC Forum External Type
+      (TNF=0x04), with the External Type field set to
+      <code>urn:nfc:ext:w3.org:webnfc</code>. The payload type would be
+      <code>application/webnfc+json</code> (by default UTF-8 encoded). All data
+      would be JSON, for instance with the following schema:
+      <ul>
+        <li>
+          <code>id</code>: <code>"string"</code>; contains the Web NFC
+          identifier, e.g. the SHA256 signature of <code>"w3.org/web-nfc”</code>
+        </li>
+        <li>
+          <code>scope</code>: <code>"string"</code>; contains the origin of the
+          data; it can be also stored at the NDEF record's
+          <code>id</code> field.
+        </li>
+        <li>
+          <code>messageType</code>: <code>"string"</code>; contains the type of
+          the data, either <code>"text"</code>, <code>"url"</code>,
+          <code>"json"</code>, or <code>"blob"</code>.
+        </li>
+        <li>
+          <code>message</code>: <code>"string"</code>; contains the payload data
+          encoded as text (text, URL and JSON), and for blob encoded as Base64.
+        </li>
+        <li>
+          <code>whitelistRead</code>: <code>"array"</code>; contains the URL
+          scopes that are explicitly allowed to read the data. No other scope
+          is permitted to read the data.
+        </li>
+        <li>
+          <code>whitelistWrite</code>: <code>"array"</code>; contains the URL
+          scopes that are explicitly allowed to rewrite the data. No other scope
+          is permitted to rewrite (update) the data.
+        </li>
+        <li>
+          <code>blacklistRead</code>: <code>"array"</code>; contains the URL
+          scopes that are explicitly disallowed from reading the data.
+        </li>
+        <li>
+          <code>blacklistWrite</code>: <code>"array"</code>; contains the URL
+          scopes that are explicitly disallowed to rewrite the data.
+        </li>
+      </ul>
+    </p>
   </section>
 </section>
 
