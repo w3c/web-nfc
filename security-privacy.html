@@ -51,6 +51,12 @@
               publisher: "W3C",
               date: "25 March 2015",
             },
+            "Base64": {
+              href: "https://tools.ietf.org/html/rfc4648",
+              title: "The Base16, Base32, and Base64 Data Encodings",
+              publisher: "IETF",
+              date: "October 2006",
+            },
           },
 
     };
@@ -198,8 +204,6 @@
         generic NFC tags</li>
       <li>a mechanism for whitelisting URL's that can read, or write a certain
         Web NFC tag</li>
-      <li>a mechanism for blacklisting URI's that can read, or write a certain
-        Web NFC tag.</li>
     </ul>
   </p>
 </section>
@@ -210,12 +214,12 @@
     related mechanisms. The following implementation alternatives are possible:
     <ul>
       <li>
-        Use additional NDEF records in an NDEF message containing
-        Web NFC specific metadata, such as identification, whitelists and
-        blacklists.
+        Use additional NDEF records in an NDEF message, containing
+        metadata specific to Web NFC specific, such as identification, and
+        whitelists for reading and writing.
       </li>
-        Use a specific Web NFC record format and encode the Web NFC specific
-        metadata into that.
+        Use a specific Web NFC record format and encode the metadata specific to
+        Web NFC into that.
       </li>
     </ul>
   </p>
@@ -226,41 +230,23 @@
       <ul>
         <li>Normal NDEF records carrying data.</li>
         <li>
-          An additional NDEF record for identification.
-          The preferred type of this NDEF record is NFC Forum External Type
-          (TNF=0x04), with the External Type field set to e.g.
-          <code>urn:nfc:ext:w3.org:web-nfc-id</code>.
-        </li>
-        <li>
-          An optional additional NDEF record for whitelisting for
-          reading.
+          An additional NDEF record for Web NFC identification.
           The preferred type of this NDEF record is NFC Forum External Type
           (TNF=0x04), with the External Type field set to
-          <code>urn:nfc:ext:w3.org:web-nfc-wl-read</code>.
+          <code>urn:nfc:ext:w3.org:webnfc-id</code>.
+        </li>
+        <li>
+          Optionally, a NDEF record representing a read whitelist.
+          The preferred type of this NDEF record is NFC Forum External Type
+          (TNF=0x04), with the External Type field set to
+          <code>urn:nfc:ext:w3.org:webnfc-rwl</code>.
           The payload is a string list of URL's, delimited by white space.
         </li>
         <li>
-          An optional additional NDEF record for whitelisting for
-          writing.
+          Optionally, a NDEF record representing a write whitelist.
           The preferred type of this NDEF record is NFC Forum External Type
           (TNF=0x04), with the External Type field set to
-          <code>urn:nfc:ext:w3.org:web-nfc-wl-write</code>.
-          The payload is a string list of URL's, delimited by white space.
-        </li>
-        <li>
-          An optional additional NDEF record for blacklisting for
-          reading.
-          The preferred type of this NDEF record is NFC Forum External Type
-          (TNF=0x04), with the External Type field set to
-          <code>urn:nfc:ext:w3.org:web-nfc-bl-read</code>.
-          The payload is a string list of URL's, delimited by white space.
-        </li>
-        <li>
-          An optional additional NDEF record for blacklisting for
-          writing.
-          The preferred type of this NDEF record is NFC Forum External Type
-          (TNF=0x04), with the External Type field set to
-          <code>urn:nfc:ext:w3.org:web-nfc-bl-write</code>.
+          <code>urn:nfc:ext:w3.org:webnfc-wwl</code>.
           The payload is a string list of URL's, delimited by white space.
         </li>
       </ul>
@@ -268,12 +254,12 @@
   </section>
   <section> <h3>Web NFC using encoded metadata</h3>
     <p>
-      Web NFC may also define an own format for accepted NDEF records,
+      Web NFC may also define an own NDEF extended record format,
       where the preferred type of this NDEF record is NFC Forum External Type
       (TNF=0x04), with the External Type field set to
-      <code>urn:nfc:ext:w3.org:webnfc</code>. The payload type would be
-      <code>application/webnfc+json</code> (by default UTF-8 encoded). All data
-      would be JSON, for instance with the following schema:
+      <code>urn:nfc:ext:w3.org:webnfc</code>. The payload type is
+      <code>application/webnfc+json</code> (encoded as UTF-8 by default). All
+      data is JSON, with the following schema:
       <ul>
         <li>
           <code>id</code>: <code>"string"</code>; contains the Web NFC
@@ -291,28 +277,90 @@
         </li>
         <li>
           <code>message</code>: <code>"string"</code>; contains the payload data
-          encoded as text (text, URL and JSON), and for blob encoded as Base64.
+          encoded as text (text, URL and JSON), and for blob encoded as
+          [[Base64]].
         </li>
         <li>
-          <code>whitelistRead</code>: <code>"array"</code>; contains the URL
-          scopes that are explicitly allowed to read the data. No other scope
-          is permitted to read the data.
-        </li>
-        <li>
-          <code>whitelistWrite</code>: <code>"array"</code>; contains the URL
-          scopes that are explicitly allowed to rewrite the data. No other scope
-          is permitted to rewrite (update) the data.
-        </li>
-        <li>
-          <code>blacklistRead</code>: <code>"array"</code>; contains the URL
-          scopes that are explicitly disallowed from reading the data.
-        </li>
-        <li>
-          <code>blacklistWrite</code>: <code>"array"</code>; contains the URL
-          scopes that are explicitly disallowed to rewrite the data.
+          <code>access</code>: <code>"array"</code>; contains tuples
+          for the desired access type (read-write, or read-only),
+          and the URL scopes that are explicitly allowed to access the data,
+          for instance
+          <code>{ "scope": "https://mydomain.com", "write": "true"}</code>.
+          Scopes not matching this are not permitted to access the data.
+          If the list is empty, then the platform default policy applies, which
+          SHOULD permit reading for everyone, but SHOULD prevent writing, except
+          to sub-scopes of the URL scope of the page which has created the data.
         </li>
       </ul>
+      <!--
+      The full JSON schema is the following:
+      <pre title = "Web NFC JSON schema" class="example">
+        {
+          "$schema": "http://w3.org/web-nfc#",
+          "id": "http://w3.org/web-nfc",
+          "type": "object",
+          "properties": {
+            "id": {
+              "id": "http://w3.org/web-nfc/id",
+              "type": "string"
+            },
+            "scope": {
+              "id": "http://w3.org/web-nfc/scope",
+              "type": "string"
+            },
+            "messageType": {
+              "id": "http://w3.org/web-nfc/messageType",
+              "type": "string"
+            },
+            "message": {
+              "id": "http://w3.org/web-nfc/message",
+              "type": "string"
+            },
+            "access": {
+              "id": "http://w3.org/web-nfc/access",
+              "type": "array",
+              "items": [
+                {
+                  "id": "http://w3.org/web-nfc/access/0",
+                  "type": "object",
+                  "properties": {
+                    "scope": {
+                      "id": "http://w3.org/web-nfc/access/0/scope",
+                      "type": "string"
+                    },
+                    "access": {
+                      "id": "http://w3.org/web-nfc/access/0/access",
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "id": "http://w3.org/web-nfc/access/1",
+                  "type": "object",
+                  "properties": {
+                    "scope": {
+                      "id": "http://w3.org/web-nfc/access/1/scope",
+                      "type": "string"
+                    },
+                    "access": {
+                      "id": "http://w3.org/web-nfc/access/1/access",
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "scope",
+            "messageType",
+            "message",
+          ]
+        }
+      </pre>
     </p>
+    -->
     <p class="note">
       The encoded JSON format for Web NFC data and metadata is useful for
       abstracting away NFC Forum types, and for supporting implementations where
