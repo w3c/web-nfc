@@ -51,12 +51,6 @@
               publisher: "W3C",
               date: "25 March 2015",
             },
-            "Base64": {
-              href: "https://tools.ietf.org/html/rfc4648",
-              title: "The Base16, Base32, and Base64 Data Encodings",
-              publisher: "IETF",
-              date: "October 2006",
-            },
           },
 
     };
@@ -223,52 +217,76 @@
       </li>
     </ul>
   </p>
-  <section> <h3>Web NFC using additional NDEF records for metadata</h3>
+  <section> <h3>Whitelists and the <strong>NfcAccess</strong> dictionary</h3>
+    <p>
+      A <dfn>whitelist</dfn> is an array of <code>NfcAccess</code>
+      dictionaries.
+    </p>
+    <dl title="dictionary NfcAccess" class="idl">
+      <dt>DOMString scope</dt>
+      <dt>boolean write</dt>
+    </dl>
+    <p>
+      The <dfn id="widl-NfcAccess-scope">scope</dfn> property is a string
+      pattern for matching the URL's that are explicitly allowed to access
+      the data, for instance <br>
+      <code>{ "scope": "https://mydomain.com", "write": "true"}</code>. <br>
+      Scopes not matching this are not permitted to access the data. If the
+      whitelist is empty, then the platform default policy applies, which SHOULD
+      permit reading for everyone, but SHOULD prevent writing, except to URL's
+      matching the origin of the page which has written the data.
+    </p>
+    <p>
+      When the <dfn id="widl-NfcAccess-write">write</dfn> property is
+      <code>true</code>, then the URL's matching <code><var>scope</var></code>
+      are permitted to write (in fact, update) the data, otherwise they are only permitted to read it.
+    </p>
+    <p class="issue">
+      The exact meaning of scope, pattern, and the matching algorithm to origins
+      needs to be defined.
+    </p>
+  </section>
+
+  <section> <h3>Additional NDEF records for Web NFC</h3>
     <p>
       A typical Web NFC NDEF message will contain the following
       NDEF records:
       <ul>
         <li>Normal NDEF records carrying data.</li>
         <li>
-          An additional NDEF record for Web NFC identification.
+          Optionally, an NDEF record for Web NFC identification.
           The preferred type of this NDEF record is NFC Forum External Type
           (TNF=0x04), with the External Type field set to
           <code>urn:nfc:ext:w3.org:webnfc-id</code>.
         </li>
         <li>
-          Optionally, a NDEF record representing a read whitelist.
+          Optionally, a NDEF record representing a <a>whitelist</a>.
           The preferred type of this NDEF record is NFC Forum External Type
           (TNF=0x04), with the External Type field set to
-          <code>urn:nfc:ext:w3.org:webnfc-rwl</code>.
-          The payload is a string list of URL's, delimited by white space.
-        </li>
-        <li>
-          Optionally, a NDEF record representing a write whitelist.
-          The preferred type of this NDEF record is NFC Forum External Type
-          (TNF=0x04), with the External Type field set to
-          <code>urn:nfc:ext:w3.org:webnfc-wwl</code>.
-          The payload is a string list of URL's, delimited by white space.
+          <code>urn:nfc:ext:w3.org:webnfc-wl</code>.
+          The payload is an array of <code><a>NfcAccess</a></code> dictionaries.
         </li>
       </ul>
     </p>
   </section>
   <section> <h3>Web NFC using encoded metadata</h3>
     <p>
-      Web NFC may also define an own NDEF extended record format,
-      where the preferred type of this NDEF record is NFC Forum External Type
-      (TNF=0x04), with the External Type field set to
-      <code>urn:nfc:ext:w3.org:webnfc</code>. The payload type is
-      <code>application/webnfc+json</code> (encoded as UTF-8 by default). All
-      data is JSON, with the following schema:
+      As an alternative to the previous section, Web NFC may also define an own
+      record format, based on NFC Forum External Type (TNF=0x04) records, where
+      the External Type field set to <code>urn:nfc:ext:w3.org:webnfc</code>.
+      The payload type is <code>application/webnfc+json</code> (encoded as
+      UTF-8 by default). All data is JSON, with the following schema:
       <ul>
         <li>
           <code>id</code>: <code>"string"</code>; contains the Web NFC
-          identifier, e.g. the SHA256 signature of <code>"w3.org/web-nfc”</code>
+          identifier, e.g. the SHA256 signature of
+          <code>"w3.org/web-nfc”</code>. This is not strictly needed.
         </li>
         <li>
-          <code>scope</code>: <code>"string"</code>; contains the origin of the
-          data; it can be also stored at the NDEF record's
-          <code>id</code> field.
+          <code>scope</code>: <code>"string"</code>; contains the
+          <a href="https://html.spec.whatwg.org/multipage/browsers.html#ascii-serialisation-of-an-origin">ASCII serialized origin</a> which
+          has written the data. Also, this is not strictly needed, since it can
+          be also stored at the NDEF record's <code>id</code> field.
         </li>
         <li>
           <code>messageType</code>: <code>"string"</code>; contains the type of
@@ -278,18 +296,11 @@
         <li>
           <code>message</code>: <code>"string"</code>; contains the payload data
           encoded as text (text, URL and JSON), and for blob encoded as
-          [[Base64]].
+          Base64 ([[RFC4648]]).
         </li>
         <li>
-          <code>access</code>: <code>"array"</code>; contains tuples
-          for the desired access type (read-write, or read-only),
-          and the URL scopes that are explicitly allowed to access the data,
-          for instance
-          <code>{ "scope": "https://mydomain.com", "write": "true"}</code>.
-          Scopes not matching this are not permitted to access the data.
-          If the list is empty, then the platform default policy applies, which
-          SHOULD permit reading for everyone, but SHOULD prevent writing, except
-          to sub-scopes of the URL scope of the page which has created the data.
+          <code>access</code>: <code>"array"</code>; contains the
+          <a>whitelist</a> for access control.
         </li>
       </ul>
       <!--
@@ -328,26 +339,12 @@
                       "id": "http://w3.org/web-nfc/access/0/scope",
                       "type": "string"
                     },
-                    "access": {
-                      "id": "http://w3.org/web-nfc/access/0/access",
-                      "type": "string"
+                    "write": {
+                      "id": "http://w3.org/web-nfc/access/0/write",
+                      "type": "boolean"
                     }
                   }
                 },
-                {
-                  "id": "http://w3.org/web-nfc/access/1",
-                  "type": "object",
-                  "properties": {
-                    "scope": {
-                      "id": "http://w3.org/web-nfc/access/1/scope",
-                      "type": "string"
-                    },
-                    "access": {
-                      "id": "http://w3.org/web-nfc/access/1/access",
-                      "type": "string"
-                    }
-                  }
-                }
               ]
             }
           },
