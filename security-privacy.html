@@ -231,10 +231,12 @@
       pattern for matching the URL's that are explicitly allowed to access
       the data, for instance <br>
       <code>{ "scope": "https://mydomain.com", "write": "true"}</code>. <br>
-      Scopes not matching this are not permitted to access the data. If the
-      whitelist is empty, then the platform default policy applies, which SHOULD
-      permit reading for everyone, but SHOULD prevent writing, except to URL's
-      matching the origin of the page which has written the data.
+      Scopes which don't
+      <a href="http://w3c.github.io/web-nfc/#the-within-scope-algorithm">match</a> this are not permitted to access the data.
+      If the whitelist is empty, then the platform default policy applies,
+      which SHOULD permit reading for everyone, but SHOULD prevent writing,
+      except to URL's which
+      <a href="http://w3c.github.io/web-nfc/#the-within-scope-algorithm">match</a> the origin of the page which wrote the existing data.
     </p>
     <p>
       When the <dfn id="widl-NfcAccess-write">write</dfn> property is
@@ -243,7 +245,8 @@
     </p>
     <p class="issue">
       The exact meaning of scope, pattern, and the matching algorithm to origins
-      needs to be defined.
+      need to be reviewed with the
+      <a href="http://www.w3.org/2011/webappsec/">Web Application Security WG</a>.
     </p>
   </section>
 
@@ -271,8 +274,8 @@
   </section>
   <section> <h3>Web NFC using encoded metadata</h3>
     <p>
-      As an alternative to the previous section, Web NFC may also define an own
-      record format, based on NFC Forum External Type (TNF=0x04) records, where
+      As an alternative to the previous section, Web NFC may also define a
+      record format based on NFC Forum External Type (TNF=0x04) records, where
       the External Type field set to <code>urn:nfc:ext:w3.org:webnfc</code>.
       The payload type is <code>application/webnfc+json</code> (encoded as
       UTF-8 by default). All data is JSON, with the following schema:
