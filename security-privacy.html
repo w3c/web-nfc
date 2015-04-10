@@ -224,13 +224,13 @@
     </p>
     <dl title="dictionary NfcAccess" class="idl">
       <dt>DOMString scope</dt>
-      <dt>boolean write</dt>
+      <dt>boolean canWrite</dt>
     </dl>
     <p>
       The <dfn id="widl-NfcAccess-scope">scope</dfn> property is a string
       pattern for matching the URL's that are explicitly allowed to access
       the data, for instance <br>
-      <code>{ "scope": "https://mydomain.com", "write": "true"}</code>. <br>
+      <code>{ "scope": "https://mydomain.com", "canWrite": "true"}</code>. <br>
       Scopes which don't
       <a href="http://w3c.github.io/web-nfc/#the-within-scope-algorithm">match</a> this are not permitted to access the data.
       If the whitelist is empty, then the platform default policy applies,
@@ -239,7 +239,7 @@
       <a href="http://w3c.github.io/web-nfc/#the-within-scope-algorithm">match</a> the origin of the page which wrote the existing data.
     </p>
     <p>
-      When the <dfn id="widl-NfcAccess-write">write</dfn> property is
+      When the <dfn id="widl-NfcAccess-canWrite">canWrite</dfn> property is
       <code>true</code>, then the URL's matching <code><var>scope</var></code>
       are permitted to write (in fact, update) the data, otherwise they are only permitted to read it.
     </p>
@@ -342,8 +342,8 @@
                       "id": "http://w3.org/web-nfc/access/0/scope",
                       "type": "string"
                     },
-                    "write": {
-                      "id": "http://w3.org/web-nfc/access/0/write",
+                    "canWrite": {
+                      "id": "http://w3.org/web-nfc/access/0/canWrite",
                       "type": "boolean"
                     }
                   }
