@@ -286,7 +286,7 @@
           <code>"w3.org/web-nfc”</code>. This is not strictly needed.
         </li>
         <li>
-          <code>scope</code>: <code>"string"</code>; contains the
+          <code>origin</code>: <code>"string"</code>; contains the
           <a href="https://html.spec.whatwg.org/multipage/browsers.html#ascii-serialisation-of-an-origin">ASCII serialized origin</a> which
           has written the data. Also, this is not strictly needed, since it can
           be also stored at the NDEF record's <code>id</code> field.
@@ -303,7 +303,7 @@
         </li>
         <li>
           <code>access</code>: <code>"array"</code>; contains the
-          <a>whitelist</a> for access control.
+          <a>whitelist</a> for defining access control to the data.
         </li>
       </ul>
       <!--
@@ -318,8 +318,8 @@
               "id": "http://w3.org/web-nfc/id",
               "type": "string"
             },
-            "scope": {
-              "id": "http://w3.org/web-nfc/scope",
+            "origin": {
+              "id": "http://w3.org/web-nfc/origin",
               "type": "string"
             },
             "messageType": {
@@ -352,8 +352,7 @@
             }
           },
           "required": [
-            "id",
-            "scope",
+            "origin",
             "messageType",
             "message",
           ]
