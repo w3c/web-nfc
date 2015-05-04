@@ -154,7 +154,8 @@
           and the data read may constitute an attack vector on the user agent
         </td>
         <td>This is a generic problem with all existing NFC tags;
-           implementations need security hardening; involuntary touch is low probability due to short range and critical angle for reading;
+           implementations need security hardening; involuntary touch is low
+           probability due to short range and critical angle for reading;
            it’s easier to attack elsewhere (e.g. WiFi and Bluetooth)
         </td>
       </tr>
@@ -196,12 +197,13 @@
     <ul>
       <li>an identification mechanism for telling apart “Web NFC tags” from
         generic NFC tags</li>
-      <li>a mechanism for whitelisting URL's that can read, or write a certain
-        Web NFC tag</li>
+      <li>a mechanism for conveying implementation specific contextual data
+        which is not exposed to applications.</li>
     </ul>
   </p>
 </section>
 
+<!--
 <section class="informative"> <h2>Implementation details</h2>
   <p>
     This section contains discussion of implementation possibilities of security
@@ -257,19 +259,16 @@
       <ul>
         <li>Normal NDEF records carrying data.</li>
         <li>
-          Optionally, an NDEF record for Web NFC identification.
+          Optionally, an NDEF record for Web NFC identification and configuration.
           The preferred type of this NDEF record is NFC Forum External Type
           (TNF=0x04), with the External Type field set to
-          <code>urn:nfc:ext:w3.org:webnfc-id</code>.
-        </li>
-        <li>
-          Optionally, a NDEF record representing a <a>whitelist</a>.
-          The preferred type of this NDEF record is NFC Forum External Type
-          (TNF=0x04), with the External Type field set to
-          <code>urn:nfc:ext:w3.org:webnfc-wl</code>.
-          The payload is an array of <code><a>NfcAccess</a></code> dictionaries.
+          <code>urn:nfc:ext:w3.org:webnfc</code>. The payload of this record
+          MAY contain implementation specific data (such as tokens, keys,
+          context, etc).
         </li>
       </ul>
+      This scheme allows that legacy readers could read the data records,
+      provided they are able to ignore the Web NFC specific record.
     </p>
   </section>
   <section> <h3>Web NFC using encoded metadata</h3>
@@ -306,7 +305,6 @@
           <a>whitelist</a> for defining access control to the data.
         </li>
       </ul>
-      <!--
       The full JSON schema is the following:
       <pre title = "Web NFC JSON schema" class="example">
         {
@@ -345,7 +343,7 @@
                     "canWrite": {
                       "id": "http://w3.org/web-nfc/access/0/canWrite",
                       "type": "boolean"
-                    }
+                    }`
                   }
                 },
               ]
@@ -359,7 +357,6 @@
         }
       </pre>
     </p>
-    -->
     <p class="note">
       The encoded JSON format for Web NFC data and metadata is useful for
       abstracting away NFC Forum types, and for supporting implementations where
@@ -367,6 +364,7 @@
     </p>
   </section>
 </section>
+-->
 
 <section id="acknowledgments"> <h2>Acknowledgments</h2>
   <p>
