@@ -1063,44 +1063,43 @@
   </p>
   <pre title="Check permissions for NFC"
        class="example highlight">
-    navigator.permissions.query({name:'nfc'}).then(function(result) {
+    navigator.permissions.query({name: 'nfc'}).then((result) => {
         if (result.status == 'granted') {
-          enableNfcUseCase();  // do things here
+          enableNfcUseCase();  // Do things here.
         } else if (result.status == 'prompt') {
-          // the user agent will prompt
+          // The user agent will prompt.
         }
         // Otherwise don't do anything since it will fail.
       });
   </pre>
   <pre title="Read and write tag" class="example highlight">
-    var nfc = null;
-    navigator.nfc.requestAdapter().then(nfcHandler).catch(nfcErrorHandler);
-
-    function nfcHandler(NfcAdapter nfcAdapter) {
-      nfc = nfcAdapter;
-      nfc.onmessage = nfcReceiver;
+    var adapter = null;
+    navigator.nfc.requestAdapter().then((nfcAdapter) => {
+      adapter = nfcAdapter;
+      adapter.onmessage = onMessage;
     };
 
-    function nfcReceiver(evt) {
-      console.log("NDEF message received from scope " + evt.message.scope);
-      var data = evt.message.data;
+    function onMessage(event) {
+      console.log("NDEF message received from scope " + event.message.scope);
+      var data = event.message.data;
+
       if (!data) { // empty tag
-          writeTag({data: “Initializing a passive tag”});
-      } else if (typeof data == ‘string’) {
+        writeMessageOnTag({data: “Initializing a passive tag”});
+      }
+
+      if (typeof data == ‘string’) {
         console.log(“Data is string: “ + data);
-        return;
+      } else if (data instanceof Blob) {
+        processBlob(data);
+      } else if (data instanceof URL) {
+        console.log(“Data is URL: “ + data.toString());
       } else if (typeof data == ‘object’) {
-        if (data instanceof URL) {
-          console.log(“Data is URL: “ + data.toString());
-        } else if (data instanceof Blob)
-          processBlob(data);
-        else // JSON
-          processJson(data);
+        processJson(data);
       }
     };
 
-    function writeTag(msg) {
-        nfc.send(msg, {target: "tag"})
+    function writeMessageOnTag(msg) {
+        adapter.send(msg, {target: "tag"})
           .then(() => { console.log("Send was successful")})
           .catch(() => { console.log("Send failed")});
     };
@@ -1111,8 +1110,8 @@
         var reader = new FileReader();
         reader.addEventListener(“loadend”, function() {
           console.log(“Blob data: ” + reader.result);
-          // now send a response based on the data
-          nfc.send({data: “Response to blob” })
+          // Now send a response based on the data.
+          adapter.send({data: “Response to blob” })
             .then(() => { console.log("Send was successful")})
             .catch(() => { console.log("Send failed")});
         });
@@ -1121,23 +1120,19 @@
 
     function processJson(data) {
       if (myCondition(data.myKnownProperty)) {
-        nfc.send({data: “Custom data”});
+        adapter.send({data: “Custom data”});
     };
   </pre>
   <pre title="Save and restore game progress with another device"
        class="example highlight">
-    var nfc = null;
-    navigator.nfc.requestAdapter().then(nfcHandler).catch(nfcErrorHandler);
-
-    function nfcHandler(NfcAdapter nfcAdapter) {
-      nfc = nfcAdapter;
+    navigator.nfc.requestAdapter().then((adapter) => {
       console.log("Waiting for game state");
-      nfc.onmessage = (event) => {
+      adapter.onmessage = (event) => {
         console.log("Game state received from: " + event.message.scope);
         console.log("Game state: " + event.message.data);
-        // now do some calculations and update the state
-        nfc.send({ scope: event.message.scope,
-                   data: [ { level: 3, points: 4500, lives: 3 } ] })
+        // Now do some calculations and update the state.
+        adapter.send({ scope: event.message.scope,
+                       data: [ { level: 3, points: 4500, lives: 3 } ] })
           .then(() => { console.log("Send was successful")})
           .catch(() => { console.log("Send failed")});
       };
