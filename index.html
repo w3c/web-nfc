@@ -64,6 +64,14 @@
 
     };
   </script>
+  <style>
+    table.simple {
+        border: 1px solid #000;
+    } 
+    table.simple td {
+        border-right: 1px solid #000;
+    }
+  </style>
 </head>
 
 <body>
@@ -250,7 +258,7 @@
     Part of the <a>NDEF record</a> is the <dfn>TNF</dfn> field, standing for
     Type Name Format. It can take binary values representing the following
     types:
-    <table class="simple" border="1">
+    <table class="simple">
       <tr>
         <th><strong>TNF value</strong></th>
         <th><strong>NDEF record type</strong></th>
@@ -679,7 +687,7 @@
     <a>NDEF record</a> types, as used in the <code><a>send</a>()</code>
     method is as follows:
   </p>
-  <table class="simple" border="1">
+  <table class="simple">
     <tr>
       <th>NfcData</th>
       <th>NDEF record type</th>
@@ -718,7 +726,7 @@
     as used for incoming <a>NDEF message</a>s exposed by the
     <code><a>NfcMessageEvent</a></code>, is as follows:
   </p>
-  <table class="simple" border="1">
+  <table class="simple">
     <tr>
       <th>NDEF record type</th>
       <th>NfcData</th>
