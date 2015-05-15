@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" typeof="bibo:Document " prefix="bibo: http://purl.org/ontology/bibo/ w3p: http://www.w3.org/2001/02pd/rec54#">
+<head><meta lang="" property="dc:language" content="en">
+  <title>Web NFC API</title>
+  <meta charset="UTF-8">
+  
+<style>
+  table.simple {
+      border: 1px solid #000;
+  } 
+  table.simple td {
+      border-right: 1px solid #000;
+  }
+</style>
+
+<style>/*****************************************************************
+ * ReSpec 3 CSS
+ * Robin Berjon - http://berjon.com/
+ *****************************************************************/
+
+/* --- INLINES --- */
+em.rfc2119 { 
+    text-transform:     lowercase;
+    font-variant:       small-caps;
+    font-style:         normal;
+    color:              #900;
+}
+
+h1 acronym, h2 acronym, h3 acronym, h4 acronym, h5 acronym, h6 acronym, a acronym,
+h1 abbr, h2 abbr, h3 abbr, h4 abbr, h5 abbr, h6 abbr, a abbr {
+    border: none;
+}
+
+dfn {
+    font-weight:    bold;
+}
+
+a.internalDFN {
+    color:  inherit;
+    border-bottom:  1px solid #99c;
+    text-decoration:    none;
+}
+
+a.externalDFN {
+    color:  inherit;
+    border-bottom:  1px dotted #ccc;
+    text-decoration:    none;
+}
+
+a.bibref {
+    text-decoration:    none;
+}
+
+cite .bibref {
+    font-style: normal;
+}
+
+code {
+    color:  #C83500;
+}
+
+/* --- TOC --- */
+.toc a, .tof a {
+    text-decoration:    none;
+}
+
+a .secno, a .figno {
+    color:  #000;
+}
+
+ul.tof, ol.tof {
+    list-style: none outside none;
+}
+
+.caption {
+    margin-top: 0.5em;
+    font-style:   italic;
+}
+
+/* --- TABLE --- */
+table.simple {
+    border-spacing: 0;
+    border-collapse:    collapse;
+    border-bottom:  3px solid #005a9c;
+}
+
+.simple th {
+    background: #005a9c;
+    color:  #fff;
+    padding:    3px 5px;
+    text-align: left;
+}
+
+.simple th[scope="row"] {
+    background: inherit;
+    color:  inherit;
+    border-top: 1px solid #ddd;
+}
+
+.simple td {
+    padding:    3px 10px;
+    border-top: 1px solid #ddd;
+}
+
+.simple tr:nth-child(even) {
+    background: #f0f6ff;
+}
+
+/* --- DL --- */
+.section dd > p:first-child {
+    margin-top: 0;
+}
+
+.section dd > p:last-child {
+    margin-bottom: 0;
+}
+
+.section dd {
+    margin-bottom:  1em;
+}
+
+.section dl.attrs dd, .section dl.eldef dd {
+    margin-bottom:  0;
+}
+
+@media print {
+    .removeOnSave {
+        display: none;
+    }
+}
+</style><style>/* --- EXAMPLES --- */
+div.example-title {
+    min-width: 7.5em;
+    color: #b9ab2d;
+}
+div.example-title span {
+    text-transform: uppercase;
+}
+aside.example, div.example, div.illegal-example {
+    padding: 0.5em;
+    margin: 1em 0;
+    position: relative;
+    clear: both;
+}
+div.illegal-example { color: red }
+div.illegal-example p { color: black }
+aside.example, div.example {
+    padding: .5em;
+    border-left-width: .5em;
+    border-left-style: solid;
+    border-color: #e0cb52;
+    background: #fcfaee;
+}
+
+aside.example div.example {
+    border-left-width: .1em;
+    border-color: #999;
+    background: #fff;
+}
+aside.example div.example div.example-title {
+    color: #999;
+}
+</style><style>/* --- ISSUES/NOTES --- */
+div.issue-title, div.note-title , div.ednote-title, div.warning-title {
+    padding-right:  1em;
+    min-width: 7.5em;
+    color: #b9ab2d;
+}
+div.issue-title { color: #e05252; }
+div.note-title, div.ednote-title { color: #2b2; }
+div.warning-title { color: #f22; }
+div.issue-title span, div.note-title span, div.ednote-title span, div.warning-title span {
+    text-transform: uppercase;
+}
+div.note, div.issue, div.ednote, div.warning {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+.note > p:first-child, .ednote > p:first-child, .issue > p:first-child, .warning > p:first-child { margin-top: 0 }
+.issue, .note, .ednote, .warning {
+    padding: .5em;
+    border-left-width: .5em;
+    border-left-style: solid;
+}
+div.issue, div.note , div.ednote,  div.warning {
+    padding: 1em 1.2em 0.5em;
+    margin: 1em 0;
+    position: relative;
+    clear: both;
+}
+span.note, span.ednote, span.issue, span.warning { padding: .1em .5em .15em; }
+
+.issue {
+    border-color: #e05252;
+    background: #fbe9e9;
+}
+.note, .ednote {
+    border-color: #52e052;
+    background: #e9fbe9;
+}
+
+.warning {
+    border-color: #f11;
+    border-right-width: .2em;
+    border-top-width: .2em;
+    border-bottom-width: .2em;
+    border-style: solid;
+    background: #fbe9e9;
+}
+
+.warning-title:before{
+    content: "⚠"; /*U+26A0 WARNING SIGN*/
+    font-size: 3em;
+    float: left;
+    height: 100%;
+    padding-right: .3em;
+    vertical-align: top;
+    margin-top: -0.5em;
+}
+</style><style>/* HIGHLIGHTS */
+code.prettyprint {
+    color:  inherit;
+}
+
+/* this from google-code-prettify */
+.pln{color:#000}@media screen{.str{color:#080}.kwd{color:#008}.com{color:#800}.typ{color:#606}.lit{color:#066}.pun,.opn,.clo{color:#660}.tag{color:#008}.atn{color:#606}.atv{color:#080}.dec,.var{color:#606}.fun{color:red}}@media print,projection{.str{color:#060}.kwd{color:#006;font-weight:bold}.com{color:#600;font-style:italic}.typ{color:#404;font-weight:bold}.lit{color:#044}.pun,.opn,.clo{color:#440}.tag{color:#006;font-weight:bold}.atn{color:#404}.atv{color:#060}}ol.linenums{margin-top:0;margin-bottom:0}li.L0,li.L1,li.L2,li.L3,li.L5,li.L6,li.L7,li.L8{list-style-type:none}li.L1,li.L3,li.L5,li.L7,li.L9{background:#eee}
+</style><style>/* --- WEB IDL --- */
+pre.idl {
+    border-top: 1px solid #90b8de;
+    border-bottom: 1px solid #90b8de;
+    padding:    1em;
+    line-height:    120%;
+}
+
+pre.idl::before {
+    content:    "WebIDL";
+    display:    block;
+    width:      150px;
+    background: #90b8de;
+    color:  #fff;
+    font-family:    sans-serif;
+    padding:    3px;
+    font-weight:    bold;
+    margin: -1em 0 1em -1em;
+}
+
+.idlType {
+    color:  #ff4500;
+    font-weight:    bold;
+    text-decoration:    none;
+}
+
+/*.idlModule*/
+/*.idlModuleID*/
+/*.idlInterface*/
+.idlInterfaceID, .idlDictionaryID, .idlCallbackID, .idlEnumID {
+    font-weight:    bold;
+    color:  #005a9c;
+}
+a.idlEnumItem {
+    color:  #000;
+    border-bottom:  1px dotted #ccc;
+    text-decoration: none;
+}
+
+.idlSuperclass {
+    font-style: italic;
+    color:  #005a9c;
+}
+
+/*.idlAttribute*/
+.idlAttrType, .idlFieldType, .idlMemberType {
+    color:  #005a9c;
+}
+.idlAttrName, .idlFieldName, .idlMemberName {
+    color:  #ff4500;
+}
+.idlAttrName a, .idlFieldName a, .idlMemberName a {
+    color:  #ff4500;
+    border-bottom:  1px dotted #ff4500;
+    text-decoration: none;
+}
+
+/*.idlMethod*/
+.idlMethType, .idlCallbackType {
+    color:  #005a9c;
+}
+.idlMethName {
+    color:  #ff4500;
+}
+.idlMethName a {
+    color:  #ff4500;
+    border-bottom:  1px dotted #ff4500;
+    text-decoration: none;
+}
+
+/*.idlCtor*/
+.idlCtorName {
+    color:  #ff4500;
+}
+.idlCtorName a {
+    color:  #ff4500;
+    border-bottom:  1px dotted #ff4500;
+    text-decoration: none;
+}
+
+/*.idlParam*/
+.idlParamType {
+    color:  #005a9c;
+}
+.idlParamName, .idlDefaultValue {
+    font-style: italic;
+}
+
+.extAttr {
+    color:  #666;
+}
+
+/*.idlSectionComment*/
+.idlSectionComment {
+    color: gray;
+}
+
+/*.idlMaplike*/
+.idlMaplikeKeyType, .idlMaplikeValueType {
+    color:  #005a9c;
+}
+
+/*.idlConst*/
+.idlConstType {
+    color:  #005a9c;
+}
+.idlConstName {
+    color:  #ff4500;
+}
+.idlConstName a {
+    color:  #ff4500;
+    border-bottom:  1px dotted #ff4500;
+    text-decoration: none;
+}
+
+/*.idlException*/
+.idlExceptionID {
+    font-weight:    bold;
+    color:  #c00;
+}
+
+.idlTypedefID, .idlTypedefType {
+    color:  #005a9c;
+}
+
+.idlRaises, .idlRaises a.idlType, .idlRaises a.idlType code, .excName a, .excName a code {
+    color:  #c00;
+    font-weight:    normal;
+}
+
+.excName a {
+    font-family:    monospace;
+}
+
+.idlRaises a.idlType, .excName a.idlType {
+    border-bottom:  1px dotted #c00;
+}
+
+.excGetSetTrue, .excGetSetFalse, .prmNullTrue, .prmNullFalse, .prmOptTrue, .prmOptFalse {
+    width:  45px;
+    text-align: center;
+}
+.excGetSetTrue, .prmNullTrue, .prmOptTrue { color:  #0c0; }
+.excGetSetFalse, .prmNullFalse, .prmOptFalse { color:  #c00; }
+
+.idlImplements a {
+    font-weight:    bold;
+}
+
+dl.attributes, dl.methods, dl.constants, dl.constructors, dl.fields, dl.dictionary-members {
+    margin-left:    2em;
+}
+
+.attributes dt, .methods dt, .constants dt, .constructors dt, .fields dt, .dictionary-members dt {
+    font-weight:    normal;
+}
+
+.attributes dt code, .methods dt code, .constants dt code, .constructors dt code, .fields dt code, .dictionary-members dt code {
+    font-weight:    bold;
+    color:  #000;
+    font-family:    monospace;
+}
+
+.attributes dt code, .fields dt code, .dictionary-members dt code {
+    background:  #ffffd2;
+}
+
+.attributes dt .idlAttrType code, .fields dt .idlFieldType code, .dictionary-members dt .idlMemberType code {
+    color:  #005a9c;
+    background:  transparent;
+    font-family:    inherit;
+    font-weight:    normal;
+    font-style: italic;
+}
+
+.methods dt code {
+    background:  #d9e6f8;
+}
+
+.constants dt code {
+    background:  #ddffd2;
+}
+
+.constructors dt code {
+    background:  #cfc;
+}
+
+.attributes dd, .methods dd, .constants dd, .constructors dd, .fields dd, .dictionary-members dd {
+    margin-bottom:  1em;
+}
+
+table.parameters, table.exceptions {
+    border-spacing: 0;
+    border-collapse:    collapse;
+    margin: 0.5em 0;
+    width:  100%;
+}
+table.parameters { border-bottom:  1px solid #90b8de; }
+table.exceptions { border-bottom:  1px solid #deb890; }
+
+.parameters th, .exceptions th {
+    color:  #fff;
+    padding:    3px 5px;
+    text-align: left;
+    font-weight:    normal;
+    text-shadow:    #666 1px 1px 0;
+}
+.parameters th { background: #90b8de; }
+.exceptions th { background: #deb890; }
+
+.parameters td, .exceptions td {
+    padding:    3px 10px;
+    border-top: 1px solid #ddd;
+    vertical-align: top;
+}
+
+.parameters tr:first-child td, .exceptions tr:first-child td {
+    border-top: none;
+}
+
+.parameters td.prmName, .exceptions td.excName, .exceptions td.excCodeName {
+    width:  100px;
+}
+
+.parameters td.prmType {
+    width:  120px;
+}
+
+table.exceptions table {
+    border-spacing: 0;
+    border-collapse:    collapse;
+    width:  100%;
+}
+</style><link rel="stylesheet" href="https://www.w3.org/community/src/css/spec/cg-draft.css"><!--[if lt IE 9]><script src='https://www.w3.org/2008/site/js/html5shiv.js'></script><![endif]--></head>
+
+<body class="h-entry" role="document" id="respecDocument"><div class="head" role="contentinfo" id="respecHeader">
+  <p>
+    <a href="http://www.w3.org/"><img width="72" height="48" src="https://www.w3.org/Icons/w3c_home" alt="W3C"></a>
+  </p>
+  <h1 class="title p-name" id="title" property="dc:title">Web NFC API</h1>
+  
+  <h2 id="draft-community-group-report-15-may-2015">Draft Community Group Report <time property="dc:issued" class="dt-published" datetime="2015-05-15">15 May 2015</time></h2>
+  <dl>
+    
+    
+    
+      <dt>Latest editor's draft:</dt>
+      <dd><a href="http://w3c.github.io/web-nfc/">http://w3c.github.io/web-nfc/</a></dd>
+    
+    
+    
+    
+    
+    
+      
+    
+    <dt>Editors:</dt>
+    <dd class="p-author h-card vcard" property="bibo:editor" resource="_:editor0"><span property="rdf:first" typeof="foaf:Person"><span property="foaf:name" class="p-name fn">Kenneth Rohde Christiansen</span>, <a property="foaf:workplaceHomepage" class="p-org org h-org h-card" href="http://www.intel.com/">Intel</a></span>
+<span property="rdf:rest" resource="_:editor1"></span>
+</dd>
+<dd class="p-author h-card vcard" resource="_:editor1"><span property="rdf:first" typeof="foaf:Person"><span property="foaf:name" class="p-name fn">Zoltan Kis</span>, <a property="foaf:workplaceHomepage" class="p-org org h-org h-card" href="http://www.intel.com/">Intel</a></span>
+<span property="rdf:rest" resource="rdf:nil"></span>
+</dd>
+
+    
+    
+      
+        
+          <dt>Repository:</dt>
+          
+             
+                
+                  <dd>
+                    <a href="https://github.com/w3c/web-nfc">
+                      We are on Github.
+                    </a>
+                  </dd>
+                
+             
+                
+                  <dd>
+                    <a href="https://github.com/w3c/web-nfc/issues">
+                      File a bug.
+                    </a>
+                  </dd>
+                
+             
+                
+                  <dd>
+                    <a href="https://github.com/w3c/web-nfc/commits/gh-pages">
+                      Commit history.
+                    </a>
+                  </dd>
+                
+             
+                
+                  <dd>
+                    <a href="http://w3c.github.io/web-nfc/use-cases.html">
+                      Usage scenarios
+                    </a>
+                  </dd>
+                
+             
+          
+        
+      
+    
+  </dl>
+  
+  <p class="copyright">
+    <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 
+    2015
+    the Contributors to the Web NFC API Specification, published by the
+    <a href="https://www.w3.org/community/web-nfc/">Web NFC Community Group</a> under the
+    
+      <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a>.
+      A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/">summary</a> is available.
+    
+  </p>
+  <hr>
+</div>
+
+<!-- - - - - - - - - - - - - - - - Abstract - - - - - - - - - - - - - - - - -->
+<section id="abstract" class="introductory" property="dc:abstract"><h2 id="h-abstract" resource="#h-abstract"><span property="xhv:role" resource="xhv:heading">Abstract</span></h2>
+  <p>
+    Near Field Communication (NFC) enables wireless communication between two
+    devices at close proximity, usually less than a few centimeters.
+    NFC is an international standard (ISO/IEC 18092) defining an interface and
+    protocol for simple wireless interconnection of closely coupled devices
+    operating at 13.56 MHz
+    (see <a href="http://www.nfc-forum.org/specs/spec_list/">
+    http://www.nfc-forum.org/specs/spec_list/</a>).
+  </p>
+  <p>
+    This specification defines an API to manage selected NFC use-cases from web
+    pages, and to enable new use-cases based on NFC technology.
+  </p>
+</section><section id="sotd" class="introductory"><h2 id="h-sotd" resource="#h-sotd"><span property="xhv:role" resource="xhv:heading">Status of This Document</span></h2>
+  <p>
+    This specification was published by the <a href="https://www.w3.org/community/web-nfc/">Web NFC Community Group</a>.
+    It is not a W3C Standard nor is it on the W3C Standards Track.
+    
+      Please note that under the 
+      <a href="https://www.w3.org/community/about/agreements/cla/">W3C Community Contributor License Agreement (CLA)</a>
+      there is a limited opt-out and other conditions apply.
+    
+    Learn more about 
+    <a href="http://www.w3.org/community/">W3C Community and Business Groups</a>.
+  </p>
+  
+  
+  <p>
+    Implementors need to be aware that this specification is considered unstable.
+    Implementors who are not taking part in the discussions will find the
+    specification changing out from under them in incompatible ways. Vendors
+    interested in implementing this specification before it eventually reaches
+    the Candidate Recommendation phase should subscribe to the repository on
+    GitHub and take part in the discussions.
+  </p>
+  <p>
+    Significant changes to this document since last publication are
+    documented in the <a href="#Changes">Changes section</a>.
+  </p>
+
+  
+    
+      <p>If you wish to make comments regarding this document, please send them to 
+      <a href="mailto:public-web-nfc@w3.org">public-web-nfc@w3.org</a> 
+      (<a href="mailto:public-web-nfc-request@w3.org?subject=subscribe">subscribe</a>,
+      <a href="http://lists.w3.org/Archives/Public/public-web-nfc/">archives</a>).</p>
+    
+  
+</section><section id="toc"><h2 class="introductory" id="h-toc" resource="#h-toc"><span property="xhv:role" resource="xhv:heading">Table of Contents</span></h2><ul class="toc" role="directory" id="respecContents"><li class="tocline"><a href="#conformance" class="tocxref"><span class="secno">1. </span>Conformance</a></li><li class="tocline"><a href="#terminology" class="tocxref"><span class="secno">2. </span>Terminology</a></li><li class="tocline"><a href="#introduction" class="tocxref"><span class="secno">3. </span>Introduction</a><ul class="toc"><li class="tocline"><a href="#use-cases" class="tocxref"><span class="secno">3.1 </span>Use Cases</a><ul class="toc"><li class="tocline"><a href="#reading-nfc-tags" class="tocxref"><span class="secno">3.1.1 </span>Reading <span class="formerLink">NFC tag</span>s</a></li><li class="tocline"><a href="#writing-nfc-tags" class="tocxref"><span class="secno">3.1.2 </span>Writing <span class="formerLink">NFC tag</span>s</a></li><li class="tocline"><a href="#sending-data-to-nfc-peers" class="tocxref"><span class="secno">3.1.3 </span>Sending data to <span class="formerLink">NFC peer</span>s</a></li><li class="tocline"><a href="#handover-to-another-wireless-connection-type" class="tocxref"><span class="secno">3.1.4 </span>Handover to another wireless connection type</a></li></ul></li><li class="tocline"><a href="#features" class="tocxref"><span class="secno">3.2 </span>Features</a></li><li class="tocline"><a href="#technical-requirements" class="tocxref"><span class="secno">3.3 </span>Technical requirements</a></li></ul></li><li class="tocline"><a href="#security-and-privacy" class="tocxref"><span class="secno">4. </span>Security and Privacy</a></li><li class="tocline"><a href="#data-types" class="tocxref"><span class="secno">5. </span>Data Types</a><ul class="toc"><li class="tocline"><a href="#the-format-of-a-web-nfc-record" class="tocxref"><span class="secno">5.1 </span>The format of a Web NFC record</a></li><li class="tocline"><a href="#web-nfc-message-payload" class="tocxref"><span class="secno">5.2 </span>Web NFC message payload</a></li></ul></li><li class="tocline"><a href="#extensions-to-the-navigator-interface" class="tocxref"><span class="secno">6. </span>Extensions to the <strong>Navigator</strong> interface</a><ul class="toc"><li class="tocline"><a href="#the-nfc-attribute" class="tocxref"><span class="secno">6.1 </span>The <strong>nfc</strong> attribute</a></li></ul></li><li class="tocline"><a href="#the-nfc-interface" class="tocxref"><span class="secno">7. </span>The <strong>Nfc</strong> interface</a></li><li class="tocline"><a href="#the-nfcadapter-interface" class="tocxref"><span class="secno">8. </span>The <strong>NfcAdapter</strong> interface</a><ul class="toc"><li class="tocline"><a href="#events-used-with-the-nfcadapter-interface" class="tocxref"><span class="secno">8.1 </span>Events used with the <strong>NfcAdapter</strong> interface</a><ul class="toc"><li class="tocline"><a href="#the-message-event" class="tocxref"><span class="secno">8.1.1 </span>The <strong>message</strong> event</a></li><li class="tocline"><a href="#the-nfcmessageevent-interface" class="tocxref"><span class="secno">8.1.2 </span>The <strong>NfcMessageEvent</strong> interface</a></li><li class="tocline"><a href="#the-nfcmessage-interface" class="tocxref"><span class="secno">8.1.3 </span>The <strong>NfcMessage</strong> interface</a></li></ul></li><li class="tocline"><a href="#the-send-method" class="tocxref"><span class="secno">8.2 </span>The <strong>send()</strong> method</a><ul class="toc"><li class="tocline"><a href="#the-nfcsendoptions-dictionary" class="tocxref"><span class="secno">8.2.1 </span>The <strong>NfcSendOptions</strong> dictionary</a></li></ul></li></ul></li><li class="tocline"><a href="#examples" class="tocxref"><span class="secno">9. </span>Examples</a></li><li class="tocline"><a href="#Changes" class="tocxref"><span class="secno">A. </span>Changes</a></li><li class="tocline"><a href="#open-issues" class="tocxref"><span class="secno">B. </span>Open issues</a></li><li class="tocline"><a href="#acknowledgements" class="tocxref"><span class="secno">C. </span>Acknowledgements</a></li><li class="tocline"><a href="#references" class="tocxref"><span class="secno">D. </span>References</a><ul class="toc"><li class="tocline"><a href="#normative-references" class="tocxref"><span class="secno">D.1 </span>Normative references</a></li><li class="tocline"><a href="#informative-references" class="tocxref"><span class="secno">D.2 </span>Informative references</a></li></ul></li></ul></section>
+
+<!-- - - - - - - - - - - - Status of this document  - - - - - - - - - - - - -->
+
+
+<!-- - - - - - - - - - - - - - - Conformance  - - - - - - - - - - - - - - - -->
+<section id="conformance" typeof="bibo:Chapter" resource="#conformance" property="bibo:hasPart"><!--OddPage--><h2 id="h-conformance" resource="#h-conformance"><span property="xhv:role" resource="xhv:heading"><span class="secno">1. </span>Conformance</span></h2>
+<p>
+  As well as sections marked as non-normative, all authoring guidelines, diagrams, examples,
+  and notes in this specification are non-normative. Everything else in this specification is
+  normative.
+</p>
+<p id="respecRFC2119">The key words <em class="rfc2119" title="MAY">MAY</em>, <em class="rfc2119" title="MUST">MUST</em>, <em class="rfc2119" title="MUST NOT">MUST NOT</em>, and <em class="rfc2119" title="SHOULD">SHOULD</em> are 
+  to be interpreted as described in [<cite><a class="bibref" href="#bib-RFC2119">RFC2119</a></cite>].
+</p>
+
+  <p>
+    This specification defines conformance criteria that apply to a single
+    product: the <dfn id="dfn-user-agent">user agent</dfn> that implements the interfaces
+    it contains.
+  </p>
+  <p>
+    Implementations that use ECMAScript to implement the APIs defined in
+    this specification <em class="rfc2119" title="MUST">MUST</em> implement them in a manner consistent with the
+    ECMAScript Bindings defined in the Web IDL specification [<cite><a class="bibref" href="#bib-WEBIDL">WEBIDL</a></cite>], as
+    this specification uses that specification and terminology.
+  </p>
+</section>
+
+<!-- - - - - - - - - - - - - - -  Terminology - - - - - - - - - - - - - - - -->
+<section id="terminology" typeof="bibo:Chapter" resource="#terminology" property="bibo:hasPart"> <!--OddPage--><h2 id="h-terminology" resource="#h-terminology"><span property="xhv:role" resource="xhv:heading"><span class="secno">2. </span>Terminology</span></h2>
+  <p>
+    The
+    <a href="http://dev.w3.org/html5/spec/webappapis.html#eventhandler">
+    <code><dfn id="dfn-eventhandler">EventHandler</dfn></code></a> interface represents a callback
+    used for event handlers as defined in [<cite><a class="bibref" href="#bib-HTML5">HTML5</a></cite>].
+  </p>
+  <p>
+    The concepts
+    <a href="http://dev.w3.org/html5/spec/webappapis.html#queue-a-task">
+      <dfn id="dfn-queue-a-task">queue a task</dfn></a> and
+    <a href="http://dev.w3.org/html5/spec/webappapis.html#fire-a-simple-event">
+    <dfn id="dfn-fire-a-simple-event">fire a simple event</dfn></a> are defined in [<cite><a class="bibref" href="#bib-HTML5">HTML5</a></cite>].
+  </p>
+  <p>
+    The terms
+    <a href="http://dev.w3.org/html5/spec/webappapis.html#event-handlers">
+      <dfn id="dfn-event-handler">event handler</dfn></a> and
+    <a href="http://dev.w3.org/html5/spec/webappapis.html#event-handler-event-type">
+    <dfn id="dfn-event-handler-event-types">event handler event types</dfn></a> are defined in [<cite><a class="bibref" href="#bib-HTML5">HTML5</a></cite>].
+  </p>
+  <p>
+    <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">
+      <code><dfn id="dfn-promise">Promise</dfn></code></a>, and
+    <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-json.parse">
+      <code><dfn id="dfn-json.parse">JSON.parse</dfn></code></a> are defined in [<cite><a class="bibref" href="#bib-ECMASCRIPT">ECMASCRIPT</a></cite>].
+  </p>
+  <p>
+    The algorithms <a href="http://www.w3.org/TR/encoding/#utf-8-encode">
+    <dfn id="dfn-utf-8-encode">utf-8 encode</dfn></a>, and
+    <a href="http://www.w3.org/TR/encoding/#utf-8-decode">
+    <dfn id="dfn-utf-8-decode">utf-8 decode</dfn></a> are defined in [<cite><a class="bibref" href="#bib-ENCODING">ENCODING</a></cite>].
+  </p>
+  <p>
+    <a href="http://www.w3.org/TR/dom/#eventinit">
+      <dfn id="dfn-eventinit">EventInit</dfn></a>,
+    <a href="http://www.w3.org/TR/dom/#domexception">
+      <dfn id="dfn-domexception">DOMException</dfn></a>,
+    <a href="http://www.w3.org/TR/dom/#aborterror">
+      <dfn id="dfn-aborterror">AbortError</dfn></a>,
+    <a href="http://www.w3.org/TR/dom/#syntaxerror">
+      <dfn id="dfn-syntaxerror">SyntaxError</dfn></a>,
+    <a href="http://www.w3.org/TR/dom/#notsupportederror">
+      <dfn id="dfn-notsupportederror">NotSupportedError</dfn></a>,
+    <a href="http://www.w3.org/TR/dom/#notfounderror">
+      <dfn id="dfn-notfounderror">NotFoundError</dfn></a>, and
+    <a href="http://www.w3.org/TR/dom/#securityerror">
+      <dfn id="dfn-securityerror">SecurityError</dfn></a>
+    are defined in [<cite><a class="bibref" href="#bib-DOM4">DOM4</a></cite>].
+  </p>
+  <p>
+    The term <dfn id="dfn-web-app">web app</dfn> refers to a Web application, i.e. an application
+    implemented using Web technologies, and executing within the context of a
+    Web <a href="#dfn-user-agent" class="internalDFN">user agent</a>, e.g. a Web browser or other Web-based runtime
+    environments.
+  </p>
+  <p>
+    The term <dfn id="dfn-expressed-permission">expressed permission</dfn> refers to an act by the user, e.g.
+    via user interface or host device platform features, via which the user
+    approves the permission of a <a href="#dfn-web-app" class="internalDFN">web app</a> to access the Web NFC API.
+  </p>
+  <p>
+    The term <dfn id="dfn-obtain-permission">obtain permission</dfn> for a certain operation refers to
+    obtain <a href="#dfn-expressed-permission" class="internalDFN">expressed permission</a> or to ensure the existence of a
+    prearranged trust relationship.
+  </p>
+  <p>
+    <code><a href="http://www.w3.org/TR/url-1/"><dfn id="dfn-url">URL</dfn></a>
+    </code> is defined in [<cite><a class="bibref" href="#bib-URL">URL</a></cite>].
+  </p>
+  <p>
+    <code><a href="http://www.w3.org/TR/FileAPI/#blob"><dfn id="dfn-blob">Blob</dfn></a>
+    </code> is defined in [<cite><a class="bibref" href="#bib-FILEAPI">FILEAPI</a></cite>].
+  </p>
+  <p>
+    <a href="http://heycam.github.io/webidl/#idl-DOMString">
+      <code><dfn id="dfn-domstring">DOMString</dfn></code></a>,
+    <a href="http://heycam.github.io/webidl/#idl-ArrayBuffer">
+      <code><dfn id="dfn-arraybuffer">ArrayBuffer</dfn></code></a>,
+    <a href="http://heycam.github.io/webidl/#common-BufferSource">
+      <code><dfn id="dfn-buffersource">BufferSource</dfn></code></a> and
+    <a href="http://www.w3.org/TR/WebIDL/#idl-any">
+      <code><dfn id="dfn-any">any</dfn></code></a>
+    are defined in [<cite><a class="bibref" href="#bib-WEBIDL">WEBIDL</a></cite>].
+  </p>
+  <p>
+    <b>NFC</b> stands for Near Field Communications, short-range wireless
+    technology operating at 13.56 MHz which enables communication between
+    devices at a distance less than 10 cm. The NFC communications protocols and
+    data exchange formats, and are based on existing radio-frequency
+    identification (RFID) standards, including ISO/IEC 14443 and FeliCa.
+    The NFC standards include ISO/IEC 18092[5] and those defined by the NFC
+    Forum. See http://www.nfc-forum.org/specs/spec_list/ for a complete listing.
+  </p>
+  <p>
+    An <dfn id="dfn-nfc-adapter">NFC adapter</dfn> is the software entity in the underlying
+    platform which provides access to NFC functionality implemented in a
+    given hardware element (NFC chip). A device may have multiple NFC
+    adapters, for instance a built-in one, and one attached via USB.
+  </p>
+  <p>
+    An <dfn id="dfn-nfc-tag">NFC tag</dfn> is a passive, unpowered NFC device.
+    The <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a> is powered by magnetic induction when an active NFC
+    device is in proximity range. An <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a> contains a single
+    <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a>.
+    </p><div class="note"><div class="note-title" aria-level="3" role="heading" id="h-note1"><span>Note</span></div><p class="">
+      The way of reading the message may happen through proprietary
+      technologies, which require the reader and the tag to be of the same
+      manufacturer. Implementations are expected to encapsulate this.
+    </p></div>
+  <p></p>
+  <p>
+    An <dfn id="dfn-nfc-peer">NFC peer</dfn> is another device, which can interact with other
+    devices in order to exchange data using NFC.
+  </p>
+  <p>
+    An <dfn id="dfn-ndef-message">NDEF message</dfn> encapsulates one or more application-defined
+    <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a>s. <dfn id="dfn-ndef">NDEF</dfn> stands for NFC Forum Data Exchange
+    Format, a lightweight binary message format. NDEF messages can be stored on
+    a <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a> or exchanged between NFC-enabled devices.
+  </p>
+  <p>
+    An <dfn id="dfn-ndef-record">NDEF record</dfn> has a maximum payload of 2^32-1 bytes. The record
+    also contains information about the payload size, type, and an optional
+    identifier. NFC Forum standardized a small set of useful data types to be
+    used in <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a>s, for instance text, URL, media. In addition,
+    there are record types designed for more complex interactions, such as
+    Smart Poster, and handover records.
+  </p>
+  <p>
+    Part of the <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a> is the <dfn id="dfn-tnf">TNF</dfn> field, standing for
+    Type Name Format. It can take binary values representing the following
+    types:
+    </p><table class="simple">
+      <tbody><tr>
+        <th><strong>TNF value</strong></th>
+        <th><strong>NDEF record type</strong></th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td><dfn id="dfn-empty">Empty</dfn></td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>NFC Forum <dfn id="dfn-well-known-type">Well-Known Type</dfn>
+        </td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><dfn id="dfn-media-type">Media Type</dfn></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><dfn id="dfn-absolute-uri">Absolute URI</dfn></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>NFC Forum <dfn id="dfn-external-type">External Type</dfn></td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><dfn id="dfn-unknown">Unknown</dfn></td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><dfn id="dfn-unchanged">Unchanged</dfn></td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td><dfn id="dfn-reserved">Reserved</dfn></td>
+      </tr>
+    </tbody></table>
+    <br>
+    NFC Forum <a href="#dfn-well-known-type" class="internalDFN">Well-Known Type</a> includes record types <i>text</i>,
+    <i>URI</i>, <i>Smart Poster</i> (containing a URI or other
+    data and possible actions).
+  <p></p>
+  <p>
+    A <dfn id="dfn-web-nfc-message">Web NFC message</dfn> is an <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a> which contains at
+    least one <a href="#dfn-web-nfc-record" class="internalDFN">Web NFC record</a>.
+  </p>
+  <p>
+    A <dfn id="dfn-web-nfc-record">Web NFC record</dfn> is an <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a> with <a href="#dfn-tnf" class="internalDFN">TNF</a>=4
+    (External Type Record), and  the <var>type</var> field set to
+    <code>"urn:nfc:ext:w3.org:webnfc"</code>. Further formatting details are
+    described <a href="#web-nfc-payload">Data Types</a>.
+  </p>
+  <p>An <dfn id="dfn-nfc-handover">NFC handover</dfn> defines NFC Forum Well Known Types and the
+    corresponding message structure that allows negotiation and activation of
+    an alternative communication carrier, such as Bluetooth or WiFi.
+    The negotiated communication carrier would then be used (separately) to
+    perform certain activities between the two devices, such as sending photos
+    to the other device, printing to a Bluetooth printer or streaming video to
+    a television set.
+  </p>
+  <p>
+    The term <dfn id="dfn-sufficient-permission">sufficient permission</dfn> in this document means that a
+    <a href="#dfn-web-app" class="internalDFN">web app</a> which is invoking the methods of this API has been checked to
+    comply with the security policies set by the underlying platform and API
+    implementation in the moment and context of invoking the API method.
+    Further details are described in <a href="#security">
+    Security and Privacy</a>.
+  </p>
+  <p>
+    The term
+    <a href="http://www.w3.org/TR/2011/WD-html5-20110113/urls.html#document-base-url">
+    <dfn id="dfn-document-base-url">document base URL</dfn></a> is defined in [<cite><a class="bibref" href="#bib-HTML5">HTML5</a></cite>].
+  </p>
+  <p>
+    The term <dfn id="dfn-url-scope">URL scope</dfn> is introduced in this document for NFC
+    operations as a sub-domain match to the <a href="#dfn-web-app" class="internalDFN">web app</a>'s
+    document URL, which includes the domain of the calling <a href="#dfn-web-app" class="internalDFN">web app</a>.
+  </p>
+</section> <!-- Terminology -->
+
+<!-- - - - - - - - - - - - - - -  Introduction  - - - - - - - - - - - - - - -->
+<section class="informative" id="introduction" typeof="bibo:Chapter" resource="#introduction" property="bibo:hasPart"> <!--OddPage--><h2 id="h-introduction" resource="#h-introduction"><span property="xhv:role" resource="xhv:heading"><span class="secno">3. </span>Introduction</span></h2><p><em>This section is non-normative.</em></p>
+  <p>
+    There are three groups of user scenarios for NFC:
+    </p><ul>
+      <li>
+        Hold a device close to a passive wireless tag (which could be in the
+        form of a plastic card) to read and write or overwrite data (in the
+        case the tag is not read-only, and it is empty or contains a
+        <a href="#dfn-web-nfc-message" class="internalDFN">Web NFC message</a>.
+      </li>
+      <li>
+        Hold two powered devices, e.g. phones or tablets, close to each other
+        in order to push a <a href="#dfn-web-nfc-message" class="internalDFN">Web NFC message</a> from one to the other, or to
+        initiate a connection using another wireless carrier such as Bluetooth
+        or WiFi.
+      </li>
+      <li>Card emulation
+       <ol>
+        <li>
+          With a secure element: for payments by holding your phone close to a
+          point-of-sales terminal, instead of swiping a payment card.
+        </li>
+        <li>With host card emulation: for allowing use-cases like using a phone
+          as a hotel room key card.
+        </li>
+       </ol>
+      </li>
+    </ul>
+  <p></p>
+  <p>
+    NFC works using magnetic induction, meaning that the reader will emit a
+    small electric charge which then creates a magnetic field. This field powers
+    the passive device which turns it into electrical impulses to communicate
+    data. Thus, when the devices are within range, a read is always performed
+    (see NFC Analog Specification and NFC Digital Protocol, NFC Forum, 2006).
+    The peer-to-peer connection works in a similar way, as the device
+    periodically switches into a so-called initiator mode in order to scan for
+    targets, then later to fall back into target mode. If a target is found, the
+    data is read the same way as for tags.
+  </p>
+  <p>
+    As NFC is based on existing RFID standards, many NFC chipsets support
+    reading RFIDs tags, but many of these are only supported by single
+    vendors and not part of the NFC standards. Though certain devices support
+    reading and writing to these, it is not a goal of this specification to
+    support proprietary tags or support interoperability with legacy systems.
+  </p>
+  <p>
+    The NFC Forum has mandated the support of four different tag types to be
+    operable with NFC devices. The same is required on operating systems such as
+    Android.
+    </p><ol>
+      <li>
+        <b>NFC Forum Type 1</b>: This tag is based on the ISO/IEC 14443-3A
+        (also known as NFC-A,  as defined in ISO/IEC 14443-3:2011, Part 3:
+        Initialization and anticollision). The tags are rewritable and can be
+        configured to become read-only. Memory size can be between 96 bytes and
+        2 Kbytes. Communication speed is 106 kbit/sec.
+      </li>
+      <li><b>NFC Forum Type 2</b>: This tag is also based on the
+        ISO/IEC 14443-3A (NFC-A). The tags are rewritable and can be configured
+        to become read-only. Memory size can be between 48 bytes and 2 Kbytes.
+        Communication speed is 106 kbit/sec. In contrast to Type 1, Type 2 has
+        anti-collision protection for dealing with multiple tags within the NFC
+        field.
+      </li>
+      <li><b>NFC Forum Type 3</b>: This tag is based on the Japanese Industrial
+        Standard (JIS) X 6319-4, commonly known as FeliCa. The tags are
+        preconfigured to be either rewritable or read-only. Memory availability
+        is variable, theoretical memory limit is 1MByte per service.
+        Communication speed is 106 kbit/sec.  Like Type 2, it supports
+        anti-collision protection.
+      </li>
+      <li><b>NFC Forum Type 4</b> (November 2010): This tag is based on the
+        ISO/IEC 14443 like Type 1 and 2, but it support either NFC-A or NFC-B
+        for communication. On top of that the tag may support the Data Exchange
+        Protocol (aka ISO-DEP) defined in ISO/IEC 14443 (ISO/IEC 14443-4:2008
+        Part 4: Transmission protocol). Like Type 3, the tags are preconfigured
+        to be either rewritable or read-only. Variable memory, up to 32 KB per
+        service. Supports three different communication speeds 106 or 212 or
+        424 Kbits/s.
+      </li>
+    </ol>
+  <p></p>
+  <p>
+    In addition to data types standardized for <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a>s by the NFC
+    Forum, many commercial products, e.g. bus cards, door openers etc, use
+    different card specific data and protocol extensions which require specific
+    NFC chips (same vendor of card and reader) in order to work.
+  </p>
+  <p>
+    Card emulation mode capabilities also depend on the NFC chip in the device.
+    For payments, a Secure Element is often needed.
+  </p>
+  <section class="informative" id="use-cases" typeof="bibo:Chapter" resource="#use-cases" property="bibo:hasPart"> <h3 id="h-use-cases" resource="#h-use-cases"><span property="xhv:role" resource="xhv:heading"><span class="secno">3.1 </span>Use Cases</span></h3><p><em>This section is non-normative.</em></p>
+    <p>
+      A few Web NFC user scenarios are described in
+      <a href="http://w3c.github.io/web-nfc/use-cases.html">this</a> document.
+      These user scenarios can be grouped along
+      criteria based on security, privacy and feature categories, resulting in
+      generic flows as follows.
+    </p>
+    <section id="reading-nfc-tags" typeof="bibo:Chapter" resource="#reading-nfc-tags" property="bibo:hasPart"> <h4 id="h-reading-nfc-tags" resource="#h-reading-nfc-tags"><span property="xhv:role" resource="xhv:heading"><span class="secno">3.1.1 </span>Reading <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a>s</span></h4>
+      <ol>
+        <li>
+          Reading arbitrary tags when no web site is open:
+          when the user touches a device to an <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a> when no web site
+          is currently open, the <a href="#dfn-user-agent" class="internalDFN">user agent</a> can open a website to handle
+          that tag. If multiple websites can handle the tag, a choice is
+          presented to the user to pick the preferred web site for handling the
+          tag.
+          Optionally, web sites have a programmatic means to tell the
+          <a href="#dfn-user-agent" class="internalDFN">user agent</a> they are able and interested to handle
+          <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a>s of certain type.
+        </li>
+        <li>
+          Reading arbitrary tags when a website is currently open:
+          if the user has a website open and that website has indicated that
+          it's able to read a set of tags, it might be fine to allow that
+          website to read a read-only tag that the user taps without presenting
+          any permission or security dialog to the user.
+        </li>
+      </ol>
+    </section>
+    <section id="writing-nfc-tags" typeof="bibo:Chapter" resource="#writing-nfc-tags" property="bibo:hasPart"> <h4 id="h-writing-nfc-tags" resource="#h-writing-nfc-tags"><span property="xhv:role" resource="xhv:heading"><span class="secno">3.1.2 </span>Writing <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a>s</span></h4>
+      <ol>
+        <li>
+          Writing to arbitrary writable tags: the user opens a web page which
+          can write an <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a>. This use case <em class="rfc2119" title="SHOULD">SHOULD</em> be restricted or
+          bound to user permissions for security and privacy reasons.
+        </li>
+        <li>
+          Writing to <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a>s already containing a
+          <a href="#dfn-web-nfc-message" class="internalDFN">Web NFC message</a>: the <a href="#dfn-user-agent" class="internalDFN">user agent</a>s <em class="rfc2119" title="MAY">MAY</em> allow web sites
+          to write to the tag with using appropriate security dialogs.
+        </li>
+      </ol>
+    </section>
+    <section id="sending-data-to-nfc-peers" typeof="bibo:Chapter" resource="#sending-data-to-nfc-peers" property="bibo:hasPart"> <h4 id="h-sending-data-to-nfc-peers" resource="#h-sending-data-to-nfc-peers"><span property="xhv:role" resource="xhv:heading"><span class="secno">3.1.3 </span>Sending data to <a href="#dfn-nfc-peer" class="internalDFN">NFC peer</a>s</span></h4>
+      <p>
+        In general, sending data to another Web NFC capable device requires that
+        on the initiating device the user would first have to navigate to a web
+        site. The user would then touch the device against another Web NFC
+        equipped device, and data transfer would occur. On the receiving device
+        the <a href="#dfn-user-agent" class="internalDFN">user agent</a> will dispatch the content to a web site registered
+        to handle the content and in case of multiple such web sites, the one
+        chosen by the second user.
+      </p>
+    </section>
+    <section id="handover-to-another-wireless-connection-type" typeof="bibo:Chapter" resource="#handover-to-another-wireless-connection-type" property="bibo:hasPart"> <h4 id="h-handover-to-another-wireless-connection-type" resource="#h-handover-to-another-wireless-connection-type"><span property="xhv:role" resource="xhv:heading"><span class="secno">3.1.4 </span>Handover to another wireless connection type</span></h4>
+      <p>
+        NFC supports handover protocols to Bluetooth or WiFi connectivity for
+        the purpose of larger volume data transfer. The user touches another
+        NFC capable device, and as a result configuration data is sent for a
+        new Bluetooth or WiFi connection, which is then established between the
+        devices.
+      </p>
+    </section>
+    <!--section> <h3>Payment scenarios</h3>
+      <p>
+        The user buys goods in a store, and payments options include NFC.
+        In general, touching the device to the point of sales terminal receiver
+        area will result in a transaction between the secure element from the
+        device and the point of sales terminal. With the Web NFC API, if the
+        user navigates to a web site before paying, there may be interaction
+        with that site regarding the payment, e.g. the user could get points and
+        discounts, or get delivered application or service specific data (e.g.
+        tickets, keys, etc) to the device.
+      </p>
+    </section-->
+  </section> <!-- Use Cases -->
+
+  <section id="features" typeof="bibo:Chapter" resource="#features" property="bibo:hasPart"> <h3 id="h-features" resource="#h-features"><span property="xhv:role" resource="xhv:heading"><span class="secno">3.2 </span>Features</span></h3>
+    <p>High level features for the Web NFC specification include the following:
+      </p><ol>
+        <li>Support devices with single or multiple NFC adapters.</li>
+        <li>Support communication with active (powered devices such as readers,
+          phones) and passive (smart cards, tags, etc) devices.</li>
+        <li>Allow users to act on (e.g. read, write or transceive) discovered
+          NFC devices (passive and active) as well as access the NDEF records
+          which were read in the process.</li>
+        <li>Allow the user to write a payload via NDEF records to compatible
+          devices, such as writeable tags, when they come in range.</li>
+        <li>[future] Allow manual connection for various technologies such as
+          NFC-A and NFC-F depending on secondary device.</li>
+        <li>[future] Allow <a href="#dfn-nfc-handover" class="internalDFN">NFC handover</a> to Bluetooth or WiFi.</li>
+        <li>[future] Allow card emulation with secure element or host card
+          emulation.
+        </li>
+      </ol>
+    <p></p>
+    <p>
+      NFC is usually deeply integrated into device platforms (e.g. Android,
+      Windows, etc), because end-to-end user experience implications (e.g.
+      users need to be presented platform specific dialogs for selecting
+      applications and actions). Also, privacy and security related issues
+      require platform specific solutions.
+    </p>
+    <p>
+      The various integrated technologies, wide variety of use cases, and
+      platform integration issues make standardization of NFC for the web a
+      challenge.
+      Therefore this specification makes a few simplifications in what use cases
+      and data types are possible to handle by users of this API:
+      </p><ul>
+        <li>Expose data types already known to web browsers as MIME types.</li>
+        <li>Use the web security model.</li>
+        <li>Implementations encapsulate <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a> handling and the API
+          exposes only data and control events.
+        </li>
+      </ul>
+    <p></p>
+  </section> <!-- Features-->
+
+  <section id="technical-requirements" typeof="bibo:Chapter" resource="#technical-requirements" property="bibo:hasPart"> <h3 id="h-technical-requirements" resource="#h-technical-requirements"><span property="xhv:role" resource="xhv:heading"><span class="secno">3.3 </span>Technical requirements</span></h3>
+    <p>The following high level technical requirements result from the
+      enumerated use cases and high level features. With this version of the
+      API, web pages should be able to:
+      </p><ol>
+        <li>
+          Request an NFC adapter. If there are multiple adapters present, then
+          the <a href="#dfn-user-agent" class="internalDFN">user agent</a> <em class="rfc2119" title="MAY">MAY</em> display a dialog for selecting one of them.
+        </li>
+        <li>
+          Get notified about NDEF message available from tag or peer
+          device.
+        </li>
+        <li>
+          Set a data payload that the user can push or write to another
+          device when within range.
+        </li>
+      </ol>
+    <p></p>
+  </section> <!-- Technical requirements -->
+</section> <!-- Introduction -->
+
+<!-- - - - - - - - - - - - - Security and Privacy - - - - - - - - - - - - - -->
+<section id="security-and-privacy" typeof="bibo:Chapter" resource="#security-and-privacy" property="bibo:hasPart"> <!--OddPage--><h2 id="security" resource="#security"><span property="xhv:role" resource="xhv:heading"><span class="secno">4. </span>Security and Privacy</span></h2>
+  <p>
+    The <a href="http://www.w3.org/TR/permissions/">Permissions API</a> <em class="rfc2119" title="SHOULD">SHOULD</em>
+    be supported by <a href="#dfn-user-agent" class="internalDFN">user agent</a>s for implementing NFC related
+    [<cite><a class="bibref" href="#bib-permissions">permissions</a></cite>]. The required
+    <a href="https://w3c.github.io/permissions/#idl-def-PermissionName">
+    permission name</a> is <code>"nfc"</code>.
+  </p>
+  <p>
+    <a title="user agent" href="#dfn-user-agent" class="internalDFN">User agents</a> <em class="rfc2119" title="MUST NOT">MUST NOT</em> provide Web NFC API access
+    to <a href="#dfn-web-app" class="internalDFN">web app</a>s without the <a href="#dfn-expressed-permission" class="internalDFN">expressed permission</a> of the user.
+    User agents must acquire consent for [<cite><a class="bibref" href="#bib-permissions">permissions</a></cite>] for each call to the
+    methods of this API, unless a prearranged trust relationship applies.
+  </p>
+  <div class="note"><div class="note-title" aria-level="3" role="heading" id="h-note2"><span>Note</span></div><p class="">
+    Considering adding the following:
+    User agents <em class="rfc2119" title="MUST">MUST</em> implement the WebNFC API to be HTTPS-only. SSL-only support
+    provides better protection for the user against man-in-the-middle attacks
+    intended to obtain push registration data. Browsers may ignore this rule
+    for development purposes only.
+  </p></div>
+  <p>
+    Permissions that are preserved beyond the current browsing session <em class="rfc2119" title="MUST">MUST</em> be
+    revocable.
+  </p>
+  <div class="note"><div class="note-title" aria-level="3" role="heading" id="h-note3"><span>Note</span></div><p class="">
+    The <a href="http://www.w3.org/TR/permissions/">Permissions API</a> does
+    not yet address the issue of revoking permissions. When it will be
+    addressed, this section will be updated.
+  </p></div>
+  <p>
+    <a title="user agent" href="#dfn-user-agent" class="internalDFN">User agents</a> <em class="rfc2119" title="MUST">MUST</em> implement the following policies:
+    </p><ol>
+      <li>
+        In order to use NFC, a website <em class="rfc2119" title="MUST">MUST</em> be visible and in focus. For
+        web pages in background, receiving and sending NFC data <em class="rfc2119" title="MUST">MUST</em> be
+        suspended.
+      </li>
+      <li>
+        Writing to an <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a>, including locking the tag to read-only
+        <em class="rfc2119" title="MUST">MUST</em> always <a href="#dfn-obtain-permission" class="internalDFN">obtain permission</a>.
+      </li>
+      <li>
+        Sending data to an <a href="#dfn-nfc-peer" class="internalDFN">NFC peer</a> <em class="rfc2119" title="MUST">MUST</em> always <a href="#dfn-obtain-permission" class="internalDFN">obtain permission</a>.
+      </li>
+      <li>
+        Listening to <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a>s <em class="rfc2119" title="MUST">MUST</em> always <a href="#dfn-obtain-permission" class="internalDFN">obtain permission</a>.
+      </li>
+      <li>
+        In addition to the previous, only websites with a schema starting with
+        <code>"https://"</code> <em class="rfc2119" title="SHOULD">SHOULD</em> be able to read <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a>s that is
+        not empty or does not contain a <a href="#dfn-web-nfc-message" class="internalDFN">Web NFC message</a>s.
+      </li>
+    </ol>
+  <p></p>
+</section> <!-- Security and Privacy  -->
+
+<!-- - - - - - - - - - - - - Data types and content - - - - - - - - - - - -->
+<section id="data-types" typeof="bibo:Chapter" resource="#data-types" property="bibo:hasPart"> <!--OddPage--><h2 id="h-data-types" resource="#h-data-types"><span property="xhv:role" resource="xhv:heading"><span class="secno">5. </span>Data Types</span></h2>
+  <p>
+    Web NFC implementations <em class="rfc2119" title="SHOULD">SHOULD</em> use <a href="#dfn-web-nfc-message" class="internalDFN">Web NFC message</a>s, which <em class="rfc2119" title="SHOULD">SHOULD</em>
+    be sufficiently differentiated in order to avoid accidental matching with
+    a generic <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a> used in regular <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a>s or between
+    <a href="#dfn-nfc-peer" class="internalDFN">NFC peer</a>s. This is achieved by using an additional
+    <a href="#dfn-web-nfc-record" class="internalDFN">Web NFC record</a>, and in rest using normal <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a>s in
+    order to compose the <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a>.
+  </p>
+  <section id="the-format-of-a-web-nfc-record" typeof="bibo:Chapter" resource="#the-format-of-a-web-nfc-record" property="bibo:hasPart"> <h3 id="web-nfc-record-format" resource="#web-nfc-record-format"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.1 </span>The format of a Web NFC record</span></h3>
+  <p>
+    The format of a <a href="#dfn-web-nfc-record" class="internalDFN">Web NFC record</a> is the following.
+    </p><ul>
+      <li>
+        Uses NFC Forum External Type record (<a href="#dfn-tnf" class="internalDFN">TNF</a>=4) with the External
+        Type field set to <code>urn:nfc:ext:w3.org:webnfc</code>.
+      </li>
+      <li>
+        The <var>id</var> field contains the
+        <a href="https://html.spec.whatwg.org/multipage/browsers.html#ascii-serialisation-of-an-origin">
+        ASCII serialized origin</a> which has written the payload.
+      </li>
+      <li>
+        The payload <em class="rfc2119" title="MAY">MAY</em> be empty, or <em class="rfc2119" title="MAY">MAY</em> contain implementation specific
+        contextual data encoded as Base64 ([<cite><a class="bibref" href="#bib-RFC4648">RFC4648</a></cite>]), for instance tokens,
+        authentication keys etc.
+      </li>
+    </ul>
+ <p></p>
+ </section>
+  <section id="web-nfc-message-payload" typeof="bibo:Chapter" resource="#web-nfc-message-payload" property="bibo:hasPart"> <h3 id="web-nfc-payload" resource="#web-nfc-payload"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.2 </span>Web NFC message payload</span></h3>
+  <p>
+    The payload of a <a href="#dfn-web-nfc-message" class="internalDFN">Web NFC message</a> is represented by using normal
+    <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a>s.
+    The following types can be used as payload, i.e. when writing to
+    <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a>s, sending data to <a href="#dfn-nfc-peer" class="internalDFN">NFC peer</a>s, and when reading
+    <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a>s.
+  </p>
+  <pre class="idl"><span class="idlTypedef" id="idl-def-NfcData">typedef <span class="idlTypedefType">(<a href="#dfn-domstring" class="internalDFN"><code>DOMString</code></a> or <a href="#dfn-url" class="internalDFN"><code>URL</code></a> or <a href="#dfn-blob" class="internalDFN"><code>Blob</code></a> or JSON)</span> <span class="idlTypedefID">NfcData</span>;</span></pre>
+  <p>
+    <dfn id="dfn-nfcdata">NfcData</dfn> denotes the data types
+    supported as <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a> payload in read and send operations in
+    this API.
+  </p>
+  <p>
+    The mapping from supported <code>NfcData</code> to
+    <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a> types, as used in the <code><a href="#widl-NfcAdapter-send-Promise-void--NfcMessage-message-NfcSendOptions-options" class="internalDFN"><code>send</code></a>()</code>
+    method is as follows:
+  </p>
+  <table class="simple">
+    <tbody><tr>
+      <th>NfcData</th>
+      <th>NDEF record type</th>
+    </tr>
+    <tr>
+      <td><strong>DOMString</strong></td>
+      <td>NFC Forum Well Known Type (<a href="#dfn-tnf" class="internalDFN">TNF</a>=1) with type <i>Text</i></td>
+    </tr>
+    <tr>
+      <td><strong>URL</strong></td>
+      <td><ul>
+        <li>NFC Forum Well Known Type (<a href="#dfn-tnf" class="internalDFN">TNF</a>=1) with type <i>URI</i></li>
+        <li>NFC Forum Well Known Type (<a href="#dfn-tnf" class="internalDFN">TNF</a>=1) with type
+          <i>Smart Poster</i>
+        </li>
+        <li>Absolute URI as defined in [<cite><a class="bibref" href="#bib-RFC3986">RFC3986</a></cite>] (<a href="#dfn-tnf" class="internalDFN">TNF</a>=3)</li>
+      </ul></td>
+    </tr>
+    <tr>
+      <td><strong>JSON</strong></td>
+      <td>Media-type as defined in [<cite><a class="bibref" href="#bib-RFC2046">RFC2046</a></cite>] (<a href="#dfn-tnf" class="internalDFN">TNF</a>=2) with associated
+        <i>MIME type</i> <code>"application/json"</code>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Blob</strong> with MIME type</td>
+      <td>Media-type as defined in [<cite><a class="bibref" href="#bib-RFC2046">RFC2046</a></cite>] (<a href="#dfn-tnf" class="internalDFN">TNF</a>=2)</td>
+    </tr>
+    <tr>
+      <td><strong>Blob</strong> without MIME type</td>
+      <td>NFC Forum External Type (<a href="#dfn-tnf" class="internalDFN">TNF</a>=4)</td>
+    </tr>
+  </tbody></table>
+  <p>
+    The mapping from <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a> types to <code><a href="#idl-def-NfcData" class="idlType"><code>NfcData</code></a></code>,
+    as used for incoming <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a>s exposed by the
+    <code><a href="#idl-def-NfcMessageEvent" class="idlType"><code>NfcMessageEvent</code></a></code>, is as follows:
+  </p>
+  <table class="simple">
+    <tbody><tr>
+      <th>NDEF record type</th>
+      <th>NfcData</th>
+    </tr>
+    <tr>
+      <td>NFC Forum Well Known Type (<a href="#dfn-tnf" class="internalDFN">TNF</a>=1) with type <i>Text</i></td>
+      <td><strong>DOMString</strong></td>
+    </tr>
+    <tr>
+      <td>NFC Forum Well Known Type (<a href="#dfn-tnf" class="internalDFN">TNF</a>=1) with type <i>URI</i></td>
+      <td><strong>URL</strong> object</td>
+    </tr>
+    <tr>
+      <td>NFC Forum Well Known Type (<a href="#dfn-tnf" class="internalDFN">TNF</a>=1) with type
+          <i>Smart Poster</i></td>
+      <td><strong>URL</strong> object</td>
+    </tr>
+    <tr>
+      <td>Absolute URI as defined in [<cite><a class="bibref" href="#bib-RFC3986">RFC3986</a></cite>] (<a href="#dfn-tnf" class="internalDFN">TNF</a>=3)</td>
+      <td><strong>URL</strong> object</td>
+    </tr>
+    <tr>
+      <td>Media-type as defined in [<cite><a class="bibref" href="#bib-RFC2046">RFC2046</a></cite>] (<a href="#dfn-tnf" class="internalDFN">TNF</a>=2) with associated
+        <i>MIME type</i> <code>"application/json"</code>
+      </td>
+      <td><strong>JSON</strong> object</td>
+    </tr>
+    <tr>
+      <td>Media-type as defined in [<cite><a class="bibref" href="#bib-RFC2046">RFC2046</a></cite>] (<a href="#dfn-tnf" class="internalDFN">TNF</a>=2)</td>
+      <td><strong>Blob</strong> object</td>
+    </tr>
+    <tr>
+      <td>NFC Forum External Type (<a href="#dfn-tnf" class="internalDFN">TNF</a>=4) with type other than
+        <code>urn:nfc:ext:w3.org:webnfc</code></td>
+      <td><strong>Blob</strong> object</td>
+    </tr>
+    <tr>
+      <td>Any other <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a> type</td>
+      <td><strong>Blob</strong> object</td>
+    </tr>
+  </tbody></table>
+  <p>
+    Note that <a href="#dfn-web-nfc-record" class="internalDFN">Web NFC record</a>s are not exposed to client <a href="#dfn-web-app" class="internalDFN">web app</a>s.
+  </p>
+  </section>
+</section> <!-- Data types and content -->
+
+<!-- - - - - - - - - - - Extended interface Navigator - - - - - - - - - - - -->
+<section id="extensions-to-the-navigator-interface" typeof="bibo:Chapter" resource="#extensions-to-the-navigator-interface" property="bibo:hasPart"> <!--OddPage--><h2 id="h-extensions-to-the-navigator-interface" resource="#h-extensions-to-the-navigator-interface"><span property="xhv:role" resource="xhv:heading"><span class="secno">6. </span>Extensions to the <strong>Navigator</strong> interface</span></h2>
+  <p>
+    The HTML specification defines a
+    <a href="http://www.whatwg.org/specs/web-apps/current-work/#dom-navigator">
+    <code>Navigator</code></a> interface [HTML] which this specification
+    extends.
+  </p>
+  <pre class="idl"><span class="idlInterface" id="idl-def-Navigator">partial interface <span class="idlInterfaceID">Navigator</span> {
+<span class="idlAttribute">    readonly    attribute <span class="idlAttrType"><a href="#idl-def-Nfc" class="idlType"><code>Nfc</code></a></span> <span class="idlAttrName"><a href="#widl-Navigator-nfc">nfc</a></span>;</span>
+};</span></pre>
+  <!-- - - - - - - - - - - - nfc attribute  - - - - - - - - - - - -->
+  <section id="the-nfc-attribute" typeof="bibo:Chapter" resource="#the-nfc-attribute" property="bibo:hasPart"> <h3 id="h-the-nfc-attribute" resource="#h-the-nfc-attribute"><span property="xhv:role" resource="xhv:heading"><span class="secno">6.1 </span>The <strong>nfc</strong> attribute</span></h3>
+  <p>
+    When getting the <dfn id="widl-Navigator-nfc">nfc</dfn> attribute, the
+    <a href="#dfn-user-agent" class="internalDFN">user agent</a> <em class="rfc2119" title="MUST">MUST</em> return the <a href="#idl-def-Nfc" class="idlType"><code>Nfc</code></a> object, which provides
+    NFC related functionality.
+  </p>
+  </section> <!-- nfc attribute -->
+</section> <!-- Navigator -->
+
+<section id="the-nfc-interface" typeof="bibo:Chapter" resource="#the-nfc-interface" property="bibo:hasPart"> <!--OddPage--><h2 id="h-the-nfc-interface" resource="#h-the-nfc-interface"><span property="xhv:role" resource="xhv:heading"><span class="secno">7. </span>The <strong>Nfc</strong> interface</span></h2>
+  <pre class="idl"><span class="idlInterface" id="idl-def-Nfc">interface <span class="idlInterfaceID">Nfc</span> {
+<span class="idlMethod">    <span class="idlMethType">Promise&lt;<a href="#idl-def-NfcAdapter" class="idlType"><code>NfcAdapter</code></a>&gt;</span> <span class="idlMethName"><a href="#widl-Nfc-requestAdapter-Promise-NfcAdapter">requestAdapter</a></span> ();</span>
+};</span></pre>
+  <p>
+    Implementations <em class="rfc2119" title="MAY">MAY</em> expose multiple NFC adapters. By using the
+    <dfn id="widl-NFC-findAdapters-Promise-sequence-NfcAdapter">
+    requestAdapter</dfn>() method, <a href="#dfn-web-app" class="internalDFN">web app</a>s can obtain an adapter object
+    providing NFC functionality.
+    When this method is invoked, the <a href="#dfn-user-agent" class="internalDFN">user agent</a> <em class="rfc2119" title="MUST">MUST</em> run the following
+    steps:
+    </p><ol id="steps-requestAdapter">
+      <li>Let <var>promise</var> be a new <a href="#dfn-promise" class="internalDFN"><code><code>Promise</code></code></a> object.
+      </li>
+      <li>
+        Return <var>promise</var> and continue the following steps
+        asynchronously.
+      </li>
+      <li>
+        If <a href="#dfn-sufficient-permission" class="internalDFN">sufficient permission</a> has not been granted to use this method,
+        that is, to use NFC technology from the calling <a href="#dfn-web-app" class="internalDFN">web app</a>,
+        then reject <var>promise</var> with <code>"<a href="#dfn-securityerror" class="internalDFN">SecurityError</a>"</code>,
+        and terminate these steps.
+      </li>
+      <li>
+        If there is no support for <a href="#dfn-nfc-adapter" class="internalDFN">NFC adapter</a> handling functionality in
+        hardware, software, or due to physical incompatibility,
+        then reject <var>promise</var> with
+        <code>"<a href="#dfn-notsupportederror" class="internalDFN">NotSupportedError</a>"</code>, and terminate these steps.
+      </li>
+      <li>
+        Make a request to the underlying platform to initialize NFC
+        functionality and enumerate available adapters. If the request fails,
+        then reject <var>promise</var> with
+        <code>"<a href="#dfn-notsupportederror" class="internalDFN">NotSupportedError</a>"</code>, and terminate these steps.
+      </li>
+      <li>
+        If the request is successful, then select one of the adapters based on
+        the following algorithm:
+        <ol>
+          <li>Let <var>adapter</var> be <code>null</code>.</li>
+          <li>If there is only one adapter, set <var>adapter</var> to that.</li>
+          <li>
+            If there are multiple adapters available, and there is a system or
+            user setting available with a default adapter being specified, set
+            <var>adapter</var> to that.
+          </li>
+          <li>
+            Otherwise, the <a href="#dfn-user-agent" class="internalDFN">user agent</a> <em class="rfc2119" title="MAY">MAY</em> pop up a user dialog for
+            selecting one of the listed adapters, or none of them, and
+            set <var>adapter</var> to the selected one, if available.
+          </li>
+          <li>
+            If no adapter is selected, then reject <var>promise</var> with
+            <code>"<a href="#dfn-notfounderror" class="internalDFN">NotFoundError</a>"</code>, and terminate these steps.
+          </li>
+          <li>
+            Otherwise if the dialog is blocked or canceled, then select the
+            first built-in adapter.
+          </li>
+          <li>Otherwise select the first external (e.g. USB) adapter.</li>
+        </ol>
+      </li>
+      <li>
+        Resolve <var>promise</var> with <var>adapter</var>.
+      </li>
+    </ol>
+  <p></p>
+</section> <!-- NFC interface -->
+
+<section id="the-nfcadapter-interface" typeof="bibo:Chapter" resource="#the-nfcadapter-interface" property="bibo:hasPart"> <!--OddPage--><h2 id="h-the-nfcadapter-interface" resource="#h-the-nfcadapter-interface"><span property="xhv:role" resource="xhv:heading"><span class="secno">8. </span>The <strong>NfcAdapter</strong> interface</span></h2>
+  <pre class="idl"><span class="idlInterface" id="idl-def-NfcAdapter">interface <span class="idlInterfaceID">NfcAdapter</span> : <span class="idlSuperclass"><a href="#dfn-eventhandler" class="internalDFN"><code>EventHandler</code></a></span> {
+<span class="idlAttribute">                attribute <span class="idlAttrType"><a href="#dfn-eventhandler" class="internalDFN"><code>EventHandler</code></a></span> <span class="idlAttrName"><a href="#widl-NfcAdapter-onmessage">onmessage</a></span>;</span>
+<span class="idlMethod">    <span class="idlMethType">Promise&lt;void&gt;</span> <span class="idlMethName"><a href="#widl-NfcAdapter-send-Promise-void--NfcMessage-message-NfcSendOptions-options">send</a></span> (<span class="idlParam"><span class="idlParamType"><a href="#idl-def-NfcMessage" class="idlType"><code>NfcMessage</code></a></span> <span class="idlParamName">message</span></span>, <span class="idlParam">optional <span class="idlParamType"><a href="#idl-def-NfcSendOptions" class="idlType"><code>NfcSendOptions</code></a></span> <span class="idlParamName">options</span></span>);</span>
+};</span></pre>
+  <p>
+    The <code>NfcAdapter</code> interface handles incoming <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a>s,
+    exposed by the <code><a href="#idl-def-NfcMessageEvent" class="idlType"><code>NfcMessageEvent</code></a></code> event, either from an
+    <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a> or an <a href="#dfn-nfc-peer" class="internalDFN">NFC peer</a>. By default, listening to this event
+    <em class="rfc2119" title="SHOULD">SHOULD</em> be disabled.
+  </p>
+
+  <!-- Events -->
+  <section id="events-used-with-the-nfcadapter-interface" typeof="bibo:Chapter" resource="#events-used-with-the-nfcadapter-interface" property="bibo:hasPart"> <h3 id="h-events-used-with-the-nfcadapter-interface" resource="#h-events-used-with-the-nfcadapter-interface"><span property="xhv:role" resource="xhv:heading"><span class="secno">8.1 </span>Events used with the <strong>NfcAdapter</strong> interface</span></h3>
+  <p>
+    The following are the event handlers implemented by the
+    <code><a href="#idl-def-NfcAdapter" class="idlType"><code>NfcAdapter</code></a></code> interface.
+  </p>
+  <table class="simple">
+    <tbody><tr>
+      <th>event handler</th>
+      <th>event name   </th>
+      <th>event type   </th>
+    </tr>
+    <tr>
+      <td><code><dfn id="widl-NfcAdapter-onmessage">onmessage</dfn></code></td>
+      <td><code>message</code></td>
+      <td><code><a href="#idl-def-NfcMessageEvent" class="idlType"><code>NfcMessageEvent</code></a></code></td>
+    </tr>
+  </tbody></table>
+
+  <section id="the-message-event" typeof="bibo:Chapter" resource="#the-message-event" property="bibo:hasPart"> <h4 id="h-the-message-event" resource="#h-the-message-event"><span property="xhv:role" resource="xhv:heading"><span class="secno">8.1.1 </span>The <strong>message</strong> event</span></h4>
+  <p>
+    The <code>message</code> event is used for notifying the adapter
+    object about an <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a> dispatched to the <a href="#dfn-web-app" class="internalDFN">web app</a>.
+  </p>
+  </section>
+
+  <!-- NfcMessageEvent -->
+  <section id="the-nfcmessageevent-interface" typeof="bibo:Chapter" resource="#the-nfcmessageevent-interface" property="bibo:hasPart"> <h4 id="h-the-nfcmessageevent-interface" resource="#h-the-nfcmessageevent-interface"><span property="xhv:role" resource="xhv:heading"><span class="secno">8.1.2 </span>The <strong>NfcMessageEvent</strong> interface</span></h4>
+  <p>
+    In this specification, <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a> content is delivered by an
+    <a href="#idl-def-NfcMessageEvent" class="idlType"><code>NfcMessageEvent</code></a> event.
+  </p>
+  <pre class="idl"><span class="idlInterface" id="idl-def-NfcMessageEvent">interface <span class="idlInterfaceID">NfcMessageEvent</span> : <span class="idlSuperclass">Event</span> {
+<span class="idlAttribute">    readonly    attribute <span class="idlAttrType"><a href="#idl-def-NfcMessage" class="idlType"><code>NfcMessage</code></a></span> <span class="idlAttrName"><a href="#widl-NfcMessageEvent-message">message</a></span>;</span>
+};</span></pre>
+  <p>
+    The <code><dfn id="widl-NfcMessageEvent-message">message</dfn></code>
+    property <em class="rfc2119" title="MUST">MUST</em> return the <code><a href="#idl-def-NfcMessage" class="idlType"><code>NfcMessage</code></a></code> representing the
+    payload data of the <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a>.
+  </p>
+  </section> <!-- NfcMessageEvent -->
+
+  <!-- NfcMessage -->
+  <section id="the-nfcmessage-interface" typeof="bibo:Chapter" resource="#the-nfcmessage-interface" property="bibo:hasPart"><h4 id="h-the-nfcmessage-interface" resource="#h-the-nfcmessage-interface"><span property="xhv:role" resource="xhv:heading"><span class="secno">8.1.3 </span>The <strong>NfcMessage</strong> interface</span></h4>
+    <p>
+      The content of the <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a> is exposed by the following
+      interface:
+    </p>
+    <pre class="idl"><span class="idlInterface" id="idl-def-NfcMessage">[<span class="extAttr">NoInterfaceObject</span>]
+interface <span class="idlInterfaceID">NfcMessage</span> {
+<span class="idlAttribute">    readonly    attribute <span class="idlAttrType">USVString</span>     <span class="idlAttrName"><a href="#widl-NfcMessage-scope">scope</a></span>;</span>
+<span class="idlAttribute">    readonly    attribute <span class="idlAttrType">sequence&lt;<a href="#dfn-any" class="internalDFN"><code>any</code></a>&gt;</span> <span class="idlAttrName"><a href="#widl-NfcMessage-data">data</a></span>;</span>
+<span class="idlSectionComment">    // (DOMString or URL or Blob or JSON)</span>
+};</span></pre>
+    <p>
+      The <code><dfn id="widl-NfcMessage-scope">scope</dfn></code>
+      property <em class="rfc2119" title="MUST">MUST</em> return the <a href="#dfn-url-scope" class="internalDFN">URL scope</a> which has written the message.
+    </p>
+    <p>
+      The <code>
+      <dfn id="widl-NfcMessage-data">data</dfn></code> property <em class="rfc2119" title="MUST">MUST</em> return the
+      payload data of the <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a> as an array of either
+      <code>DOMString</code>, or <code>URL</code> object, or <code>Blob</code>
+      object, or serializable JSON object as a generic <code>Object</code>.
+    </p>
+  </section> <!-- NfcMessage interface -->
+  </section> <!-- Events -->
+
+  <section id="the-send-method" typeof="bibo:Chapter" resource="#the-send-method" property="bibo:hasPart"><h3 id="h-the-send-method" resource="#h-the-send-method"><span property="xhv:role" resource="xhv:heading"><span class="secno">8.2 </span>The <strong>send()</strong> method</span></h3>
+    <p>
+      The <code>
+      <dfn id="widl-NfcAdapter-send-Promise-void--NfcMessage-message-NfcSendOptions-options">
+      send</dfn>()</code> method is used for sending an <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a> to
+      either an <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a> for writing, or to an <a href="#dfn-nfc-peer" class="internalDFN">NFC peer</a> device,
+      next time when they get into proximity range.
+      When this method is invoked, the <a href="#dfn-user-agent" class="internalDFN">user agent</a> <em class="rfc2119" title="MUST">MUST</em> run the following
+      steps:
+      </p><ol id="steps-setPushMessage">
+        <li>
+          Let <var>promise</var> be a new <a href="#dfn-promise" class="internalDFN"><code><code>Promise</code></code></a> object.
+        </li>
+        <li>
+          Return <var>promise</var> and continue the following steps
+          asynchronously.
+        </li>
+        <li>
+          If <a href="#dfn-sufficient-permission" class="internalDFN">sufficient permission</a> has not been granted to use this
+          method, then reject <var>promise</var> with
+          <code>"SecurityError"</code>, and terminate these steps.
+        </li>
+        <li>
+          If there is no support for the functionality of sending data to an
+          <a href="#dfn-nfc-peer" class="internalDFN">NFC peer</a> in proximity range, or to write data to an
+          <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a>, then reject <var>promise</var> with
+          <code>"NotSupportedError"</code>, and terminate these steps.
+        </li>
+        <li>
+          Parse the argument <var>options</var>. If it is <code>undefined</code>
+          or <code>null</code>, then use the default values.
+          Otherwise if invalid, then reject <var>promise</var> with
+          <code>"SyntaxError"</code>, and terminate these steps.
+        </li>
+        <li>
+          Parse the argument <var>message.scope</var>.
+          If the value is <code>undefined</code>, then set <var>scope</var> to
+          the <code>DOMString</code> describing the <a href="#dfn-document-base-url" class="internalDFN">document base URL</a>.
+          If it is invalid in the given platform, or if it is not a
+          sub-domain match of the <a href="#dfn-document-base-url" class="internalDFN">document base URL</a>, then reject
+          <var>promise</var> with <code>"SyntaxError"</code>, and terminate
+          these steps.
+        </li>
+        <li>
+          For each element in the array <var>message.data</var>,
+          <a href="#web-nfc-payload">check</a> the type
+          to be one of the supported types.
+          If the value is invalid on the given platform, then reject
+          <var>promise</var> with <code>"<a href="#dfn-syntaxerror" class="internalDFN">SyntaxError</a>"</code>, and
+          terminate these steps.
+          For each valid element create an <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a>.
+          The implementation choose the best suitable <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a> format
+          for the given platform.
+          Each element in the input array given in <var>message.data</var>
+          <em class="rfc2119" title="SHOULD">SHOULD</em> map to a separate <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a> in the <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a>
+          to be sent.
+        </li>
+        <li>
+          Assemble an <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a> from the <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a>s and an
+          additional <a href="#dfn-web-nfc-record" class="internalDFN">Web NFC record</a>, referred to as <var>output</var>.
+        </li>
+        <li>
+          Make a request to the underlying platform to send <var>output</var>
+          to the next device which comes in proximity range.
+        </li>
+        <li>
+          If <var>options.target</var> has the value <code>"tag"</code>, then
+          the sending should only happen if an <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a> is tapped within
+          a platform specific timeout, otherwise reject <var>promise</var> with
+          a <code>"TimeoutError"</code> in the case of timeout, or
+          <code>"InvalidAccessError"</code> if an <a href="#dfn-nfc-peer" class="internalDFN">NFC peer</a> is
+          tapped instead of a tag.
+        </li>
+        <li>
+          If <var>options.target</var> has the value <code>"peer"</code>, then
+          the sending should only happen if an <a href="#dfn-nfc-peer" class="internalDFN">NFC peer</a> is tapped within
+          a platform specific timeout, otherwise reject <var>promise</var> with
+          a <code>"TimeoutError"</code> in the case of timeout, or
+          <code>"InvalidAccessError"</code> if an <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a> is
+          tapped instead of a peer.
+        </li>
+        <li>
+          If <var>options.target</var> has the value <code>"any"</code> (which
+          is the default value), then the sending should happen if either an
+          <a href="#dfn-nfc-peer" class="internalDFN">NFC peer</a> or an <a href="#dfn-nfc-tag" class="internalDFN">NFC tag</a> is tapped within a platform
+          specific timeout, otherwise reject <var>promise</var> with
+          <code>"TimeoutError"</code>.
+        </li>
+        <li>
+          If the request is successful, then resolve <var>promise</var>.
+        </li>
+      </ol>
+    <p></p>
+
+    <section id="the-nfcsendoptions-dictionary" typeof="bibo:Chapter" resource="#the-nfcsendoptions-dictionary" property="bibo:hasPart"> <h4 id="h-the-nfcsendoptions-dictionary" resource="#h-the-nfcsendoptions-dictionary"><span property="xhv:role" resource="xhv:heading"><span class="secno">8.2.1 </span>The <strong>NfcSendOptions</strong> dictionary</span></h4>
+      <pre class="idl"><span class="idlEnum" id="idl-def-NfcTarget">enum <span class="idlEnumID">NfcTarget</span> {
+    "<a href="#idl-def-NfcTarget.tag" class="idlEnumItem">tag</a>",
+    "<a href="#idl-def-NfcTarget.peer" class="idlEnumItem">peer</a>",
+    "<a href="#idl-def-NfcTarget.any" class="idlEnumItem">any</a>"
+};</span></pre>
+
+      <pre class="idl"><span class="idlDictionary" id="idl-def-NfcSendOptions">dictionary <span class="idlDictionaryID">NfcSendOptions</span> {
+<span class="idlMember">             <span class="idlMemberType"><a href="#idl-def-NfcTarget" class="idlType"><code>NfcTarget</code></a></span> <span class="idlMemberName"><a href="#widl-NfcSendOptions-target">target</a></span>;</span>
+};</span></pre>
+      <p>
+        The <dfn id="widl-NfcSendOptions-target">target</dfn> property
+        denotes the intended target for the pending <code>send()</code>
+        operation. The default value is <code>"any"</code>.
+      </p>
+    </section>
+  </section> <!-- send() method -->
+</section>
+
+
+<!-- - - - - - - - - - - - - - - Usage Examples - - - - - - - - - - - - - - -->
+<section class="informative" id="examples" typeof="bibo:Chapter" resource="#examples" property="bibo:hasPart"> <!--OddPage--><h2 id="h-examples" resource="#h-examples"><span property="xhv:role" resource="xhv:heading"><span class="secno">9. </span>Examples</span></h2><p><em>This section is non-normative.</em></p>
+  <p>
+    This section shows how developers can make use of the various features of
+    this specification.
+  </p>
+  <div class="example"><div class="example-title"><span>Example 1</span>: Check permissions for NFC</div><pre class="example highlight prettyprint prettyprinted"><span class="pln">navigator</span><span class="pun">.</span><span class="pln">permissions</span><span class="pun">.</span><span class="pln">query</span><span class="pun">({</span><span class="pln">name</span><span class="pun">:</span><span class="pln"> </span><span class="str">'nfc'</span><span class="pun">}).</span><span class="kwd">then</span><span class="pun">((</span><span class="pln">result</span><span class="pun">)</span><span class="pln"> </span><span class="pun">=&gt;</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+    </span><span class="kwd">if</span><span class="pln"> </span><span class="pun">(</span><span class="pln">result</span><span class="pun">.</span><span class="pln">status </span><span class="pun">==</span><span class="pln"> </span><span class="str">'granted'</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+      enableNfcUseCase</span><span class="pun">();</span><span class="pln">  </span><span class="com">// Do things here.</span><span class="pln">
+    </span><span class="pun">}</span><span class="pln"> </span><span class="kwd">else</span><span class="pln"> </span><span class="kwd">if</span><span class="pln"> </span><span class="pun">(</span><span class="pln">result</span><span class="pun">.</span><span class="pln">status </span><span class="pun">==</span><span class="pln"> </span><span class="str">'prompt'</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+      </span><span class="com">// The user agent will prompt.</span><span class="pln">
+    </span><span class="pun">}</span><span class="pln">
+    </span><span class="com">// Otherwise don't do anything since it will fail.</span><span class="pln">
+  </span><span class="pun">});</span></pre></div>
+  <div class="example"><div class="example-title"><span>Example 2</span>: Read and write tag</div><pre class="example highlight prettyprint prettyprinted"><span class="kwd">var</span><span class="pln"> adapter </span><span class="pun">=</span><span class="pln"> </span><span class="kwd">null</span><span class="pun">;</span><span class="pln">
+navigator</span><span class="pun">.</span><span class="pln">nfc</span><span class="pun">.</span><span class="pln">requestAdapter</span><span class="pun">().</span><span class="kwd">then</span><span class="pun">((</span><span class="pln">nfcAdapter</span><span class="pun">)</span><span class="pln"> </span><span class="pun">=&gt;</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+  adapter </span><span class="pun">=</span><span class="pln"> nfcAdapter</span><span class="pun">;</span><span class="pln">
+  adapter</span><span class="pun">.</span><span class="pln">onmessage </span><span class="pun">=</span><span class="pln"> onMessage</span><span class="pun">;</span><span class="pln">
+</span><span class="pun">};</span><span class="pln">
+
+</span><span class="kwd">function</span><span class="pln"> onMessage</span><span class="pun">(</span><span class="kwd">event</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+  console</span><span class="pun">.</span><span class="pln">log</span><span class="pun">(</span><span class="str">"NDEF message received from scope "</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="kwd">event</span><span class="pun">.</span><span class="pln">message</span><span class="pun">.</span><span class="pln">scope</span><span class="pun">);</span><span class="pln">
+  </span><span class="kwd">var</span><span class="pln"> data </span><span class="pun">=</span><span class="pln"> </span><span class="kwd">event</span><span class="pun">.</span><span class="pln">message</span><span class="pun">.</span><span class="pln">data</span><span class="pun">;</span><span class="pln">
+
+  </span><span class="kwd">if</span><span class="pln"> </span><span class="pun">(!</span><span class="pln">data</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln"> </span><span class="com">// empty tag</span><span class="pln">
+    writeMessageOnTag</span><span class="pun">({</span><span class="pln">data</span><span class="pun">:</span><span class="pln"> </span><span class="pun">“</span><span class="typ">Initializing</span><span class="pln"> a passive tag</span><span class="pun">”});</span><span class="pln">
+  </span><span class="pun">}</span><span class="pln">
+
+  </span><span class="kwd">if</span><span class="pln"> </span><span class="pun">(</span><span class="kwd">typeof</span><span class="pln"> data </span><span class="pun">==</span><span class="pln"> </span><span class="pun">‘</span><span class="kwd">string</span><span class="pun">’)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+    console</span><span class="pun">.</span><span class="pln">log</span><span class="pun">(“</span><span class="typ">Data</span><span class="pln"> </span><span class="kwd">is</span><span class="pln"> </span><span class="kwd">string</span><span class="pun">:</span><span class="pln"> </span><span class="pun">“</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> data</span><span class="pun">);</span><span class="pln">
+  </span><span class="pun">}</span><span class="pln"> </span><span class="kwd">else</span><span class="pln"> </span><span class="kwd">if</span><span class="pln"> </span><span class="pun">(</span><span class="pln">data instanceof </span><span class="typ">Blob</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+    processBlob</span><span class="pun">(</span><span class="pln">data</span><span class="pun">);</span><span class="pln">
+  </span><span class="pun">}</span><span class="pln"> </span><span class="kwd">else</span><span class="pln"> </span><span class="kwd">if</span><span class="pln"> </span><span class="pun">(</span><span class="pln">data instanceof URL</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+    console</span><span class="pun">.</span><span class="pln">log</span><span class="pun">(“</span><span class="typ">Data</span><span class="pln"> </span><span class="kwd">is</span><span class="pln"> URL</span><span class="pun">:</span><span class="pln"> </span><span class="pun">“</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> data</span><span class="pun">.</span><span class="pln">toString</span><span class="pun">());</span><span class="pln">
+  </span><span class="pun">}</span><span class="pln"> </span><span class="kwd">else</span><span class="pln"> </span><span class="kwd">if</span><span class="pln"> </span><span class="pun">(</span><span class="kwd">typeof</span><span class="pln"> data </span><span class="pun">==</span><span class="pln"> </span><span class="pun">‘</span><span class="kwd">object</span><span class="pun">’)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+    processJson</span><span class="pun">(</span><span class="pln">data</span><span class="pun">);</span><span class="pln">
+  </span><span class="pun">}</span><span class="pln">
+</span><span class="pun">};</span><span class="pln">
+
+</span><span class="kwd">function</span><span class="pln"> writeMessageOnTag</span><span class="pun">(</span><span class="pln">msg</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+    adapter</span><span class="pun">.</span><span class="pln">send</span><span class="pun">(</span><span class="pln">msg</span><span class="pun">,</span><span class="pln"> </span><span class="pun">{</span><span class="pln">target</span><span class="pun">:</span><span class="pln"> </span><span class="str">"tag"</span><span class="pun">})</span><span class="pln">
+      </span><span class="pun">.</span><span class="kwd">then</span><span class="pun">(()</span><span class="pln"> </span><span class="pun">=&gt;</span><span class="pln"> </span><span class="pun">{</span><span class="pln"> console</span><span class="pun">.</span><span class="pln">log</span><span class="pun">(</span><span class="str">"Send was successful"</span><span class="pun">)})</span><span class="pln">
+      </span><span class="pun">.</span><span class="kwd">catch</span><span class="pun">(()</span><span class="pln"> </span><span class="pun">=&gt;</span><span class="pln"> </span><span class="pun">{</span><span class="pln"> console</span><span class="pun">.</span><span class="pln">log</span><span class="pun">(</span><span class="str">"Send failed"</span><span class="pun">)});</span><span class="pln">
+</span><span class="pun">};</span><span class="pln">
+
+</span><span class="kwd">function</span><span class="pln"> processBlob</span><span class="pun">(</span><span class="pln">data</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+    console</span><span class="pun">.</span><span class="pln">log</span><span class="pun">(“</span><span class="typ">Blob</span><span class="pln"> size</span><span class="pun">:</span><span class="pln"> </span><span class="pun">”</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> data</span><span class="pun">.</span><span class="pln">size </span><span class="pun">+</span><span class="pln"> </span><span class="pun">“</span><span class="pln"> bytes</span><span class="pun">”);</span><span class="pln">
+    console</span><span class="pun">.</span><span class="pln">log</span><span class="pun">(“</span><span class="typ">Blob</span><span class="pln"> type</span><span class="pun">:</span><span class="pln"> </span><span class="pun">”</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> data</span><span class="pun">.</span><span class="pln">type</span><span class="pun">);</span><span class="pln">
+    </span><span class="kwd">var</span><span class="pln"> reader </span><span class="pun">=</span><span class="pln"> </span><span class="kwd">new</span><span class="pln"> </span><span class="typ">FileReader</span><span class="pun">();</span><span class="pln">
+    reader</span><span class="pun">.</span><span class="pln">addEventListener</span><span class="pun">(“</span><span class="pln">loadend</span><span class="pun">”,</span><span class="pln"> </span><span class="kwd">function</span><span class="pun">()</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+      console</span><span class="pun">.</span><span class="pln">log</span><span class="pun">(“</span><span class="typ">Blob</span><span class="pln"> data</span><span class="pun">:</span><span class="pln"> </span><span class="pun">”</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> reader</span><span class="pun">.</span><span class="pln">result</span><span class="pun">);</span><span class="pln">
+      </span><span class="com">// Now send a response based on the data.</span><span class="pln">
+      adapter</span><span class="pun">.</span><span class="pln">send</span><span class="pun">({</span><span class="pln">data</span><span class="pun">:</span><span class="pln"> </span><span class="pun">“</span><span class="typ">Response</span><span class="pln"> to blob</span><span class="pun">”</span><span class="pln"> </span><span class="pun">})</span><span class="pln">
+        </span><span class="pun">.</span><span class="kwd">then</span><span class="pun">(()</span><span class="pln"> </span><span class="pun">=&gt;</span><span class="pln"> </span><span class="pun">{</span><span class="pln"> console</span><span class="pun">.</span><span class="pln">log</span><span class="pun">(</span><span class="str">"Send was successful"</span><span class="pun">)})</span><span class="pln">
+        </span><span class="pun">.</span><span class="kwd">catch</span><span class="pun">(()</span><span class="pln"> </span><span class="pun">=&gt;</span><span class="pln"> </span><span class="pun">{</span><span class="pln"> console</span><span class="pun">.</span><span class="pln">log</span><span class="pun">(</span><span class="str">"Send failed"</span><span class="pun">)});</span><span class="pln">
+    </span><span class="pun">});</span><span class="pln">
+    reader</span><span class="pun">.</span><span class="pln">readAsText</span><span class="pun">(</span><span class="pln">data</span><span class="pun">);</span><span class="pln">
+</span><span class="pun">};</span><span class="pln">
+
+</span><span class="kwd">function</span><span class="pln"> processJson</span><span class="pun">(</span><span class="pln">data</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+  </span><span class="kwd">if</span><span class="pln"> </span><span class="pun">(</span><span class="pln">myCondition</span><span class="pun">(</span><span class="pln">data</span><span class="pun">.</span><span class="pln">myKnownProperty</span><span class="pun">))</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+    adapter</span><span class="pun">.</span><span class="pln">send</span><span class="pun">({</span><span class="pln">data</span><span class="pun">:</span><span class="pln"> </span><span class="pun">“</span><span class="typ">Custom</span><span class="pln"> data</span><span class="pun">”});</span><span class="pln">
+</span><span class="pun">};</span></pre></div>
+  <div class="example"><div class="example-title"><span>Example 3</span>: Save and restore game progress with another device</div><pre class="example highlight prettyprint prettyprinted"><span class="pln">navigator</span><span class="pun">.</span><span class="pln">nfc</span><span class="pun">.</span><span class="pln">requestAdapter</span><span class="pun">().</span><span class="kwd">then</span><span class="pun">((</span><span class="pln">adapter</span><span class="pun">)</span><span class="pln"> </span><span class="pun">=&gt;</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+  console</span><span class="pun">.</span><span class="pln">log</span><span class="pun">(</span><span class="str">"Waiting for game state"</span><span class="pun">);</span><span class="pln">
+  adapter</span><span class="pun">.</span><span class="pln">onmessage </span><span class="pun">=</span><span class="pln"> </span><span class="pun">(</span><span class="kwd">event</span><span class="pun">)</span><span class="pln"> </span><span class="pun">=&gt;</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+    console</span><span class="pun">.</span><span class="pln">log</span><span class="pun">(</span><span class="str">"Game state received from: "</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="kwd">event</span><span class="pun">.</span><span class="pln">message</span><span class="pun">.</span><span class="pln">scope</span><span class="pun">);</span><span class="pln">
+    console</span><span class="pun">.</span><span class="pln">log</span><span class="pun">(</span><span class="str">"Game state: "</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="kwd">event</span><span class="pun">.</span><span class="pln">message</span><span class="pun">.</span><span class="pln">data</span><span class="pun">);</span><span class="pln">
+    </span><span class="com">// Now do some calculations and update the state.</span><span class="pln">
+    adapter</span><span class="pun">.</span><span class="pln">send</span><span class="pun">({</span><span class="pln"> scope</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">event</span><span class="pun">.</span><span class="pln">message</span><span class="pun">.</span><span class="pln">scope</span><span class="pun">,</span><span class="pln">
+                   data</span><span class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span class="pln"> </span><span class="pun">{</span><span class="pln"> level</span><span class="pun">:</span><span class="pln"> </span><span class="lit">3</span><span class="pun">,</span><span class="pln"> points</span><span class="pun">:</span><span class="pln"> </span><span class="lit">4500</span><span class="pun">,</span><span class="pln"> lives</span><span class="pun">:</span><span class="pln"> </span><span class="lit">3</span><span class="pln"> </span><span class="pun">}</span><span class="pln"> </span><span class="pun">]</span><span class="pln"> </span><span class="pun">})</span><span class="pln">
+      </span><span class="pun">.</span><span class="kwd">then</span><span class="pun">(()</span><span class="pln"> </span><span class="pun">=&gt;</span><span class="pln"> </span><span class="pun">{</span><span class="pln"> console</span><span class="pun">.</span><span class="pln">log</span><span class="pun">(</span><span class="str">"Send was successful"</span><span class="pun">)})</span><span class="pln">
+      </span><span class="pun">.</span><span class="kwd">catch</span><span class="pun">(()</span><span class="pln"> </span><span class="pun">=&gt;</span><span class="pln"> </span><span class="pun">{</span><span class="pln"> console</span><span class="pun">.</span><span class="pln">log</span><span class="pun">(</span><span class="str">"Send failed"</span><span class="pun">)});</span><span class="pln">
+  </span><span class="pun">};</span><span class="pln">
+</span><span class="pun">});</span></pre></div>
+</section> <!-- Usage examples -->
+
+<!-- - - - - - - - - - - - - - -  Changes - - - - - - - - - - - - - - - - - -->
+<section class="appendix" id="Changes" typeof="bibo:Chapter" resource="#Changes" property="bibo:hasPart"><!--OddPage--><h2 id="h-changes" resource="#h-changes"><span property="xhv:role" resource="xhv:heading"><span class="secno">A. </span>Changes</span></h2>
+  <p>
+    The following is a list of substantial changes to the document. For a
+    complete list of changes, see the <a href="https://github.com/w3c/web-nfc/commits/gh-pages">change log on
+    Github</a>. You can also view the <a href="https://github.com/w3c/web-nfc/issues?page=1&amp;state=closed">
+    recently closed bugs</a>.
+  </p>
+  <ul>
+    <li>Changed handling of NFC adapters.</li>
+    <li>
+      Removed watches/filters.
+    </li>
+    <li>
+      Unified handling of peer push and tag writing.
+    </li>
+    <li>
+      Rewritten mapping data types to NDEF records.
+    </li>
+    <li>
+      Added Open Issues section, for summarizing present development topics.
+    </li>
+  </ul>
+</section>
+
+<!-- - - - - - - - - - - - - - - Open issues - - - - - - - - - - - - - - - -->
+<section id="open-issues" typeof="bibo:Chapter" resource="#open-issues" property="bibo:hasPart"> <!--OddPage--><h2 class="appendix" id="openissues" resource="#openissues"><span property="xhv:role" resource="xhv:heading"><span class="secno">B. </span>Open issues</span></h2>
+  <p>
+    The following problems are being discussed and need most attention:
+    </p><ul>
+      <li>
+        <a href="https://github.com/w3c/web-nfc/issues/2">
+        Verify security model.</a>
+      </li>
+      <li>
+        <a href="https://github.com/w3c/web-nfc/issues/3">
+        Suggest a permission UI flow.</a>
+      </li>
+      <li>
+        <a href="https://github.com/w3c/web-nfc/issues/17">
+        Using service workers and protocol handlers.</a>
+      </li>
+    </ul>
+  <p></p>
+</section>
+
+<!-- - - - - - - - - - - - - - - Acknowledgements - - - - - - - - - - - - - -->
+<section id="acknowledgements" typeof="bibo:Chapter" resource="#acknowledgements" property="bibo:hasPart"> <!--OddPage--><h2 id="h-acknowledgements" resource="#h-acknowledgements"><span property="xhv:role" resource="xhv:heading"><span class="secno">C. </span>Acknowledgements</span></h2>
+  <p>
+    The editors would like to express their gratitude to the former editors
+    Luc Yriarte and Samuel Ortiz, and also to Don Coleman, Jeffrey Yasskin,
+    Salvatore Iovene, and Alexander Shalamov for their technical guidance,
+    implementation feedback and support.
+  </p>
+</section>
+
+
+
+<section id="references" class="appendix" typeof="bibo:Chapter" resource="#references" property="bibo:hasPart"><!--OddPage--><h2 id="h-references" resource="#h-references"><span property="xhv:role" resource="xhv:heading"><span class="secno">D. </span>References</span></h2><section id="normative-references" typeof="bibo:Chapter" resource="#normative-references" property="bibo:hasPart"><h3 id="h-normative-references" resource="#h-normative-references"><span property="xhv:role" resource="xhv:heading"><span class="secno">D.1 </span>Normative references</span></h3><dl class="bibliography" resource=""><dt id="bib-DOM4">[DOM4]</dt><dd>Anne van Kesteren; Aryeh Gregor; Ms2ger; Alex Russell; Robin Berjon. <a href="http://www.w3.org/TR/dom/" property="dc:requires"><cite>W3C DOM4</cite></a>. 28 April 2015. W3C Last Call Working Draft. URL: <a href="http://www.w3.org/TR/dom/" property="dc:requires">http://www.w3.org/TR/dom/</a>
+</dd><dt id="bib-ECMASCRIPT">[ECMASCRIPT]</dt><dd>Allen Wirfs-Brock. <a href="https://people.mozilla.org/~jorendorff/es6-draft.html" property="dc:requires"><cite>ECMAScript 2015 Language Specification</cite></a>. Draft. URL: <a href="https://people.mozilla.org/~jorendorff/es6-draft.html" property="dc:requires">https://people.mozilla.org/~jorendorff/es6-draft.html</a>
+</dd><dt id="bib-ENCODING">[ENCODING]</dt><dd>Anne van Kesteren; Joshua Bell; Addison Phillips. <a href="http://www.w3.org/TR/encoding/" property="dc:requires"><cite>Encoding</cite></a>. 16 September 2014. W3C Candidate Recommendation. URL: <a href="http://www.w3.org/TR/encoding/" property="dc:requires">http://www.w3.org/TR/encoding/</a>
+</dd><dt id="bib-FILEAPI">[FILEAPI]</dt><dd>Arun Ranganathan; Jonas Sicking. <a href="http://www.w3.org/TR/FileAPI/" property="dc:requires"><cite>File API</cite></a>. 21 April 2015. W3C Working Draft. URL: <a href="http://www.w3.org/TR/FileAPI/" property="dc:requires">http://www.w3.org/TR/FileAPI/</a>
+</dd><dt id="bib-HTML5">[HTML5]</dt><dd>Ian Hickson; Robin Berjon; Steve Faulkner; Travis Leithead; Erika Doyle Navara; Edward O'Connor; Silvia Pfeiffer. <a href="http://www.w3.org/TR/html5/" property="dc:requires"><cite>HTML5</cite></a>. 28 October 2014. W3C Recommendation. URL: <a href="http://www.w3.org/TR/html5/" property="dc:requires">http://www.w3.org/TR/html5/</a>
+</dd><dt id="bib-RFC2119">[RFC2119]</dt><dd>S. Bradner. <a href="https://tools.ietf.org/html/rfc2119" property="dc:requires"><cite>Key words for use in RFCs to Indicate Requirement Levels</cite></a>. March 1997. Best Current Practice. URL: <a href="https://tools.ietf.org/html/rfc2119" property="dc:requires">https://tools.ietf.org/html/rfc2119</a>
+</dd><dt id="bib-URL">[URL]</dt><dd>Anne van Kesteren; Sam Ruby. <a href="http://www.w3.org/TR/url-1/" property="dc:requires"><cite>URL</cite></a>. 9 December 2014. W3C Working Draft. URL: <a href="http://www.w3.org/TR/url-1/" property="dc:requires">http://www.w3.org/TR/url-1/</a>
+</dd><dt id="bib-WEBIDL">[WEBIDL]</dt><dd>Cameron McCormack. <a href="http://www.w3.org/TR/WebIDL/" property="dc:requires"><cite>Web IDL</cite></a>. 19 April 2012. W3C Candidate Recommendation. URL: <a href="http://www.w3.org/TR/WebIDL/" property="dc:requires">http://www.w3.org/TR/WebIDL/</a>
+</dd></dl></section><section id="informative-references" typeof="bibo:Chapter" resource="#informative-references" property="bibo:hasPart"><h3 id="h-informative-references" resource="#h-informative-references"><span property="xhv:role" resource="xhv:heading"><span class="secno">D.2 </span>Informative references</span></h3><dl class="bibliography" resource=""><dt id="bib-RFC2046">[RFC2046]</dt><dd>N. Freed; N. Borenstein. <a href="https://tools.ietf.org/html/rfc2046" property="dc:references"><cite>Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types</cite></a>. November 1996. Draft Standard. URL: <a href="https://tools.ietf.org/html/rfc2046" property="dc:references">https://tools.ietf.org/html/rfc2046</a>
+</dd><dt id="bib-RFC3986">[RFC3986]</dt><dd>T. Berners-Lee; R. Fielding; L. Masinter. <a href="https://tools.ietf.org/html/rfc3986" property="dc:references"><cite>Uniform Resource Identifier (URI): Generic Syntax</cite></a>. January 2005. Internet Standard. URL: <a href="https://tools.ietf.org/html/rfc3986" property="dc:references">https://tools.ietf.org/html/rfc3986</a>
+</dd><dt id="bib-RFC4648">[RFC4648]</dt><dd>S. Josefsson. <a href="https://tools.ietf.org/html/rfc4648" property="dc:references"><cite>The Base16, Base32, and Base64 Data Encodings</cite></a>. October 2006. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc4648" property="dc:references">https://tools.ietf.org/html/rfc4648</a>
+</dd><dt id="bib-permissions">[permissions]</dt><dd>Mounir Lamouri; Marcos Caceres. <a href="http://www.w3.org/TR/permissions/" property="dc:references"><cite>The Permissions API</cite></a>. 7 April 2015. W3C Working Draft. URL: <a href="http://www.w3.org/TR/permissions/" property="dc:references">http://www.w3.org/TR/permissions/</a>
+</dd></dl></section></section></body></html>
