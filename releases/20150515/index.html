@@ -4,7 +4,15 @@
   <title>Web NFC API</title>
   <meta charset="UTF-8">
   
-  
+<style>
+  table.simple {
+      border: 1px solid #000;
+  } 
+  table.simple td {
+      border-right: 1px solid #000;
+  }
+</style>
+
 <style>/*****************************************************************
  * ReSpec 3 CSS
  * Robin Berjon - http://berjon.com/
@@ -751,7 +759,7 @@ table.exceptions table {
     Part of the <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a> is the <dfn id="dfn-tnf">TNF</dfn> field, standing for
     Type Name Format. It can take binary values representing the following
     types:
-    </p><table class="simple" border="1">
+    </p><table class="simple">
       <tbody><tr>
         <th><strong>TNF value</strong></th>
         <th><strong>NDEF record type</strong></th>
@@ -1178,7 +1186,7 @@ table.exceptions table {
     <a href="#dfn-ndef-record" class="internalDFN">NDEF record</a> types, as used in the <code><a href="#widl-NfcAdapter-send-Promise-void--NfcMessage-message-NfcSendOptions-options" class="internalDFN"><code>send</code></a>()</code>
     method is as follows:
   </p>
-  <table class="simple" border="1">
+  <table class="simple">
     <tbody><tr>
       <th>NfcData</th>
       <th>NDEF record type</th>
@@ -1217,7 +1225,7 @@ table.exceptions table {
     as used for incoming <a href="#dfn-ndef-message" class="internalDFN">NDEF message</a>s exposed by the
     <code><a href="#idl-def-NfcMessageEvent" class="idlType"><code>NfcMessageEvent</code></a></code>, is as follows:
   </p>
-  <table class="simple" border="1">
+  <table class="simple">
     <tbody><tr>
       <th>NDEF record type</th>
       <th>NfcData</th>
