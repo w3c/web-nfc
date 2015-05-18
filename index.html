@@ -67,7 +67,7 @@
   <style>
     table.simple {
         border: 1px solid #000;
-    } 
+    }
     table.simple td {
         border-right: 1px solid #000;
     }
@@ -592,13 +592,6 @@
     User agents must acquire consent for [[permissions]] for each call to the
     methods of this API, unless a prearranged trust relationship applies.
   </p>
-  <p class="note">
-    Considering adding the following:
-    User agents MUST implement the WebNFC API to be HTTPS-only. SSL-only support
-    provides better protection for the user against man-in-the-middle attacks
-    intended to obtain push registration data. Browsers may ignore this rule
-    for development purposes only.
-  </p>
   <p>
     Permissions that are preserved beyond the current browsing session MUST be
     revocable.
@@ -612,9 +605,23 @@
     <a title="user agent">User agents</a> MUST implement the following policies:
     <ol>
       <li>
+        User agents MUST implement the Web NFC API to be HTTPS-only. SSL-only
+        support provides better protection for the user against
+        man-in-the-middle attacks intended to obtain push registration data.
+        Browsers MAY ignore this rule for development purposes only.
+      </li>
+      <li>
         In order to use NFC, a website MUST be visible and in focus. For
         web pages in background, receiving and sending NFC data MUST be
         suspended.
+      </li>
+      <li>
+        User agents SHOULD allow Web NFC API access only from top level frames
+        or frames where the integrity and origin of the content is secure.
+      </li>
+      <li>
+        Reading arbitrary <a>NFC tag</a>s SHOULD always
+        <a>obtain permission</a>.
       </li>
       <li>
         Writing to an <a>NFC tag</a>, including locking the tag to read-only
@@ -629,7 +636,16 @@
       <li>
         In addition to the previous, only websites with a schema starting with
         <code>"https://"</code> SHOULD be able to read <a>NFC tag</a>s that is
-        not empty or does not contain a <a>Web NFC message</a>s.
+        not empty and does not contain a <a>Web NFC message</a>s.
+      </li>
+      <li>
+        If a <a>Web NFC message</a> contains <code>JSON</code> data, the content
+        SHOULD be validated by implementations.
+      </li>
+      <li>
+        For Bluetooth and WiFi handover, the user SHOULD have to grant access
+        to the secondary API and must be able to properly understand what
+        they are granting.
       </li>
     </ol>
   </p>
@@ -1008,6 +1024,10 @@
         <li>
           Make a request to the underlying platform to send <var>output</var>
           to the next device which comes in proximity range.
+        </li>
+        <li>
+          If after making the request the connection is lost, reject
+          <var>promise</var> with <code>"TimeoutError"</code>.
         </li>
         <li>
           If <var>options.target</var> has the value <code>"tag"</code>, then
