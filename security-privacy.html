@@ -152,9 +152,9 @@
           devices.
         </td>
         <td>
-          Permission/user prompt for writing tags and peers, with a
+          Permission/user prompt for writing tags and peers.<!--, with a
           possibility the user can check what data is sent, or fine grained
-          permissions on what kind of data could be sent.
+          permissions on what kind of data could be sent.-->
         </td>
       </tr>
       <tr>
@@ -191,19 +191,20 @@
         <td>
           Suggest rules for handling payload safely, provide best-practice
           methods for doing so, provide a sanitization/validation function.
-          Payload MAY be even cryptographically sign before writing it to a tag
-          so the contents could later be verified.
+          Payload MAY be even cryptographically signed before writing it to a
+          tag so the contents could later be verified.
         </td>
       </tr>
       <tr>
         <td>
           A Web NFC tag could be used for leaking the user’s location, if the
-          readong triggers a user’s device to navigate to a website.
+          reading triggers a user’s device to navigate to a website.
         </td>
         <td>
           A Web NFC tag SHOULD NOT ever trigger a user’s device to navigate
-          to a website without asking permission, unless the site is in the
-          foreground and has been granted permission.
+          to a website without asking permission, unless the site has been in
+          the foreground or has been brought to the foreground and has been
+          granted permission.
         </td>
       </tr>
     </table>
