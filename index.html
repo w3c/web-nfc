@@ -691,21 +691,21 @@
     <a>NDEF message</a>s.
   </p>
   <dl class="idl"
-      title = "typedef (DOMString or URL or Blob or JSON) NfcData">
+      title = "typedef (DOMString or URL or Blob or JSON) NFCData">
   </dl>
   <p>
-    <dfn>NfcData</dfn> denotes the data types
+    <dfn>NFCData</dfn> denotes the data types
     supported as <a>NDEF record</a> payload in read and send operations in
     this API.
   </p>
   <p>
-    The mapping from supported <code>NfcData</code> to
+    The mapping from supported <code>NFCData</code> to
     <a>NDEF record</a> types, as used in the <code><a>send</a>()</code>
     method is as follows:
   </p>
   <table class="simple">
     <tr>
-      <th>NfcData</th>
+      <th>NFCData</th>
       <th>NDEF record type</th>
     </tr>
     <tr>
@@ -738,14 +738,14 @@
     </tr>
   </table>
   <p>
-    The mapping from <a>NDEF record</a> types to <code><a>NfcData</a></code>,
+    The mapping from <a>NDEF record</a> types to <code><a>NFCData</a></code>,
     as used for incoming <a>NDEF message</a>s exposed by the
-    <code><a>NfcMessageEvent</a></code>, is as follows:
+    <code><a>NFCMessageEvent</a></code>, is as follows:
   </p>
   <table class="simple">
     <tr>
       <th>NDEF record type</th>
-      <th>NfcData</th>
+      <th>NFCData</th>
     </tr>
     <tr>
       <td>NFC Forum Well Known Type (<a>TNF</a>=1) with type <i>Text</i></td>
@@ -799,25 +799,25 @@
     extends.
   </p>
   <dl title="partial interface Navigator" class="idl">
-    <dt>readonly attribute Nfc nfc</dt>
+    <dt>readonly attribute NFC nfc</dt>
   </dl>
   <!-- - - - - - - - - - - - nfc attribute  - - - - - - - - - - - -->
   <section> <h3>The <strong>nfc</strong> attribute</h3>
   <p>
     When getting the <dfn id="widl-Navigator-nfc">nfc</dfn> attribute, the
-    <a>user agent</a> MUST return the <a>Nfc</a> object, which provides
+    <a>user agent</a> MUST return the <a>NFC</a> object, which provides
     NFC related functionality.
   </p>
   </section> <!-- nfc attribute -->
 </section> <!-- Navigator -->
 
-<section> <h2>The <strong>Nfc</strong> interface</h2>
-  <dl title="interface Nfc" class="idl">
-    <dt>Promise&lt;NfcAdapter&gt; requestAdapter()</dt>
+<section> <h2>The <strong>NFC</strong> interface</h2>
+  <dl title="interface NFC" class="idl">
+    <dt>Promise&lt;NFCAdapter&gt; requestAdapter()</dt>
   </dl>
   <p>
     Implementations MAY expose multiple NFC adapters. By using the
-    <dfn id="widl-NFC-findAdapters-Promise-sequence-NfcAdapter">
+    <dfn id="widl-NFC-findAdapters-Promise-sequence-NFCAdapter">
     requestAdapter</dfn>() method, <a>web app</a>s can obtain an adapter object
     providing NFC functionality.
     When this method is invoked, the <a>user agent</a> MUST run the following
@@ -881,23 +881,23 @@
   </p>
 </section> <!-- NFC interface -->
 
-<section> <h2>The <strong>NfcAdapter</strong> interface</h2>
-  <dl title="interface NfcAdapter : EventHandler" class="idl">
+<section> <h2>The <strong>NFCAdapter</strong> interface</h2>
+  <dl title="interface NFCAdapter : EventHandler" class="idl">
     <dt>attribute EventHandler onmessage</dt>
-    <dt>Promise&lt;void&gt; send(NfcMessage message, optional NfcSendOptions options)</dt>
+    <dt>Promise&lt;void&gt; send(NFCMessage message, optional NFCSendOptions options)</dt>
   </dl>
   <p>
-    The <code>NfcAdapter</code> interface handles incoming <a>NDEF message</a>s,
-    exposed by the <code><a>NfcMessageEvent</a></code> event, either from an
+    The <code>NFCAdapter</code> interface handles incoming <a>NDEF message</a>s,
+    exposed by the <code><a>NFCMessageEvent</a></code> event, either from an
     <a>NFC tag</a> or an <a>NFC peer</a>. By default, listening to this event
     SHOULD be disabled.
   </p>
 
   <!-- Events -->
-  <section> <h3>Events used with the <strong>NfcAdapter</strong> interface</h3>
+  <section> <h3>Events used with the <strong>NFCAdapter</strong> interface</h3>
   <p>
     The following are the event handlers implemented by the
-    <code><a>NfcAdapter</a></code> interface.
+    <code><a>NFCAdapter</a></code> interface.
   </p>
   <table class="simple">
     <tr>
@@ -906,9 +906,9 @@
       <th>event type   </th>
     </tr>
     <tr>
-      <td><code><dfn id="widl-NfcAdapter-onmessage">onmessage</dfn></code></td>
+      <td><code><dfn id="widl-NFCAdapter-onmessage">onmessage</dfn></code></td>
       <td><code>message</code></td>
-      <td><code><a>NfcMessageEvent</a></code></td>
+      <td><code><a>NFCMessageEvent</a></code></td>
     </tr>
   </table>
 
@@ -919,51 +919,51 @@
   </p>
   </section>
 
-  <!-- NfcMessageEvent -->
-  <section> <h3>The <strong>NfcMessageEvent</strong> interface</h3>
+  <!-- NFCMessageEvent -->
+  <section> <h3>The <strong>NFCMessageEvent</strong> interface</h3>
   <p>
     In this specification, <a>NDEF message</a> content is delivered by an
-    <a>NfcMessageEvent</a> event.
+    <a>NFCMessageEvent</a> event.
   </p>
-  <dl title="interface NfcMessageEvent : Event" class="idl">
-    <dt>readonly attribute NfcMessage message</dt>
+  <dl title="interface NFCMessageEvent : Event" class="idl">
+    <dt>readonly attribute NFCMessage message</dt>
   </dl>
   <p>
-    The <code><dfn id="widl-NfcMessageEvent-message">message</dfn></code>
-    property MUST return the <code><a>NfcMessage</a></code> representing the
+    The <code><dfn id="widl-NFCMessageEvent-message">message</dfn></code>
+    property MUST return the <code><a>NFCMessage</a></code> representing the
     payload data of the <a>NDEF message</a>.
   </p>
-  </section> <!-- NfcMessageEvent -->
+  </section> <!-- NFCMessageEvent -->
 
-  <!-- NfcMessage -->
-  <section><h3>The <strong>NfcMessage</strong> interface</h3>
+  <!-- NFCMessage -->
+  <section><h3>The <strong>NFCMessage</strong> interface</h3>
     <p>
       The content of the <a>NDEF message</a> is exposed by the following
       interface:
     </p>
-    <dl title="[NoInterfaceObject] interface NfcMessage" class="idl">
+    <dl title="[NoInterfaceObject] interface NFCMessage" class="idl">
       <dt>readonly attribute USVString scope</dt>
       <dt>readonly attribute sequence&lt;any&gt; data</dt>
       <dt>  // (DOMString or URL or Blob or JSON) </dt>
     </dl>
     <p>
-      The <code><dfn id="widl-NfcMessage-scope">scope</dfn></code>
+      The <code><dfn id="widl-NFCMessage-scope">scope</dfn></code>
       property MUST return the <a>URL scope</a> which has written the message.
     </p>
     <p>
       The <code>
-      <dfn id="widl-NfcMessage-data">data</dfn></code> property MUST return the
+      <dfn id="widl-NFCMessage-data">data</dfn></code> property MUST return the
       payload data of the <a>NDEF message</a> as an array of either
       <code>DOMString</code>, or <code>URL</code> object, or <code>Blob</code>
       object, or serializable JSON object as a generic <code>Object</code>.
     </p>
-  </section> <!-- NfcMessage interface -->
+  </section> <!-- NFCMessage interface -->
   </section> <!-- Events -->
 
   <section><h3>The <strong>send()</strong> method</h3>
     <p>
       The <code>
-      <dfn id="widl-NfcAdapter-send-Promise-void--NfcMessage-message-NfcSendOptions-options">
+      <dfn id="widl-NFCAdapter-send-Promise-void--NFCMessage-message-NFCSendOptions-options">
       send</dfn>()</code> method is used for sending an <a>NDEF message</a> to
       either an <a>NFC tag</a> for writing, or to an <a>NFC peer</a> device,
       next time when they get into proximity range.
@@ -1058,8 +1058,8 @@
       </ol>
     </p>
 
-    <section> <h3>The <strong>NfcSendOptions</strong> dictionary</h3>
-      <dl class="idl" title="enum NfcTarget">
+    <section> <h3>The <strong>NFCSendOptions</strong> dictionary</h3>
+      <dl class="idl" title="enum NFCTarget">
         <dt>tag</dt>
         <dd>Only <a>NFC tag</a>s are targeted.</dd>
 
@@ -1070,11 +1070,11 @@
         <dd>Both <a>NFC tag</a>s and <a>NFC peer</a>s are targeted.</dd>
       </dl>
 
-      <dl title="dictionary NfcSendOptions" class="idl">
-        <dt>NfcTarget target</dt>
+      <dl title="dictionary NFCSendOptions" class="idl">
+        <dt>NFCTarget target</dt>
       </dl>
       <p>
-        The <dfn id="widl-NfcSendOptions-target">target</dfn> property
+        The <dfn id="widl-NFCSendOptions-target">target</dfn> property
         denotes the intended target for the pending <code>send()</code>
         operation. The default value is <code>"any"</code>.
       </p>
@@ -1093,7 +1093,7 @@
        class="example highlight">
     navigator.permissions.query({name: 'nfc'}).then((result) => {
         if (result.status == 'granted') {
-          enableNfcUseCase();  // Do things here.
+          enableNFCUseCase();  // Do things here.
         } else if (result.status == 'prompt') {
           // The user agent will prompt.
         }
@@ -1122,7 +1122,7 @@
       } else if (data instanceof URL) {
         console.log(“Data is URL: “ + data.toString());
       } else if (typeof data == ‘object’) {
-        processJson(data);
+        processJSON(data);
       }
     };
 
@@ -1146,7 +1146,7 @@
         reader.readAsText(data);
     };
 
-    function processJson(data) {
+    function processJSON(data) {
       if (myCondition(data.myKnownProperty)) {
         adapter.send({data: “Custom data”});
     };
