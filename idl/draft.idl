@@ -1,0 +1,56 @@
+// This is the WebIDL for the next version under work
+// based on discussions on issues #2, #3, #26, #40.
+//
+// Changes:
+// - reintroduce watch (since addEventListener is not allowed to prompt, and
+//   events vs watches were tricky to implement: too many corner cases
+// - reintroduce watch options, with URL patterns
+// - replace onmessage event with a repetitive callback
+// - change send() to pushMessage() - better aligned with semantics
+// - add timeout to push options
+// - NFCRecord data should be "any"
+// - replace scope with URL
+// - in the text reworked permission policies
+
+partial interface Navigator {
+    readonly attribute NFC nfc;
+};
+
+interface NFC {
+    Promise<NFCAdapter> requestAdapter();
+};
+
+interface NFCAdapter {
+    Promise<void> pushMessage(NFCMessage message, optional NFCPushOptions options);
+
+    Promise<long> watch(NFCWatchOptions options, Function onmessage);
+    void unwatch(long id);
+};
+
+enum NFCDeviceType { "tag", "peer", "any" };
+
+dictionary NFCWatchOptions {
+    USVString url;  // domain/path or URL pattern
+    USVString kind;
+    USVString type;
+}
+
+dictionary NFCPushOptions {
+    NFCDeviceType target;
+    long timeout;  // in ms, default (and max) is 10sec, UAs MAY shorten it
+};
+
+interface NFCMessageEvent : Event {
+   readonly attribute NFCMessage message;
+};
+
+dictionary NFCRecord {
+    NFCRecordType kind;  // based on TNF + JSON
+    USVString url; // domain/path, scheme omitted (https is default)
+    USVString type;  // IANA media type, with parameters
+    any data;  // null, string (text, url), Object (json), ArrayBuffer
+};
+
+typedef sequence<NFCRecord> NFCMessage;
+
+enum NFCRecordType { "empty", "text", "url", "json", "opaque" };
