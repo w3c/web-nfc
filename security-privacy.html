@@ -133,39 +133,79 @@
         <th><strong>Comments</strong></th>
       </tr>
       <tr>
-        <td>Web page using the Web NFC API collects user data without the
-          consent of the user</td>
-        <td>use permissions and user prompts for accessing personal data,
-          minimize user data exposed to NFC</td>
+        <td>
+          Web page using the Web NFC API collects user data without the
+          consent of the user.
+        </td>
+        <td>
+          Use permissions and user prompts for accessing personal data,
+          minimize user data exposed to NFC.
+        </td>
       </tr>
       <tr>
-        <td>Malicious web page overwrites tags without user consent</td>
-        <td>Permission and user prompt needed for writing tags</td>
+        <td>Malicious web page overwrites tags without user consent.</td>
+        <td>Permission and user prompt needed for writing tags.</td>
       </tr>
       <tr>
-        <td>malicious web page writes sensitive user data to tags and peer
-          devices</td>
-        <td>permission/user prompt for writing tags and peers, with a
+        <td>
+          Malicious web page writes sensitive user data to tags and peer
+          devices.
+        </td>
+        <td>
+          Permission/user prompt for writing tags and peers.<!--, with a
           possibility the user can check what data is sent, or fine grained
-          permissions on what kind of data could be sent</td>
-      </tr>
-      <tr>
-        <td>malicious tag may be involuntarily or voluntarily read by devices
-          and the data read may constitute an attack vector on the user agent
-        </td>
-        <td>This is a generic problem with all existing NFC tags;
-           implementations need security hardening; involuntary touch is low
-           probability due to short range and critical angle for reading;
-           it’s easier to attack elsewhere (e.g. WiFi and Bluetooth)
+          permissions on what kind of data could be sent.-->
         </td>
       </tr>
       <tr>
-        <td>malicious smart poster tag attempts triggering an action on the
-          device which may be a threat</td>
-        <td>support for smart posters is not among the main use cases of Web
+        <td>
+          Malicious tag may be involuntarily or voluntarily read by devices
+          and the data read may constitute an attack vector on the user agent.
+        </td>
+        <td>
+          This is a generic problem with all existing NFC tags;
+          implementations need security hardening; involuntary touch is low
+          probability due to short range and critical angle for reading;
+          it’s easier to attack elsewhere (e.g. WiFi and Bluetooth).
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Malicious smart poster tag attempts triggering an action on the
+          device which may be a threat.
+        </td>
+        <td>
+          Support for smart posters is not among the main use cases of Web
           NFC; if and when supported, no automatic actions should be allowed,
           the user must be made aware and given the ability to control what is
-          happening during the NFC communication</td>
+          happening during the NFC communication.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Malicious Web NFC tag could send an arbitrary payload to a website
+          via a user’s device, along with a user’s existing web credentials.
+          The webapp and server would need to treat that payload as completely
+          untrusted.
+        </td>
+        <td>
+          Suggest rules for handling payload safely, provide best-practice
+          methods for doing so, provide a sanitization/validation function.
+          Payload MAY be even cryptographically signed before writing it to a
+          tag so the contents could later be verified.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          A Web NFC tag could be used for leaking the user’s location, if the
+          reading triggers a user’s device to navigate to a website.
+        </td>
+        <td>
+          A Web NFC tag SHOULD NOT ever trigger a user’s device to navigate
+          to a website without asking permission, unless the site has been in
+          the foreground or has been brought to the foreground and has been
+          granted permission.
+        </td>
       </tr>
     </table>
   </p>
@@ -176,12 +216,27 @@
     In order to minimize attack surface using the Web NFC API, user agents MAY
     implement multiple security policies, for example some of the following:
     <ul>
-      <li>reading is not allowed from generic NFC tags but only from special
-        Web NFC tags</li>
-      <li>reading is allowed from generic tags, if the reading page scheme is
-        e.g. https</li>
-      <li>writing (updates) allowed only to existing special Web NFC tags where
-        the writing page origin fulfills certain conditions.</li>
+      <li>
+        reading is not allowed from generic NFC tags but only from special
+        Web NFC tags
+      </li>
+      <li>
+        reading is allowed from generic tags, if the reading page scheme is
+        e.g. https
+      </li>
+      <li>
+        writing (updates) allowed only to existing special Web NFC tags where
+        the writing page origin fulfills certain conditions.
+      </li>
+      <li>
+        In order to use NFC, a website MUST be visible and in focus. For
+        web pages in background, receiving and sending NFC data MUST be
+        suspended.
+      </li>
+      <li>
+        User agents SHOULD allow Web NFC API access only from top level frames
+        or frames where the integrity and origin of the content is secure.
+      </li>
     </ul>
     The Web NFC API specification may require the existence of some of the
     policies above, and may make others optional. However, all the mechanisms

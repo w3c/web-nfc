@@ -1,0 +1,35 @@
+partial interface Navigator {
+    readonly attribute NFC nfc;
+};
+
+interface NFC {
+    Promise<NFCAdapter> requestAdapter();
+};
+
+interface NFCAdapter : EventTarget {
+    attribute EventHandler onmessage;
+    Promise<void> send (NFCMessage message, optional NFCSendOptions options);
+};
+
+interface NFCMessageEvent : Event {
+    readonly attribute NFCMessage message;
+};
+
+[NoInterfaceObject]
+interface NFCMessage {
+    readonly attribute USVString     scope;
+    readonly attribute sequence<any> data; // (DOMString or URL or Blob or JSON)
+};
+
+typedef (DOMString or URL or Blob or JSON) NFCData;
+
+enum NFCTarget {
+    "tag",
+    "peer",
+    "any"
+};
+
+dictionary NFCSendOptions {
+    NFCTarget target;
+};
+
