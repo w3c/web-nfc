@@ -5,12 +5,12 @@
 // - reintroduce watch (since addEventListener is not allowed to prompt, and
 //   events vs watches were tricky to implement: too many corner cases
 // - reintroduce watch options, with URL patterns
-// - replace onmessage event with a repetitive callback
+// - replace onmessage event with MessageCallback
 // - change send() to pushMessage() - better aligned with semantics
 // - add timeout to push options
 // - NFCRecord data should be "any"
 // - replace scope with URL
-// - in the text reworked permission policies
+// - permission policies changed (in the spec)
 
 partial interface Navigator {
     readonly attribute NFC nfc;
@@ -23,9 +23,11 @@ interface NFC {
 interface NFCAdapter {
     Promise<void> pushMessage(NFCMessage message, optional NFCPushOptions options);
 
-    Promise<long> watch(NFCWatchOptions options, Function onmessage);
+    Promise<long> watch(NFCWatchOptions options, MessageCallback callback);
     void unwatch(long id);
 };
+
+callback MessageCallback = void (NFCMessage message, USVString url);
 
 enum NFCDeviceType { "tag", "peer", "any" };
 
@@ -40,13 +42,8 @@ dictionary NFCPushOptions {
     long timeout;  // in ms, default (and max) is 10sec, UAs MAY shorten it
 };
 
-interface NFCMessageEvent : Event {
-   readonly attribute NFCMessage message;
-};
-
 dictionary NFCRecord {
     NFCRecordType kind;  // based on TNF + JSON
-    USVString url; // domain/path, scheme omitted (https is default)
     USVString type;  // IANA media type, with parameters
     any data;  // null, string (text, url), Object (json), ArrayBuffer
 };
