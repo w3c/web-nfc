@@ -4,7 +4,7 @@
 // Changes:
 // - reintroduce watch (since addEventListener is not allowed to prompt, and
 //   events vs watches were tricky to implement: too many corner cases
-// - reintroduce watch options, with URL patterns
+// - reintroduce watch options, filtering on URL patterns, data type etc.
 // - replace onmessage event with MessageCallback
 // - change send() to pushMessage() - better aligned with semantics
 // - add timeout to push options
@@ -29,18 +29,21 @@ interface NFCAdapter {
 
 callback MessageCallback = void (NFCMessage message, USVString url);
 
-enum NFCDeviceType { "tag", "peer", "any" };
-
 dictionary NFCWatchOptions {
     USVString url;  // domain/path or URL pattern
     USVString kind;
     USVString type;
+    NFCWatchMode mode;
 }
+
+enum NFCWatchMode { "web-only", "all" };
 
 dictionary NFCPushOptions {
     NFCDeviceType target;
     long timeout;  // in ms, default (and max) is 10sec, UAs MAY shorten it
 };
+
+enum NFCPushTarget { "tag", "peer", "any" };
 
 dictionary NFCRecord {
     NFCRecordType kind;  // based on TNF + JSON
