@@ -11,7 +11,7 @@ interface NFCAdapter {
     Promise<void> pushMessage(NFCMessage message, optional NFCPushOptions options);
 
     Promise<long> watch(NFCWatchOptions options, MessageCallback callback);
-    void unwatch(long id);
+    Promise<void> unwatch(long id);
 };
 
 dictionary NFCPushOptions {

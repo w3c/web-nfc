@@ -79,7 +79,13 @@
               title: "Codes for the Representation of Names of Languages",
               publisher: "ISO",
               date: "18 March 2014"
-            }
+            },
+            "WEBAPPSEC": {
+              href:"https://w3c.github.io/webappsec/specs/powerfulfeatures",
+              title: "Secure Contexts",
+              publisher: "W3C",
+              date: "17 July 2015"
+            },
           },
 
     };
@@ -179,8 +185,18 @@
     <a href="https://html.spec.whatwg.org/#the-iframe-element">iframe</a>.
   </p>
   <p>
-    <code><a href="http://www.w3.org/TR/url-1/"><dfn>URL</dfn></a>
-    </code> is defined in [[!URL]].
+    The term
+    <a href="http://www.w3.org/TR/html5/webappapis.html#incumbent-settings-object">
+    <dfn>incumbent settings object</dfn></a> is defined in [[!HTML5]].
+  </p>
+  <p>
+    The term
+    <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">
+    <dfn>secure context</dfn></a> is defined in [[!WEBAPPSEC]].
+  </p>
+  <p>
+    <a href="http://www.w3.org/TR/url-1/"><dfn>URL</dfn></a>
+    is defined in [[!URL]].
   </p>
   <p>
     The term
@@ -1211,10 +1227,15 @@
         asynchronously.
       </li>
       <li>
+        If the <a>incumbent settings object</a> is not a <a>secure context</a>,
+        then reject <var>promise</var> with <code>"<a>SecurityError</a>"</code>,
+        and terminate this algorithm.
+      </li>
+      <li>
         If there is no support for <a>NFC adapter</a> handling functionality in
         hardware, software, or due to physical incompatibility,
         then reject <var>promise</var> with
-        <code>"<a>NotSupportedError</a>"</code>, and terminate these steps.
+        <code>"<a>NotSupportedError</a>"</code>, and terminate this algorithm.
       </li>
           <li>Let <var>adapter</var> be <code>null</code>.</li>
       <li>
@@ -1229,7 +1250,7 @@
         Otherwise, make a request to the underlying platform to enumerate
         available <a>NFC adapter</a>s. If the request fails,
         then reject <var>promise</var> with
-        <code>"<a>NotFoundError</a>"</code>, and terminate these steps.
+        <code>"<a>NotFoundError</a>"</code>, and terminate this algorithm.
       </li>
       <li>
         If the request is successful, then select one of the <a>NFC adapter</a>s
@@ -1276,7 +1297,7 @@
   <dl title="interface NFCAdapter" class="idl">
     <dt>Promise&lt;void&gt; pushMessage(NFCMessage message, optional NFCPushOptions options)</dt>
     <dt>Promise&lt;long&gt; watch(NFCWatchOptions options, MessageCallback callback)</dt>
-    <dt>void unwatch(long id)</dt>
+    <dt>Promise&lt;void&gt; unwatch(long id)</dt>
   </dl>
   <dl
     title="callback MessageCallback = void (NFCMessage message, USVString url)"
@@ -1345,6 +1366,11 @@
         <li>
           Return <var>promise</var> and continue the following steps
           asynchronously.
+        </li>
+        <li>
+          If the <a>incumbent settings object</a> is not a
+          <a>secure context</a>, then reject <var>promise</var> with
+          <code>"<a>SecurityError</a>"</code>, and terminate this algorithm.
         </li>
         <li>
           If there is no support for the functionality of sending data to an
@@ -1461,7 +1487,7 @@
                   If <var>record.type</var> is not of type <code>"string"</code>
                   or if it does not start with <code>"text/"</code>, then
                   reject <var>promise</var> with <code>"SyntaxError"</code>,
-                  and terminate these steps.
+                  and terminate this algorithm.
                   In addition, user agents MAY check that
                   <var>record.type</var> is a IANA registered media type
                   for <a href="http://www.iana.org/assignments/media-types/media-types.xhtml#text">text</a>. If not, then the user agent MAY
@@ -1956,6 +1982,11 @@
           asynchronously.
         </li>
         <li>
+          If the <a>incumbent settings object</a> is not a
+          <a>secure context</a>, then reject <var>promise</var> with
+          <code>"<a>SecurityError</a>"</code>, and terminate this algorithm.
+        </li>
+        <li>
           If there is no support for the functionality of receiving data from an
           <a>NFC peer</a> or <a>NFC tag</a> in proximity range, then reject
           <var>promise</var> with <code>"NotSupportedError"</code>, and
@@ -1999,7 +2030,7 @@
         <li>
           If the argument <var>options</var> contains invalid values,
           reject <var>promise</var> with a <code>"<a>SyntaxError</a>"</code>,
-          and terminate these steps.
+          and terminate this algorithm.
         </li>
         <li>
           If this is the first watch being set up for the current
@@ -2008,7 +2039,7 @@
         </li>
         <li>
           If the request fails, then reject <var>promise</var> with
-          <code>"NotSupportedError"</code> , and terminate these steps.
+          <code>"NotSupportedError"</code> , and terminate this algorithm.
         </li>
         <li>
           Otherwise, let <var>watchId</var> be a locally unique number assigned
@@ -2024,10 +2055,22 @@
   <!-- The unwatch() method -->
   <section><h3>The <strong>unwatch</strong>() method</h3>
     <p>
-      When the <code><dfn id="widl-NFCAdapter-unwatch-void-long-id">
+      When the <code><dfn id="widl-NFCAdapter-unwatch-Promise-void--long-id">
       unwatch</dfn>()</code> method is invoked, the user agent
       MUST run the following steps:
       <ol id="steps-unwatch">
+        <li>
+          Let <var>promise</var> be a new <a><code>Promise</code></a> object.
+        </li>
+        <li>
+          Return <var>promise</var> and continue the following steps
+          asynchronously.
+        </li>
+        <li>
+          If the <a>incumbent settings object</a> is not a
+          <a>secure context</a>, then reject <var>promise</var> with
+          <code>"<a>SecurityError</a>"</code>, and terminate this algorithm.
+        </li>
         <li>
           If the parameter <var>id</var> is <code>undefined</code>, then
           remove all watches and filters set by successive calls of the
@@ -2040,9 +2083,16 @@
           watch.
         </li>
         <li>
+          Otherwise, reject <var>promise</var> with
+          <code>"<a>NotFoundError</a>"</code>, and terminate this algorithm.
+        </li>
+        <li>
           If there are no more watches on the current <a>NFC adapter</a>, then
           make a request to the underlying platform to stop listening to
           <a>NDEF message</a>s on that adapter.
+        </li>
+        <li>
+          Resolve <var>promise</var>.
         </li>
       </ol>
     </p>
