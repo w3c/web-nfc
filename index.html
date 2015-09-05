@@ -2319,6 +2319,14 @@
       console.log("My data: " + obj.myProperty.toString());
     };
   </pre>
+  <pre title="Sending data to NFC peer" class="example highlight">
+    navigator.nfc.requestAdapter().then((adapter) => {
+        adapter.pushMessage([
+          { kind: "text", type: "", data: “Data meant for peers”}])
+        .then(() => { console.log("Message sent")})
+        .catch(() => {console.log("Send failed, try again.")});
+    };
+  </pre>
   <pre title="Save and restore game progress with another device"
        class="example highlight">
     navigator.nfc.requestAdapter().then((adapter) => {
