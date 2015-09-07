@@ -1010,13 +1010,13 @@
       dictionary:
     </p>
     <dl title="dictionary NFCRecord" class="idl">
-      <dt>NFCDataType kind</dt>
+      <dt>NFCRecordType kind</dt>
       <dt>USVString type</dt>
       <dt>any data</dt>
     </dl>
     <p>
       The <code><dfn id="widl-NFCRecord-kind">kind</dfn></code>
-      property MUST return the <a><code>NFCDataType</code></a> of the
+      property MUST return the <a><code>NFCRecordType</code></a> of the
       <a>NDEF record</a>.
     </p>
     <p>
@@ -1032,13 +1032,13 @@
     </p>
   </section> <!-- NFCRecord dictionary -->
 
-  <section><h4>The <strong>NFCDataType</strong> enum</h4>
+  <section><h4>The <strong>NFCRecordType</strong> enum</h4>
   <p>
-    <dfn>NFCDataType</dfn> denotes the data types
+    <dfn>NFCRecordType</dfn> denotes the data types
     supported as <a>NDEF record</a> payload in read and send operations in
     this API.
   </p>
-  <dl title="enum NFCDataType" class="idl">
+  <dl title="enum NFCRecordType" class="idl">
     <dt>empty</dt>
     <dt>text</dt>
     <dt>url</dt>
@@ -1051,7 +1051,7 @@
     the data, i.e. the <a href="#steps-receiving">receiving NFC content</a>
     algorithm and <a>sending NFC content</a> algorithm.
   </p>
-  </section> <!-- NFCDataType interface -->
+  </section> <!-- NFCRecordType interface -->
 
   <section><h3>Data mapping</h3>
   <p>
@@ -1416,6 +1416,9 @@
               <code>"SecurityError"</code>, and terminate this algorithm.
             </li>
           </ul>
+        </li>
+        <li>
+          Let <var>options</var> be the second argument.
         </li>
         <li>
           Let <var>timeout</var> be the value of <var>options.timeout</var> if
@@ -1790,19 +1793,19 @@
           When an <a>NFC device</a> comes in communication range,
           <ul>
             <li>
-              If <var>options.target</var> has the value <code>"tag"</code>,
+              If <var>target</var> has the value <code>"tag"</code>,
               then the sending should only happen if an <a>NFC tag</a> is
               tapped, otherwise reject <var>promise</var>
               <code>"InvalidAccessError"</code> and terminate this algorithm.
             </li>
             <li>
-              If <var>options.target</var> has the value <code>"peer"</code>,
+              If <var>target</var> has the value <code>"peer"</code>,
               then the sending should only happen if an <a>NFC peer</a> is
               tapped, otherwise reject <var>promise</var> with
               <code>"InvalidAccessError"</code> and terminate this algorithm.
             </li>
             <li>
-              If <var>options.target</var> has the value <code>"any"</code>
+              If <var>target</var> has the value <code>"any"</code>
               (which is the default value), then the sending should happen if
               either an <a>NFC peer</a> or an <a>NFC tag</a> is tapped within
               the specified timeout.
@@ -2101,9 +2104,14 @@
           </p>
         </li>
         <li>
-          If the argument <var>options</var> contains invalid values,
+          If the first argument <var>options</var> contains invalid values,
           reject <var>promise</var> with a <code>"<a>SyntaxError</a>"</code>,
           and terminate this algorithm.
+        </li>
+        <li>
+          If the second argument <var>callback</var> is not an instance of
+          Function, then reject <var>promise</var> with a
+          <code>"<a>SyntaxError</a>"</code>, and terminate this algorithm.
         </li>
         <li>
           If this is the first watch being set up for the current
