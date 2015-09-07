@@ -256,7 +256,7 @@
     <a href="http://www.w3.org/TR/dom/#notsupportederror">
       <dfn>NotSupportedError</dfn></a>,
     <a href="http://www.w3.org/TR/dom/#notfounderror">
-      <dfn>NotFoundError</dfn></a>, and
+      <dfn>NotFoundError</dfn></a>,
     <a href="http://www.w3.org/TR/dom/#networkerror">
       <dfn>NetworkError</dfn></a>,
     <a href="http://www.w3.org/TR/dom/#securityerror">
@@ -1301,6 +1301,7 @@
 <section> <h2>The <strong>NFCAdapter</strong> interface</h2>
   <dl title="interface NFCAdapter" class="idl">
     <dt>Promise&lt;void&gt; pushMessage(NFCMessage message, optional NFCPushOptions options)</dt>
+    <dt>void cancelPush()</dt>
     <dt>Promise&lt;long&gt; watch(NFCWatchOptions options, MessageCallback callback)</dt>
     <dt>Promise&lt;void&gt; unwatch(long id)</dt>
   </dl>
@@ -1362,7 +1363,7 @@
     <p>
       When the <code>
       <a id="widl-NFCAdapter-pushMessage-Promise-void--NFCMessage-message-NFCPushOptions-options">
-      pushMessage</a>()</code> method is  method is invoked, the user agent
+      pushMessage</a>()</code> method is  invoked, the user agent
       MUST run the following <dfn>sending NFC content</dfn> algorithm:
       <ol>
         <li>
@@ -1381,7 +1382,7 @@
           If there is no support for the functionality of sending data to an
           <a>NFC peer</a> in proximity range, or to write data to an
           <a>NFC tag</a>, then reject <var>promise</var> with
-          <code>"NotSupportedError"</code>, and terminate this algorithm.
+          <code>"<a>NotSupportedError</a>"</code>, and terminate this algorithm.
         </li>
         <li>
           Let <var>origin</var> be the <a>origin</a> of the
@@ -1775,6 +1776,11 @@
           Make a request to the underlying platform to send <var>output</var>
           to the next device which comes in proximity range, and start a timer
           <var>timer</var> with <var>timeout</var>.
+          There MUST be exactly one message set for pushing per calling
+          <a>browsing context</a> with exactly one associated timer.
+          This means that every new invocation of the
+          <code>pushMessage()</code> method replaces the previously set
+          push message, and also resets the timer associated with it.
         </li>
         <li>
           If <var>timer</var> expires, reject <var>promise</var> with
@@ -1813,10 +1819,72 @@
             </li>
           </ul>
         </li>
+        <li>
+          If <var>timer</var> is still active, and the
+          <a href="cancelPush"><code>cancelPush()</code></a>
+          method is called, reject <var>promise</var> with
+          <code>"<a>AbortError</a>"</code>, as described in the
+          <a href="steps-cancelPush"><code>cancelPush()</code> algorithm</a>.
+        </li>
+        <li>
+          If the <a>browsing context</a> loses focus (e.g. the user navigated
+          to another page), then the pending push messages still exist, and
+          <var>timer</var> continues to run until timeout, or until the user
+          switches back the focus and an NFC communication occurs.
+        </li>
       </ol>
     </p>
     </section> <!-- pushMessage algorithm -->
   </section> <!-- pushMessage() method -->
+
+  <section id="cancelPush"><h3>The <strong>cancelPush()</strong> method</h3>
+    <p>
+      The <code>
+      <dfn id="widl-NFCAdapter-cancelPush-void">cancelPush</dfn></code>
+      method is used for resetting the <a>NDEF message</a> set to be pushed next
+      time an <a>NFC device</a> comes in range.
+    </p>
+    <p id="steps-cancelPush">
+      When the <code>cancelPush()</code> method is invoked, the user agent
+      MUST run the following algorithm:
+      <ol>
+        <li>
+          If the <a>incumbent settings object</a> is not a
+          <a>secure context</a>, then reject <var>promise</var> with
+          <code>"<a>SecurityError</a>"</code>, and terminate this algorithm.
+        </li>
+        <li>
+          If there is no message set for pushing as described in the
+          <a href="#steps-pushMessage"><code>pushMessage()</code> algorithm</a>,
+          or no active timers associated with it, then terminate this algorithm.
+          <p class="note">
+            This step also covers the case when the timer has already fired,
+            which also means that the message buffer is invalid, and is to be
+            replaced by the next invocation of <code>pushMessage()</code>.
+          </p>
+        </li>
+        <li>
+          Otherwise, if there is an active timer associated with a message set
+          to be pushed during the next NFC communication, then execute the
+          following sub-steps:
+          <ul>
+            <li>
+              Remove the message set for pushing.
+            </li>
+            <li>
+              Stop and reset the timer associated with
+              <code>messagePush()</code>.
+            </li>
+          </ul>
+        </li>
+        <li>
+          Reject the pending <var>promise</var> in the
+          <a href="#steps-pushMessage"><code>pushMessage()</code> algorithm</a>
+          with <code>"<a>AbortError</a>"</code>.
+        </li>
+      </ol>
+    </p>
+  </section>
 
   <section> <h3>The <strong>watch()</strong> method</h3>
     <p>
@@ -2052,6 +2120,12 @@
         </li>
         <li>
           Resolve <var>promise</var> with <var>watchId</var>.
+        </li>
+        <li>
+          If the <a>browsing context</a> loses focus (e.g. the user navigated
+          to another page), then the registered watches still SHOULD continue to
+          exist, but SHOULD become paused, i.e. the user agent SHOULD NOT check
+          and use them until the focus is regained.
         </li>
       </ol>
     </p>
