@@ -56,19 +56,19 @@
             },
           ],
           localBiblio: {
-            "NFC_SECURITY": {
+            "NFC-SECURITY": {
               href: "https://github.com/w3c/web-nfc/security-privacy.html",
               title: "Web NFC Security and Privacy",
               publisher: "W3C",
               date: "25 April 2015",
             },
-            "NFC_USECASES": {
+            "NFC-USECASES": {
               href: "https://github.com/w3c/web-nfc/use-cases.html",
               title: "Web NFC Use Cases",
               publisher: "W3C",
               date: "25 April 2015",
             },
-            "NFC_STANDARDS": {
+            "NFC-STANDARDS": {
               href: "http://members.nfc-forum.org/specs/spec_list/",
               title: "NFC Forum Technical Specifications",
               publisher: "NFC Forum",
@@ -349,16 +349,23 @@
     can be stored on an <a>NFC tag</a> or exchanged between NFC-enabled devices.
   </p>
   <p>
-    An <dfn>NDEF record</dfn> has a maximum payload of 2^32-1 bytes. The record
-    also contains information about the payload size, type, and an optional
-    identifier. NFC Forum standardized a small set of useful data types to be
+    The term <dfn>NFC content</dfn> is a synonym for <a>NDEF message</a>,
+    which can originate either from an <a>NFC tag</a> or an <a>NFC peer</a>.
+  </p>
+  <p>
+    An <dfn>NDEF record</dfn> is a part of an <a>NDEF message</a> that has a
+    single associated type information to its payload. It is contains a
+    Type Name Format (TNF) field, the payload size, the payload type, an
+    optional identifier which is a URL, and a payload of maximum size of
+    2^32-1 bytes.
+    The NFC Forum has standardized a small set of useful data types to be
     used in <a>NDEF record</a>s, for instance text, URL, and binary data such as
     media. In addition, there are record types designed for more complex
     interactions, such as Smart Poster, and handover records.
   </p>
   <p>
-    Part of the <a>NDEF record</a> is the <dfn>TNF</dfn> field, standing for
-    Type Name Format. It can take binary values representing the following
+    The <dfn>TNF</dfn> (Type Name Format) field of the <a>NDEF record</a> can
+    take binary values denoting the following <a>NDEF record</a> payload
     types:
     <table class="simple">
       <tr>
@@ -405,43 +412,67 @@
     data and possible actions).
   </p>
   <p>
-    Part of the <a>NDEF record</a> is the <dfn>NDEF Id</dfn> field, which may or
-    may not be present. If present, it contains a maximum 256 octets long
-    string which is a URL and it is used for identifying the payload,
-    in an application specific way. In this specification it is used for storing
-    the <a>ASCII serialized origin</a> of the <a>browsing context</a> which has
-    written the content.
+    An <dfn>NFC watch</dfn> is a mechanism used for listening to and filtering
+    <a>Web NFC message</a>s. It is defined in more detail in
+    <a href="#the-watch-method">The watch() method</a> section.
   </p>
   <p>
-    The term <dfn>NFC content</dfn> is a synonym for <a>NDEF message</a>,
-    which can originate either from an <a>NFC tag</a> or an <a>NFC peer</a>.
+    A <dfn>Web NFC record</dfn> is a special <a>NDEF record</a> of External Type
+    specific to W3C Web NFC, which indicates that the containing
+    <a>NDEF message</a> is targeted for <a>browsing context</a>s using this API
+    and contains information useful for handling the <a>NDEF message</a> with
+    the algorithms defined in this API.
+    The format of a <a>Web NFC record</a> is the following:
+    <ul>
+      <li>
+        Uses NFC Forum External Type record (<a>TNF</a>=4) with the External
+        Type field set to <code>urn:nfc:ext:w3.org:webnfc</code>.
+      </li>
+      <li>
+        The payload contains the <a>Web NFC Id</a> of the
+        <a>Web NFC message</a>.
+      </li>
+    </ul>
   </p>
   <p>
-    The term <dfn>Web NFC origin</dfn> is the <a>ASCII serialized origin</a>
-    of the <a>browsing context</a> that has written the <a>Web NFC message</a>.
+    The <dfn id="web-nfc-id">Web NFC Id</dfn> is a <a>URL</a> according to
+    [[RFC3986]], with <code>"https"</code> scheme, and an
+    <a>ASCII serialized origin</a> optionally followed by a <a>URL path</a>.
+    It is used for matching <a>Web NFC content</a> with <a>URL pattern</a>s
+    specified by <a>NFC watch</a>es.
   </p>
   <p>
-    The <dfn>Web NFC Id</dfn> is a special <a>URL</a> stored in the
-    <a>Web NFC record</a>, and it is used for matching <a>NFC content</a> with
-    <a>URL pattern</a>s specified by listeners.
-    For more details see the <a href="#web-nfc-id">Web NFC Id</a> section.
+    A <dfn>Web NFC message</dfn> consists of a set of the <a>NDEF record</a>s
+    and a single <a>Web NFC record</a>.
   </p>
-  <p>
-    A <dfn>Web NFC record</dfn> is a special <a>NDEF record</a> which identifies
-    <a>Web NFC content</a> meant for web pages, rather than generic
-    <a>NFC content</a>. For a detailed description see the
-    <a href="#web-nfc-record-format">Web NFC record</a> section.
-  </p>
-  <p>
-    A <dfn>Web NFC message</dfn> represents a set of the <a>NDEF record</a>s
-    from a given <a>NDEF message</a> and a special <a>Web NFC record</a>.
-    For more details see the <a href="#web-nfc-message-format">Web NFC Message
-    format</a> section.
+  <p class="note">
+   The position of the <a>Web NFC record</a> within the <a>Web NFC message</a>
+   is implementation specific, this specification only mandates its existence
+   for a <a>Web NFC message</a>. It is not mandatory to a <a>NDEF message</a>.
   </p>
   <p>
     The term <dfn>Web NFC content</dfn> denotes all <a>Web NFC message</a>s
-    contained in an <a>NDEF message</a>. This version of the specification
+    contained in an <a>NDEF message</a>, identified by their <a>Web NFC Id</a>
+    within the <a>NDEF message</a>. This version of the specification
     supports one <a>Web NFC message</a> per <a>NDEF message</a>.
+  </p>
+  <p class="note">
+    Part of the <a>NDEF record</a> is the <dfn>NDEF Id</dfn> field, which may or
+    may not be present and it is meant for applications use. If it is present,
+    according to the [[!NFC-STANDARDS]] it contains a maximum 256 octets long
+    URL which is used for identifying the payload, in an application specific
+    way. Although the <a>NDEF Id</a> could be used for containing e.g. an
+    <a>ASCII serialized origin</a> associated with the <a>NDEF record</a>,
+    <strong>it is not used in this version of the specification</strong> for
+    record-level identification, since message-level identification is used by
+    the means of the <a>Web NFC Id</a>. Also, the content of the <a>NDEF Id</a>
+    is also contained in the <a>Web NFC Id</a>, and since <a>NFC tag</a>s are
+    rather small storages, this duplication is avoided in this version.
+    When multiple <a>Web NFC message</a>s will be eventually supported within a
+    single <a>NDEF message</a>, it would likely use the <a>NDEF Id</a> to store
+    the same identifier for each <a>NDEF record</a> which is part of a given
+    <a>Web NFC message</a>, which identifier will likely be an
+    <a>ASCII serialized origin</a> associated with the <a>Web NFC content</a>.
   </p>
   <p>
     The term <dfn>trusted integrity NFC content</dfn> refers to an
@@ -457,10 +488,6 @@
     perform certain activities between the two devices, such as sending photos
     to the other device, printing to a Bluetooth printer or streaming video to
     a television set.
-  </p>
-  <p>
-    An <dfn>NFC watch</dfn> is defined in
-    <a href="#the-watch-method">The watch() method</a> section.
   </p>
 </section> <!-- Terminology -->
 
@@ -568,6 +595,72 @@
   </p>
   </section> <!-- Introduction -->
 
+  <!-- - - - - - - - - - - - - - - Usage Examples - - - - - - - - - - - - - - -->
+  <section class="informative"> <h2>Examples</h2>
+  <p>
+    This section shows how developers can make use of the various features of
+    this specification.
+  </p>
+  <pre title="Read and write tag" class="example highlight">
+    var adapter = null;
+    var id = null;
+    navigator.nfc.requestAdapter().then((nfcAdapter) => {
+      id = adapter.watch({}, onMessage);
+    };
+
+    function onMessage(message, url) {
+      console.log("NDEF message received from URL " + url);
+      if (message[0].kind == 'empty') {
+        adapter.pushMessage([
+         { kind: "text", type: "", data: “Initializing a passive tag”}]);
+      }
+
+      message.forEach((record) => {
+        if (record.kind == "string") {
+          console.log(“Data is string: “ + data);
+        } else if (record.kind == "json") {
+          processJSON(record.data);
+        } else if (record.kind == "url") {
+        console.log(“Data is URL: “ + record.data;
+        } else if (record.kind == "opaque") {
+        processBinary(data);
+      });
+    };
+
+    function processBinary(data) {
+      console.log("Binary data we know being a string: ");
+      console.log(String.fromCharCode.apply(null, new Uint16Array(data)));
+    };
+
+    function processJSON(data) {
+      var obj = JSON.parse(data);
+      console.log("My data: " + obj.myProperty.toString());
+    };
+  </pre>
+  <pre title="Sending data to NFC peer" class="example highlight">
+    navigator.nfc.requestAdapter().then((adapter) => {
+        adapter.pushMessage([
+          { kind: "text", type: "", data: “Data meant for peers”}])
+        .then(() => { console.log("Message sent")})
+        .catch(() => {console.log("Send failed, try again.")});
+    };
+  </pre>
+  <pre title="Save and restore game progress with another device"
+       class="example highlight">
+    navigator.nfc.requestAdapter().then((adapter) => {
+      console.log("Waiting for game state");
+      adapter.watch({ url: "*://myserver/mygame/*"}, (message, url) => {
+        console.log("Game state received from: " + url;
+        console.log("Game state: " + message.data);
+        // Now do some calculations and update the state.
+        adapter.pushMessage([ data: { level: 3, points: 4500, lives: 3 } ])
+          .then(() => { console.log("Send was successful")})
+          .catch(() => { console.log("Send failed")});
+      };
+    });
+  </pre>
+  </section> <!-- Usage examples -->
+
   <section class="informative"> <h3>Use Cases</h3>
     <p>
       A few Web NFC user scenarios are described in the
@@ -664,7 +757,7 @@
     </section>
   </section> <!-- Use Cases -->
 
-  <section> <h3>Features</h3>
+  <section class="informative"> <h3>Features</h3>
     <p>High level features for the Web NFC specification include the following:
       <ol>
         <li>
@@ -945,66 +1038,17 @@
 
 <!-- - - - - - - - - - - - - Data representation - - - - - - - - - - - - - -->
 <section> <h2>Data Representation</h2>
-  <section> <h3 id="web-nfc-id">The Web NFC Id</h3>
-  <p>
-    The <a>Web NFC Id</a> SHOULD contain a valid <a>URL</a> according to
-    [[RFC3986]].
-    The scheme of a <a>Web NFC Id</a> MUST always be <code>"https"</code>.
-    The <a>Web NFC Id</a> MUST contain the <a>Web NFC origin</a>, (i.e. the
-    <a>ASCII serialized origin</a>), optionally followed by the
-    <a>URL path</a> of the <a>browsing context</a> that has sent the
-    <a>Web NFC content</a>.
-  </p>
-  </section>
-
-  <section> <h3 id="web-nfc-message-format">The format of a Web NFC message</h3>
-  <p>
-    The format of a <a>Web NFC message</a> is the following:
-    <ul>
-      <li>
-        One or more <a>NDEF record</a>s with the <a>NDEF Id</a> field set to
-        the same <a>Web NFC origin</a>, followed by:
-      </li>
-      <li>
-        A single <a>Web NFC record</a> with the <a>NDEF Id</a> field set to
-        the same <a>Web NFC origin</a> as the other <a>NDEF record</a>s.
-      </li>
-    </ul>
-    <!-- TODO: picture -->
-  </p>
-  </section>
-
-  <section> <h3 id="web-nfc-record-format">The format of a Web NFC record</h3>
-  <p>
-    The format of a <a>Web NFC record</a> is the following.
-    <ul>
-      <li>
-        Uses NFC Forum External Type record (<a>TNF</a>=4) with the External
-        Type field set to <code>urn:nfc:ext:w3.org:webnfc</code>.
-      </li>
-      <li>
-        The <a>NDEF Id</a> field MAY contain the <a>Web NFC origin</a>, although
-        that is a part of the payload as well.
-      </li>
-      <li>
-        The payload MUST contain the <a>Web NFC Id</a> of the
-        <a>Web NFC message</a>.
-      </li>
-    </ul>
- </p>
- </section>
-
   <!-- NFCMessage -->
-  <section>
-    <h4>The <strong>NFCRecord</strong> dictionary and
-      <strong>NFCMessage</strong>
-    </h4>
+  <section> <h3>The <strong>NFCMessage</strong> sequence</h3>
+    </h3>
     <p>
       The content of any <a>Web NFC message</a> is exposed by the following
       sequence:
     </p>
     <dl title="typedef sequence&lt;NFCRecord&gt; NFCMessage" class="idl"></dl>
+  </section>
 
+  <section> <h3>The <strong>NFCRecord</strong> dictionary</h3>
     <p>
       The content of any <a>NDEF record</a> is exposed by the following
       dictionary:
@@ -1032,7 +1076,7 @@
     </p>
   </section> <!-- NFCRecord dictionary -->
 
-  <section><h4>The <strong>NFCRecordType</strong> enum</h4>
+  <section><h3>The <strong>NFCRecordType</strong> enum</h3>
   <p>
     <dfn>NFCRecordType</dfn> denotes the data types
     supported as <a>NDEF record</a> payload in read and send operations in
@@ -1317,6 +1361,34 @@
     <a>Web NFC message</a>s either from an <a>NFC tag</a> or an <a>NFC peer</a>.
   </p>
 
+  <section> <h3>The <strong>NFCPushTarget</strong> enum</h3>
+    <dl title="enum NFCPushTarget" class="idl">
+      <dt>tag</dt>
+      <dt>peer</dt>
+      <dt>any</dt>
+    </dl>
+  </section>
+
+  <section> <h3>The <strong>NFCPushOptions</strong> dictionary</h3>
+    <dl title="dictionary NFCPushOptions" class="idl">
+      <dt>NFCPushTarget target</dt>
+      <dt>unsigned long timeout</dt>
+    </dl>
+    <p>
+      The <dfn id="widl-NFCPushOptions-target">target</dfn> property
+      denotes the intended target for the pending <code>pushMessage()</code>
+      operation. The default value is <code>"any"</code>.
+    </p>
+    <p>
+      The <dfn id="widl-NFCPushOptions-timeout">timeout</dfn> property
+      denotes the timeout for the pending <code>pushMessage()</code>
+      operation expressed in milliseconds. The default, and maximal value is
+      10000, i.e. 10 seconds. After the <var>timeout</var> expires, the
+      message set for sending is cleared, an error is returned, and a new
+      <a>Web NFC message</a> can be set for sending.
+    </p>
+  </section>
+
   <section><h3>The <strong>pushMessage()</strong> method</h3>
     <p>
       The <code>
@@ -1324,47 +1396,18 @@
       pushMessage</dfn>()</code> method is used for saving a <a>NDEF message</a>
       to be sent to an <a>NFC tag</a> for writing, or to an <a>NFC peer</a>
       device for pushing, next time when they get into proximity range, or until
-      a timeout expires. At any time there is maximum 2 <a>Web NFC message</a>s
-      that can be set for sending: one targeted to <a>NFC tag</a>s and one for
-      <a>NFC peer</a>s. When there is a <a>Web NFC message</a> set for sending
+      a timeout expires. At any time for there is maximum 2
+      <a>Web NFC message</a>s that can be set for sending for an <a>origin</a>:
+      one targeted to <a>NFC tag</a>s and one to <a>NFC peer</a>s.
+      When there is a <a>Web NFC message</a> set for sending
       to any target, then no more messages are accepted to be set until the
       current message is sent or a timeout happens.
     </p>
-
-    <section> <h3>The <strong>NFCPushTarget</strong> enum</h3>
-      <dl title="enum NFCPushTarget" class="idl">
-        <dt>tag</dt>
-        <dt>peer</dt>
-        <dt>any</dt>
-      </dl>
-    </section>
-
-    <section> <h3>The <strong>NFCPushOptions</strong> dictionary</h3>
-      <dl title="dictionary NFCPushOptions" class="idl">
-        <dt>NFCPushTarget target</dt>
-        <dt>unsigned long timeout</dt>
-      </dl>
-      <p>
-        The <dfn id="widl-NFCPushOptions-target">target</dfn> property
-        denotes the intended target for the pending <code>pushMessage()</code>
-        operation. The default value is <code>"any"</code>.
-      </p>
-      <p>
-        The <dfn id="widl-NFCPushOptions-timeout">timeout</dfn> property
-        denotes the timeout for the pending <code>pushMessage()</code>
-        operation expressed in milliseconds. The default, and maximal value is
-        10000, i.e. 10 seconds. After the <var>timeout</var> expires, the
-        message set for sending is cleared, an error is returned, and a new
-        <a>Web NFC message</a> can be set for sending.
-      </p>
-    </section>
-    <section id="steps-pushMessage">
-    <h3>The <strong>pushMessage</strong> algorithm</h3>
-    <p>
+    <p id="steps-pushMessage">
       When the <code>
       <a id="widl-NFCAdapter-pushMessage-Promise-void--NFCMessage-message-NFCPushOptions-options">
-      pushMessage</a>()</code> method is  invoked, the user agent
-      MUST run the following <dfn>sending NFC content</dfn> algorithm:
+      pushMessage</a>(message, options)</code> method is  invoked, the user
+      agent MUST run the following <dfn>sending NFC content</dfn> algorithm:
       <ol>
         <li>
           Let <var>promise</var> be a new <a><code>Promise</code></a> object.
@@ -1532,21 +1575,9 @@
                       (value 0x54 in NFC binary encoding).
                     </li>
                     <li>
-                      Optionally set the <var>ndef.ID</var> field to the
-                      <a>Web NFC origin</a>.
-                      <p class="note">
-                        Since the <a>URL path</a> of <a>origin</a> is saved in
-                        the <a>Web NFC record</a>, this step is not required,
-                        and since it occupies space in <a>NFC content</a>,
-                        implementations SHOULD NOT use this step unless they
-                        want to be future-proof about possible variations in
-                        this specification, when writing <a>NFC tag</a>s.
-                      </p>
-                    </li>
-                    <li>
                      Set the <var>ndef.PAYLOAD</var> field to
                      <var>record.data</var> encoded according to the
-                     [[NFC_STANDARDS]], NFC Forum Text Record Type
+                     [[NFC-STANDARDS]], NFC Forum Text Record Type
                      Definition specification:
                      <ul>
                        <li>
@@ -1606,13 +1637,9 @@
                       binary encoding).
                     </li>
                     <li>
-                      Optionally set the <var>ndef.ID</var> field to the
-                      <a>Web NFC origin</a>.
-                    </li>
-                    <li>
                       Set the <var>ndef.PAYLOAD</var> field to
                       <var>record.data</var> encoded according to the
-                      [[NFC_STANDARDS]], NFC Forum URI Record Type Definition
+                      [[NFC-STANDARDS]], NFC Forum URI Record Type Definition
                       specification: set the first octet according to the
                       applicable scheme abbreviation, and set the rest of the
                       payload bytes to <var>record.data</var> in UTF-8 encoding.
@@ -1652,13 +1679,9 @@
                       <var>record.type</var>.
                     </li>
                     <li>
-                      Optionally set the <var>ndef.ID</var> field to the
-                      <a>Web NFC origin</a>.
-                    </li>
-                    <li>
                       Set the <var>ndef.PAYLOAD</var> field to
                       <var>record.data</var> according to the
-                      [[NFC_STANDARDS]], i.e. as an opaque octet stream.
+                      [[NFC-STANDARDS]], i.e. as an opaque octet stream.
                     </li>
                   </ul>
                 </li>
@@ -1693,13 +1716,9 @@
                       <var>record.type</var>.
                     </li>
                     <li>
-                      Set the <var>ndef.ID</var> field to the
-                      <a>Web NFC origin</a>.
-                    </li>
-                    <li>
                       Set the <var>ndef.PAYLOAD</var> field to
                       <var>record.data</var> according to the
-                      [[NFC_STANDARDS]], i.e. as an opaque octet stream.
+                      [[NFC-STANDARDS]], i.e. as an opaque octet stream.
                     </li>
                   </ul>
                 </li>
@@ -1753,9 +1772,6 @@
             </li>
             <li>
               Set <var>ndef.TNF</var> to 4 (NDEF External Type).
-            </li>
-            <li>
-              Set <var>ndef.ID</var> to the <a>Web NFC origin</a>.
             </li>
             <li>
               Set <var>ndef.TYPE</var> to
@@ -1837,7 +1853,6 @@
         </li>
       </ol>
     </p>
-    </section> <!-- pushMessage algorithm -->
   </section> <!-- pushMessage() method -->
 
   <section id="cancelPush"><h3>The <strong>cancelPush()</strong> method</h3>
@@ -1889,11 +1904,137 @@
     </p>
   </section>
 
+  <section id="match_pattern"> <h3>Match patterns</h3>
+    <p>
+      A match pattern is a string which can contain the
+      <code>'*'</code> wildcard character.
+      Match patterns are used primarily for matching IANA media types, for
+      instance the match pattern <code>'application/*+json'</code> matches
+      <code>'application/calendar+json'</code>, but does not match
+      <code>'application/json'</code>. The match pattern
+      <code>'*/*json'</code> matches both.
+    </p>
+  </section>
+  <section id="URL_pattern"> <h3>URL patterns</h3>
+    <p>
+      A URL pattern is a URL which can contain <code>'*'</code>
+      characters. Each URL pattern is in the form of
+      <ul>
+        <li><em>scheme</em>— for example, 'https' or '*'</li>
+        <li><em>host</em> — for example, 'www.w3.org' or '*.w3.org'</li>
+        <li><em>path</em> — for example, '/*', '/foo*', or '/foo/bar'.</li>
+      </ul>
+    </p>
+    <p>
+      The syntax is the following:
+      <pre>
+        <em>&lt;url-pattern&gt;</em> := <em>&lt;scheme&gt;</em>://<em>&lt;host&gt;</em><em>&lt;path&gt;</em>
+        <em>&lt;scheme&gt;</em> := '*' | 'https'
+        <em>&lt;host&gt;</em> := '*' | '*.' <em>&lt;any char except '/' and '*'&gt;</em>+
+        <em>&lt;path&gt;</em> := '/' <em>&lt;any chars&gt;</em>
+      </pre>
+    </p>
+    <p>
+      Note that <code>'*'</code> has slightly different meaning depending on
+      whether it is in the <i>scheme</i>, <i>host</i> or <i>path</i> part.
+      In a <i>scheme</i> <code>'*'</code> will match only the allowed
+      <code>'https'</code> scheme.
+      If the <i>host</i> is <code>'*'</code>, then it matches any host. If the
+      <i>host</i> is e.g. <code>'*.myhost'</code>, then it will match the
+      specified host or any of its subdomains.
+      In the <i>path</i> part, each <code>'*'</code> matches 0 or more
+      characters.
+    </p>
+    <p>
+      For example, <code>'*://*.mydomain.com/*'</code> will match
+      <code>'https://services.mydomain.com/myservice1/myapp2/'</code> and
+      <code>'https://info.mydomain.com/general/'</code>.
+    </p>
+  </section>
+
+  <section> <h3>The <strong>NFCWatchMode</strong> enum</h3>
+    <dl title="enum NFCWatchMode" class="idl">
+      <dt>web-only</dt>
+      <dt>all</dt>
+    </dl>
+    <p>
+      The <code>"web-only"</code> value means that only those
+      <a>NDEF message</a>s are exposed which contain a
+      <a>Web NFC record</a>, i.e. which are meant for web pages.
+      This is the default value.
+    </p>
+    <p>
+      The <code>"all"</code> value means that all <a>NDEF message</a>s
+      are exposed.
+    </p>
+  </section>
+
+  <section> <h3>The <strong>NFCWatchOptions</strong> dictionary</h3>
+    <p>
+      To describe which messages an application is interested in, the
+      following dictionary is used:
+    </p>
+    <dl title="dictionary NFCWatchOptions" class="idl">
+      <dt>USVString url</dt>
+      <dt>USVString kind</dt>
+      <dt>USVString type</dt>
+      <dt>NFCWatchMode mode</dt>
+    </dl>
+    <p>
+      The <strong><i>url</i></strong> property
+      denotes the <a>URL pattern</a> which is used for matching the
+      <a>URL path</a> of the <a>Web NFC message</a> which is stored in the
+      <a>Web NFC record</a>.
+      The values <code>null</code>, <code>undefined</code>, and
+      <code>""</code> mean that no matching happens.
+    </p>
+    <p>
+      The <strong><i>kind</i></strong> property
+      denotes the string value which is used for matching the
+      <code>kind</code> property of each <code>NFCRecord</code> object
+      in a <a>Web NFC message</a>.
+      The values <code>null</code> and <code>undefined</code> mean that
+      no matching happens.
+    </p>
+    <p>
+      The <strong><i>type</i></strong> property
+      denotes the <a>match pattern</a> which is used for matching the
+      <code>type</code> property of each <code>NFCRecord</code> object
+      in a <a>Web NFC message</a>.
+      The values <code>null</code> and <code>undefined</code> mean that
+      no matching happens. The value <code>""</code> matches missing type
+      information.
+    </p>
+    <p>
+      The <dfn id="widl-NFCWatchOptions-mode">mode</dfn> property tells
+      whether only <a>Web NFC content</a> or any <a>NFC content</a> will be
+      watched.
+    </p>
+    <pre
+      title="Filter accepting only JSON content from https://www.w3.org"
+      class="example highlight">
+      var watchOptions = {
+        url: "www.w3.org/*",  // all paths from the domain are accepted
+        kind: "json",
+        type: "application/*json"  // all IANA media types dealing with JSON
+      }
+    </pre>
+    <pre
+      title="Filter which only accept binary content from a given path but any domain"
+      class="example highlight">
+      var watchOptions = {
+        url: "*://*/info/restaurant/daily-menu/",  // accepted from any domain
+        kind: "opaque",
+        type: "application/octet-stream"
+      }
+    </pre>
+  </section> <!-- NFCWatchOptions -->
+
   <section> <h3>The <strong>watch()</strong> method</h3>
     <p>
       The <code>
       <dfn id="widl-NFCAdapter-watch-Promise-long--NFCWatchOptions-options-MessageCallback-callback">
-      watch</dfn>()</code> method enables listening to incoming
+      watch</dfn>(options, callback)</code> method enables listening to incoming
       <a>NDEF message</a>s.
     </p>
     <p>
@@ -1918,139 +2059,12 @@
     <p>
       Watch filters are grouped by <a>NFC adapter</a>.
     </p>
-    <section id="match_pattern"> <h3>Match patterns</h3>
-      <p>
-        A match pattern is a string which can contain the
-        <code>'*'</code> wildcard character.
-        Match patterns are used primarily for matching IANA media types, for
-        instance the match pattern <code>'application/*+json'</code> matches
-        <code>'application/calendar+json'</code>, but does not match
-        <code>'application/json'</code>. The match pattern
-        <code>'*/*json'</code> matches both.
-      </p>
-    </section>
-    <section id="URL_pattern"> <h3>URL patterns</h3>
-      <p>
-        A URL pattern is a URL which can contain <code>'*'</code>
-        characters. Each URL pattern is in the form of
-        <ul>
-          <li><em>scheme</em>— for example, 'https' or '*'</li>
-          <li><em>host</em> — for example, 'www.w3.org' or '*.w3.org'</li>
-          <li><em>path</em> — for example, '/*', '/foo*', or '/foo/bar'.</li>
-        </ul>
-      </p>
-      <p>
-        The syntax is the following:
-        <pre>
-          <em>&lt;url-pattern&gt;</em> := <em>&lt;scheme&gt;</em>://<em>&lt;host&gt;</em><em>&lt;path&gt;</em>
-          <em>&lt;scheme&gt;</em> := '*' | 'https'
-          <em>&lt;host&gt;</em> := '*' | '*.' <em>&lt;any char except '/' and '*'&gt;</em>+
-          <em>&lt;path&gt;</em> := '/' <em>&lt;any chars&gt;</em>
-        </pre>
-      </p>
-      <p>
-        Note that <code>'*'</code> has slightly different meaning depending on
-        whether it is in the <i>scheme</i>, <i>host</i> or <i>path</i> part.
-        In a <i>scheme</i> <code>'*'</code> will match only the allowed
-        <code>'https'</code> scheme.
-        If the <i>host</i> is <code>'*'</code>, then it matches any host. If the
-        <i>host</i> is e.g. <code>'*.myhost'</code>, then it will match the
-        specified host or any of its subdomains.
-        In the <i>path</i> part, each <code>'*'</code> matches 0 or more
-        characters.
-      </p>
-      <p>
-        For example, <code>'*://*.mydomain.com/*'</code> will match
-        <code>'https://services.mydomain.com/myservice1/myapp2/'</code> and
-        <code>'https://info.mydomain.com/general/'</code>.
-      </p>
-    </section>
-
-    <section> <h3>The <strong>NFCWatchMode</strong> enum</h3>
-      <dl title="enum NFCWatchMode" class="idl">
-        <dt>web-only</dt>
-        <dt>all</dt>
-      </dl>
-      <p>
-        The <code>"web-only"</code> value means that only those
-        <a>NDEF message</a>s are exposed which contain a
-        <a>Web NFC record</a>, i.e. which are meant for web pages.
-        This is the default value.
-      </p>
-      <p>
-        The <code>"all"</code> value means that all <a>NDEF message</a>s
-        are exposed.
-      </p>
-    </section>
-
-    <section> <h3>The <strong>NFCWatchOptions</strong> dictionary</h3>
-      <p>
-        To describe which messages an application is interested in, the
-        following dictionary is used:
-      </p>
-      <dl title="dictionary NFCWatchOptions" class="idl">
-        <dt>USVString url</dt>
-        <dt>USVString kind</dt>
-        <dt>USVString type</dt>
-        <dt>NFCWatchMode mode</dt>
-      </dl>
-      <p>
-        The <strong><i>url</i></strong> property
-        denotes the <a>URL pattern</a> which is used for matching the
-        <a>URL path</a> of the <a>Web NFC message</a> which is stored in the
-        <a>Web NFC record</a>.
-        The values <code>null</code>, <code>undefined</code>, and
-        <code>""</code> mean that no matching happens.
-      </p>
-      <p>
-        The <strong><i>kind</i></strong> property
-        denotes the string value which is used for matching the
-        <code>kind</code> property of each <code>NFCRecord</code> object
-        in a <a>Web NFC message</a>.
-        The values <code>null</code> and <code>undefined</code> mean that
-        no matching happens.
-      </p>
-      <p>
-        The <strong><i>type</i></strong> property
-        denotes the <a>match pattern</a> which is used for matching the
-        <code>type</code> property of each <code>NFCRecord</code> object
-        in a <a>Web NFC message</a>.
-        The values <code>null</code> and <code>undefined</code> mean that
-        no matching happens. The value <code>""</code> matches missing type
-        information.
-      </p>
-      <p>
-        The <dfn id="widl-NFCWatchOptions-mode">mode</dfn> property tells
-        whether only <a>Web NFC content</a> or any <a>NFC content</a> will be
-        watched.
-      </p>
-      <pre
-        title="Filter accepting only JSON content from https://www.w3.org"
-        class="example highlight">
-        var watchOptions = {
-          url: "www.w3.org/*",  // all paths from the domain are accepted
-          kind: "json",
-          type: "application/*json"  // all IANA media types dealing with JSON
-        }
-      </pre>
-      <pre
-        title="Filter which only accept binary content from a given path but any domain"
-        class="example highlight">
-        var watchOptions = {
-          url: "*://*/info/restaurant/daily-menu/",  // accepted from any domain
-          kind: "opaque",
-          type: "application/octet-stream"
-        }
-      </pre>
-    </section> <!-- NFCWatchOptions -->
-
-    <section> <h3>The <strong>watch()</strong> algorithm</h3>
-    <p>
+    <p id="steps-watch">
       When the <code>
       <a href="#widl-NFCAdapter-watch-Promise-long--NFCWatchOptions-options-MessageCallback-callback">
       watch</a>()</code> method is invoked, the user agent MUST run
       the following <dfn id="watch_algo">NFC watch algorithm</dfn>:
-      <ol id="steps-watch">
+      <ol>
         <li>Let <var>promise</var> be a new <a><code>Promise</code></a> object.
         </li>
         <li>
@@ -2109,8 +2123,9 @@
           and terminate this algorithm.
         </li>
         <li>
-          If the second argument <var>callback</var> is not an instance of
-          Function, then reject <var>promise</var> with a
+          If the second argument <var>callback</var> is not a
+          <a href="http://heycam.github.io/webidl/#common-Function">
+          Function</a>, then reject <var>promise</var> with a
           <code>"<a>SyntaxError</a>"</code>, and terminate this algorithm.
         </li>
         <li>
@@ -2124,7 +2139,8 @@
         </li>
         <li>
           Otherwise, let <var>watchId</var> be a locally unique number assigned
-          to <var>options</var> and store them together as a <a>NFC watch</a>.
+          to <var>options</var> and <var>callback</var> and store them
+          together as an <a>NFC watch</a>.
         </li>
         <li>
           Resolve <var>promise</var> with <var>watchId</var>.
@@ -2143,7 +2159,7 @@
   <section><h3>The <strong>unwatch</strong>() method</h3>
     <p>
       When the <code><dfn id="widl-NFCAdapter-unwatch-Promise-void--long-id">
-      unwatch</dfn>()</code> method is invoked, the user agent
+      unwatch</dfn>(id)</code> method is invoked, the user agent
       MUST run the following steps:
       <ol id="steps-unwatch">
         <li>
@@ -2202,24 +2218,31 @@
     <li>
       <p class="note">
         This is a placeholder for a possible future feature. In this step,
-        implementations MAY check if the <a>Web NFC origin</a> saved in
-        the <a>Web NFC record</a> of <var>input</var> matches with the
-        <a>origin</a> of the <a>browsing context</a>. If yes, and also
-        <a>prearranged trust relationship</a> exists so that
-        <var>input</var> is <a>trusted integrity NFC content</a>, then
-        same-origin policies MAY be applied.
+        implementations MAY check if the <a>origin</a> of the
+        <a>browsing context</a> matches the <a>Web NFC Id</a> of
+        <var>input</var>.If yes, and also <a>prearranged trust relationship</a>
+        exists so that <var>input</var> is <a>trusted integrity NFC content</a>,
+        then same-origin policies MAY be applied.
       </p>
     </li>
     <li>
       <p class="note">
         This is a placeholder for a possible future feature. In this step,
         implementations MAY check if any of the <a>URL pattern</a>s saved
-        in the <a>Web NFC record</a> match with the <a>origin</a> of the
-        <a>browsing context</a>. If yes, and also if
+        in the <a>Web NFC record</a> (in the future) match with the
+        <a>origin</a> of the <a>browsing context</a>. If yes, and also if
         <a>prearranged trust relationship</a> exists so that
         <var>input</var> is <a>trusted integrity NFC content</a>, then
         allowed-origin policies MAY be applied.
       </p>
+    </li>
+    <li>
+      Let <var>message</var> be a new empty sequence of <code>NFCRecord</code>
+      objects.
+    </li>
+    <li>
+      Let <var>messageId</var> be <code>null</code>, used for storing the
+      <a>Web NFC Id</a> of <var>message</var>.
     </li>
     <li>
       For each <a>NDEF record</a> which is part of <var>input</var>, run the
@@ -2228,7 +2251,7 @@
         <li>
           Let <var>ndef</var> be the notation for the current
           <a>NDEF record</a>. The fields of <var>ndef</var> are described by
-          the [[NFC_STANDARDS]].
+          the [[NFC-STANDARDS]].
         </li>
         <li>
           Let <var>record</var> be a new <code><a>NFCRecord</a></code> object.
@@ -2284,7 +2307,7 @@
             <li>
               If <var>scheme</var> is not 0, then set <var>record.data</var>
               to the string obtained from mapping the value of <var>scheme</var>
-              to the URL scheme as specified in the [[NFC_STANDARDS]] URI
+              to the URL scheme as specified in the [[NFC-STANDARDS]] URI
               Record Type Definition specification, Section 3.2.2.
             </li>
             <li>
@@ -2336,8 +2359,14 @@
           </ul>
         </li> <!-- parsing NDEF Media record -->
         <li>
-          If <var>ndef.TNF</var> is 4 (NFC External Type record), or 5 (NFC
-          Unknown Type record) then execute the following sub-steps,
+          If <var>ndef.TNF</var> is 4 (NFC External Type record), and
+          <var>ndef.TYPE</var> is <code>urn:nfc:ext:w3.org:webnfc</code>,
+          then set <var>messageId</var> to the value decoded from
+          <var>ndef.PAYLOAD</var> in UTF-16.
+        </li> <!-- parsing Web NFC record -->
+        <li>
+          Otherwise, if <var>ndef.TNF</var> is 4 (NFC External Type record),
+          or 5 (NFC Unknown Type record) then execute the following sub-steps,
           or make sure that the underlying platform provides equivalent values
           to the <var>record</var> object properties:
           <ul>
@@ -2353,77 +2382,58 @@
             </li>
           </ul>
         </li> <!-- parsing NDEF External/Unknown record -->
+        <li>
+          Add <var>record</var> to <var>message</var>.
+        </li>
+      </ul>
+    </li>
+    <li>
+      For matching <var>message</var> against the registered <a>NFC watch</a>es,
+      for each <a>NFC watch</a> <var>watch</var> that has been registered
+      using the <code>watch()</code> method, execute the following sub-steps:
+      <ul>
+        <li>
+          Let <var>options</var> be the <code><a>NFCWatchOptions</a></code>
+          saved with the watch, and let <var>callback</var> be the registered
+          callback function.
+        </li>
+        <li>
+          If <var>options.mode</var> is <code>"web-only"</code>, and
+          <var>messageId</var> is <var>null</var>, then skip to the next
+          <a>NFC watch</a>.
+        </li>
+        <li>
+          Otherwise, if <var>options.mode</var> is <code>"web-only"</code>, and
+          <var>messageId</var> is not <code>null</code>, or if
+          <var>options.mode</var> is <code>"all"</code>, then execute the
+          following sub-steps:
+          <ul>
+            <li>
+              If <var>options.url</var> is defined, and if
+              <var>messageId</var> does not match the <a>URL pattern</a>
+              stored in <var>options.url</var>, then skip to the next
+              <a>NFC watch</a>.
+            </li>
+            <li>
+              If <var>options.kind</var> is defined, and it is not equal to
+              <var>record.kind</var>, then skip to the next <a>NFC watch</a>.
+            </li>
+            <li>
+              If <var>options.type</var> is defined, and it is not equal to
+              <var>options.type</var>, then skip to the next <a>NFC watch</a>.
+            </li>
+            <li>
+              Otherwise, invoke the function <var>callback</var> with
+              <var>record</var> passed as first argument, and
+              <var>messageId</var> passed as second argument.
+            </li>
+          </ul>
+        </li>
       </ul>
     </li>
   </ol>
 </p>
 </section>
-
-<!-- - - - - - - - - - - - - - - Usage Examples - - - - - - - - - - - - - - -->
-<section class="informative"> <h2>Examples</h2>
-  <p>
-    This section shows how developers can make use of the various features of
-    this specification.
-  </p>
-  <pre title="Read and write tag" class="example highlight">
-    var adapter = null;
-    var id = null;
-    navigator.nfc.requestAdapter().then((nfcAdapter) => {
-      id = adapter.watch({}, onMessage);
-    };
-
-    function onMessage(message, url) {
-      console.log("NDEF message received from URL " + url);
-      if (message[0].kind == 'empty') {
-        adapter.pushMessage([
-         { kind: "text", type: "", data: “Initializing a passive tag”}]);
-      }
-
-      message.forEach((record) => {
-        if (record.kind == "string") {
-          console.log(“Data is string: “ + data);
-        } else if (record.kind == "json") {
-          processJSON(record.data);
-        } else if (record.kind == "url") {
-        console.log(“Data is URL: “ + record.data;
-        } else if (record.kind == "opaque") {
-        processBinary(data);
-      });
-    };
-
-    function processBinary(data) {
-      console.log("Binary data we know being a string: ");
-      console.log(String.fromCharCode.apply(null, new Uint16Array(data)));
-    };
-
-    function processJSON(data) {
-      var obj = JSON.parse(data);
-      console.log("My data: " + obj.myProperty.toString());
-    };
-  </pre>
-  <pre title="Sending data to NFC peer" class="example highlight">
-    navigator.nfc.requestAdapter().then((adapter) => {
-        adapter.pushMessage([
-          { kind: "text", type: "", data: “Data meant for peers”}])
-        .then(() => { console.log("Message sent")})
-        .catch(() => {console.log("Send failed, try again.")});
-    };
-  </pre>
-  <pre title="Save and restore game progress with another device"
-       class="example highlight">
-    navigator.nfc.requestAdapter().then((adapter) => {
-      console.log("Waiting for game state");
-      adapter.watch({ url: "*://myserver/mygame/*"}, (message, url) => {
-        console.log("Game state received from: " + url;
-        console.log("Game state: " + message.data);
-        // Now do some calculations and update the state.
-        adapter.pushMessage([ data: { level: 3, points: 4500, lives: 3 } ])
-          .then(() => { console.log("Send was successful")})
-          .catch(() => { console.log("Send failed")});
-      };
-    });
-  </pre>
-</section> <!-- Usage examples -->
 
 <!-- - - - - - - - - - - - - - -  Changes - - - - - - - - - - - - - - - - - -->
 <section class="appendix" id="Changes"><h2>Changes</h2>
