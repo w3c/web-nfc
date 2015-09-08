@@ -457,15 +457,15 @@
     supports one <a>Web NFC message</a> per <a>NDEF message</a>.
   </p>
   <p class="note">
-    Part of the <a>NDEF record</a> is the <dfn>NDEF Id</dfn> field, which may or
-    may not be present and it is meant for applications use. If it is present,
-    according to the [[!NFC-STANDARDS]] it contains a maximum 256 octets long
-    URL which is used for identifying the payload, in an application specific
+    As part of the <a>NDEF record</a>, an <dfn>NDEF Id</dfn> field may be
+    present, which is meant for applications use. According to the
+    [[!NFC-STANDARDS]] it contains a URL with the maximum length of 256 octets.
+    This URL is used for identifying the payload in an application specific
     way. Although the <a>NDEF Id</a> could be used for containing e.g. an
     <a>ASCII serialized origin</a> associated with the <a>NDEF record</a>,
     <strong>it is not used in this version of the specification</strong> for
-    record-level identification, since message-level identification is used by
-    the means of the <a>Web NFC Id</a>. Also, the content of the <a>NDEF Id</a>
+    record-level identification, since the message-level identification is
+    handled by the <a>Web NFC Id</a>. Also, the content of the <a>NDEF Id</a>
     is also contained in the <a>Web NFC Id</a>, and since <a>NFC tag</a>s are
     rather small storages, this duplication is avoided in this version.
     When multiple <a>Web NFC message</a>s will be eventually supported within a
@@ -623,7 +623,7 @@
         } else if (record.kind == "url") {
         console.log(“Data is URL: “ + record.data;
         } else if (record.kind == "opaque") {
-        processBinary(data);
+          processBinary(data);
       });
     };
 
@@ -641,21 +641,24 @@
     navigator.nfc.requestAdapter().then((adapter) => {
         adapter.pushMessage([
           { kind: "text", type: "", data: “Data meant for peers”}])
-        .then(() => { console.log("Message sent")})
-        .catch(() => {console.log("Send failed, try again.")});
+        .then(() => { console.log("Message sent.")})
+        .catch(() => {console.log("Send failed :'(, try again.")});
     };
   </pre>
   <pre title="Save and restore game progress with another device"
        class="example highlight">
     navigator.nfc.requestAdapter().then((adapter) => {
-      console.log("Waiting for game state");
-      adapter.watch({ url: "*://myserver/mygame/*"}, (message, url) => {
+      console.log("Awaiting game state");
+
+      adapter.watch({ url: "*://mydomain/mygame/*"}, (message, url) => {
         console.log("Game state received from: " + url;
-        console.log("Game state: " + message.data);
-        // Now do some calculations and update the state.
+        console.log("Stored state: " + message.data);
+
+        // Now do some calculations and then update the state.
+        // ...
         adapter.pushMessage([ data: { level: 3, points: 4500, lives: 3 } ])
-          .then(() => { console.log("Send was successful")})
-          .catch(() => { console.log("Send failed")});
+          .then(() => { console.log("We have stored your current game state.")})
+          .catch(() => { console.log("Failed updating game state, try again.")});
       };
     });
   </pre>
@@ -674,8 +677,8 @@
         <li>
           Reading <a>NFC tag</a>s containing a <a>Web NFC message</a>, when a
           web page using the Web NFC API is open and in focus.
-          For instance, a web page instructs the user to tap an NFC tag, and get
-          information from the tag.
+          For instance, a web page instructs the user to tap an NFC tag, and
+          then receives information from the tag.
         </li>
         <li>
           Reading <a>NFC tag</a>s containing other than <a>Web NFC message</a>,
@@ -1141,7 +1144,7 @@
     </tr>
     <tr>
       <td>"opaque"</td>
-      <td>IANA media type</td>
+      <td><a>IANA media type</a></td>
       <td><code>ArrayBuffer</code> or typed array</td>
       <td>Media-type as defined in [[RFC2046]] (<a>TNF</a>=2)</td>
     </tr>
@@ -1198,11 +1201,11 @@
     </tr>
     <tr>
       <td>Media-type as defined in [[RFC2046]] (<a>TNF</a>=2) with associated
-        IANA media type <code>"application/json"</code> or
+        <a>IANA media type></a> <code>"application/json"</code> or
         <code>"application/*-json"</code>
       </td>
       <td>"json"</td>
-      <td>The IANA media type used in the NDEF record</td>
+      <td>The <a>IANA media type</a> used in the NDEF record</td>
       <td>
         <code>null</code> or <code>DOMString</code> or <code>Number</code> or
         <code>Object</code>
@@ -1211,7 +1214,7 @@
     <tr>
       <td>Media-type as defined in [[RFC2046]] (<a>TNF</a>=2)</td>
       <td>"opaque"</td>
-      <td>The IANA media type used in the NDEF record</td>
+      <td>The <a>IANA media type</a> used in the NDEF record</td>
       <td><code>ArrayBuffer</code></td>
     </tr>
     <tr>
@@ -1438,11 +1441,11 @@
               If an <a>expressed permission</a> has been granted before for
               <var>origin</var> using the
                 <a href="http://www.w3.org/TR/permissions/">Permissions API</a>,
-                then continue with step 6.
+                then continue with step 7.
             </li>
             <li>
               Otherwise, if a <a>prearranged trust relationship</a> exists,
-              then continue with step 6.
+              then continue with step 7.
             </li>
             <li>
               Otherwise, try to obtain <a>expressed permission</a> using the
@@ -1452,7 +1455,7 @@
               using NFC for sending content may indirectly reveal the physical
               location of the user in certain conditions.
               If permission has been granted by the user, then continue with
-              step 6.
+              step 7.
             </li>
             <li>
               Otherwise, reject <var>promise</var> with
@@ -1472,7 +1475,7 @@
           is defined, or otherwise <code>"any"</code>.
         </li>
         <li>
-          If the <var>message</var> parameter is not a valid non-empty sequence
+          If the <var>message</var> parameter is not a valid, non-empty sequence
           of <code><a>NFCRecord</a></code> objects,  then reject
           <var>promise</var> with <code>"SyntaxError"</code>,
           and terminate this algorithm.
@@ -1523,33 +1526,33 @@
               that the underlying platform provides equivalent values to
               <var>ndef</var>:
               <p class="note">
-                This is to be used when clients specifically want to write an
-                NDEF Well Known Type Text record. Otherwise clients could
-                also use <code>"opaque"</code> with an explicit IANA media
-                type also for text, which has the advantage of better
-                differentiation, e.g. when using "text/xml", or "text/vcard".
+                This kind is useful when clients specifically want to write an
+                NDEF Well Known Type Text record. Other options would be to
+                use the value <code>"opaque"</code> with an explicit <a>IANA media
+                type<a> text type, which allows for better differentiation, e.g.
+                when using "text/xml", or "text/vcard".
               </p>
               <ul>
                 <li>
                   If <var>record.data</var> is not of type <code>"string"</code>
-                  or <code>"number"</code>, then then reject <var>promise</var>
+                  or <code>"number"</code>, then reject <var>promise</var>
                   with <code>"SyntaxError"</code>, and terminate this algorithm.
                 </li>
                 <li>
                   If <var>record.type</var> is not of type <code>"string"</code>
-                  or if it does not start with <code>"text/"</code>, then
+                  or starts with <code>"text/"</code>, then
                   reject <var>promise</var> with <code>"SyntaxError"</code>,
                   and terminate this algorithm.
                   In addition, user agents MAY check that
-                  <var>record.type</var> is a IANA registered media type
+                  <var>record.type</var> is an IANA registered media type
                   for <a href="http://www.iana.org/assignments/media-types/media-types.xhtml#text">text</a>. If not, then the user agent MAY
                   reject <var>promise</var> with <code>"SyntaxError"</code>,
-                  and terminate this algorithm.
+                  terminate this algorithm.
                 </li>
                 <li>
                   Let <var>language</var> be <code>"en"</code>.
-                  If <var>record.type</var> does include a <code>lang=</code>
-                  parameter for language encoding (e.g.
+                  If <var>record.type</var> includes a <code>lang=</code>
+                  parameter, detailing the language encoding (e.g.
                   "text/plain; lang=fr"), then set <var>language</var> to
                   the language code extracted from <var>record.type</var>.
                   If <var>language</var> is not one of the language codes listed
@@ -1559,7 +1562,7 @@
                   <code>"SyntaxError"</code>, and terminate this algorithm.
                   <p class="note">
                     Note that <code>lang=</code> is not standard parameter
-                    to IANA media types, but it is used in this specification
+                    to <a>IANA media type</a>s, but it is used in this specification
                     in order to maintain compatibility with NFC specifications.
                   </p>
                 </li>
@@ -1572,7 +1575,7 @@
                     </li>
                     <li>
                       Set the <var>def.TYPE</var> field to <code>"T"</code>
-                      (value 0x54 in NFC binary encoding).
+                      (value 0x54 following NFC binary encoding).
                     </li>
                     <li>
                      Set the <var>ndef.PAYLOAD</var> field to
@@ -1584,23 +1587,21 @@
                          The first octet is a status byte containing bit flags.
                          <ul>
                            <li>
-                             If <var>record.type</var> does include a parameter
-                             for character set for UTF-8 (e.g.
-                             "text/plain; charset=UTF-8;"), then set bit 7 (MSB)
-                             to 0 (meaning UTF-8 encoding), otherwise to 1
-                             (meaning UTF-16 encoding).
+                             If <var>record.type</var> contains the parameter
+                             "charset=UTF-8" (e.g. "text/plain; charset=UTF-8;"),
+                             then set bit 7 (MSB) to 0 (UTF-8 encoding), otherwise to 1
+                             (UTF-16 encoding).
                            </li>
                            <li>Set bit 6 to 0.</li>
                            <li>
-                             Set bits 5 to 0 to the length of
-                             <var>language</var>.
+                             Set bits 5 to 0 to the length of the
+                             <var>language</var> string.
                            </li>
                          </ul>
                        </li>
                        <li>
                          Set the consecutive octets of <var>ndef.PAYLOAD</var>
-                         to the value of <var>language</var> in US-ASCII
-                         encoding.
+                         to the value of <var>language</var> encoded as US-ASCII.
                        </li>
                        <li>
                          Set the consecutive payload octets to
@@ -1617,7 +1618,7 @@
 
             <li id="steps-map-url-to-ndef">
               If <var>record.kind</var> is <code>"url"</code>, then
-              execute the <dfn>map URL to NDEF</dfn> sub-steps, or make sure
+              execute the <dfn>map URL to NDEF</dfn> sub-steps, or ensure
               that the underlying platform provides equivalent values to
               <var>ndef</var>:
               <ul>
@@ -1633,7 +1634,7 @@
                       Set the <var>ndef.TNF</var> field to 1 (Well Known Type).
                     </li>
                     <li>
-                      Set the <var>ndef.TYPE</var> field to "U" (0x55 in NFC
+                      Set the <var>ndef.TYPE</var> field to "U" (0x55 following NFC
                       binary encoding).
                     </li>
                     <li>
@@ -1651,7 +1652,7 @@
 
             <li id="steps-map-json-to-ndef">
               If <var>record.kind</var> is <code>"json"</code>, then
-              execute the <dfn>map JSON to NDEF</dfn> sub-steps, or make sure
+              execute the <dfn>map JSON to NDEF</dfn> sub-steps, or ensure
               that the underlying platform provides equivalent values to
               <var>ndef</var>:
               <ul>
@@ -1663,8 +1664,8 @@
                 </li>
                 <li>
                   If <var>record.type</var> is not
-                  <code>"application/json"</code>, or another IANA type for JSON
-                  (<code>"application/&lt;type&gt;+json"</code>), then reject
+                  <code>"application/json"</code>, or any other <a>IANA media type</a>
+                  for JSON (<code>"application/&lt;type&gt;+json"</code>), then reject
                   <var>promise</var> with <code>"SyntaxError"</code>, and
                   terminate this algorithm.
                 </li>
@@ -1690,7 +1691,7 @@
 
             <li id="steps-map-binary-to-ndef">
               If <var>record.kind</var> is <code>"opaque"</code>, then
-              execute the <dfn>map binary to NDEF</dfn> sub-steps, or make sure
+              execute the <dfn>map binary to NDEF</dfn> sub-steps, or ensure
               that the underlying platform provides equivalent values to
               <var>ndef</var>:
               <ul>
@@ -1700,7 +1701,7 @@
                   <code>"SyntaxError"</code>, and terminate this algorithm.
                 </li>
                 <li>
-                   The user agent MAY check if <var>record.type</var> is
+                   The <a>user agent</a> MAY check if <var>record.type</var> is
                    a valid IANA registered type. If not, then MAY reject
                   <var>promise</var> with <code>"SyntaxError"</code>, and
                   terminate this algorithm.
@@ -1763,7 +1764,7 @@
         <li>
           Add a <a>Web NFC record</a> to <var>output</var> to the end of
           <var>output</var> by following the
-          <dfn>write Web NFC record</dfn> sub-steps, or make sure that the
+          <dfn>write Web NFC record</dfn> sub-steps, or ensure that the
           underlying platform provides equivalent values to <var>ndef</var>:
           <ul>
             <li>
@@ -1779,12 +1780,12 @@
             </li>
             <li>
               Set <var>ndef.PAYLOAD</var> to the <a>URL path</a> of the
-              <a>browsing context</a>, encoded in UTF-16.
+              <a>browsing context</a>, encoded as UTF-16.
               This is going to be used by <a>NFC watch</a> filters.
               <p class="note">
                 In future versions a list of "allowed-origins" may be supported.
-                It needs more discussions, since there is a security issue with
-                it. See the <a href="http://w3c.github.io/web-nfc/security-privacy.html#security-and-privacy-context-of-nfc">
+                It is still up for discussions due to security issues. See the
+                <a href="http://w3c.github.io/web-nfc/security-privacy.html#security-and-privacy-context-of-nfc">
                 Security and Privacy</a> document.
               </p>
             </li>
@@ -1799,24 +1800,24 @@
           <a>browsing context</a> with exactly one associated timer.
           This means that every new invocation of the
           <code>pushMessage()</code> method replaces the previously set
-          push message, and also resets the timer associated with it.
+          push message and resets the associated timer.
         </li>
         <li>
           If <var>timer</var> expires, reject <var>promise</var> with
           <code>"TimeoutError"</code> and terminate this algorithm.
         </li>
         <li>
-          When an <a>NFC device</a> comes in communication range,
+          When an <a>NFC device</a> comes within communication range,
           <ul>
             <li>
               If <var>target</var> has the value <code>"tag"</code>,
-              then the sending should only happen if an <a>NFC tag</a> is
-              tapped, otherwise reject <var>promise</var>
+              then the sending MAY only happen if an <a>NFC tag</a> is
+              tapped, otherwise reject <var>promise</var> with
               <code>"InvalidAccessError"</code> and terminate this algorithm.
             </li>
             <li>
               If <var>target</var> has the value <code>"peer"</code>,
-              then the sending should only happen if an <a>NFC peer</a> is
+              then the sending MAY only happen if an <a>NFC peer</a> is
               tapped, otherwise reject <var>promise</var> with
               <code>"InvalidAccessError"</code> and terminate this algorithm.
             </li>
@@ -1827,7 +1828,7 @@
               the specified timeout.
             </li>
             <li>
-              If during the transfer the connection is lost, or an error is
+              If the connection is lost during the transfer, or an error is
               signaled by the underlying platform, then reject
               <var>promise</var> with <code>"<a>NetworkError</a>"</code> and
               terminate this algorithm.
@@ -1908,7 +1909,7 @@
     <p>
       A match pattern is a string which can contain the
       <code>'*'</code> wildcard character.
-      Match patterns are used primarily for matching IANA media types, for
+      Match patterns are used primarily for matching <a>IANA media type</a>s, for
       instance the match pattern <code>'application/*+json'</code> matches
       <code>'application/calendar+json'</code>, but does not match
       <code>'application/json'</code>. The match pattern
@@ -1958,13 +1959,13 @@
       <dt>all</dt>
     </dl>
     <p>
-      The <code>"web-only"</code> value means that only those
+      The <code>"web-nfc-only"</code> value means that only those
       <a>NDEF message</a>s are exposed which contain a
       <a>Web NFC record</a>, i.e. which are meant for web pages.
       This is the default value.
     </p>
     <p>
-      The <code>"all"</code> value means that all <a>NDEF message</a>s
+      The <code>"any"</code> value means that all <a>NDEF message</a>s
       are exposed.
     </p>
   </section>
@@ -1983,7 +1984,7 @@
     <p>
       The <strong><i>url</i></strong> property
       denotes the <a>URL pattern</a> which is used for matching the
-      <a>URL path</a> of the <a>Web NFC message</a> which is stored in the
+      <a>URL origin</a> and <a>URL path</a> of the <a>Web NFC message</a> which is stored in the
       <a>Web NFC record</a>.
       The values <code>null</code>, <code>undefined</code>, and
       <code>""</code> mean that no matching happens.
@@ -2014,9 +2015,9 @@
       title="Filter accepting only JSON content from https://www.w3.org"
       class="example highlight">
       var watchOptions = {
-        url: "www.w3.org/*",  // all paths from the domain are accepted
+        url: "www.w3.org/*",  // any path from the domain is accepted
         kind: "json",
-        type: "application/*json"  // all IANA media types dealing with JSON
+        type: "application/*+json"  // any JSON-based IANA media type
       }
     </pre>
     <pre
@@ -2264,9 +2265,9 @@
         </li>
         <li>
           If <var>ndef.TNF</var> is 1 (NFC Well Known Type Record), and
-          <var>ndef.TYPE</var> is <code>"T"</code> (value 0x54 in NFC binary
+          <var>ndef.TYPE</var> is <code>"T"</code> (value 0x54 following NFC binary
           encoding), then execute the following sub-steps for
-          <dfn>parsing NDEF Text record</dfn>, or make sure that the
+          <dfn>parsing NDEF Text record</dfn>, or ensure that the
           underlying platform provides equivalent values to the
           <var>record</var> object properties:
           <ul>
