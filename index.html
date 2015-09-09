@@ -1464,20 +1464,19 @@
           </ul>
         </li>
         <li>
-          Let <var>options</var> be the second argument.
-        </li>
-        <li>
-          Let <var>timeout</var> be the value of <var>options.timeout</var> if
-          it is defined, or otherwise 10000 (milliseconds).
-        </li>
-        <li>
-          Let <var>target</var> be the value of <var>options.target</var> if it
-          is defined, or otherwise <code>"any"</code>.
-        </li>
-        <li>
           If the <var>message</var> parameter is not a valid, non-empty sequence
           of <code><a>NFCRecord</a></code> objects,  then reject
           <var>promise</var> with <code>"SyntaxError"</code>,
+          and terminate this algorithm.
+        </li>
+        <li>
+          If the <var>options</var> parameter is not defined, then
+          let <var>options</var> be a new <code><a>NFCPushOptions</a></code>
+          object with the default values.
+        </li>
+          Otherwise, if the <var>options</var> parameter is defined and it is
+          not a valid instance of <code><a>NFCPushOptions</a></code>,  then
+          reject <var>promise</var> with <code>"SyntaxError"</code>,
           and terminate this algorithm.
         </li>
         <li>
@@ -1499,7 +1498,7 @@
               be created by an API call to the underlying platform.
             </li>
             <li id="steps-map-empty-to-ndef">
-              If <var>record.kind</var> is <code>"empty"</code>, then
+              If <var>record</var>.kind is <code>"empty"</code>, then
               execute the following steps:
               <ul>
                 <li>
@@ -1521,7 +1520,7 @@
             </li> <!-- empty to NDEF -->
 
             <li id="steps-map-text-to-ndef">
-              If <var>record.kind</var> is <code>"text"</code>, then
+              If <var>record</var>.kind is <code>"text"</code>, then
               execute the following steps, or make sure
               that the underlying platform provides equivalent values to
               <var>ndef</var>:
@@ -1534,27 +1533,27 @@
               </p>
               <ul>
                 <li>
-                  If <var>record.data</var> is not of type <code>"string"</code>
+                  If <var>record</var>.data is not of type <code>"string"</code>
                   or <code>"number"</code>, then reject <var>promise</var>
                   with <code>"SyntaxError"</code>, and terminate this algorithm.
                 </li>
                 <li>
-                  If <var>record.type</var> is not of type <code>"string"</code>
+                  If <var>record</var>.type is not of type <code>"string"</code>
                   or starts with <code>"text/"</code>, then
                   reject <var>promise</var> with <code>"SyntaxError"</code>,
                   and terminate this algorithm.
                   In addition, user agents MAY check that
-                  <var>record.type</var> is an IANA registered media type
+                  <var>record</var>.type is an IANA registered media type
                   for <a href="http://www.iana.org/assignments/media-types/media-types.xhtml#text">text</a>. If not, then the user agent MAY
                   reject <var>promise</var> with <code>"SyntaxError"</code>,
                   terminate this algorithm.
                 </li>
                 <li>
                   Let <var>language</var> be <code>"en"</code>.
-                  If <var>record.type</var> includes a <code>lang=</code>
+                  If <var>record</var>.type includes a <code>lang=</code>
                   parameter, detailing the language encoding (e.g.
                   "text/plain; lang=fr"), then set <var>language</var> to
-                  the language code extracted from <var>record.type</var>.
+                  the language code extracted from <var>record</var>.type.
                   If <var>language</var> is not one of the language codes listed
                   in the <a href="http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry">IANA language registry</a>
                   (or [[ISO-639.2]]),
@@ -1579,7 +1578,7 @@
                     </li>
                     <li>
                      Set the <var>ndef.PAYLOAD</var> field to
-                     <var>record.data</var> encoded according to the
+                     <var>record</var>.data encoded according to the
                      [[NFC-STANDARDS]], NFC Forum Text Record Type
                      Definition specification:
                      <ul>
@@ -1587,7 +1586,7 @@
                          The first octet is a status byte containing bit flags.
                          <ul>
                            <li>
-                             If <var>record.type</var> contains the parameter
+                             If <var>record</var>.type contains the parameter
                              "charset=UTF-8" (e.g. "text/plain; charset=UTF-8;"),
                              then set bit 7 (MSB) to 0 (UTF-8 encoding), otherwise to 1
                              (UTF-16 encoding).
@@ -1605,7 +1604,7 @@
                        </li>
                        <li>
                          Set the consecutive payload octets to
-                         <var>record.data</var> in the encoding set by the
+                         <var>record</var>.data in the encoding set by the
                          MSB bit of the first payload octet (by default UTF-16,
                          or UTF-8 on special request).
                        </li>
@@ -1617,13 +1616,13 @@
             </li>
 
             <li id="steps-map-url-to-ndef">
-              If <var>record.kind</var> is <code>"url"</code>, then
+              If <var>record</var>.kind is <code>"url"</code>, then
               execute the <dfn>map URL to NDEF</dfn> sub-steps, or ensure
               that the underlying platform provides equivalent values to
               <var>ndef</var>:
               <ul>
                 <li>
-                  If <var>record.data</var> is not of type <code>string</code>,
+                  If <var>record</var>.data is not of type <code>string</code>,
                   then reject <var>promise</var> with
                   <code>"SyntaxError"</code>, and terminate this algorithm.
                 </li>
@@ -1639,11 +1638,11 @@
                     </li>
                     <li>
                       Set the <var>ndef.PAYLOAD</var> field to
-                      <var>record.data</var> encoded according to the
+                      <var>record</var>.data encoded according to the
                       [[NFC-STANDARDS]], NFC Forum URI Record Type Definition
                       specification: set the first octet according to the
                       applicable scheme abbreviation, and set the rest of the
-                      payload bytes to <var>record.data</var> in UTF-8 encoding.
+                      payload bytes to <var>record</var>.data in UTF-8 encoding.
                     </li>
                   </ul>
                 </li>
@@ -1651,19 +1650,19 @@
             </li>
 
             <li id="steps-map-json-to-ndef">
-              If <var>record.kind</var> is <code>"json"</code>, then
+              If <var>record</var>.kind is <code>"json"</code>, then
               execute the <dfn>map JSON to NDEF</dfn> sub-steps, or ensure
               that the underlying platform provides equivalent values to
               <var>ndef</var>:
               <ul>
                 <li>
-                  If <var>record.data</var> is not of type
+                  If <var>record</var>.data is not of type
                   <code>"string"</code>, or <code>"number"</code>, or
                   <code>"object"</code>, then reject <var>promise</var> with
                   <code>"SyntaxError"</code>, and terminate this algorithm.
                 </li>
                 <li>
-                  If <var>record.type</var> is not
+                  If <var>record</var>.type is not
                   <code>"application/json"</code>, or any other <a>IANA media type</a>
                   for JSON (<code>"application/&lt;type&gt;+json"</code>), then reject
                   <var>promise</var> with <code>"SyntaxError"</code>, and
@@ -1677,11 +1676,11 @@
                     </li>
                     <li>
                       Set the <var>ndef.TYPE</var> field to
-                      <var>record.type</var>.
+                      <var>record</var>.type.
                     </li>
                     <li>
                       Set the <var>ndef.PAYLOAD</var> field to
-                      <var>record.data</var> according to the
+                      <var>record</var>.data according to the
                       [[NFC-STANDARDS]], i.e. as an opaque octet stream.
                     </li>
                   </ul>
@@ -1690,18 +1689,18 @@
             </li>
 
             <li id="steps-map-binary-to-ndef">
-              If <var>record.kind</var> is <code>"opaque"</code>, then
+              If <var>record</var>.kind is <code>"opaque"</code>, then
               execute the <dfn>map binary to NDEF</dfn> sub-steps, or ensure
               that the underlying platform provides equivalent values to
               <var>ndef</var>:
               <ul>
                 <li>
-                  If <var>record.data</var> is not of instance of
+                  If <var>record</var>.data is not of instance of
                   <code>ArrayBuffer</code>, then reject <var>promise</var> with
                   <code>"SyntaxError"</code>, and terminate this algorithm.
                 </li>
                 <li>
-                   The <a>user agent</a> MAY check if <var>record.type</var> is
+                   The <a>user agent</a> MAY check if <var>record</var>.type is
                    a valid IANA registered type. If not, then MAY reject
                   <var>promise</var> with <code>"SyntaxError"</code>, and
                   terminate this algorithm.
@@ -1714,11 +1713,11 @@
                     </li>
                     <li>
                       Set the <var>ndef.TYPE</var> field to
-                      <var>record.type</var>.
+                      <var>record</var>.type.
                     </li>
                     <li>
                       Set the <var>ndef.PAYLOAD</var> field to
-                      <var>record.data</var> according to the
+                      <var>record</var>.data according to the
                       [[NFC-STANDARDS]], i.e. as an opaque octet stream.
                     </li>
                   </ul>
@@ -1726,26 +1725,26 @@
               </ul>
             </li>
             <li> <!-- guess type from data and map to NDEF -->
-              Otherwise, if <var>record.kind</var> is <code>undefined</code>,
+              Otherwise, if <var>record</var>.kind is <code>undefined</code>,
               then:
               <ul id="steps-map-data-to-ndef">
                 <li>
-                  If <var>record.data</var> is instance of
-                  <code>ArrayBuffer</code>, then set <var>record.type</var> to
+                  If <var>record</var>.data is instance of
+                  <code>ArrayBuffer</code>, then set <var>record</var>.type to
                   <code>"application/octet-stream"</code> and execute the
                   <a href="#steps-map-binary-to-ndef">map binary to NDEF</a>
                   steps.
                 </li>
                 <li>
-                  Otherwise, if type of <var>record.data</var> is
-                  <code>"object"</code>, then set <var>record.type</var> to
+                  Otherwise, if type of <var>record</var>.data is
+                  <code>"object"</code>, then set <var>record</var>.type to
                   <code>"application/json"</code> and execute the
                   <a href="#steps-map-json-to-ndef">map JSON to NDEF</a> steps.
                 </li>
                 <li>
-                  Otherwise, if type of <var>record.data</var> is
+                  Otherwise, if type of <var>record</var>.data is
                   <code>"number"</code> or <code>"string"</code>, then
-                  set <var>record.type</var> to <code>"plain/text"</code> and
+                  set <var>record</var>.type to <code>"plain/text"</code> and
                   execute the <a href="#steps-map-text-to-ndef">
                   map text to NDEF</a> steps.
                 </li>
@@ -1795,7 +1794,7 @@
         <li>
           Make a request to the underlying platform to send <var>output</var>
           to the next device which comes in proximity range, and start a timer
-          <var>timer</var> with <var>timeout</var>.
+          <var>timer</var> with <var>options</var>.timeout.
           There MUST be exactly one message set for pushing per calling
           <a>browsing context</a> with exactly one associated timer.
           This means that every new invocation of the
@@ -1984,10 +1983,11 @@
     <p>
       The <strong><i>url</i></strong> property
       denotes the <a>URL pattern</a> which is used for matching the
-      <a>URL origin</a> and <a>URL path</a> of the <a>Web NFC message</a> which is stored in the
-      <a>Web NFC record</a>.
+      <a>URL origin</a> and <a>URL path</a> of the <a>Web NFC message</a> which
+      is stored in the <a>Web NFC record</a>.
       The values <code>null</code>, <code>undefined</code>, and
       <code>""</code> mean that no matching happens.
+      The default value is <code>null</code>.
     </p>
     <p>
       The <strong><i>kind</i></strong> property
@@ -1996,6 +1996,7 @@
       in a <a>Web NFC message</a>.
       The values <code>null</code> and <code>undefined</code> mean that
       no matching happens.
+      The default value is <code>null</code>.
     </p>
     <p>
       The <strong><i>type</i></strong> property
@@ -2005,11 +2006,13 @@
       The values <code>null</code> and <code>undefined</code> mean that
       no matching happens. The value <code>""</code> matches missing type
       information.
+      The default value is <code>null</code>.
     </p>
     <p>
       The <dfn id="widl-NFCWatchOptions-mode">mode</dfn> property tells
       whether only <a>Web NFC content</a> or any <a>NFC content</a> will be
       watched.
+      The default value is <code>"web-only"</code>.
     </p>
     <pre
       title="Filter accepting only JSON content from https://www.w3.org"
@@ -2099,7 +2102,7 @@
           <a href="#askforgiveness">ask for forgiveness</a> with relevant
           information displayed to the user which explains that reading
           <a>NFC content</a> may indirectly reveal the physical location of the
-          user. In addition, if the value of <var>options.mode</var> is
+          user. In addition, if the value of <var>options</var>.mode is
           <code>"all"</code>, then also include in this information that the
           <a>origin</a> is requesting to read all <a>NFC content</a>, not only
           those meant for web pages.
@@ -2259,9 +2262,9 @@
         </li>
         <li>
           If <var>ndef.TNF</var> is 0 (NFC Empty Record), then set
-          <var>record.kind</var> to <code>"empty"</code>,
-          <var>record.type</var> to <code>""</code>,
-          and <var>record.data</var> to <code>null</code>.
+          <var>record</var>.kind to <code>"empty"</code>,
+          <var>record</var>.type to <code>""</code>,
+          and <var>record</var>.data to <code>null</code>.
         </li>
         <li>
           If <var>ndef.TNF</var> is 1 (NFC Well Known Type Record), and
@@ -2271,8 +2274,8 @@
           underlying platform provides equivalent values to the
           <var>record</var> object properties:
           <ul>
-            <li>Set <var>record.kind</var> to <code>"text"</code>.</li>
-            <li>Set <var>record.type</var> to <code>"text/plain"</code>.</li>
+            <li>Set <var>record</var>.kind to <code>"text"</code>.</li>
+            <li>Set <var>record</var>.type to <code>"text/plain"</code>.</li>
             <li>
               Read the first octet of <var>ndef.PAYLOAD</var>.
               Let <var>offset</var> be the value given by bits 5 to 0 of the
@@ -2282,10 +2285,10 @@
               Let <var>language</var> be the string defined by the consecutive
               <var>offset</var> number of octets, converted from US-ASCII
               encoding. Append <code>";lang="</code> and then the value of
-              <var>language</var> to <var>record.type</var>.
+              <var>language</var> to <var>record</var>.type.
             </li>
             <li>
-              Set <var>record.data</var> to the string created from the
+              Set <var>record</var>.data to the string created from the
               consecutive <var>ndef.PAYLOAD</var> octets, converted to UTF-16
               encoding.
             </li>
@@ -2299,29 +2302,29 @@
           underlying platform provides equivalent values to the
           <var>record</var> object properties:
           <ul>
-            <li>Set <var>record.kind</var> to <code>"url"</code>.</li>
-            <li>Set <var>record.type</var> to <code>"text/plain"</code>.</li>
+            <li>Set <var>record</var>.kind to <code>"url"</code>.</li>
+            <li>Set <var>record</var>.type to <code>"text/plain"</code>.</li>
             <li>
               Let <var>scheme</var> be the value of the first octet of
               <var>ndef.PAYLOAD</var>.
             </li>
             <li>
-              If <var>scheme</var> is not 0, then set <var>record.data</var>
+              If <var>scheme</var> is not 0, then set <var>record</var>.data
               to the string obtained from mapping the value of <var>scheme</var>
               to the URL scheme as specified in the [[NFC-STANDARDS]] URI
               Record Type Definition specification, Section 3.2.2.
             </li>
             <li>
-              Set <var>record.data</var> to the UTF-16 string converted from the
+              Set <var>record</var>.data to the UTF-16 string converted from the
               octets of <var>ndef.PAYLOAD</var> except the first octet.
             </li>
           </ul>
         </li> <!-- parsing NDEF URL record -->
         <li>
           If <var>ndef.TNF</var> is 3 (NFC Absolute URI Type record), then
-          set <var>record.kind</var> to <code>"url"</code>,
-          set <var>record.type</var> to <code>"text/plain"</code> and
-          set <var>record.data</var> to the string converted from
+          set <var>record</var>.kind to <code>"url"</code>,
+          set <var>record</var>.type to <code>"text/plain"</code> and
+          set <var>record</var>.data to the string converted from
           <var>ndef.PAYLOAD</var>.
         </li> <!-- parsing NDEF Absolute URI record -->
         <li>
@@ -2334,10 +2337,10 @@
               If <var>ndef.TYPE</var> matches the <a>match pattern</a>
               <code>"application/*json"</code>, then
               <ul>
-                <li>Set <var>record.kind</var> to <code>"json"</code>.</li>
-                <li>Set <var>record.type</var> to <var>ndef.TYPE</var>.</li>
+                <li>Set <var>record</var>.kind to <code>"json"</code>.</li>
+                <li>Set <var>record</var>.type to <var>ndef.TYPE</var>.</li>
                 <li>
-                  Set <var>record.data</var> to the result of converting
+                  Set <var>record</var>.data to the result of converting
                   <var>ndef.PAYLOAD</var> to string.
                   <p class="note">
                     The payload SHOULD NOT be evaluated by user agents for
@@ -2349,10 +2352,10 @@
             <li>
               Otherwise,
               <ul>
-                <li>Set <var>record.kind</var> to <code>"opaque"</code>.</li>
-                <li>Set <var>record.type</var> to <var>ndef.TYPE</var>.</li>
+                <li>Set <var>record</var>.kind to <code>"opaque"</code>.</li>
+                <li>Set <var>record</var>.type to <var>ndef.TYPE</var>.</li>
                 <li>
-                  Set <var>record.data</var> to a new <code>ArrayBuffer</code>
+                  Set <var>record</var>.data to a new <code>ArrayBuffer</code>
                   object constructed from the octets of <var>ndef.PAYLOAD</var>.
                 </li>
               </ul>
@@ -2371,14 +2374,14 @@
           or make sure that the underlying platform provides equivalent values
           to the <var>record</var> object properties:
           <ul>
-            <li>Set <var>record.kind</var> to <code>"opaque"</code>.</li>
+            <li>Set <var>record</var>.kind to <code>"opaque"</code>.</li>
             <li>
               If <var>ndef.TYPE</var> is defined, then set
-              <var>record.type</var> to that string value, otherwise to
+              <var>record</var>.type to that string value, otherwise to
               <code>"application/octet-stream</code>.
             </li>
             <li>
-              Set <var>record.data</var> to a new <code>ArrayBuffer</code>
+              Set <var>record</var>.data to a new <code>ArrayBuffer</code>
               object constructed from the octets of <var>ndef.PAYLOAD</var>.
             </li>
           </ul>
@@ -2399,29 +2402,29 @@
           callback function.
         </li>
         <li>
-          If <var>options.mode</var> is <code>"web-only"</code>, and
+          If <var>options</var>.mode is <code>"web-only"</code>, and
           <var>messageId</var> is <var>null</var>, then skip to the next
           <a>NFC watch</a>.
         </li>
         <li>
-          Otherwise, if <var>options.mode</var> is <code>"web-only"</code>, and
+          Otherwise, if <var>options</var>.mode is <code>"web-only"</code>, and
           <var>messageId</var> is not <code>null</code>, or if
-          <var>options.mode</var> is <code>"all"</code>, then execute the
+          <var>options</var>.mode is <code>"all"</code>, then execute the
           following sub-steps:
           <ul>
             <li>
-              If <var>options.url</var> is defined, and if
+              If <var>options</var>.url is defined, and if
               <var>messageId</var> does not match the <a>URL pattern</a>
-              stored in <var>options.url</var>, then skip to the next
+              stored in <var>options</var>.url, then skip to the next
               <a>NFC watch</a>.
             </li>
             <li>
-              If <var>options.kind</var> is defined, and it is not equal to
-              <var>record.kind</var>, then skip to the next <a>NFC watch</a>.
+              If <var>options</var>.kind is defined, and it is not equal to
+              <var>record</var>.kind, then skip to the next <a>NFC watch</a>.
             </li>
             <li>
-              If <var>options.type</var> is defined, and it is not equal to
-              <var>options.type</var>, then skip to the next <a>NFC watch</a>.
+              If <var>options</var>.type is defined, and it is not equal to
+              <var>record</var>.type, then skip to the next <a>NFC watch</a>.
             </li>
             <li>
               Otherwise, invoke the function <var>callback</var> with
