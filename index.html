@@ -1098,7 +1098,8 @@
   <p>
     The mapping from data types of an <code><a>NFCRecord</a></code> to and from
     <a>NDEF record</a> types is presented in the algorithmic steps which handle
-    the data and described in the <a href="#steps-receiving">Receiving and parsing content</a>
+    the data and described in the
+    <a href="#steps-receiving">Receiving and parsing content</a>
     and <a>Writing or pushing content</a> sections.
   </p>
   </section> <!-- NFCRecordType interface -->
@@ -1263,15 +1264,17 @@
 </section> <!-- Navigator -->
 
 <section> <h2>The <strong>NFC</strong> interface</h2>
-  An <dfn>NFC</dfn> instance provides a way for the <a>browsing context</a> to obtain an
-  <a>NFC adapter</a> providing NFC functionality. Implementations MAY expose multiple adapters.
+  An <dfn>NFC</dfn> instance provides a way for the <a>browsing context</a> to
+  obtain an <a>NFC adapter</a> providing NFC functionality.
+  Implementations MAY expose multiple adapters.
   <pre class="idl">
     interface NFC {
       Promise&lt;NFCAdapter&gt; requestAdapter();
     };
   </pre>
   <p>
-    The <dfn>NFC.requestAdapter</dfn>() method, when invoked MUST return a new promise <var>promise</var> and run the following steps <a>in parallel</a>:
+    The <dfn>NFC.requestAdapter</dfn>() method, when invoked MUST return a new
+    promise <var>promise</var> and run the following steps <a>in parallel</a>:
     <ol id="steps-requestAdapter">
       <li>
         If the <a>incumbent settings object</a> is not a <a>secure context</a>,
@@ -1399,12 +1402,15 @@
       one targeted to <a>NFC tag</a>s and one to <a>NFC peer</a>s.
       When there is a <a>Web NFC message</a> set for sending
       to <code>"any"</code> target, then no more messages are accepted to be
-      set until the current message is sent or a timeout happens.
+      set until the current message is sent, or a timeout happens, or the
+      sending is canceled by the
+      <a href="cancelPush"><code>cancelPush()</code></a> method.
     </p>
     <section><h3>The pushMessage() method</h3>
       <p id="steps-pushMessage">
-        The <dfn>NFCAdapter.pushMessage</dfn>(message, options)</code> method, when invoked,
-        MUST return a new promise promise and run the following steps <a>in parallel</a>:
+        The <dfn>NFCAdapter.pushMessage</dfn>(message, options)</code> method,
+        when invoked, MUST return a new promise promise and run the following
+        steps <a>in parallel</a>:
         <ol>
           <li>
             If the <a>incumbent settings object</a> is not a
@@ -1451,8 +1457,8 @@
             </ul>
           </li>
           <li>
-            If the <var>message</var> parameter is not a valid, non-empty sequence
-            of <code><a>NFCRecord</a></code> objects, reject
+            If the <var>message</var> parameter is not a valid, non-empty
+            sequence of <code><a>NFCRecord</a></code> objects, reject
             <var>promise</var> with <code>"SyntaxError"</code>,
             and abort these steps.
           </li>
@@ -1485,9 +1491,8 @@
             If the value of <var>options</var>.target is <code>"tag"</code>
             and already there is a message set for sending by a previous
             invocation of <code>pushMessage()</code> targeted for
-            <code>"peer"</code> or <code>"any"</code>, then
-            reject <var>promise</var> with <code>"SyntaxError"</code>,
-            and abort these steps.
+            <code>"any"</code>, then reject <var>promise</var> with
+            <code>"SyntaxError"</code>, and abort these steps.
           </li>
           <li>
             Otherwise, if there is a message set for sending by a previous
@@ -1511,6 +1516,14 @@
             Let <var>output</var> be the notation for the <a>NDEF message</a>
             to be created by an API call to the underlying platform, based on
             data provided by these steps.
+          </li>
+          <li>
+            Let <var>timer</var> be a new timer associated with this invocation
+            of <code>pushMessage()</code>.
+          </li>
+          <li>
+            Every termination of these steps MUST clear <var>output</var>,
+            and cancel the associated <var>timer</var>.
           </li>
           <li>
             For each <a>NFCRecord</a> <var>record</var> in the sequence
@@ -1555,9 +1568,8 @@
                 <p class="note">
                   This kind is useful when clients specifically want to write an
                   NDEF Well Known Type Text record. Other options would be to
-                  use the value <code>"opaque"</code> with an explicit <a>IANA media
-                  type</a> text type, which allows for better differentiation, e.g.
-                  when using "text/xml", or "text/vcard".
+                  use the value <code>"opaque"</code> with an explicit
+                  <a>IANA media type</a> text type, which allows for better differentiation, e.g. when using "text/xml", or "text/vcard".
                 </p>
                 <ul>
                   <li>
@@ -1616,8 +1628,8 @@
                              <li>
                                If <var>record</var>.type contains the parameter
                                "charset=UTF-8" (e.g. "text/plain; charset=UTF-8;"),
-                               then set bit 7 (MSB) to 0 (UTF-8 encoding), otherwise to 1
-                               (UTF-16 encoding).
+                               then set bit 7 (MSB) to 0 (UTF-8 encoding),
+                               otherwise to 1 (UTF-16 encoding).
                              </li>
                              <li>Set bit 6 to 0.</li>
                              <li>
@@ -1661,8 +1673,8 @@
                         Set the <var>ndef.TNF</var> field to 1 (Well Known Type).
                       </li>
                       <li>
-                        Set the <var>ndef.TYPE</var> field to "U" (0x55 following NFC
-                        binary encoding).
+                        Set the <var>ndef.TYPE</var> field to "U" (0x55
+                        following NFC binary encoding).
                       </li>
                       <li>
                         Set the <var>ndef.PAYLOAD</var> field to
@@ -1691,8 +1703,9 @@
                   </li>
                   <li>
                     If <var>record</var>.type is not
-                    <code>"application/json"</code>, or any other <a>IANA media type</a>
-                    for JSON (<code>"application/&lt;type&gt;+json"</code>), reject
+                    <code>"application/json"</code>, or any other
+                    <a>IANA media type</a> for JSON
+                    (<code>"application/&lt;type&gt;+json"</code>), reject
                     <var>promise</var> with <code>"SyntaxError"</code>, and
                     terminate this algorithm.
                   </li>
@@ -1795,8 +1808,8 @@
             underlying platform provides equivalent values to <var>ndef</var>:
             <ul>
               <li>
-                Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
-                be created by an API call to the underlying platform.
+                Let <var>ndef</var> be the notation for the <a>NDEF record</a>
+                to be created by an API call to the underlying platform.
               </li>
               <li>
                 Set <var>ndef.TNF</var> to 4 (NDEF External Type).
@@ -1810,7 +1823,8 @@
                 <a>browsing context</a>, encoded as UTF-16.
                 This is going to be used by <a>NFC watch</a> filters.
                 <p class="note">
-                  In future versions a list of "allowed-origins" may be supported.
+                  In future versions a list of "allowed-origins" may be
+                  supported.
                   It is still up for discussions due to security issues. See the
                   <a href="http://w3c.github.io/web-nfc/security-privacy.html#security-and-privacy-context-of-nfc">
                   Security and Privacy</a> document.
@@ -1877,17 +1891,19 @@
             If the <a>browsing context</a> loses focus (e.g. the user navigated
             to another page), then the pending push messages still exist, and
             <var>timer</var> continues to run until timeout, or until the user
-            switches back the focus and an NFC communication occurs.
+            switches back the focus and an NFC communication occurs, or
+            the <code>cancelPush()</code> method is called.
           </li>
         </ol>
       </p>
     </section>
+
     <section id="cancelPush"><h3>The cancelPush() method</h3>
       <p>
         The <code>
         <dfn id="widl-NFCAdapter-cancelPush-void">cancelPush</dfn></code>
-        method is used for resetting the <a>NDEF message</a> set to be pushed next
-        time an <a>NFC device</a> comes in range.
+        method is used for resetting the <a>NDEF message</a> set to be pushed
+        next time an <a>NFC device</a> comes in range.
       </p>
       <p id="steps-cancelPush">
         When the <code>cancelPush()</code> method is invoked, the UA
@@ -1914,11 +1930,10 @@
             following sub-steps:
             <ul>
               <li>
-                Remove the message set for pushing.
+                Remove the message that has been set for pushing.
               </li>
               <li>
-                Stop and reset the timer associated with
-                <code>messagePush()</code>.
+                Cancel the timer associated with <code>messagePush()</code>.
               </li>
             </ul>
           </li>
@@ -1941,8 +1956,8 @@
       <p>
         A match pattern is a string which can contain the
         <code>'*'</code> wildcard character.
-        Match patterns are used primarily for matching <a>IANA media type</a>s, for
-        instance the match pattern <code>'application/*+json'</code> matches
+        Match patterns are used primarily for matching <a>IANA media type</a>s,
+        for instance the match pattern <code>'application/*+json'</code> matches
         <code>'application/calendar+json'</code>, but does not match
         <code>'application/json'</code>. The match pattern
         <code>'*/*json'</code> matches both.
@@ -2020,8 +2035,8 @@
       <p>
         The <dfn>NFCWatchOptions.url</dfn> property
         denotes the <a>URL pattern</a> which is used for matching the
-        URL <a>origin</a> and <a>URL path</a> of the <a>Web NFC message</a> which
-        is stored in the <a>Web NFC record</a>.
+        URL <a>origin</a> and <a>URL path</a> of the <a>Web NFC message</a>
+        which is stored in the <a>Web NFC record</a>.
         The values <code>null</code>, <code>undefined</code>, and
         <code>""</code> mean that no matching happens.
         The default value is <code>null</code>.
@@ -2090,8 +2105,8 @@
         filter saved together the information with <a>NFC adapter</a> it belongs
         to, and a locally unique identifier which is used for cancellation.
         The section <a href="#steps-receiving">
-        Receiving and parsing content</a> uses <a>NFC watch</a>es to match incoming
-        <a>NFC content</a>.
+        Receiving and parsing content</a> uses <a>NFC watch</a>es to match
+        incoming <a>NFC content</a>.
       </p>
       <p>
         Multiple consecutive calls to the <code>watch()</code> method from the
@@ -2118,8 +2133,8 @@
             <code>"<a>SecurityError</a>"</code>, and abort these steps.
           </li>
           <li>
-            If there is no support for the functionality of receiving data from an
-            <a>NFC peer</a> or <a>NFC tag</a> in proximity range, reject
+            If there is no support for the functionality of receiving data from
+            an <a>NFC peer</a> or <a>NFC tag</a> in proximity range, reject
             <var>promise</var> with <code>"NotSupportedError"</code>, and
             terminate this algorithm.
           </li>
@@ -2188,8 +2203,8 @@
           </li>
           <li>
             If the <a>browsing context</a> loses focus (e.g. the user navigated
-            to another page), then the registered watches still SHOULD continue to
-            exist, but SHOULD become paused, i.e. the UA SHOULD NOT check
+            to another page), then the registered watches still SHOULD continue
+            to exist, but SHOULD become paused, i.e. the UA SHOULD NOT check
             and use them until the focus is regained.
           </li>
         </ol>
@@ -2215,9 +2230,9 @@
             <a>NFC adapter</a>.
           </li>
           <li>
-            Otherwise, if the parameter <var>id</var> matches the local identifier
-            of one of the previously set up watches, remove the corresponding
-            watch.
+            Otherwise, if the parameter <var>id</var> matches the local
+            identifier of one of the previously set up watches, remove the
+            corresponding watch.
           </li>
           <li>
             Otherwise, reject <var>promise</var> with
@@ -2294,8 +2309,8 @@
           </li>
           <li>
             If <var>ndef.TNF</var> is 1 (NFC Well Known Type Record), and
-            <var>ndef.TYPE</var> is <code>"T"</code> (value 0x54 following NFC binary
-            encoding), then execute the following sub-steps for
+            <var>ndef.TYPE</var> is <code>"T"</code> (value 0x54 following NFC
+            binary encoding), then execute the following sub-steps for
             <dfn>parsing NDEF Text record</dfn>, or ensure that the
             underlying platform provides equivalent values to the
             <var>record</var> object properties:
