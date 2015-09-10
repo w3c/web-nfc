@@ -354,12 +354,12 @@
   </p>
   <p>
     An <dfn>NDEF record</dfn> is a part of an <a>NDEF message</a> that has a
-    single associated type information to its payload. It is contains a
+    single associated type information to its payload. It contains a
     Type Name Format (TNF) field, the payload size, the payload type, an
     optional identifier which is a URL, and a payload of maximum size of
     2^32-1 bytes.
-    The NFC Forum has standardized a small set of useful data types to be
-    used in <a>NDEF record</a>s, for instance text, URL, and binary data such as
+    The NFC Forum has standardized a small set of useful data types for
+    use in <a>NDEF record</a>s, for instance text, URL, and binary data such as
     media. In addition, there are record types designed for more complex
     interactions, such as Smart Poster, and handover records.
   </p>
@@ -408,21 +408,22 @@
     </table>
     <br>
     NFC Forum <a>Well-Known Type</a> includes record types <i>text</i>,
-    <i>URI</i>, <i>Smart Poster</i> (containing a URI or other
-    data and possible actions).
+    <i>URI</i>, <i>Smart Poster</i> (containing an URL or other
+    data, and possible actions).
   </p>
   <p>
-    An <dfn>NFC watch</dfn> is a mechanism used for listening to and filtering
-    <a>Web NFC message</a>s. It is defined in more detail in
-    <a href="#the-watch-method">The watch() method</a> section.
+    An <dfn>NFC watch</dfn> is a mechanism used to watch for available
+    <a>Web NFC message</a>s fulfilling certain criteria.
+    It is defined in more detail in <a href="#the-watch-method">The watch()
+    method</a> section.
   </p>
   <p>
-    A <dfn>Web NFC record</dfn> is a special <a>NDEF record</a> of External Type
-    specific to W3C Web NFC, which indicates that the containing
-    <a>NDEF message</a> is targeted for <a>browsing context</a>s using this API
+    A <dfn>Web NFC record</dfn> is an <a>NDEF record</a> of External Type,
+    specific to Web NFC. It indicates that the containing <a>NDEF message</a>
+    is targeted for <a>browsing context</a>s using this API
     and contains information useful for handling the <a>NDEF message</a> with
-    the algorithms defined in this API.
-    The format of a <a>Web NFC record</a> is the following:
+    the algorithms defined in this specification.
+    The format of a <a>Web NFC record</a> is as follows:
     <ul>
       <li>
         Uses NFC Forum External Type record (<a>TNF</a>=4) with the External
@@ -437,8 +438,8 @@
   <p>
     The <dfn id="web-nfc-id">Web NFC Id</dfn> is a <a>URL</a> according to
     [[RFC3986]], with <code>"https"</code> scheme, and an
-    <a>ASCII serialized origin</a> optionally followed by a <a>URL path</a>.
-    It is used for matching <a>Web NFC content</a> with <a>URL pattern</a>s
+    <a>ASCII serialized origin</a>, optionally followed by a <a>URL path</a>.
+    This allows matching <a>Web NFC content</a> with <a>URL pattern</a>s
     specified by <a>NFC watch</a>es.
   </p>
   <p>
@@ -452,13 +453,13 @@
   </p>
   <p>
     The term <dfn>Web NFC content</dfn> denotes all <a>Web NFC message</a>s
-    contained in an <a>NDEF message</a>, identified by their <a>Web NFC Id</a>
+    contained within an <a>NDEF message</a>, identified by the <a>Web NFC Id</a>
     within the <a>NDEF message</a>. This version of the specification
     supports one <a>Web NFC message</a> per <a>NDEF message</a>.
   </p>
   <p class="note">
     As part of the <a>NDEF record</a>, an <dfn>NDEF Id</dfn> field may be
-    present, which is meant for applications use. According to the
+    present for application specific usages. According to the
     [[!NFC-STANDARDS]] it contains a URL with the maximum length of 256 octets.
     This URL is used for identifying the payload in an application specific
     way. Although the <a>NDEF Id</a> could be used for containing e.g. an
@@ -467,8 +468,8 @@
     record-level identification, since the message-level identification is
     handled by the <a>Web NFC Id</a>. Also, the content of the <a>NDEF Id</a>
     is also contained in the <a>Web NFC Id</a>, and since <a>NFC tag</a>s are
-    rather small storages, this duplication is avoided in this version.
-    When multiple <a>Web NFC message</a>s will be eventually supported within a
+    rather small storage units, this duplication is avoided in this version.
+    When multiple <a>Web NFC message</a>s eventually will be supported within a
     single <a>NDEF message</a>, it would likely use the <a>NDEF Id</a> to store
     the same identifier for each <a>NDEF record</a> which is part of a given
     <a>Web NFC message</a>, which identifier will likely be an
@@ -477,7 +478,7 @@
   <p>
     The term <dfn>trusted integrity NFC content</dfn> refers to an
     <a>NDEF message</a>, or an <a>NDEF record</a>, which can be trusted for
-    data integrity, i.e. the content is not changed by third party between
+    data integrity, i.e. the content is not changed by third parties between
     writing and reading.
   </p>
   <p>
@@ -497,16 +498,15 @@
     In general, there are three groups of user scenarios for NFC:
     <ul>
       <li>
-        Hold a device close to a passive wireless tag (which could be in the
-        form of a plastic card) to read and write data (if the tag is
-        not read-only).
+        Hold a device in close proximity of a passively powered tag, such as
+        a plastic card or sticker, in order to read and/or write data.
       </li>
       <li>
-        Hold two active devices, e.g. phones or tablets, close to each other
-        in order to push a <a>Web NFC message</a> from one to the other.
+        Hold two active devices, e.g. phones or tablets, in close proximity
+        in order to push a <a>Web NFC message</a> from one device to the other.
       </li>
       <li>
-        Hold two active devices, e.g. phones or tablets, close to each other
+        Hold two active devices, e.g. phones or tablets, in close proximity
         in order to initiate a connection using another wireless carrier such
         as Bluetooth or WiFi.
       </li>
@@ -517,7 +517,7 @@
           point-of-sales terminal, instead of swiping a payment card.
         </li>
         <li>With host card emulation: for allowing use-cases like using a phone
-          as a hotel room key card.
+          acting as a hotel room keycard.
         </li>
        </ol>
       </li>
@@ -580,9 +580,9 @@
   </p>
   <p>
     In addition to data types standardized for <a>NDEF record</a>s by the NFC
-    Forum, many commercial products, e.g. bus cards, door openers etc, use
+    Forum, many commercial products such as bus cards, door openers etc use
     different card specific data and protocol extensions which require specific
-    NFC chips (same vendor of card and reader) in order to work.
+    NFC chips (same vendor of card and reader) in order to function.
   </p>
   <p>
     Card emulation mode capabilities also depend on the NFC chip in the device.
@@ -601,64 +601,75 @@
     This section shows how developers can make use of the various features of
     this specification.
   </p>
-  <pre title="Read and write tag" class="example highlight">
-    var adapter = null;
-    var id = null;
-    navigator.nfc.requestAdapter().then((nfcAdapter) => {
-      id = adapter.watch({}, onMessage);
-    };
+  <pre title="Read and update data stored on tag" class="example highlight">
+    navigator.nfc.requestAdapter().then((adapter) => {
+      adapter.watch({}, (message, url) => {
+        console.log("NDEF message received from URL " + url);
+        if (message[0].kind == 'empty') {
+          adapter.pushMessage([
+            {
+              kind: "text",
+              type: "",
+              data: "Initializing tag"
+            }
+          ]);
+        }
+        processMessage(message);
+      });
+    });
 
-    function onMessage(message, url) {
-      console.log("NDEF message received from URL " + url);
-      if (message[0].kind == 'empty') {
-        adapter.pushMessage([
-         { kind: "text", type: "", data: “Initializing a passive tag”}]);
-      }
-
+    function processMessage(message) {
       message.forEach((record) => {
         if (record.kind == "string") {
           console.log(“Data is string: “ + data);
         } else if (record.kind == "json") {
           processJSON(record.data);
         } else if (record.kind == "url") {
-        console.log(“Data is URL: “ + record.data;
+        console.log("Data is URL: " + record.data;
         } else if (record.kind == "opaque") {
           processBinary(data);
       });
     };
 
     function processBinary(data) {
-      console.log("Binary data we know being a string: ");
+      console.log("Known (string) binary data: ");
       console.log(String.fromCharCode.apply(null, new Uint16Array(data)));
     };
 
     function processJSON(data) {
       var obj = JSON.parse(data);
-      console.log("My data: " + obj.myProperty.toString());
+      console.log("JSON data: " + obj.myProperty.toString());
     };
   </pre>
-  <pre title="Sending data to NFC peer" class="example highlight">
+  <pre title="Sending data to a peer device" class="example highlight">
     navigator.nfc.requestAdapter().then((adapter) => {
-        adapter.pushMessage([
-          { kind: "text", type: "", data: “Data meant for peers”}])
-        .then(() => { console.log("Message sent.")})
-        .catch(() => {console.log("Send failed :'(, try again.")});
-    };
+      adapter.pushMessage([
+        {
+          kind: "text",
+          type: "",
+          data: "Data meant for peers"
+        }
+      ]).then(() => {
+        console.log("Message sent.")
+      }).catch(() => {
+        console.log("Send failed :-( try again.")
+      });
+    });
   </pre>
   <pre title="Save and restore game progress with another device"
        class="example highlight">
     navigator.nfc.requestAdapter().then((adapter) => {
       console.log("Awaiting game state");
 
-      adapter.watch({ url: "*://mydomain/mygame/*"}, (message, url) => {
+      adapter.watch({ url: "*://mydomain/mygame/*" }, (message, url) => {
         console.log("Game state received from: " + url;
         console.log("Stored state: " + message.data);
 
         // Now do some calculations and then update the state.
         // ...
         adapter.pushMessage([ data: { level: 3, points: 4500, lives: 3 } ])
-          .then(() => { console.log("We have stored your current game state.")})
-          .catch(() => { console.log("Failed updating game state, try again.")});
+        .then(() => { console.log("We have stored your current game state.") })
+        .catch(() => { console.log("Failed updating game state, try again.") });
       };
     });
   </pre>
