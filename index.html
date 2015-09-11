@@ -1667,39 +1667,11 @@
               </li>
 
               <li id="steps-map-url-to-ndef">
-                If <var>record</var>.kind is <code>"url"</code>, then
-                execute the <dfn>map URL to NDEF</dfn> sub-steps, or ensure
-                that the underlying platform provides equivalent values to
-                <var>ndef</var>:
-                <ul>
-                  <li>
-                    If <var>record</var>.data is not of type <code>string</code>,
-                    reject <var>promise</var> with
-                    <code>"SyntaxError"</code>, and abort these steps.
-                  </li>
-                  <li>
-                    Otherwise,
-                    <ul>
-                      <li>
-                        Set the <var>ndef.TNF</var> field to 1 (Well Known Type).
-                      </li>
-                      <li>
-                        Set the <var>ndef.TYPE</var> field to "U" (0x55
-                        following NFC binary encoding).
-                      </li>
-                      <li>
-                        Set the <var>ndef.PAYLOAD</var> field to
-                        <var>record</var>.data encoded according to the
-                        [[NFC-STANDARDS]], NFC Forum URI Record Type Definition
-                        specification: set the first octet according to the
-                        applicable scheme abbreviation, and set the rest of the
-                        payload bytes to <var>record</var>.data in UTF-8 encoding.
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
+                If <var>record</var>.kind is <code>"url"</code>, then let <var>ndef</var>
+                the be result of passing <var>record</var> to <a>map a URL to NDEF</a>.
+                If this threw an exception, reject <var>promise</var> with that exception
+                and abort these steps.
               </li>
-
               <li id="steps-map-json-to-ndef">
                 If <var>record</var>.kind is <code>"json"</code>, then
                 execute the <dfn>map JSON to NDEF</dfn> sub-steps, or ensure
@@ -1843,7 +1815,7 @@
               </li>
             </ul>
           </li> <!-- write Web NFC record -->
-
+            
           <li>
             Make a request to the underlying platform to send <var>output</var>
             to the next device which comes in proximity range, and start a timer
@@ -1907,6 +1879,38 @@
           </li>
         </ol>
       </p>
+      
+      <p>
+        To <dfn>map a URL to NDEF</dfn> given a <var>record</var>, run these steps:   
+        <ul>
+          <li>
+            If <var>record</var>.data is not a string,
+            throw a <code>"SyntaxError"</code> exception and abort these steps.
+          </li>
+          <li>
+            Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
+            be created by the underlying platform.
+          </li>
+          <li>
+            Set the <var>ndef.TNF</var> field to 1 (Well Known Type).
+          </li>
+          <li>
+            Set the <var>ndef.TYPE</var> field to "U" (0x55
+            following NFC binary encoding).
+          </li>
+          <li>
+            Set the <var>ndef.PAYLOAD</var> field to
+            <var>record</var>.data encoded according to the
+            [[NFC-STANDARDS]], NFC Forum URI Record Type Definition
+            specification: set the first octet according to the
+            applicable scheme abbreviation, and set the rest of the
+            payload bytes to <var>record</var>.data in UTF-8 encoding.
+          </li>
+          <li>
+            Return <var>ndef</var>.
+          </li>
+        </ul>
+      </p>            
     </section>
 
     <section id="cancelPush"><h3>The cancelPush() method</h3>
