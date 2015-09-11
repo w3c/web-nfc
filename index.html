@@ -140,7 +140,7 @@
 <section id="conformance">
   <p>
     This document defines conformance criteria that apply to a single
-    product: the UA that implements the interfaces it contains.
+    product: the <dfn>UA</dfn> that implements the interfaces it contains.
   </p>
   <p>
     Implementations that use ECMAScript to implement the APIs defined in
@@ -281,6 +281,14 @@
   <p>
     <dfn>IANA media type</dfn>s (formerly known as MIME types) are defined in
     <a href="http://tools.ietf.org/html/rfc2046">RFC2046</a>.
+  </p>
+  <p>
+    The term <dfn><a href="https://html.spec.whatwg.org/#queue-a-task">queue
+    a task</a></dfn> is defined in [[!HTML5]]. 
+  </p>
+  <p>
+    The term <dfn><a href="https://html.spec.whatwg.org/#task-source">task
+    source</a></dfn> is defined in [[!HTML5]].
   </p>
   <p>
     The term <dfn>expressed permission</dfn> refers to an act by the user, e.g.
@@ -1419,9 +1427,9 @@
     </p>
     <section><h3>The pushMessage() method</h3>
       <p id="steps-pushMessage">
-        The <dfn>NFCAdapter.pushMessage</dfn>(message, options)</code> method,
-        when invoked, MUST return a new promise promise and run the following
-        steps <a>in parallel</a>:
+        The <dfn>NFCAdapter.pushMessage</dfn>(<var>message</var>, <var>options</var>)
+        </code> method, when invoked, MUST return a new promise <var>promise</var>
+        and run the following steps <a>in parallel</a>:
         <ol>
           <li>
             If the <a>incumbent settings object</a> is not a
@@ -2272,8 +2280,8 @@
     If there are any <a>NFC watch</a>es set up for any <a>NFC adapter</a>, then
     UAs MUST listen to <a>NDEF message</a>s, according to step 9
     of the <a href="#watch_algo">NFC watch algorithm</a>.
-    When an <a>NDEF message</a> is received by the underlying platform,
-    UAs MUST run the following algorithm:
+    When the <a>UA</a> is to <dfn>receive an NDEF message</dfn> it MUST run the following
+    algorithm:
     <ol>
       <li>
         Let <var>input</var> be the notation for the <a>NDEF message</a>
@@ -2458,12 +2466,12 @@
             callback function.
           </li>
           <li>
-            If <var>options</var>.mode is <code>"web-only"</code>, and
+            If <var>options</var>.mode is <code>"web-nfc-only"</code>, and
             <var>messageId</var> is <var>null</var>, then skip to the next
             <a>NFC watch</a>.
           </li>
           <li>
-            Otherwise, if <var>options</var>.mode is <code>"web-only"</code>, and
+            Otherwise, if <var>options</var>.mode is <code>"web-nfc-only"</code>, and
             <var>messageId</var> is not <code>null</code>, or if
             <var>options</var>.mode is <code>"all"</code>, then execute the
             following sub-steps:
@@ -2483,9 +2491,11 @@
                 <var>record</var>.type, then skip to the next <a>NFC watch</a>.
               </li>
               <li>
-                Otherwise, invoke the function <var>callback</var> with
-                <var>record</var> passed as first argument, and
-                <var>messageId</var> passed as second argument.
+                <a>Queue a task</a> to invoke the <code>MessageCallback</code>
+                <var>callback</var> with <var>record</var> as its first argument,
+                and <var>messageId</var> as its second argument. The <a>task source</a>
+                for the tasks queued by algorithms in this section is the
+                <dfn>XXXXX</dfn> task source.
               </li>
             </ul>
           </li>
