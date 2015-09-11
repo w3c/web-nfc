@@ -267,9 +267,9 @@
     <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">
     <dfn>Promise</dfn></a>,
     <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-json-object">
-    <dfn>JSON</dfn></a> and
+    <dfn>JSON</dfn></a>,
     <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-json.stringify">
-    <dfn>JSON.stringify</dfn></a>
+    <dfn>JSON.stringify</dfn></a> and
     <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-json.parse">
     <dfn>JSON.parse</dfn></a>
     are defined in [[!ECMASCRIPT]].
@@ -1582,100 +1582,11 @@
               </li> <!-- empty to NDEF -->
 
               <li id="steps-map-text-to-ndef">
-                If <var>record</var>.kind is <code>"text"</code>, then
-                execute the following steps, or make sure
-                that the underlying platform provides equivalent values to
-                <var>ndef</var>:
-                <p class="note">
-                  This kind is useful when clients specifically want to write an
-                  NDEF Well Known Type Text record. Other options would be to
-                  use the value <code>"opaque"</code> with an explicit
-                  <a>IANA media type</a> text type, which allows for better differentiation, e.g. when using "text/xml", or "text/vcard".
-                </p>
-                <ul>
-                  <li>
-                    If <var>record</var>.data is not of type <code>"string"</code>
-                    or <code>"number"</code>, reject <var>promise</var>
-                    with <code>"SyntaxError"</code>, and abort these steps.
-                  </li>
-                  <li>
-                    If <var>record</var>.type is not of type <code>"string"</code>
-                    or starts with <code>"text/"</code>, then
-                    reject <var>promise</var> with <code>"SyntaxError"</code>,
-                    and abort these steps.
-                    In addition, UAs MAY check that
-                    <var>record</var>.type is an IANA registered media type
-                    for <a href="http://www.iana.org/assignments/media-types/media-types.xhtml#text">text</a>. If not, then the UA MAY
-                    reject <var>promise</var> with <code>"SyntaxError"</code>,
-                    terminate this algorithm.
-                  </li>
-                  <li>
-                    Let <var>language</var> be <code>"en"</code>.
-                    If <var>record</var>.type includes a <code>lang=</code>
-                    parameter, detailing the language encoding (e.g.
-                    "text/plain; lang=fr"), then set <var>language</var> to
-                    the language code extracted from <var>record</var>.type.
-                    If <var>language</var> is not one of the language codes listed
-                    in the <a href="http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry">IANA language registry</a>
-                    (or [[ISO-639.2]]),
-                    then UAs MAY reject <var>promise</var> with
-                    <code>"SyntaxError"</code>, and abort these steps.
-                    <p class="note">
-                      Note that <code>lang=</code> is not standard parameter
-                      to <a>IANA media type</a>s, but it is used in this specification
-                      in order to maintain compatibility with NFC specifications.
-                    </p>
-                  </li>
-                  <li>
-                    Otherwise,
-                    <ol>
-                      <li>
-                        Set the <var>ndef.TNF</var> field to 1 (NFC Well Known
-                        Type).
-                      </li>
-                      <li>
-                        Set the <var>def.TYPE</var> field to <code>"T"</code>
-                        (value 0x54 following NFC binary encoding).
-                      </li>
-                      <li>
-                       Set the <var>ndef.PAYLOAD</var> field to
-                       <var>record</var>.data encoded according to the
-                       [[NFC-STANDARDS]], NFC Forum Text Record Type
-                       Definition specification:
-                       <ul>
-                         <li>
-                           The first octet is a status byte containing bit flags.
-                           <ul>
-                             <li>
-                               If <var>record</var>.type contains the parameter
-                               "charset=UTF-8" (e.g. "text/plain; charset=UTF-8;"),
-                               then set bit 7 (MSB) to 0 (UTF-8 encoding),
-                               otherwise to 1 (UTF-16 encoding).
-                             </li>
-                             <li>Set bit 6 to 0.</li>
-                             <li>
-                               Set bits 5 to 0 to the length of the
-                               <var>language</var> string.
-                             </li>
-                           </ul>
-                         </li>
-                         <li>
-                           Set the consecutive octets of <var>ndef.PAYLOAD</var>
-                           to the value of <var>language</var> encoded as US-ASCII.
-                         </li>
-                         <li>
-                           Set the consecutive payload octets to
-                           <var>record</var>.data in the encoding set by the
-                           MSB bit of the first payload octet (by default UTF-16,
-                           or UTF-8 on special request).
-                         </li>
-                       </ul>
-                      </li>
-                    </ol>
-                  </li>
-                </ul>
+                If <var>record</var>.kind is <code>"text"</code>, then let 
+                <var>ndef</var> be the result of passing <var>record</var>
+                to <a>map text to NDEF</a>. If this threw an exception, reject
+                <var>promise</var> with that exception and abort these steps.
               </li>
-
               <li id="steps-map-url-to-ndef">
                 If <var>record</var>.kind is <code>"url"</code>, then let <var>ndef</var>
                 the be result of passing <var>record</var> to <a>map a URL to NDEF</a>.
@@ -1706,21 +1617,15 @@
                     terminate this algorithm.
                   </li>
                   <li>
-                    Otherwise,
-                    <ul>
-                      <li>
-                        Set the <var>ndef.TNF</var> field to 2 (Media Type).
-                      </li>
-                      <li>
-                        Set the <var>ndef.TYPE</var> field to
-                        <var>record</var>.type.
-                      </li>
-                      <li>
-                        Set the <var>ndef.PAYLOAD</var> field to
-                        <var>record</var>.data according to the
-                        [[NFC-STANDARDS]], i.e. as an opaque octet stream.
-                      </li>
-                    </ul>
+                    Set the <var>ndef.TNF</var> field to 2 (Media Type).
+                  </li>
+                  <li>
+                    Set the <var>ndef.TYPE</var> field to var>record</var>.type.
+                  </li>
+                  <li>
+                    Set the <var>ndef.PAYLOAD</var> field to
+                    <var>record</var>.data according to the
+                    [[NFC-STANDARDS]], i.e. as an opaque octet stream.
                   </li>
                 </ul>
               </li>
@@ -1855,7 +1760,96 @@
           </li>
         </ol>
       </p>
-      
+      <p>
+        To <dfn>map text to NDEF</dfn> given a <var>record</var>, run these
+        steps:
+        <p class="note">
+          This kind is useful when clients specifically want to write an
+          NDEF Well Known Type Text record. Other options would be to
+          use the value <code>"opaque"</code> with an explicit
+          <a>IANA media type</a> text type, which allows for better differentiation, e.g. when using "text/xml", or "text/vcard".
+        </p>
+        <ul>
+          <li>
+            If <var>record</var>.data is not a string or number,
+            throw a <code>"SyntaxError"</code> exception, and abort these steps.
+          </li>
+          <li>
+            If <var>record</var>.type is not a string or starts with <code>
+            "text/"</code>, then throw a <code>"SyntaxError"</code> exception,
+            and abort these steps.
+
+            In addition, UAs MAY check that
+            <var>record</var>.type is an IANA registered media type
+            for <a href="http://www.iana.org/assignments/media-types/media-types.xhtml#text">text</a>. 
+            If not, then the UA MAY throw a <code>"SyntaxError"</code> exception,
+            and abort these steps.
+          </li>
+          <li>
+            Let <var>language</var> be <code>"en"</code>.
+
+            If <var>record</var>.type includes a <code>lang=</code>
+            parameter, detailing the language encoding (e.g.
+            "text/plain; lang=fr"), then set <var>language</var> to
+            the language code extracted from <var>record</var>.type.
+
+            If <var>language</var> is not one of the language codes listed
+            in the <a href="http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry">IANA language registry</a>
+            (or [[ISO-639.2]]), then UAs MAY throw a <code>"SyntaxError"</code>
+            exception, and abort these steps.
+
+            <p class="note">
+              Note that <code>lang=</code> is not standard parameter
+              to <a>IANA media type</a>s, but it is used in this specification
+              in order to maintain compatibility with NFC specifications.
+            </p>
+          </li>
+          <li>
+            Set the <var>ndef.TNF</var> field to 1 (NFC Well Known Type).
+          </li>
+          <li>
+            Set the <var>def.TYPE</var> field to <code>"T"</code>
+            (value 0x54 following NFC binary encoding).
+          </li>
+          <li>
+            Set the <var>ndef.PAYLOAD</var> field to
+            <var>record</var>.data encoded according to the
+            [[NFC-STANDARDS]], NFC Forum Text Record Type
+            Definition specification:
+            <ul>
+              <li>
+                The first octet is a status byte containing bit flags.
+                <ul>
+                  <li>
+                    If <var>record</var>.type contains the parameter
+                    "charset=UTF-8" (e.g. "text/plain; charset=UTF-8;"),
+                    then set bit 7 (MSB) to 0 (UTF-8 encoding),
+                    otherwise to 1 (UTF-16 encoding).
+                  </li>
+                  <li>Set bit 6 to 0.</li>
+                  <li>
+                    Set bits 5 to 0 to the length of the
+                    <var>language</var> string.
+                  </li>
+                </ul>
+              </li>
+              <li>
+                Set the consecutive octets of <var>ndef.PAYLOAD</var>
+                to the value of <var>language</var> encoded as US-ASCII.
+              </li>
+              <li>
+                Set the consecutive payload octets to
+                <var>record</var>.data in the encoding set by the
+                MSB bit of the first payload octet (by default UTF-16,
+                or UTF-8 on special request).
+              </li>
+            </ul>
+          </li>
+          <li>
+            Return <var>ndef</var>.
+          </li>
+        </ul>
+      </p>
       <p>
         To <dfn>map a URL to NDEF</dfn> given a <var>record</var>, run these steps:   
         <ul>
@@ -1892,9 +1886,10 @@
         run these steps:
         <ul>
           <li>
-            Let <var>data</var> be the result of <a title="JSON.stringify">
-            serializing</a> <var>record</var>.data and if that throws, throw
-            a <code>"TypeError"</code> exception and abort these steps.
+            Let <var>data</var> be the result of
+            <a title="JSON.stringify">serializing</a> <var>record</var>.data
+            and if that throws, throw a <code>"TypeError"</code> exception
+            and abort these steps.
           </li>
           <li>
             If <var>record</var>.type doesn't match
