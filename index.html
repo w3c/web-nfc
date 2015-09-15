@@ -152,26 +152,6 @@
 
 <!-- - - - - - - - - - - - - - -  Terminology - - - - - - - - - - - - - - - -->
 <section> <h2>Terminology</h2>
-  <!--p>
-    The
-    <a href="http://dev.w3.org/html5/spec/webappapis.html#eventhandler">
-    <code><dfn>EventHandler</dfn></code></a> interface represents a callback
-    used for event handlers as defined in [[!HTML5]].
-  </p>
-  <p>
-    The terms
-    <a href="http://dev.w3.org/html5/spec/webappapis.html#event-handlers">
-      <dfn>event handler</dfn></a> and
-    <a href="http://dev.w3.org/html5/spec/webappapis.html#event-handler-event-type">
-    <dfn>event handler event types</dfn></a> are defined in [[!HTML5]].
-  </p>
-  <p>
-    The concepts
-    <a href="http://dev.w3.org/html5/spec/webappapis.html#queue-a-task">
-      <dfn>queue a task</dfn></a> and
-    <a href="http://dev.w3.org/html5/spec/webappapis.html#fire-a-simple-event">
-    <dfn>fire a simple event</dfn></a> are defined in [[!HTML5]].
-  </p-->
   <p>
     The term <a href="https://html.spec.whatwg.org/#browsing-context">
     <dfn>browsing context</dfn></a> refers to the environment in which
@@ -183,6 +163,10 @@
     the entity which invokes this API, which can be a <i>web app</i>, a
     <i>web page</i>, or an
     <a href="https://html.spec.whatwg.org/#the-iframe-element">iframe</a>.
+  </p>
+  <p>
+    The term <a href="https://html.spec.whatwg.org/#top-level-browsing-context">
+    <dfn>top-level browsing context</dfn></a> is defined in [[!HTML5]].
   </p>
   <p>
     The term
@@ -285,6 +269,10 @@
     <a href="http://tools.ietf.org/html/rfc2046">RFC2046</a>.
   </p>
   <p>
+    A <a href="https://html.spec.whatwg.org/#valid-mime-type">
+    <dfn>valid MIME type</dfn></a> is defined in [[!HTML5]].
+  </p>
+  <p>
     The term <dfn><a href="https://html.spec.whatwg.org/#queue-a-task">queue
     a task</a></dfn> is defined in [[!HTML5]].
   </p>
@@ -292,6 +280,7 @@
     The term <dfn><a href="https://html.spec.whatwg.org/#task-source">task
     source</a></dfn> is defined in [[!HTML5]].
   </p>
+  <section> <h3>Security</h3>
   <p>
     The term <dfn>expressed permission</dfn> refers to an act by the user, e.g.
     via user interface or setting or host device platform features, using which
@@ -318,6 +307,8 @@
     <a href="#askforgiveness">asks for forgiveness</a>, or ensured a
     <a>prearranged trust relationship</a> exists.
   </p>
+  </section>
+  <section> <h3>NFC specific</h3>
   <p>
     <b>NFC</b> stands for Near Field Communications, short-range wireless
     technology operating at 13.56 MHz which enables communication between
@@ -500,6 +491,7 @@
     to the other device, printing to a Bluetooth printer or streaming video to
     a television set.
   </p>
+  </section>
 </section> <!-- Terminology -->
 
 <!-- - - - - - - - - - - - - - -  Introduction  - - - - - - - - - - - - - - -->
@@ -844,28 +836,6 @@
       </ul>
     </p>
   </section> <!-- Features -->
-  <!-- removed because it basically duplicates the Features
-  <section> <h3>Technical requirements</h3>
-    <p>
-      The following high level technical requirements result from the
-      enumerated use cases and high level features. With this version of the
-      API, web pages should be able to:
-      <ol>
-        <li>
-          Request an NFC adapter. If there are multiple adapters present, then
-          the UA MAY display a dialog for selecting one of them.
-        </li>
-        <li>
-          Get notified about <a>NDEF message</a>s available from tag or peer
-          device.
-        </li>
-        <li>
-          Set a data payload that the user can push or write to another
-          device when within range (also known as "beaming").
-        </li>
-      </ol>
-    </p>
-  </section> --> <!-- Technical requirements -->
 </section> <!-- Introduction -->
 
 <!-- - - - - - - - - - - - - Security and Privacy - - - - - - - - - - - - - -->
@@ -881,7 +851,7 @@
 
   <section> <h3>Chain of trust</h3>
   <p>
-    Web pages using the NFC API are not trusted.
+    Web pages using the Web NFC API are not trusted.
     This means that the user needs to be aware of exactly what a web page is
     intending to do with NFC at any given moment. Implementations need to
     make sure that when the user authorizes a method of this API, then only that
@@ -890,14 +860,11 @@
     according to the algorithmic steps detailed in this specification.
   </p>
   <p>
-    The choice of trusting the integrity of <a>NFC content</a> when
+    The integrity of <a>NFC content</a> SHOULD NOT be trusted when
     used for implementing security policies, for instance the authenticity of
-    <a>origin</a>s saved in the <a>NDEF Id</a> field, or that of the
-    <a>URL path</a> of the <a>browsing context</a>, and then used for
-    same-origin or allowed-origins policy by the UA, SHOULD be based on
-    <a>prearranged trust relationship</a> (such as encryption and other means),
-    otherwise the integrity of the content MUST NOT be trusted by UAs
-    and security policies MUST NOT be based on this.
+    <a>origin</a>s saved in the <a>NDEF Id</a> field, unless a
+    <a>prearranged trust relationship</a> (such as encryption and other means)
+    exists.
   </p>
   </section>
 
@@ -911,7 +878,7 @@
     priority:
     <ul>
       <li>
-        User data privacy : involuntary sharing of user data (such as location,
+        User data privacy: involuntary sharing of user data (such as location,
         contacts, personal data, etc) from an NFC-capable device such as a
         phone, tablet, or PC.
       </li>
@@ -951,24 +918,26 @@
   </p>
   </section>
 
-  <section> <h3>Security policies</h3>
-  <p>
-    UAs MUST implement the following policies:
-    <ol>
+  <section class="informative"> <h3>Security policies</h3>
+    <p>
+      This section summarizes the security policies which are specified as
+      normative requirements in the respective algorithms of this
+      specification:
+    </p>
+    <ul>
       <li>
         Only <a>browsing context</a>s with a defined <a>origin</a>, whose schema
-        is starting with <code>"https"</code> SHOULD be able to access
+        is starting with <code>"https"</code> must be able to access
         <a>NFC content</a>.
-        Browsers MAY ignore this rule for development purposes only.
+        Browsers may ignore this rule for development purposes only.
       </li>
       <li>
-        In order to use NFC, the <code>Window</code> object associated with the
-        active <code>Document</code> of the <a>browsing context</a> using
-        the Web NFC API MUST be <strong>visible</strong> and
-        <strong>in focus</strong>. This also means that UAs
-        SHOULD make sure the display is on, and the device is unlocked.
+        In order to use NFC, the top-level <a>browsing context</a> of the
+        <code>Window</code> object using the Web NFC API must be
+        <strong>visible</strong> and <strong>in focus</strong>. This also means
+        that UAs should make sure the display is on, and the device is unlocked.
         For web pages in background, receiving and sending <a>NFC content</a>
-        MUST be suspended.
+        must be suspended.
         <p class="note">
           As a consequence, since every access from a <a>browsing context</a>
           needs the attention of the user, and since the user must do a physical
@@ -981,58 +950,53 @@
       <li>
         When sending (i.e. writing or pushing) <a>Web NFC content</a>, the
         <a>ASCII serialized origin</a> of the <a>browsing context</a> requesting
-        the operation MAY be recorded in each sent <a>NDEF record</a>'s
+        the operation may be recorded in each sent <a>NDEF record</a>'s
         <a>NDEF Id</a> field.
         For details see the <a>Writing or pushing content</a> section.
       </li>
       <li>
         When sending (i.e. writing or pushing) <a>Web NFC content</a>, the
         <a>URL path</a> of the <a>browsing context</a> requesting
-        the operation MUST be recorded in each sent <a>NDEF message</a>'s
+        the operation must be recorded in each sent <a>NDEF message</a>'s
         <a>Web NFC record</a> field.
         For details see the <a>Writing or pushing content</a> section.
       </li>
       <li>
         When requesting an NFC adapter by the <code>requestAdapter</code>
         method, or when setting up listeners for reading, or when sending
-        <a>NFC content</a>, the UA MAY warn the user that
+        <a>NFC content</a>, the UA may warn the user that
         physical location may be inferred from the act of using NFC by the
         <a>origin</a> of the reading <a>browsing context</a>.
       </li>
       <li>
-        Writing <a>Web NFC content</a> to an <a>NFC tag</a> does NOT need to
+        Writing <a>Web NFC content</a> to an <a>NFC tag</a> does not need to
         <a>obtain permission</a>, if the <a>NFC tag</a> contains
         <a>trusted integrity NFC content</a> and the value of the <a>NDEF Id</a>
         field is equal to the <a>ASCII serialized origin</a> of the writing
         <a>browsing context</a>.
-        Otherwise the UA MUST <a>obtain permission</a> for
+        Otherwise the UA must <a>obtain permission</a> for
         sending <a>NFC content</a> which overwrites existing information.
         See also the <a>Writing or pushing content</a> section.
       </li>
       <li>
-        Sending <a>NFC content</a> to an <a>NFC peer</a> does NOT need to
+        Sending <a>NFC content</a> to an <a>NFC peer</a> does not need to
         <a>obtain permission</a>, but the previous rules apply.
         See the <a>Writing or pushing content</a> section.
       </li>
       <li>
-        Making an <a>NFC tag</a> read-only MUST <a>obtain permission</a>, or
+        Making an <a>NFC tag</a> read-only must <a>obtain permission</a>, or
         otherwise fail.
       </li>
       <li>
-        Setting up listeners for reading <a>NFC content</a> SHOULD
+        Setting up listeners for reading <a>NFC content</a> should
         <a>obtain permission</a>.
       </li>
       <li>
-        The process of reading an <a>NDEF message</a>does NOT need to
+        The process of reading an <a>NDEF message</a>does not need to
         <a>obtain permission</a>.
       </li>
       <li>
-        For Bluetooth and WiFi handover (supported in later versions),
-        the user SHOULD have to grant access to the secondary API and must be
-        able to properly understand what they are granting.
-      </li>
-      <li>
-        The payload data on NFC content is untrusted, and MUST NOT be used
+        The payload data on NFC content is untrusted, and must not be used
         by the UA to do automatic handling such as opening a web page
         with a URL found in an NFC tag, unless the user approves that.
       </li>
@@ -1041,8 +1005,12 @@
         NFC, the user needs to be clearly aware about the permissions granted
         to the web page using the Web NFC API.
       </li>
-    </ol>
-  </p>
+      <!--li>
+        For Bluetooth and WiFi handover (supported in later versions),
+        the user should have to grant access to the secondary API and must be
+        able to properly understand what they are granting.
+      </li-->
+    </ul>
   </section> <!-- Policies -->
 </section> <!-- Security and Privacy  -->
 
@@ -1074,18 +1042,37 @@
     </pre>
     <p>
       The <dfn>NFCRecord.kind</dfn>
-      property MUST return the <a><code>NFCRecordType</code></a> of the
+      property represents the <a><code>NFCRecordType</code></a> of the
       <a>NDEF record</a>.
     </p>
     <p>
       The <dfn>NFCRecord.type</dfn>
-      property MUST return the <a>IANA media type</a> of the <a>NDEF record</a>
+      property represents the <a>IANA media type</a> of the <a>NDEF record</a>
       payload.
     </p>
     <p>
-      The <dfn>NFCRecord.data</dfn> property MUST return the
+      The <dfn>NFCRecord.data</dfn> property represents the
       payload data of the <a>NDEF record</a> with an appropriate ECMAScript
       type, which depends on the <a>IANA media type</a>.
+    </p>
+    <p>
+      A <dfn>valid NFCRecord</dfn> <var>record</var> is an instance of
+      <code><a>NFCRecord</a></code> which matches the following criteria:
+      <ul>
+        <li>
+          <var>record</var>.kind has values defined by
+          <code>NFCRecordType</code>, or <code>undefined</code>.
+        </li>
+        <li>
+          <var>record</var>.type is a <a>valid MIME type</a>, or
+          <code>undefined</code>.
+        </li>
+        <li>
+          <var>record</var>.data is <code>null</code>, or of type
+          <code>"string"</code>, or <code>"number"</code>, or instance of
+          <code>Object</code>, or <code>ArrayBuffer</code>.
+        </li>
+      </ul>
     </p>
   </section> <!-- NFCRecord dictionary -->
 
@@ -1267,9 +1254,8 @@
   <!-- - - - - - - - - - - - nfc attribute  - - - - - - - - - - - -->
   <section> <h3>The <strong>nfc</strong> attribute</h3>
   <p>
-    When getting the <a>nfc</a> attribute, the
-    UA MUST return the <a>NFC</a> object, which provides
-    NFC related functionality.
+    On getting the <a>nfc</a> attribute, the UA MUST return the <a>NFC</a>
+    object, which provides NFC related functionality.
   </p>
   </section> <!-- nfc attribute -->
 </section> <!-- Navigator -->
@@ -1324,9 +1310,9 @@
             <var>adapter</var> to that.
           </li>
           <li>
-            If there are multiple <a>NFC adapter</a>s available, and there is
-            a system or user setting available with a preference to select the
-            default adapter, then bind <var>adapter</var> to that.
+            Otherwise, if there are multiple <a>NFC adapter</a>s available, and
+            there is a system or user setting available with a preference to
+            select the default adapter, then bind <var>adapter</var> to that.
           </li>
           <li>
             Otherwise, the UA MAY pop up a user dialog for
@@ -1334,15 +1320,12 @@
             to the selected one.
           </li>
           <li>
-            Otherwise if user prompt is blocked or canceled, select the
-            first built-in <a>NFC adapter</a>.
+            Otherwise if user prompt is blocked or canceled, bind
+            <var>adapter</var> to the first built-in <a>NFC adapter</a>
           </li>
           <li>
-            If no built-in adapters are found, select the first external
-            (e.g. USB) <a>NFC adapter</a>.
-          </li>
-          <li>
-            Bind <var>adapter</var> to the selected <a>NFC adapter</a>.
+            Otherwise, if no built-in adapters are found, bind
+            <var>adapter</var> the first external (e.g. USB) <a>NFC adapter</a>.
           </li>
         </ol>
       </li>
@@ -1464,6 +1447,8 @@
           </li>
           <li>
             If the <var>message</var> parameter is an empty sequence,
+            or if any <code><a>NFCRecord</a></code> element in
+            <var>message</var> is not a <a>valid NFCRecord</a>, then
             reject <var>promise</var> with <code>"SyntaxError"</code>,
             and abort these steps.
           </li>
@@ -1637,11 +1622,10 @@
             <a href="steps-cancelPush"><code>cancelPush()</code> algorithm</a>.
           </li>
           <li>
-            If the <a>browsing context</a> loses focus (e.g. the user navigated
-            to another page), then the pending push messages still exist, and
-            <var>timer</var> continues to run until timeout, or until the user
-            switches back the focus and an NFC communication occurs, or
-            the <code>cancelPush()</code> method is called.
+            If the <a>top-level browsing context</a> loses focus (e.g. the user
+            navigated to another page), then pending push operations MUST be
+            canceled by executing the
+            <a href="steps-cancelPush"><code>cancelPush()</code></a> steps.
           </li>
         </ol>
       </p>
@@ -2178,8 +2162,7 @@
           <li>
             If this is the first watch being set up for the current
             <a>NFC adapter</a>, make a request to the underlying platform to
-            listen to <a>NDEF message</a>s, and create a <a>task source</a> as
-            the <dfn>Web NFC task source</dfn>.
+            listen to <a>NDEF message</a>s.
           </li>
           <li>
             If the request fails, reject <var>promise</var> with
@@ -2291,9 +2274,12 @@
     following algorithm:
     <ol>
       <li>
+        If the <a>top-level browsing context</a> loses focus (e.g. the user
+        has navigated away to another page), then these steps MUST be suspended.
+      </li>
+      <li>
         Let <var>input</var> be the notation for the <a>NDEF message</a>
         which has been received by the underlying platform.
-      </li>
         <p class="note">
           This is a placeholder for a possible future feature. In this step,
           implementations MAY check if the <a>origin</a> of the
@@ -2311,6 +2297,7 @@
           <var>input</var> is <a>trusted integrity NFC content</a>, then
           allowed-origin policies MAY be applied.
         </p>
+      </li>
       <li>
         Let <var>message</var> be a new empty sequence of <code>NFCRecord</code>
         objects.
@@ -2501,11 +2488,10 @@
                 <var>record</var>.type, then skip to the next <a>NFC watch</a>.
               </li>
               <li>
-                <a>Queue a task</a> to invoke the <code>MessageCallback</code>
+                <a>Queue a task</a> using the <dfn>Web NFC task source</dfn>
+                to invoke the <code>MessageCallback</code>
                 <var>callback</var> with <var>record</var> as its first
                 argument, and <var>messageId</var> as its second argument.
-                The <a>task source</a> for the tasks queued by algorithms in
-                this section is the <a>Web NFC task source</a>.
               </li>
             </ul>
           </li>
