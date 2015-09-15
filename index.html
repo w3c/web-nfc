@@ -447,8 +447,8 @@
   </p>
   <p>
     The <dfn id="web-nfc-id">Web NFC Id</dfn> is a <a>URL</a> according to
-    [[RFC3986]], with <code>"https"</code> scheme, and an
-    <a>ASCII serialized origin</a>, optionally followed by a <a>URL path</a>.
+    [[RFC3986]], specifically an <a>ASCII serialized origin</a> with
+    <code>"https"</code> scheme, and optionally followed by a <a>URL path</a>.
     This allows matching <a>Web NFC content</a> with <a>URL pattern</a>s
     specified by <a>NFC watch</a>es.
   </p>
@@ -883,16 +883,21 @@
   <p>
     Web pages using the NFC API are not trusted.
     This means that the user needs to be aware of exactly what a web page is
-    intending to do with NFC at any given moment. Implementations SHOULD
-    make sure that when the user authorizes an NFC operation, then only that
+    intending to do with NFC at any given moment. Implementations need to
+    make sure that when the user authorizes a method of this API, then only that
     action is run, without side effects, and exactly in the context and the
-    number of times the user allows the execution of NFC operations.
+    number of times the user allows the execution of NFC related operations,
+    according to the algorithmic steps detailed in this specification.
   </p>
   <p>
-    The content of <a>Web NFC message</a>s is not trusted, unless the UA
-    can safely assume that the content has not been change by third parties
-    between writing and reading it, e.g. in the case of a
-    <a>prearranged trust relationship</a> can be established.
+    The choice of trusting the integrity of <a>NFC content</a> when
+    used for implementing security policies, for instance the authenticity of
+    <a>origin</a>s saved in the <a>NDEF Id</a> field, or that of the
+    <a>URL path</a> of the <a>browsing context</a>, and then used for
+    same-origin or allowed-origins policy by the UA, SHOULD be based on
+    <a>prearranged trust relationship</a> (such as encryption and other means),
+    otherwise the integrity of the content MUST NOT be trusted by UAs
+    and security policies MUST NOT be based on this.
   </p>
   </section>
 
@@ -920,10 +925,6 @@
 
   <section> <h3>Permissions and user prompts</h3>
   <p>
-    UAs MUST NOT provide Web NFC API access to <a>browsing context</a>s
-    without complying with the security policies described in this document.
-  </p>
-  <p class="note">
     This specification attempts to help minimizing the user prompts needed to
     use the Web NFC API and tries to involve implicit policies which can
     address the
@@ -943,23 +944,6 @@
     <code><a href="https://github.com/w3c/permissions/issues/47">"nfc"</a></code>.
     This allows saving user permissions for a given <a>origin</a> in a
     persistent database until revocation.
-  </p>
-  <p>
-    UAs MUST acquire user consent, i.e. <a>expressed permission</a> for
-    for using the methods of this API, unless a
-    <a>prearranged trust relationship</a> applies, or unless an implicit policy
-    specified in this document allows it, eventually with an
-    <a href="#askforgiveness">ask for forgiveness</a> indication.
-  </p>
-  <p>
-    The choice of trusting the integrity of <a>NFC content</a> when
-    used for implementing security policies, for instance the authenticity of
-    <a>origin</a>s saved in the <a>NDEF Id</a> field, or that of the
-    <a>URL path</a> of the <a>browsing context</a>, and then used for
-    same-origin or allowed-origins policy by the UA, SHOULD be based on
-    <a>prearranged trust relationship</a> (such as encryption and other means),
-    otherwise the integrity of the content MUST NOT be trusted by UAs
-    and security policies MUST NOT be based on this.
   </p>
   <p>
     All <a>expressed permission</a>s that are preserved beyond the current
@@ -1074,10 +1058,6 @@
     <pre class="idl">
       typedef sequence&lt;NFCRecord&gt; NFCMessage;
     </pre>
-    <p>
-      A <a> Web NFC message</a> is a <dfn>valid Web NFC message</dfn> if the
-      sequence of <a>NFCRecord</a> objects is not empty.
-    </p>
   </section>
 
   <section> <h3>The <strong>NFCRecord</strong> dictionary</h3>
@@ -1178,7 +1158,7 @@
     <tr>
       <td>"opaque"</td>
       <td><a>IANA media type</a></td>
-      <td><code>ArrayBuffer</code> or typed array</td>
+      <td><code>ArrayBuffer</code></td>
       <td>Media-type as defined in [[RFC2046]] (<a>TNF</a>=2)</td>
     </tr>
     <tr>
@@ -1444,8 +1424,8 @@
         <dfn>push a message</dfn> algorithm:
         <ol>
           <li>
-            Return a new promise <var>promise</var>, and then continue running
-            this algorithm <a>in parallel</a>.
+            Return a new <a><code>Promise</code></a> <var>promise</var>, and
+            then continue running this algorithm <a>in parallel</a>.
           </li>
           <li>
              If there is an existing instance of this algorithm running for the
@@ -1483,8 +1463,7 @@
             <code>"SecurityError"</code>, and abort these steps.
           </li>
           <li>
-            If the <var>message</var> parameter is not a
-            <a>valid Web NFC message</a>,
+            If the <var>message</var> parameter is an empty sequence,
             reject <var>promise</var> with <code>"SyntaxError"</code>,
             and abort these steps.
           </li>
@@ -2130,11 +2109,7 @@
 
     <section> <h3>The <strong>watch()</strong> method</h3>
       <p>
-        The <code>
-        <dfn>NFCAdapter.watch</dfn>(<var>options</var>, <var>callback</var>)</code>
-        method enables listening to incoming <a>NDEF message</a>s.
-      </p>
-      <p>
+        This method enables listening to incoming <a>NDEF message</a>s.
         The <a>NFC content</a> to which clients listen can be filtered based on
         its data type, and based on the <a>URL path</a> of the
         <a>browsing context</a> which has been saved to the <a>Web NFC record</a>
@@ -2156,10 +2131,11 @@
       <p>
         Watch filters are grouped by <a>NFC adapter</a>.
       </p>
-      <p id="steps-watch">
+      <p>
         When the <code>
-        <a>NFCAdapter.watch</a>()</code> method is invoked, the UA MUST run
-        the following <dfn id="watch_algo">NFC watch algorithm</dfn>:
+        <dfn>NFCAdapter.watch</dfn>(<var>options</var>, <var>callback</var>)
+        </code> method is invoked, the UA MUST run the following
+        <dfn id="steps-watch">NFC watch algorithm</dfn>:
         <ol>
           <li>
             Let <var>promise</var> be a new <a><code>Promise</code></a> object.
@@ -2269,8 +2245,8 @@
     <section><h3>The <strong>unwatch</strong>() method</h3>
       <p>
         When the <code><dfn>NFCAdapter.unwatch</dfn>(id)</code> method is
-        invoked, the UA MUST return a promise <var>promise</var> and run the
-        following steps <a>in parallel</a>.
+        invoked, the UA MUST return a <a><code>Promise</code></a>
+        <var>promise</var> and run the following steps <a>in parallel</a>.
         <ol id="steps-unwatch">
           <li>
             If the <a>incumbent settings object</a> is not a
@@ -2310,7 +2286,7 @@
   <p>
     If there are any <a>NFC watch</a>es set up for any <a>NFC adapter</a>, then
     UAs MUST listen to <a>NDEF message</a>s, according to step 9
-    of the <a href="#watch_algo">NFC watch algorithm</a>.
+    of the <a href="#steps-watch">NFC watch algorithm</a>.
     When the <a>UA</a> is to <dfn>receive an NDEF message</dfn> it MUST run the
     following algorithm:
     <ol>
