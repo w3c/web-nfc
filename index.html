@@ -173,6 +173,13 @@
     <dfn>fire a simple event</dfn></a> are defined in [[!HTML5]].
   </p-->
   <p>
+    The concepts
+    <a href="https://html.spec.whatwg.org/webappapis.html#task-source">
+      <dfn>task source</dfn></a> and
+    <a href="https://html.spec.whatwg.org/webappapis.html#queue-a-task">
+      <dfn>queue a task</dfn></a> are defined in [[!HTML5]].
+  </p>
+  <p>
     The term <a href="https://html.spec.whatwg.org/#browsing-context">
     <dfn>browsing context</dfn></a> refers to the environment in which
     <a href="https://html.spec.whatwg.org/#document">Document</a> objects are
@@ -286,7 +293,7 @@
   </p>
   <p>
     The term <dfn><a href="https://html.spec.whatwg.org/#queue-a-task">queue
-    a task</a></dfn> is defined in [[!HTML5]]. 
+    a task</a></dfn> is defined in [[!HTML5]].
   </p>
   <p>
     The term <dfn><a href="https://html.spec.whatwg.org/#task-source">task
@@ -933,12 +940,14 @@
     mandate specific user prompting policies. The term <a>obtain permission</a>
     is used for acquiring trust for a given operation.
   </p>
-  <p>
-    The <a href="http://www.w3.org/TR/permissions/">Permissions API</a> SHOULD
-    be supported by UAs for implementing NFC related
-    [[permissions]]. The required
+  <p class="note">
+    The <a href="http://www.w3.org/TR/permissions/">Permissions API</a> is
+    suggested to be used by UAs for implementing NFC related
+    [[permissions]] in order to minimize the need for user prompting.
+    The suggested
     <a href="https://w3c.github.io/permissions/#idl-def-PermissionName">
-    permission name</a> is <code>"nfc"</code>.
+    permission name</a> is
+    <code><a href="https://github.com/w3c/permissions/issues/47">"nfc"</a></code>.
     This allows saving user permissions for a given <a>origin</a> in a
     persistent database until revocation.
   </p>
@@ -1007,7 +1016,7 @@
         For details see the <a>Writing or pushing content</a> section.
       </li>
       <li>
-        When requesting an NFC adapter by the <code>getAdapter</code>
+        When requesting an NFC adapter by the <code>requestAdapter</code>
         method, or when setting up listeners for reading, or when sending
         <a>NFC content</a>, the UA MAY warn the user that
         physical location may be inferred from the act of using NFC by the
@@ -1278,9 +1287,11 @@
     <code>Navigator</code></a> interface [HTML] which this specification
     extends.
   </p>
-  <dl title="partial interface Navigator" class="idl">
-    <dt>readonly attribute NFC nfc</dt>
-  </dl>
+  <pre class="idl">
+    partial interface Navigator {
+      readonly attribute NFC nfc;
+    };
+  </pre>
   <!-- - - - - - - - - - - - nfc attribute  - - - - - - - - - - - -->
   <section> <h3>The <strong>nfc</strong> attribute</h3>
   <p>
@@ -1448,6 +1459,16 @@
             algorithm <a>in parallel</a>.
           </li>
           <li>
+             If there is an existing instance of this algorithm running for the
+             current <a>NFC adapter</a>, abort that instance of this algorithm,
+             by rejecting its <var>promise</var> with
+             <code>"<a>AbortError</a>"</code>.
+             <p class="note">
+               Implementations are expected to clean up state on termination,
+               e.g. reset <var>timer</var>, clear <var>output</var>, etc.
+             </p>
+          </li>
+          <li>
             If the <a>incumbent settings object</a> is not a
             <a>secure context</a>, reject <var>promise</var> with
             <code>"<a>SecurityError</a>"</code>, and abort these steps.
@@ -1456,11 +1477,11 @@
             An implementation MAY reject <var>promise</var> with <code>
             "<a>NotSupportedError</a>"</code>, and abort these steps.
             <div class="note">
-              The UA might <a>terminate message push</a> at this point. The reasons
-              for terminations are implementation details. For example, the could
-              have has set a preference to allow a given origin only to read, write,
-              or send data to peers. Also, the implementation might be unable
-              to support the operation requested.
+              The UA might terminate message push at this point. The reasons
+              for terminations are implementation details. For example, the user
+              could have has set a preference to allow a given origin only to
+              read, write, or send data to peers. Also, the implementation might
+               be unable to support the operation requested.
             </div>
           </li>
           <li>
@@ -1520,7 +1541,7 @@
               In other words, the current invocation of <code>pushMessage()</code>
               rejects and replaces existing running invocations handling the same
               <var>options</var>.target. As <code>"any"</code> handles both <code>
-              "peer"</code> and <code>"tag"</code>, existing running invocations for 
+              "peer"</code> and <code>"tag"</code>, existing running invocations for
               <code>"any"</code> always gets rejected.
             <div>
           </li>
@@ -1552,7 +1573,7 @@
                 </ul>
               </li>
               <li>
-                If <var>record</var>.kind is <code>"text"</code>, then let 
+                If <var>record</var>.kind is <code>"text"</code>, then let
                 <var>ndef</var> be the result of passing <var>record</var>
                 to <a>map text to NDEF</a>. If this threw an exception, reject
                 <var>promise</var> with that exception and abort these steps.
@@ -1620,20 +1641,6 @@
           <li>
             Let <var>timer</var> be a new timer associated with this invocation
             of <code>pushMessage()</code>.
-          </li>
-          <li>
-            Every termination of these steps MUST clear <var>output</var>,
-            and cancel the associated <var>timer</var>.
-          </li>
-          <li>
-            Make a request to the underlying platform to send <var>output</var>
-            to the next device which comes in proximity range, and start the timer
-            <var>timer</var> with <var>options</var>.timeout.
-            There MUST be exactly one message set for pushing per calling
-            <a>browsing context</a> with exactly one associated timer.
-            This means that every new invocation of the
-            <code>pushMessage()</code> method replaces the previously set
-            push message and resets the associated timer.
           </li>
           <li>
             If <var>timer</var> expires, reject <var>promise</var> with
@@ -1734,7 +1741,7 @@
 
             In addition, UAs MAY check that
             <var>record</var>.type is an IANA registered media type
-            for <a href="http://www.iana.org/assignments/media-types/media-types.xhtml#text">text</a>. 
+            for <a href="http://www.iana.org/assignments/media-types/media-types.xhtml#text">text</a>.
             If not, then the UA MAY throw a <code>"SyntaxError"</code> exception,
             and abort these steps.
           </li>
@@ -1808,7 +1815,7 @@
         </ol>
       </p>
       <p>
-        To <dfn>map a URL to NDEF</dfn> given a <var>record</var>, run these steps:   
+        To <dfn>map a URL to NDEF</dfn> given a <var>record</var>, run these steps:
         <ol>
           <li>
             If <var>record</var>.data is not a string,
@@ -1906,7 +1913,7 @@
           <li>
             Return <var>ndef</var>.
           </li>
-        </ol>  
+        </ol>
       </p>
       <p>
         To <dfn>create a <a>Web NFC record</a></dfn>, run these steps:
@@ -2228,7 +2235,8 @@
           <li>
             If this is the first watch being set up for the current
             <a>NFC adapter</a>, make a request to the underlying platform to
-            listen to <a>NDEF message</a>s.
+            listen to <a>NDEF message</a>s, and create a <a>task source</a> as
+            the <dfn>Web NFC task source</dfn>.
           </li>
           <li>
             If the request fails, reject <var>promise</var> with
@@ -2511,9 +2519,9 @@
               <li>
                 <a>Queue a task</a> to invoke the <code>MessageCallback</code>
                 <var>callback</var> with <var>record</var> as its first argument,
-                and <var>messageId</var> as its second argument. The <a>task source</a>
-                for the tasks queued by algorithms in this section is the
-                <dfn>XXXXX</dfn> task source.
+                and <var>messageId</var> as its second argument.
+                The <a>task source</a> for the tasks queued by algorithms in
+                this section is the <a>Web NFC task source</a>.
               </li>
             </ul>
           </li>
@@ -2593,8 +2601,8 @@
     The editors would like to express their gratitude to the former editors
     Luc Yriarte and Samuel Ortiz, and also to Don Coleman, Anne van Kesteren,
     Domenic Denicola, Jonas Sickling, Jeffrey Yasskin, Alexander Shalamov,
-    Salvatore Iovene, and Rijubrata Bhaumik for their technical guidance,
-    implementation feedback and support.
+    Salvatore Iovene, Rijubrata Bhaumik and Anssi Kostiainen for their technical
+    guidance, implementation feedback and support.
   </p>
 </section>
 
