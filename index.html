@@ -1641,7 +1641,7 @@
             <var>ndef.TNF</var> field to 0 (NFC Empty Type record).
           </li>
           <li>Set
-            <var>ndef.TYPE_LENGHT</var>,
+            <var>ndef.TYPE_LENGTH</var>,
             <var>ndef.ID_LENGTH</var> and
             <var>ndef.PAYLOAD_LENGTH</var> fields to 0,
             and omit the associated fields from the <a>NDEF record</a>:
@@ -1848,7 +1848,7 @@
           <li>
             The UA MAY check if <var>record</var>.type is
             a valid IANA registered type. If not, then MAY throw a <code>
-            "SyntaxError"</code> exceeption and abort these steps.
+            "SyntaxError"</code> exception and abort these steps.
           </li>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
@@ -1858,7 +1858,7 @@
             Set the <var>ndef.TNF</var> field to 2 (Media Type).
           </li>
           <li>
-            Set the <var>ndef.TYPE</var> field to var>record</var>.type.
+            Set the <var>ndef.TYPE</var> field to <var>record</var>.type.
           </li>
           <li>
             Set the <var>ndef.PAYLOAD</var> field to <var>record</var>.data
