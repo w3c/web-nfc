@@ -1695,24 +1695,14 @@
         To <dfn>obtain push permission</dfn>, run these steps:
         <ol>
           <li>
-            If an <a>expressed permission</a> has been granted before for
-            <var>origin</var> using the
+            If a <a>prearranged trust relationship</a> exists,
+            then return <code>true</code>.
+          </li>
+          <li>
+            Otherwise, if an <a>expressed permission</a> has been granted
+            for <var>origin</var> using the
             <a href="http://www.w3.org/TR/permissions/">Permissions API</a>,
             then return <code>true</code>.
-          </li>
-          <li>
-            Otherwise, if a <a>prearranged trust relationship</a> exists,
-            then return <code>true</code>.
-          </li>
-          <li>
-            Otherwise, try to obtain <a>expressed permission</a> using the
-            <a href="http://www.w3.org/TR/permissions/">Permissions API</a>.
-            If a permissions dialog is involved with the user during this,
-            then the UA SHOULD notify the user also about that
-            using NFC for sending content may indirectly reveal the physical
-            location of the user in certain conditions.
-            If permission has been granted by the user, then return
-            <code>true</code>.
           </li>
           <li>
             Return <code>false</code>.
@@ -2239,13 +2229,13 @@
         To <dfn>obtain watch permission</dfn>, run these steps:
         <ol>
           <li>
-            If the user has earlier denied permission for the calling
-            <a>origin</a> for all future calls of <code>watch()</code> as well,
-            then return <code>false</code>.
+            If there is a <a>prearranged trust relationship</a>,
+            return <code>true</code>.
           </li>
           <li>
-            Otherwise, if there is a <a>prearranged trust relationship</a>,
-            return <code>true</code>.
+            Otherwise, if the user has earlier denied permission for the calling
+            <a>origin</a> for all future calls of <code>watch()</code> as well,
+            then return <code>false</code>.
           </li>
           <li>
             Otherwise, UAs SHOULD
