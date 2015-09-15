@@ -1448,15 +1448,12 @@
     <section><h3>The pushMessage() method</h3>
       <p id="steps-pushMessage">
         The <dfn>NFCAdapter.pushMessage</dfn>(<var>message</var>, <var>options</var>)
-        </code> method, when invoked, MUST run the <a>push a message</a> algorithm.
-      </p>
-      <p>
-        To <dfn>push a message</dfn> given a <var>message</var> and <var>options</var>,
-        run the following steps:
+        </code> method, when invoked, MUST run the
+        <dfn>push a message</dfn> algorithm:
         <ol>
           <li>
-            Return a new promise <var>promise</var>, and then continue running this
-            algorithm <a>in parallel</a>.
+            Return a new promise <var>promise</var>, and then continue running
+            this algorithm <a>in parallel</a>.
           </li>
           <li>
              If there is an existing instance of this algorithm running for the
@@ -1489,36 +1486,13 @@
             <a>browsing context</a> invoking this method.
           </li>
           <li>
-            Try to <a>obtain permission</a> by applying the following sub-steps:
-            <ul>
-              <li>
-                If an <a>expressed permission</a> has been granted before for
-                <var>origin</var> using the
-                  <a href="http://www.w3.org/TR/permissions/">Permissions API</a>,
-                  then continue with step 7.
-              </li>
-              <li>
-                Otherwise, if a <a>prearranged trust relationship</a> exists,
-                then continue with step 7.
-              </li>
-              <li>
-                Otherwise, try to obtain <a>expressed permission</a> using the
-                <a href="http://www.w3.org/TR/permissions/">Permissions API</a>.
-                If a permissions dialog is involved with the user during this,
-                then the UA SHOULD notify the user also about that
-                using NFC for sending content may indirectly reveal the physical
-                location of the user in certain conditions.
-                If permission has been granted by the user, then continue with
-                step 7.
-              </li>
-              <li>
-                Otherwise, reject <var>promise</var> with
-                <code>"SecurityError"</code>, and abort these steps.
-              </li>
-            </ul>
+            If the <a>obtain push permission</a> steps return
+            <code>false</code>, then reject <var>promise</var> with
+            <code>"SecurityError"</code>, and abort these steps.
           </li>
           <li>
-            If the <var>message</var> parameter is not a <a>valid Web NFC message</a>,
+            If the <var>message</var> parameter is not a
+            <a>valid Web NFC message</a>,
             reject <var>promise</var> with <code>"SyntaxError"</code>,
             and abort these steps.
           </li>
@@ -1717,6 +1691,34 @@
           </li>
           <li>
             Return <var>ndef</var>.
+          </li>
+        </ol>
+      </p>
+      <p>
+        To <dfn>obtain push permission</dfn>, run these steps:
+        <ol>
+          <li>
+            If an <a>expressed permission</a> has been granted before for
+            <var>origin</var> using the
+            <a href="http://www.w3.org/TR/permissions/">Permissions API</a>,
+            then return <code>true</code>.
+          </li>
+          <li>
+            Otherwise, if a <a>prearranged trust relationship</a> exists,
+            then return <code>true</code>.
+          </li>
+          <li>
+            Otherwise, try to obtain <a>expressed permission</a> using the
+            <a href="http://www.w3.org/TR/permissions/">Permissions API</a>.
+            If a permissions dialog is involved with the user during this,
+            then the UA SHOULD notify the user also about that
+            using NFC for sending content may indirectly reveal the physical
+            location of the user in certain conditions.
+            If permission has been granted by the user, then return
+            <code>true</code>.
+          </li>
+          <li>
+            Return <code>false</code>.
           </li>
         </ol>
       </p>
@@ -2173,7 +2175,7 @@
           </li>
           <li>
             Return <var>promise</var> and continue the following steps
-            in parallel.
+            <a>in parallel</a>.
           </li>
           <li>
             If the <a>incumbent settings object</a> is not a
@@ -2191,35 +2193,9 @@
             <a>browsing context</a> invoking this method.
           </li>
           <li>
-            If the user has earlier denied permission for <var>origin</var> for
-            all future calls as well, reject <var>promise</var> with
+            If the <a>obtain watch permission</a> steps return
+            <code>false</code>, then reject <var>promise</var> with
             <code>"SecurityError"</code>, and abort these steps.
-          </li>
-          <li>
-            Reading <a>NFC content</a> does not require
-            <a>expressed permission</a>, but unless there is a
-            <a>prearranged trust relationship</a>, UAs SHOULD
-            <a href="#askforgiveness">ask for forgiveness</a> with relevant
-            information displayed to the user which explains that reading
-            <a>NFC content</a> may indirectly reveal the physical location of the
-            user. In addition, if the value of <var>options</var>.mode is
-            <code>"all"</code>, then also include in this information that the
-            <a>origin</a> is requesting to read all <a>NFC content</a>, not only
-            those meant for web pages.
-          </li>
-          <li>
-            If the user has blocked permission from the
-            <a href="#askforgiveness">ask for forgiveness</a>
-            interaction for this <var>origin</var>, reject <var>promise</var>
-            with <code>"SecurityError"</code>, and abort these steps.
-            <p class="note">
-              The <a href="#askforgiveness">ask for forgiveness</a> interaction
-              might show choices like "block now" or "block forever", etc. If the
-              user has chosen to "block forever" the given <var>origin</var>, it
-              is the responsibility of the UA to remember these user
-              choices for each <a>origin</a>, regardless of which
-              <a>NFC adapter</a> is used, and consult them on later invocations.
-            </p>
           </li>
           <li>
             If the first argument <var>options</var> contains invalid values,
@@ -2255,6 +2231,44 @@
             to another page), then the registered watches still SHOULD continue
             to exist, but SHOULD become paused, i.e. the UA SHOULD NOT check
             and use them until the focus is regained.
+          </li>
+        </ol>
+      </p>
+      <p>
+        To <dfn>obtain watch permission</dfn>, run these steps:
+        <ol>
+          <li>
+            If the user has earlier denied permission for the calling
+            <a>origin</a> for all future calls of <code>watch()</code> as well,
+            then return <code>false</code>.
+          </li>
+          <li>
+            Otherwise, if there is a <a>prearranged trust relationship</a>,
+            return <code>true</code>.
+          </li>
+          <li>
+            Otherwise, UAs SHOULD
+            <a href="#askforgiveness">ask for forgiveness</a> with relevant
+            information displayed to the user.
+            <p class="note">
+              The <a href="#askforgiveness">ask for forgiveness</a> interaction
+              might show choices like "block now" or "block forever", etc.
+              If the user has chosen to "block forever" the given
+              <a>origin</a>, it is the responsibility of the UA to remember
+              these user choices for each <a>origin</a>, regardless of which
+              <a>NFC adapter</a> is used, and consult them on later invocations.
+            </p>
+            <p class="note">
+             In this step UAs are advised to notify users about
+             that reading <a>NFC content</a> may indirectly reveal the physical
+             location of the user. In addition, if <code>"any"</code>
+             <code><a>NfcWatchMode</a></code> is used, then also include in this
+             information that the <a>origin</a> is requesting to read not only
+             <a>NFC content</a> meant for web pages, but any <a>NFC content</a>.
+            </p>
+          </li>
+          <li>
+            Return <code>true</code>.
           </li>
         </ol>
       </p>
