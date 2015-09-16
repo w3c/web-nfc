@@ -1371,7 +1371,7 @@
     <pre class="idl">
       dictionary NFCPushOptions {
         NFCPushTarget target = "any";
-        unsigned long timeout = 10000;
+        unsigned long timeout;
       };
     </pre>
     <p>
@@ -1382,8 +1382,8 @@
     <p>
       The <dfn>NFCPushOptions.timeout</dfn> property
       denotes the timeout for the pending <code>pushMessage()</code>
-      operation expressed in milliseconds. The default, and maximal value is
-      10000, i.e. 10 seconds. After the <var>timeout</var> expires, the
+      operation expressed in milliseconds. The default value is
+      implementation-dependent. After the <var>timeout</var> expires, the
       message set for sending is cleared, an error is returned, and a new
       <a>Web NFC message</a> can be set for sending.
     </p>
