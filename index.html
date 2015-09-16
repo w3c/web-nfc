@@ -1411,14 +1411,23 @@
             then continue running this algorithm <a>in parallel</a>.
           </li>
           <li>
-             If there is an existing instance of this algorithm running for the
-             current <a>NFC adapter</a>, abort that instance of this algorithm,
+            If there are any existing instance of this algorithm running
+            for the current <a>NFC adapter</a>
+            whose <var>target</var> equal to <var>options</var>.target or
+            <code>"any"</code>, abort that instance of this algorithm,
              by rejecting its <var>promise</var> with
              <code>"<a>AbortError</a>"</code>.
-             <p class="note">
-               Implementations are expected to clean up state on termination,
-               e.g. reset <var>timer</var>, clear <var>output</var>, etc.
-             </p>
+            <p class="note">
+            In other words, the current invocation of <code>pushMessage()</code>
+            rejects and replaces existing running invocations handling the same
+            <var>options</var>.target. As <code>"any"</code> handles both <code>
+            "peer"</code> and <code>"tag"</code>, existing running invocations
+            for <code>"any"</code> always gets rejected.
+            </p>
+            <p class="note">
+              Implementations are expected to clean up state on termination,
+              e.g. reset <var>timer</var>, clear <var>output</var>, etc.
+            </p>
           </li>
           <li>
             If the <a>incumbent settings object</a> is not a
@@ -1461,19 +1470,6 @@
             not a valid instance of <code><a>NFCPushOptions</a></code>, then
             reject <var>promise</var> with <code>"SyntaxError"</code>,
             and abort these steps.
-          </li>
-          <li>
-            If there are any existing instance of this algorithm running
-            whose <var>target</var> equal to <var>options</var>.target or
-            <code>"any"</code>, reject the <var>promise</var> of these with
-            <code>"AbortError"</code>.
-            <p class="note">
-            In other words, the current invocation of <code>pushMessage()</code>
-            rejects and replaces existing running invocations handling the same
-            <var>options</var>.target. As <code>"any"</code> handles both <code>
-            "peer"</code> and <code>"tag"</code>, existing running invocations
-            for <code>"any"</code> always gets rejected.
-            </p>
           </li>
           <li>
             Let <var>output</var> be the notation for the <a>NDEF message</a>
