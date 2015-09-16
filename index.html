@@ -1383,7 +1383,8 @@
       The <dfn>NFCPushOptions.timeout</dfn> property
       denotes the timeout for the pending <code>pushMessage()</code>
       operation expressed in milliseconds. The default value is
-      implementation-dependent. After the <var>timeout</var> expires, the
+      implementation-dependent. The value <code>Infinity</code> means there is
+      no timeout. After the <var>timeout</var> expires, the
       message set for sending is cleared, an error is returned, and a new
       <a>Web NFC message</a> can be set for sending.
     </p>
@@ -1394,7 +1395,7 @@
       This section describes how to write an <a>NDEF message</a>
       to an <a>NFC tag</a> or how to push it to an <a>NFC peer</a>
       device next time when they get into proximity range, or until
-      a timeout expires. At any time for there is at maximum two
+      a timeout expires. At any time there is at maximum two
       <a>Web NFC message</a>s that can be set for sending for an <a>origin</a>:
       one targeted to <a>NFC tag</a>s and one to <a>NFC peer</a>s.
       When there is a <a>Web NFC message</a> set for sending
@@ -1470,7 +1471,9 @@
           <li>
             If the <var>options</var> parameter is undefined, then
             let <var>options</var> be a new <code><a>NFCPushOptions</a></code>
-            object with the default values.
+            object with the default values. If any of the
+            <code><a>NFCPushOptions</a></code> properties are undefined, use
+            the default values.
           </li>
             Otherwise, if the <var>options</var> parameter is defined and it is
             not a valid instance of <code><a>NFCPushOptions</a></code>, then
@@ -1480,7 +1483,8 @@
           <li>
             Let <var>output</var> be the notation for the <a>NDEF message</a>
             to be created by an API call to the underlying platform, based on
-            data provided by these steps.
+            data provided by these steps. On any termination of this algorithm,
+            <var>output</var> MUST be cleared.
           </li>
           <li>
             For each <a>NFCRecord</a> <var>record</var> in the sequence
@@ -1576,12 +1580,19 @@
             Add <var>web ndef</var> to <var>output</var>.
           </li>
           <li>
-            Let <var>timer</var> be a new timer associated with this invocation
-            of <code>pushMessage()</code>.
+            If <var>options</var>.timeout value is not valid or not supported
+            in the underlying platform, reject <var>promise</var> with
+            <code>"SyntaxError"</code>, and abort these steps.
+          <li>
+            If <var>options</var>.timeout value is not <code>Infinity</code>,
+            let <var>timer</var> be a new timer associated with this invocation
+            of <code>pushMessage()</code>, set to <var>options</var>.timeout,
+            and start <var>timer</var>. On any termination of this algorithm,
+            <var>timer</var> MUST be cleared.
           </li>
           <li>
-            If <var>timer</var> expires, reject <var>promise</var> with
-            <code>"TimeoutError"</code> and abort these steps.
+            If <var>timer</var> exists and expires, reject <var>promise</var>
+            with <code>"TimeoutError"</code> and abort these steps.
           </li>
           <li>
             When an <a>NFC device</a> comes within communication range,
