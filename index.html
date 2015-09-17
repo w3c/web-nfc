@@ -1377,7 +1377,7 @@
     <p>
       The <dfn>NFCPushOptions.target</dfn> property
       denotes the intended target for the pending <code>pushMessage()</code>
-      operation. The default value is <code>"any"</code>.
+      operation.
     </p>
     <p>
       The <dfn>NFCPushOptions.timeout</dfn> property
@@ -1610,10 +1610,9 @@
                 <code>"InvalidAccessError"</code> and abort these steps.
               </li>
               <li>
-                If <var>target</var> has the value <code>"any"</code>
-                (which is the default value), then the sending should happen if
-                either an <a>NFC peer</a> or an <a>NFC tag</a> is tapped within
-                the specified timeout.
+                If <var>target</var> has the value <code>"any"</code>, then the 
+                sending should happen if either an <a>NFC peer</a> or an
+                <a>NFC tag</a> is tapped within the specified timeout.
               </li>
               <li>
                 If the connection is lost during the transfer, or an error is
@@ -2032,7 +2031,6 @@
         The <code>"web-nfc-only"</code> value means that only those
         <a>NDEF message</a>s are exposed which contain a
         <a>Web NFC record</a>, i.e. which are meant for web pages.
-        This is the default value.
       </p>
       <p>
         The <code>"any"</code> value means that all <a>NDEF message</a>s
@@ -2060,7 +2058,6 @@
         which is stored in the <a>Web NFC record</a>.
         The values <code>null</code>, <code>undefined</code>, and
         <code>""</code> mean that no matching happens.
-        The default value is <code>null</code>.
       </p>
       <p>
         The <dfn>NFCWatchOptions.kind</dfn> property
@@ -2069,7 +2066,6 @@
         in a <a>Web NFC message</a>.
         The values <code>null</code> and <code>undefined</code> mean that
         no matching happens.
-        The default value is <code>null</code>.
       </p>
       <p>
         The <dfn>NFCWatchOptions.type</dfn> property
@@ -2079,13 +2075,11 @@
         The values <code>null</code> and <code>undefined</code> mean that
         no matching happens. The value <code>""</code> matches missing type
         information.
-        The default value is <code>null</code>.
       </p>
       <p>
         The <dfn>NFCWatchOptions.mode</dfn> property tells
         whether only <a>Web NFC content</a> or any <a>NFC content</a> will be
         watched.
-        The default value is <code>"web-nfc-only"</code>.
       </p>
       <pre
         title="Filter accepting only JSON content from https://www.w3.org"
