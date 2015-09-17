@@ -1486,7 +1486,7 @@
             <var>message</var>, execute the following steps, or make sure
                 that the underlying platform provides equivalent values to
                 <var>ndef</var>:
-            <ul id="steps-map-nfcrecord-ndef">
+            <ol id="steps-map-nfcrecord-ndef">
               <li>
                 If <var>record</var>.kind is <code>"empty"</code>, then
                 <ol>
@@ -1586,53 +1586,58 @@
             <var>timer</var> MUST be cleared.
           </li>
           <li>
-            If <var>timer</var> exists and expires, reject <var>promise</var>
-            with <code>"TimeoutError"</code> and abort these steps.
-          </li>
-          <li>
-            When an <a>NFC device</a> comes within communication range,
-            <ol>
+            Wait until one of the following events happens:
+            <ul>
               <li>
-                If <var>target</var> has the value <code>"tag"</code>,
-                then the sending MAY only happen if an <a>NFC tag</a> is
-                tapped, otherwise reject <var>promise</var> with
-                <code>"InvalidAccessError"</code> and abort these steps.
+                The <var>timer</var> exists and expires, reject <var>promise</var>
+                with <code>"TimeoutError"</code> and abort these steps.
               </li>
               <li>
-                If <var>target</var> has the value <code>"peer"</code>,
-                then the sending MAY only happen if an <a>NFC peer</a> is
-                tapped, otherwise reject <var>promise</var> with
-                <code>"InvalidAccessError"</code> and abort these steps.
+                When an <a>NFC device</a> comes within communication range,
+                <ol>
+                  <li>
+                    If <var>target</var> has the value <code>"tag"</code>,
+                    then the sending MAY only happen if an <a>NFC tag</a> is
+                    tapped, otherwise reject <var>promise</var> with
+                    <code>"InvalidAccessError"</code> and abort these steps.
+                  </li>
+                  <li>
+                    If <var>target</var> has the value <code>"peer"</code>,
+                    then the sending MAY only happen if an <a>NFC peer</a> is
+                    tapped, otherwise reject <var>promise</var> with
+                    <code>"InvalidAccessError"</code> and abort these steps.
+                  </li>
+                  <li>
+                    If <var>target</var> has the value <code>"any"</code>, then the
+                    sending should happen if either an <a>NFC peer</a> or an
+                    <a>NFC tag</a> is tapped within the specified timeout.
+                  </li>
+                  <li>
+                    If the connection is lost during the transfer, or an error is
+                    signaled by the underlying platform, reject
+                    <var>promise</var> with <code>"<a>NetworkError</a>"</code> and
+                    terminate this algorithm.
+                  </li>
+                  <li>
+                    If the transfer is successful, cancel <var>timer</var> and
+                    resolve <var>promise</var>.
+                  </li>
+                </ol>
               </li>
               <li>
-                If <var>target</var> has the value <code>"any"</code>, then the 
-                sending should happen if either an <a>NFC peer</a> or an
-                <a>NFC tag</a> is tapped within the specified timeout.
+                If <var>timer</var> is still active, and the
+                <a href="cancelPush"><code>cancelPush()</code></a>
+                method is called, reject <var>promise</var> with
+                <code>"<a>AbortError</a>"</code>, as described in the
+                <a href="steps-cancelPush"><code>cancelPush()</code> algorithm</a>.
               </li>
               <li>
-                If the connection is lost during the transfer, or an error is
-                signaled by the underlying platform, reject
-                <var>promise</var> with <code>"<a>NetworkError</a>"</code> and
-                terminate this algorithm.
+                If the <a>top-level browsing context</a> loses focus (e.g. the user
+                navigated to another page), then pending push operations MUST be
+                canceled by executing the
+                <a href="steps-cancelPush"><code>cancelPush()</code></a> steps.
               </li>
-              <li>
-                If the transfer is successful, cancel <var>timer</var> and
-                resolve <var>promise</var>.
-              </li>
-            </ol>
-          </li>
-          <li>
-            If <var>timer</var> is still active, and the
-            <a href="cancelPush"><code>cancelPush()</code></a>
-            method is called, reject <var>promise</var> with
-            <code>"<a>AbortError</a>"</code>, as described in the
-            <a href="steps-cancelPush"><code>cancelPush()</code> algorithm</a>.
-          </li>
-          <li>
-            If the <a>top-level browsing context</a> loses focus (e.g. the user
-            navigated to another page), then pending push operations MUST be
-            canceled by executing the
-            <a href="steps-cancelPush"><code>cancelPush()</code></a> steps.
+            </ul>
           </li>
         </ol>
       </p>
