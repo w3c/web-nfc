@@ -1058,7 +1058,7 @@
     <p>
       A <dfn>valid NFCRecord</dfn> <var>record</var> is an instance of
       <code><a>NFCRecord</a></code> which matches the following criteria:
-      <ul>
+      <ol>
         <li>
           <var>record</var>.kind has values defined by
           <code>NFCRecordType</code>, or <code>undefined</code>.
@@ -1072,7 +1072,7 @@
           <code>"string"</code>, or <code>"number"</code>, or instance of
           <code>Object</code>, or <code>ArrayBuffer</code>.
         </li>
-      </ul>
+      </ol>
     </p>
   </section> <!-- NFCRecord dictionary -->
 
@@ -1494,7 +1494,7 @@
             <ul id="steps-map-nfcrecord-ndef">
               <li>
                 If <var>record</var>.kind is <code>"empty"</code>, then
-                <ul>
+                <ol>
                   <li>
                     Let <var>ndef</var> be the result of passing
                     <var>record</var> to <a>map empty record to NDEF</a>.
@@ -1508,7 +1508,7 @@
                     Skip the remaining substeps for the sequence
                     <var>message</var>.
                   </li>
-                </ul>
+                </ol>
               </li>
               <li>
                 If <var>record</var>.kind is <code>"text"</code>, then let
@@ -1540,7 +1540,7 @@
               <li> <!-- guess type from data and map to NDEF -->
                 Otherwise, if <var>record</var>.kind is <code>undefined</code>,
                 then:
-                <ul id="steps-map-data-to-ndef">
+                <ol id="steps-map-data-to-ndef">
                   <li>
                     If <var>record</var>.data is instance of
                     <code>ArrayBuffer</code>, then set <var>record</var>.type to
@@ -1565,12 +1565,12 @@
                     Otherwise reject <var>promise</var> with
                     <code>"SyntaxError"</code>, and abort these steps.
                   </li>
-                </ul>
+                </ol>
               </li>
               <li>
                 Add <var>ndef</var> to <var>output</var>.
               </li>
-            </ul>
+            </ol>
           </li> <!-- guessing record.type from the data -->
           <li>
             Let <var>web ndef</var> be the result of invoking
@@ -1596,7 +1596,7 @@
           </li>
           <li>
             When an <a>NFC device</a> comes within communication range,
-            <ul>
+            <ol>
               <li>
                 If <var>target</var> has the value <code>"tag"</code>,
                 then the sending MAY only happen if an <a>NFC tag</a> is
@@ -1624,7 +1624,7 @@
                 If the transfer is successful, cancel <var>timer</var> and
                 resolve <var>promise</var>.
               </li>
-            </ul>
+            </ol>
           </li>
           <li>
             If <var>timer</var> is still active, and the
@@ -1745,10 +1745,10 @@
             <var>record</var>.data encoded according to the
             [[NFC-STANDARDS]], NFC Forum Text Record Type
             Definition specification:
-            <ul>
+            <ol>
               <li>
                 The first octet is a status byte containing bit flags.
-                <ul>
+                <ol>
                   <li>
                     If <var>record</var>.type contains the parameter
                     "charset=UTF-8" (e.g. "text/plain; charset=UTF-8;"),
@@ -1760,7 +1760,7 @@
                     Set bits 5 to 0 to the length of the
                     <var>language</var> string.
                   </li>
-                </ul>
+                </ol>
               </li>
               <li>
                 Set the consecutive octets of <var>ndef.PAYLOAD</var>
@@ -1772,7 +1772,7 @@
                 MSB bit of the first payload octet (by default UTF-16,
                 or UTF-8 on special request).
               </li>
-            </ul>
+            </ol>
           </li>
           <li>
             Return <var>ndef</var>.
@@ -1948,14 +1948,14 @@
             Otherwise, if there is an active timer associated with a message set
             to be pushed during the next NFC communication, then execute the
             following sub-steps:
-            <ul>
+            <ol>
               <li>
                 Remove the message that has been set for pushing.
               </li>
               <li>
                 Cancel the timer associated with <code>messagePush()</code>.
               </li>
-            </ul>
+            </ol>
           </li>
           <li>
             Reject the pending <var>promise</var> in the
@@ -2325,7 +2325,7 @@
       <li>
         For each <a>NDEF record</a> which is part of <var>input</var>, run the
         following sub-steps for <dfn>parsing NDEF record</dfn>:
-        <ul>
+        <ol>
           <li>
             Let <var>ndef</var> be the notation for the current
             <a>NDEF record</a>. The fields of <var>ndef</var> are described by
@@ -2347,7 +2347,7 @@
             <dfn>parsing NDEF Text record</dfn>, or ensure that the
             underlying platform provides equivalent values to the
             <var>record</var> object properties:
-            <ul>
+            <ol>
               <li>Set <var>record</var>.kind to <code>"text"</code>.</li>
               <li>Set <var>record</var>.type to <code>"text/plain"</code>.</li>
               <li>
@@ -2366,7 +2366,7 @@
                 consecutive <var>ndef.PAYLOAD</var> octets, converted to UTF-16
                 encoding.
               </li>
-            </ul>
+            </ol>
           </li> <!-- reading NDEF Text record -->
           <li>
             If <var>ndef.TNF</var> is 1 (NFC Well Known Type Record), and
@@ -2375,7 +2375,7 @@
             <dfn>parsing NDEF URL record</dfn>, or make sure that the
             underlying platform provides equivalent values to the
             <var>record</var> object properties:
-            <ul>
+            <ol>
               <li>Set <var>record</var>.kind to <code>"url"</code>.</li>
               <li>Set <var>record</var>.type to <code>"text/plain"</code>.</li>
               <li>
@@ -2393,7 +2393,7 @@
                 Set <var>record</var>.data to the UTF-16 string converted from
                 the octets of <var>ndef.PAYLOAD</var> except the first octet.
               </li>
-            </ul>
+            </ol>
           </li> <!-- parsing NDEF URL record -->
           <li>
             If <var>ndef.TNF</var> is 3 (NFC Absolute URI Type record), then
@@ -2407,11 +2407,11 @@
             the following sub-steps for <dfn>parsing NDEF Media record</dfn>, or
             make sure that the underlying platform provides equivalent values to
             the <var>record</var> object properties:
-            <ul>
+            <ol>
               <li>
                 If <var>ndef.TYPE</var> matches the <a>match pattern</a>
                 <code>"application/*json"</code>, then
-                <ul>
+                <ol>
                   <li>Set <var>record</var>.kind to <code>"json"</code>.</li>
                   <li>Set <var>record</var>.type to <var>ndef.TYPE</var>.</li>
                   <li>
@@ -2422,11 +2422,11 @@
                       security reasons.
                     </p>
                   </li>
-                </ul>
+                </ol>
               </li>
               <li>
                 Otherwise,
-                <ul>
+                <ol>
                   <li>Set <var>record</var>.kind to <code>"opaque"</code>.</li>
                   <li>Set <var>record</var>.type to <var>ndef.TYPE</var>.</li>
                   <li>
@@ -2434,9 +2434,9 @@
                     object constructed from the octets of
                     <var>ndef.PAYLOAD</var>.
                   </li>
-                </ul>
+                </ol>
               </li>
-            </ul>
+            </ol>
           </li> <!-- parsing NDEF Media record -->
           <li>
             If <var>ndef.TNF</var> is 4 (NFC External Type record), and
@@ -2449,7 +2449,7 @@
             or 5 (NFC Unknown Type record) then execute the following sub-steps,
             or make sure that the underlying platform provides equivalent values
             to the <var>record</var> object properties:
-            <ul>
+            <ol>
               <li>Set <var>record</var>.kind to <code>"opaque"</code>.</li>
               <li>
                 If <var>ndef.TYPE</var> is defined, then set
@@ -2460,19 +2460,19 @@
                 Set <var>record</var>.data to a new <code>ArrayBuffer</code>
                 object constructed from the octets of <var>ndef.PAYLOAD</var>.
               </li>
-            </ul>
+            </ol>
           </li> <!-- parsing NDEF External/Unknown record -->
           <li>
             Add <var>record</var> to <var>message</var>.
           </li>
-        </ul>
+        </ol>
       </li>
       <li>
         For matching <var>message</var> against the registered
         <a>NFC watch</a>es, for each <a>NFC watch</a> <var>watch</var> that has
         been registered using the <code>watch()</code> method, execute the
         following sub-steps:
-        <ul>
+        <ol>
           <li>
             Let <var>options</var> be the <code><a>NFCWatchOptions</a></code>
             saved with the watch, and let <var>callback</var> be the registered
@@ -2488,7 +2488,7 @@
             <code>"web-nfc-only"</code>, and <var>messageId</var> is not
             <code>null</code>, or if <var>options</var>.mode is
             <code>"any"</code>, then execute the following sub-steps:
-            <ul>
+            <ol>
               <li>
                 If <var>options</var>.url is defined, and if
                 <var>messageId</var> does not match the <a>URL pattern</a>
@@ -2509,9 +2509,9 @@
                 <var>callback</var> with <var>record</var> as its first
                 argument, and <var>messageId</var> as its second argument.
               </li>
-            </ul>
+            </ol>
           </li>
-        </ul>
+        </ol>
       </li>
     </ol>
   </p>
