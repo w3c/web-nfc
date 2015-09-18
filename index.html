@@ -207,14 +207,6 @@
     The term <a href="https://html.spec.whatwg.org/#ascii-serialisation-of-an-origin">
     <dfn>ASCII serialized origin</dfn></a> is defined in [[!HTML5]].
   </p>
-  <p>
-    The term <dfn>URL pattern</dfn> is defined in the
-    <a href="#URL_pattern">URL patterns</a> section.
-  </p>
-  <p>
-    The term <dfn>match pattern</dfn> is defined in the
-    <a href="#match_pattern">Match patterns</a> section.
-  </p>
   <!--p>
     <code><a href="http://www.w3.org/TR/FileAPI/#blob"><dfn>Blob</dfn></a>
     </code> is defined in [[!FILEAPI]].
@@ -1949,32 +1941,33 @@
 
     <section id="match_pattern"> <h3>Match patterns</h3>
       <p>
-        A match pattern is a string which can contain the
+        A <a>match pattern</a> is a string which can contain the
         <code>'*'</code> wildcard character.
-        Match patterns are used primarily for matching <a>IANA media type</a>s,
-        for instance the match pattern <code>'application/*+json'</code> matches
+        It is defined by the following ABNF:
+        <pre>
+          <dfn data-lt="match pattern">match-pattern</dfn>       = <a>top-level type name</a> <code>"/"</code> [ tree <code>"."</code> ] <a>subtype name</a> [ <code>"+"</code> suffix ] [ <code>";"</code> parameters ]
+          <dfn>top-level type name</dfn> = <code>"*"</code> | &lt;any char except <code>"/"</code> and <code>"*"</code>&gt;
+          <dfn>subtype name</dfn>        = <code>"*"</code> | &lt;any char except <code>"+"</code>&gt;
+        </pre>
+        A <a>match pattern</a> is used primarily for matching <a>IANA media type</a>s,
+        for instance the pattern <code>'application/*+json'</code> matches
         <code>'application/calendar+json'</code>, but does not match
-        <code>'application/json'</code>. The match pattern
-        <code>'*/*json'</code> matches both.
+        <code>'application/json'</code>. The pattern
+        <code>'*/*json'</code>, on the other hand, matches both.
       </p>
     </section>
     <section id="URL_pattern"> <h3>URL patterns</h3>
       <p>
-        A URL pattern is a URL which can contain <code>"*"</code>
-        characters. Each URL pattern is in the form of
-        <ul>
-          <li><em>scheme</em> — for example, <code>"https"</code> or <code>"*"</code></li>
-          <li><em>host</em> — for example, <code>"www.w3.org"</code> or <code>"*.w3.org"</code></li>
-          <li><em>path</em> — for example, <code>"/*"</code>, <code>"/foo*"</code>, or <code>"/foo/bar"</code>.</li>
-        </ul>
-      </p>
-      <p>
-        The syntax is the following:
+        A <a>URL pattern</a> is a URL which may contain the <code>'*'</code>
+        wildcard character.
+        It consists of a <a data-lt="star scheme">scheme</a>, a
+        <a data-lt="star host">host</a> and (optionally) a
+        <a data-lt="star path">path</a>, defined by the following ABNF:
         <pre>
-          <dfn>url-pattern</dfn> = <a data-lt="url-scheme">scheme</a> :// <a data-lt="url-host">host</a> <a data-lt="url-path">path</a>
-          <dfn data-lt="url-scheme">scheme</dfn>      = <code>"*"</code> | <code>"https"</code>
-          <dfn data-lt="url-path">path</dfn>        = <code>"*"</code> | <code>"*."</code> &lt;any char except <code>"/"</code> and <code>"*"</code>&gt
-          <dfn data-lt="url-host">host</dfn>        = <code>"/"</code> &lt;any char&gt;
+          <dfn data-lt="url pattern">url-pattern</dfn> = <a data-lt="star scheme">scheme</a> <code>"://"</code> <a data-lt="star host">host</a> <a data-lt="star path">path</a>
+          <dfn data-lt="star scheme">scheme</dfn>      = <code>"*"</code> | <code>"https"</code>
+          <dfn data-lt="star host">host</dfn>        = <code>"/"</code> &lt;any char&gt;
+          <dfn data-lt="star path">path</dfn>        = <code>"*"</code> | <code>"*."</code> &lt;any char except <code>"/"</code> and <code>"*"</code>&gt;
         </pre>
       </p>
       <p>
