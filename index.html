@@ -966,14 +966,14 @@
         method, or when setting up listeners for reading, or when sending
         <a>NFC content</a>, the UA may warn the user that
         physical location may be inferred from the act of using NFC by the
-        <a>origin</a> of the reading <a>browsing context</a>.
+        given <a>origin</a>.
       </li>
       <li>
         Writing <a>Web NFC content</a> to an <a>NFC tag</a> does not need to
         <a>obtain permission</a>, if the <a>NFC tag</a> contains
         <a>trusted integrity NFC content</a> and the value of the <a>NDEF Id</a>
-        field is equal to the <a>ASCII serialized origin</a> of the writing
-        <a>browsing context</a>.
+        field is equal to the <a>ASCII serialized origin</a> of the
+        <a>incumbent settings object</a>.
         Otherwise the UA must <a>obtain permission</a> for
         sending <a>NFC content</a> which overwrites existing information.
         See also the <a>Writing or pushing content</a> section.
@@ -1448,10 +1448,6 @@
             </div>
           </li>
           <li>
-            Let <var>origin</var> be the <a>origin</a> of the
-            <a>browsing context</a> invoking this method.
-          </li>
-          <li>
             If the <a>obtain push permission</a> steps return
             <code>false</code>, then reject <var>promise</var> with
             <code>"SecurityError"</code>, and abort these steps.
@@ -1675,7 +1671,7 @@
           </li>
           <li>
             Otherwise, if an <a>expressed permission</a> has been granted
-            for <var>origin</var> using the
+            the <a>origin</a> using the
             <a href="http://www.w3.org/TR/permissions/">Permissions API</a>,
             then return <code>true</code>.
           </li>
@@ -2153,10 +2149,6 @@
             terminate this algorithm.
           </li>
           <li>
-            Let <var>origin</var> be the <a>origin</a> of the
-            <a>browsing context</a> invoking this method.
-          </li>
-          <li>
             If the <a>obtain watch permission</a> steps return
             <code>false</code>, then reject <var>promise</var> with
             <code>"SecurityError"</code>, and abort these steps.
@@ -2298,19 +2290,19 @@
         which has been received by the underlying platform.
         <p class="note">
           This is a placeholder for a possible future feature. In this step,
-          implementations MAY check if the <a>origin</a> of the
-          <a>browsing context</a> matches the <a>Web NFC Id</a> of
-          <var>input</var>.If yes, and also <a>prearranged trust relationship</a>
+          implementations MAY check if the <a>origin</a> matches the
+          <a>Web NFC Id</a> of <var>input</var>.
+          If yes, and also <a>prearranged trust relationship</a>
           exists so that <var>input</var> is <a>trusted integrity NFC content</a>,
           then same-origin policies MAY be applied.
         </p>
         <p class="note">
           This is a placeholder for a possible future feature. In this step,
           implementations MAY check if any of the <a>URL pattern</a>s saved
-          in the <a>Web NFC record</a> (in the future) match with the
-          <a>origin</a> of the <a>browsing context</a>. If yes, and also if
-          <a>prearranged trust relationship</a> exists so that
-          <var>input</var> is <a>trusted integrity NFC content</a>, then
+          in the <a>Web NFC record</a> (in the future) match the <a>origin</a>
+          of the <a>incumbent settings object</a>.
+          If yes, and also if <a>prearranged trust relationship</a> exists so
+          that <var>input</var> is <a>trusted integrity NFC content</a>, then
           allowed-origin policies MAY be applied.
         </p>
       </li>
