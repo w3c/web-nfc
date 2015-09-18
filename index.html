@@ -28,6 +28,8 @@
           wg:           "Web NFC Community Group",
           wgURI:        "https://www.w3.org/community/web-nfc/",
           wgPublicList: "public-web-nfc",
+          issueBase: "https://www.github.com/w3c/web-nfc/issues/",
+          githubAPI: "https://api.github.com/repos/w3c/web-nfc",
           otherLinks: [
             {
               key: "Repository",
@@ -87,7 +89,6 @@
               date: "17 July 2015"
             },
           },
-
     };
   </script>
   <style>
@@ -97,6 +98,7 @@
     table.simple td {
         border-right: 1px solid #000;
     }
+    .issue[id^='issue-'] > *:not([role='heading']) {}
   </style>
 </head>
 
@@ -932,10 +934,14 @@
         Browsers may ignore this rule for development purposes only.
       </li>
       <li>
-        In order to use NFC, the top-level <a>browsing context</a> of the
-        <code>Window</code> object using the Web NFC API must be
-        <strong>visible</strong> and <strong>in focus</strong>. This also means
-        that UAs should make sure the display is on, and the device is unlocked.
+        In order to use NFC, the <code>Window</code> object associated with the
+        <code>Document</code> contained by the top level browsing context using
+        the Web NFC API must be
+        <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
+        visible</a> and
+        <a href="https://html.spec.whatwg.org/#handler-onfocus">in focus</a>.
+        This also means that UAs should make sure the display is on, and the
+        device is unlocked.
         For web pages in background, receiving and sending <a>NFC content</a>
         must be suspended.
         <p class="note">
@@ -946,6 +952,16 @@
           <a>expressed permission</a> for each NFC operation, provided the
           other conditions described in this specification are fulfilled.
         </p>
+        <div class="issue" data-number="48">
+          With the term 'suspended' this specification refers to NFC operations
+          being suspended, i.e. no NFC content is pushed, and no received NFC
+          content is presented via watches while suspended.
+          However, timers instantiated on platform level for the
+          <a><code>pushMessage()</code></a> method continue running, and if
+          they expire, the event should be recorded and handled
+          next time the execution is resumed, i.e. when the <code>focus</code>
+          event is fired on the <code>Window</code> object.
+        </div>
       </li>
       <li>
         When sending (i.e. writing or pushing) <a>Web NFC content</a>, the
