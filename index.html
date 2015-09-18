@@ -1447,9 +1447,13 @@
           <li>
             Let <var>output</var> be the notation for the <a>NDEF message</a>
             to be created by an API call to the underlying platform, based on
-            data provided by these steps. On any termination of this algorithm,
-            <var>output</var> SHOULD be cleared, so that the platform resources
-            are available for the next invocation of the algorithm.
+            data provided by these steps.
+            <p class="note">
+              On any termination of this algorithm, all platform resources
+              bound to <var>output</var> should be cleared, so that the
+              platform resources are available for the next invocation of the
+              algorithm.
+            </p>
           </li>
           <li>
             For each <a>NFCRecord</a> <var>record</var> in the sequence
@@ -1549,7 +1553,7 @@
             Wait until one of the following events happens:
             <ul>
               <li>
-                The <var>timer</var> exists and expires, reject <var>promise</var>
+                The <var>timer</var> expires, reject <var>promise</var>
                 with <code>"TimeoutError"</code> and abort these steps.
               </li>
               <li>
@@ -1557,26 +1561,26 @@
                 <ol>
                   <li>
                     If <var>target</var> has the value <code>"tag"</code>,
-                    then the sending MAY only happen if an <a>NFC tag</a> is
+                    then the sending SHOULD only happen if an <a>NFC tag</a> is
                     tapped, otherwise reject <var>promise</var> with
                     <code>"InvalidAccessError"</code> and abort these steps.
                   </li>
                   <li>
                     If <var>target</var> has the value <code>"peer"</code>,
-                    then the sending MAY only happen if an <a>NFC peer</a> is
+                    then the sending SHOULD only happen if an <a>NFC peer</a> is
                     tapped, otherwise reject <var>promise</var> with
                     <code>"InvalidAccessError"</code> and abort these steps.
                   </li>
                   <li>
-                    If <var>target</var> has the value <code>"any"</code>, then the
-                    sending should happen if either an <a>NFC peer</a> or an
+                    If <var>target</var> has the value <code>"any"</code>, then
+                    the sending SHOULD happen if either an <a>NFC peer</a> or an
                     <a>NFC tag</a> is tapped within the specified timeout.
                   </li>
                   <li>
-                    If the connection is lost during the transfer, or an error is
-                    signaled by the underlying platform, reject
-                    <var>promise</var> with <code>"<a>NetworkError</a>"</code> and
-                    terminate this algorithm.
+                    If the connection is lost during the transfer, or an error
+                    is signaled by the underlying platform, reject
+                    <var>promise</var> with <code>"<a>NetworkError</a>"</code>
+                    and terminate this algorithm.
                   </li>
                   <li>
                     If the transfer is successful, cancel <var>timer</var> and
@@ -1585,11 +1589,12 @@
                 </ol>
               </li>
               <li>
-                If <var>timer</var> is still active, and the
+                If <var>timer</var> is active, and the
                 <a href="cancelPush"><code>cancelPush()</code></a>
                 method is called, reject <var>promise</var> with
                 <code>"<a>AbortError</a>"</code>, as described in the
-                <a href="steps-cancelPush"><code>cancelPush()</code> algorithm</a>.
+                <a href="steps-cancelPush"><code>cancelPush()</code>
+                algorithm</a>.
               </li>
               <li>
                 If the <a>top-level browsing context</a> loses focus (e.g. the user
@@ -1898,11 +1903,6 @@
             <a href="#steps-pushMessage"><code>pushMessage()</code> algorithm</a>,
             or no active timers associated with it, then terminate this
             algorithm.
-            <p class="note">
-              This step also covers the case when the timer has already fired,
-              which also means that the message buffer is invalid, and is to be
-              replaced by the next invocation of <code>pushMessage()</code>.
-            </p>
           </li>
           <li>
             Otherwise, if there is an active timer associated with a message set
