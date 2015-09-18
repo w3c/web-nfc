@@ -98,7 +98,7 @@
     table.simple td {
         border-right: 1px solid #000;
     }
-    .issue[id^='issue-'] > *:not([role='heading']) {}
+    .issue[id^='issue-'] > *:not([role='heading']) { /* display: none; */ }
   </style>
 </head>
 
@@ -157,9 +157,9 @@
   <p>
     The term <a href="https://html.spec.whatwg.org/#browsing-context">
     <dfn>browsing context</dfn></a> refers to the environment in which
-    <a href="https://html.spec.whatwg.org/#document">Document</a> objects are
-    presented to the user. A given <a>browsing context</a> has a single
-    <a>origin</a> and a single <code>WindowProxy</code> object, but it
+    <a href="https://html.spec.whatwg.org/#document"><dfn>Document</dfn></a>
+    objects are presented to the user. A given <a>browsing context</a> has a
+    single <a>origin</a> and a single <code>WindowProxy</code> object, but it
     can have many <code>Document</code> objects, with their associated
     <code>Window</code> objects. The <i>browsing context</i> identifies
     the entity which invokes this API, which can be a <i>web app</i>, a
@@ -920,14 +920,18 @@
     </p>
     <ul>
       <li>
-        Only <a>browsing context</a>s with a defined <a>origin</a>, whose schema
-        is starting with <code>"https"</code> must be able to access
+        Only <code>
+        <a href="https://html.spec.whatwg.org/#document">Document</a></code>s
+        with a <a>browsing context</a>, and an <a>incumbent settings object</a>
+        which is a <a>secure context</a> are allowed to access
         <a>NFC content</a>.
         Browsers may ignore this rule for development purposes only.
       </li>
       <li>
         In order to use NFC, the <code>Window</code> object associated with the
-        <code>Document</code> contained by the top level browsing context using
+        <code><a>Document</a></code> contained by the
+        <a href="http://www.w3.org/TR/html5/browsers.html#top-level-browsing-context">
+        top level browsing context</a> using
         the Web NFC API must be
         <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
         visible</a> and
@@ -935,25 +939,7 @@
         This also means that UAs should make sure the display is on, and the
         device is unlocked.
         For web pages in background, receiving and sending <a>NFC content</a>
-        must be suspended.
-        <p class="note">
-          As a consequence, since every access from a <a>browsing context</a>
-          needs the attention of the user, and since the user must do a physical
-          gesture of tapping the device to another one in order to use NFC, it
-          is assumed in this specification that the user has
-          <a>expressed permission</a> for each NFC operation, provided the
-          other conditions described in this specification are fulfilled.
-        </p>
-        <div class="issue" data-number="48">
-          With the term 'suspended' this specification refers to NFC operations
-          being suspended, i.e. no NFC content is pushed, and no received NFC
-          content is presented via watches while suspended.
-          However, timers instantiated on platform level for the
-          <a><code>pushMessage()</code></a> method continue running, and if
-          they expire, the event should be recorded and handled
-          next time the execution is resumed, i.e. when the <code>focus</code>
-          event is fired on the <code>Window</code> object.
-        </div>
+        must be <a id="#nfc-suspended">suspended</a>.
       </li>
       <li>
         When sending (i.e. writing or pushing) <a>Web NFC content</a>, the
@@ -1277,13 +1263,27 @@
         reject <var>promise</var> with
         <code>"<a>NotSupportedError</a>"</code>, and abort these steps.
       </li>
-          <li>Let <var>adapter</var> be <code>null</code>.</li>
+      <li>
+        Let <var>adapter</var> be <code>null</code>.
+        Associate <var>adapter</var> with the current <code>Window</code>
+        object.
+        <p class="note">
+          There is a different NFC adapter instance per <code>Window</code>
+          object, whose
+          <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
+           visibility</a> and
+           <a href="https://html.spec.whatwg.org/#handler-onfocus">focus</a>
+           state determines the <a href="#nfc-suspended">suspended</a> state
+           of the adapter.
+        </p>
+      </li>
       <li>
         If there is a default <a>NFC adapter</a>, set <var>adapter</var> to the
         corresponding <code><a>NFCAdapter</a></code> object, or if that does not
         exist, a new <code><a>NFCAdapter</a></code> object which is bound to
         work with the default <a>NFC adapter</a>.
-        Resolve <a>promise</a> with <var>adapter</var>, and abort these steps.
+        Resolve <a>promise</a> with <var>adapter</var>, and terminate these
+        steps.
       </li>
       <li>
         Otherwise, make a request to the underlying platform to enumerate
@@ -1322,6 +1322,31 @@
           </li>
         </ol>
       </li>
+      <li id="adapter-inbox">
+        Let <var>receivedMessage</var> be <code>null</code>, and associate it
+        with <var>adapter</var> to be used by the other algorithms of this
+        specification.
+      </li>
+      <li id="adapter-suspended">
+        Let <var>suspended</var> be <code>false</code>, and associate it
+        with <var>adapter</var> to be used by the other algorithms of this
+        specification.
+      </li>
+      <li id="adapter-timer">
+        Let <var>timer</var> be a new timer associated with <var>adapter</var>
+        to be used in the <a href="#steps-pushMessage">pushMessage()</a>
+        algorithm.
+      </li>
+      <li id="adapter-tagmessage">
+        Let <var>tagMessage</var> be <code>null</code>, and associate it with
+        <var>adapter</var> in order to be used in the
+        <a href="#steps-pushMessage">pushMessage()</a> algorithm.
+      </li>
+      <li id="adapter-peermessage">
+        Let <var>peerMessage</var> be <code>null</code>, and associate it with
+        <var>adapter</var> in order to be used in the
+        <a href="#steps-pushMessage">pushMessage()</a> algorithm.
+      </li>
       <li>
         Resolve <var>promise</var> with <var>adapter</var>.
       </li>
@@ -1330,10 +1355,10 @@
 </section> <!-- NFC interface -->
 
 <section> <h2>The <strong>NFCAdapter</strong> interface</h2>
-  The <a>NFCAdapter</a> represents an NFC hardware device which can read and write
-  data. It allows for sending <a>Web NFC message</a>s to <a>NFC tag</a>s or
-  <a>NFC peer</a>s within range, and to set up and cancel <a>NFC watch</a>es to
-  handle incoming <a>Web NFC message</a>s either from an <a>NFC tag</a> or an
+  The <a>NFCAdapter</a> represents an NFC hardware device which can read and
+  write data. It allows for sending <a>Web NFC message</a>s to <a>NFC tag</a>s
+  or <a>NFC peer</a>s within range, and to set up and cancel <a>NFC watch</a>es
+  to handle incoming <a>Web NFC message</a>s either from an <a>NFC tag</a> or an
   <a>NFC peer</a>.
   <pre class="idl">
     interface NFCAdapter {
@@ -1423,10 +1448,12 @@
             for <code>"any"</code> always gets rejected.
             </p>
             <p class="note">
-              Implementations are expected to clean up state on termination,
-              e.g. clear timers, and platform resources bound to NFC
-              functionality, so that new invocations of this algorithm don't
-              depend on previous invocations.
+              Implementations are expected to clean up state on aborting these
+              steps, e.g. reset <var>timer</var>, <var>tagMessage</var>
+              and <var>peerMessage</var> <a href="#adapter-timer">associated</a>
+              with the current <a>NFC adapter</a>, and release platform
+              resources bound to NFC functionality, so that new invocations of
+              this algorithm don't depend on previous invocations.
             </p>
           </li>
           <li>
@@ -1540,21 +1567,39 @@
             </ol>
           </li> <!-- guessing record.type from the data -->
           <li>
-            Let <var>web ndef</var> be the result of invoking
+            Let <var>webnfc</var> be the result of invoking
             <a>create a Web NFC record</a>.
           </li>
           <li>
-            Add <var>web ndef</var> to <var>output</var>.
+            Add <var>webnfc</var> to <var>output</var>.
+            <p class="note">
+              Implementations may choose the location of the Web NFC record
+              within the <a>NDEF message</a>.
+            </p>
           </li>
           <li>
             If <var>options</var>.timeout value is not valid or not supported
             in the underlying platform, reject <var>promise</var> with
             <code>"SyntaxError"</code>, and abort these steps.
+          </li>
           <li>
+            If <var>target</var> has the value <code>"tag"</code> or
+            <code>"any"</code>, then set the <var>tagMessage</var> variable
+            <a href="#adapter-tagmessage">associated</a> with the current
+            <a>NFC adapter</a> to <var>output</var>.
+          </li>
+          <li>
+            If <var>target</var> has the value <code>"peer"</code> or
+            <code>"any"</code>, then set the <var>peerMessage</var> variable
+            <a href="#adapter-peermessage">associated</a> with the current
+            <a>NFC adapter</a> to <var>output</var>.
+          </li>
+          <li id="adapter-timer">
             If <var>options</var>.timeout value is not <code>Infinity</code>,
-            let <var>timer</var> be a new timer associated with this invocation
-            of <code>pushMessage()</code>, set to <var>options</var>.timeout,
-            and start <var>timer</var>.
+            start the timer <var>timer</var>
+            <a href="#adapter-timer">associated</a> with the current
+            <a>NFC adapter</a>, with the timeout value set to
+            <var>options</var>.timeout.
           </li>
           <li>
             Wait until one of the following events happens:
@@ -1564,24 +1609,35 @@
                 with <code>"TimeoutError"</code> and abort these steps.
               </li>
               <li>
-                When an <a>NFC device</a> comes within communication range,
+                If <var>timer</var> is active, and the
+                <a href="cancelPush"><code>cancelPush()</code></a>
+                method is called, reject <var>promise</var> with
+                <code>"<a>AbortError</a>"</code>, as described in the
+                <a href="#steps-cancelPush"><code>cancelPush()</code>
+                algorithm</a>.
+              </li>
+              <li>
+                When an <a>NFC device</a> <var>device</var> comes within
+                communication range,
                 <ol>
                   <li>
-                    If <var>target</var> has the value <code>"tag"</code>,
-                    then the sending SHOULD only happen if an <a>NFC tag</a> is
-                    tapped, otherwise reject <var>promise</var> with
+                    If <var>suspended</var> variable
+                    <a href="#adapter-suspended">associated</a> with the current
+                    <a>NFC adapter</a> is <code>true</code>, then
+                     reject <var>promise</var> with
                     <code>"InvalidAccessError"</code> and abort these steps.
                   </li>
                   <li>
-                    If <var>target</var> has the value <code>"peer"</code>,
-                    then the sending SHOULD only happen if an <a>NFC peer</a> is
-                    tapped, otherwise reject <var>promise</var> with
-                    <code>"InvalidAccessError"</code> and abort these steps.
+                    If <var>device</var> is an <a>NFC tag</a>, and
+                    <var>tagMessage</var> is <code>null</code>, then  reject
+                    <var>promise</var> with <code>"InvalidAccessError"</code>
+                    and abort these steps.
                   </li>
                   <li>
-                    If <var>target</var> has the value <code>"any"</code>, then
-                    the sending SHOULD happen if either an <a>NFC peer</a> or an
-                    <a>NFC tag</a> is tapped within the specified timeout.
+                    If <var>device</var> is an <a>NFC peer</a>, and
+                    <var>peerMessage</var> is <code>null</code>, then  reject
+                    <var>promise</var> with <code>"InvalidAccessError"</code>
+                    and abort these steps.
                   </li>
                   <li>
                     If the connection is lost during the transfer, or an error
@@ -1590,29 +1646,42 @@
                     and terminate this algorithm.
                   </li>
                   <li>
-                    If the transfer is successful, cancel <var>timer</var> and
+                    Otherwise if the transfer is successful, then on the
+                    current <a>NFC adapter</a> reset the
+                    <a href="#adapter-timer">associated</a> variables:
+                    cancel <var>timer</var>, set <var>tagMessage</var> and
+                    <var>peerMessage</var> to <code>null</code> and then
                     resolve <var>promise</var>.
                   </li>
                 </ol>
-              </li>
-              <li>
-                If <var>timer</var> is active, and the
-                <a href="cancelPush"><code>cancelPush()</code></a>
-                method is called, reject <var>promise</var> with
-                <code>"<a>AbortError</a>"</code>, as described in the
-                <a href="steps-cancelPush"><code>cancelPush()</code>
-                algorithm</a>.
-              </li>
-              <li>
-                If the <a>top-level browsing context</a> loses focus (e.g. the user
-                navigated to another page), then pending push operations MUST be
-                canceled by executing the
-                <a href="steps-cancelPush"><code>cancelPush()</code></a> steps.
               </li>
             </ul>
           </li>
         </ol>
       </p>
+
+      <section><h4>Obtaining push permission</h4>
+      <p>
+        To <dfn>obtain push permission</dfn>, run these steps:
+        <ol>
+          <li>
+            If a <a>prearranged trust relationship</a> exists,
+            then return <code>true</code>.
+          </li>
+          <li>
+            Otherwise, if an <a>expressed permission</a> has been granted to
+            the <a>origin</a> using the
+            <a href="http://www.w3.org/TR/permissions/">Permissions API</a>,
+            then return <code>true</code>.
+          </li>
+          <li>
+            Return <code>false</code>.
+          </li>
+        </ol>
+      </p>
+      </section>
+
+      <section><h4>Mapping empty record to NDEF</h4>
       <p>
         To <dfn>map empty record to NDEF</dfn> given a <var>record</var>, run
         these steps:
@@ -1638,24 +1707,9 @@
           </li>
         </ol>
       </p>
-      <p>
-        To <dfn>obtain push permission</dfn>, run these steps:
-        <ol>
-          <li>
-            If a <a>prearranged trust relationship</a> exists,
-            then return <code>true</code>.
-          </li>
-          <li>
-            Otherwise, if an <a>expressed permission</a> has been granted to
-            the <a>origin</a> using the
-            <a href="http://www.w3.org/TR/permissions/">Permissions API</a>,
-            then return <code>true</code>.
-          </li>
-          <li>
-            Return <code>false</code>.
-          </li>
-        </ol>
-      </p>
+      </section>
+
+      <section><h4>Mapping string to NDEF</h4>
       <p>
         To <dfn>map text to NDEF</dfn> given a <var>record</var>, run these
         steps:
@@ -1751,6 +1805,9 @@
           </li>
         </ol>
       </p>
+      </section>
+
+      <section><h4>Mapping URL to NDEF</h4>
       <p>
         To <dfn>map a URL to NDEF</dfn> given a <var>record</var>, run these
         steps:
@@ -1783,6 +1840,9 @@
           </li>
         </ol>
       </p>
+      </section>
+
+      <section><h4>Mapping JSON to NDEF</h4>
       <p>
         To <dfn>map a JSON object to NDEF</dfn> given a <var>record</var>,
         run these steps:
@@ -1820,6 +1880,9 @@
           </li>
         </ol>
       </p>
+      </section>
+
+      <section><h4>Mapping binary data to NDEF</h4>
       <p>
         To <dfn>map binary data to NDEF</dfn> given a <var>record</var>,
         run these steps:
@@ -1853,6 +1916,9 @@
           </li>
         </ol>
       </p>
+      </section>
+
+      <section><h4>Creating a Web NFC record</h4>
       <p>
         To <dfn>create a <a>Web NFC record</a></dfn>, run these steps:
         <ol>
@@ -1884,7 +1950,8 @@
           </li>
         </ol>
       </p>
-    </section>
+      </section>
+    </section> <!-- pushMessage() -->
 
     <section id="cancelPush"><h3>The cancelPush() method</h3>
       <p>
@@ -1912,22 +1979,30 @@
             algorithm.
           </li>
           <li>
-            Otherwise, if there is an active timer associated with a message set
-            to be pushed during the next NFC communication, then execute the
+            Otherwise, if there is an active timer <var>timer</var>
+            <a href="#adapter-timer">associated</a> with the current
+            <a>NFC adapter</a> for a message set to be pushed, then execute the
             following sub-steps:
             <ol>
               <li>
-                Remove the message that has been set for pushing.
+                Reset <var>timer</var>.
               </li>
               <li>
-                Cancel the timer associated with <code>messagePush()</code>.
+                Set the <var>tagMessage</var> variable
+                <a href="#adapter-tagmessage">associated</a> with the current
+                <a>NFC adapter</a> to <code>null</code>.
+              </li>
+              <li>
+                Set the <var>peerMessage</var> variable
+                <a href="#adapter-peermessage">associated</a> with the current
+                <a>NFC adapter</a> to <code>null</code>.
+              </li>
+              <li>
+                Reject the pending <var>promise</var> in the
+                <a href="#steps-pushMessage"><code>pushMessage()</code></a>
+                algorithm with <code>"<a>AbortError</a>"</code>.
               </li>
             </ol>
-          </li>
-          <li>
-            Reject the pending <var>promise</var> in the
-            <a href="#steps-pushMessage"><code>pushMessage()</code> algorithm</a>
-            with <code>"<a>AbortError</a>"</code>.
           </li>
         </ol>
       </p>
@@ -1945,7 +2020,7 @@
         <code>'*'</code> wildcard character.
         It is defined by the following ABNF:
         <pre>
-          <dfn data-lt="match pattern">match-pattern</dfn>       = <a>top-level type name</a> <code>"/"</code> [ tree <code>"."</code> ] <a>subtype name</a> [ <code>"+"</code> suffix ] [ <code>";"</code> parameters ]
+          <dfn data-lt="match pattern">match-pattern</dfn> = <a>top-level type name</a> <code>"/"</code> [ tree <code>"."</code> ] <a>subtype name</a> [ <code>"+"</code> suffix ] [ <code>";"</code> parameters ]
           <dfn>top-level type name</dfn> = <code>"*"</code> | &lt;any char except <code>"/"</code> and <code>"*"</code>&gt;
           <dfn>subtype name</dfn>        = <code>"*"</code> | &lt;any char except <code>"+"</code>&gt;
         </pre>
@@ -1970,14 +2045,14 @@
           <dfn data-lt="star path">path</dfn>        = <code>"*"</code> | <code>"*."</code> &lt;any char except <code>"/"</code> and <code>"*"</code>&gt;
         </pre>
       </p>
-      <p>
-        Note that <code>'*'</code> has slightly different meaning depending on
-        whether it is in the <i>scheme</i>, <i>host</i> or <i>path</i> part.
+      <p class="note">
+        The <code>'*'</code> character has slightly different meaning depending
+        on whether it is in the <i>scheme</i>, <i>host</i> or <i>path</i> part.
         In a <i>scheme</i> <code>'*'</code> will match only the allowed
         <code>'https'</code> scheme.
         If the <i>host</i> is <code>'*'</code>, then it matches any host. If the
         <i>host</i> is e.g. <code>'*.myhost'</code>, then it will match the
-        specified host or any of its subdomains. Note that in the <i>host</i>
+        specified host or any of its subdomains. In the <i>host</i>
         part, <code>'*'</code> MUST be the first character, so it can only be
         used for matching <i>any host</i>, or subdomains of a given host, but
         no partial matches on host names.
@@ -2142,9 +2217,12 @@
             <code>"NotSupportedError"</code> , and abort these steps.
           </li>
           <li>
-            Otherwise, let <var>watchId</var> be a locally unique number
-            assigned to <var>options</var> and <var>callback</var> and store
-            them together as an <a>NFC watch</a>.
+            Let <var id="watch-suspended">suspended</var> be <code>false</code>.
+          </li>
+          <li>
+            Let <var>watchId</var> be a locally unique number
+            assigned to <var>options</var>, <var>suspended</var> and
+            <var>callback</var>, and store them together as an <a>NFC watch</a>.
           </li>
           <li>
             Resolve <var>promise</var> with <var>watchId</var>.
@@ -2246,13 +2324,11 @@
     If there are any <a>NFC watch</a>es set up for any <a>NFC adapter</a>, then
     UAs MUST listen to <a>NDEF message</a>s, according to step 9
     of the <a href="#steps-watch">NFC watch algorithm</a>.
+  </p>
+  <section><h4>The NDEF parsing algorithm</h4>
     When the <a>UA</a> is to <dfn>receive an NDEF message</dfn> it MUST run the
     following algorithm:
-    <ol>
-      <li>
-        If the <a>top-level browsing context</a> loses focus (e.g. the user
-        has navigated away to another page), then these steps MUST be suspended.
-      </li>
+    <ol id ="parse-ndef">
       <li>
         Let <var>input</var> be the notation for the <a>NDEF message</a>
         which has been received by the underlying platform.
@@ -2427,19 +2503,43 @@
           </li>
           <li>
             Add <var>record</var> to <var>message</var>.
+            Let the <var>receivedMessage</var> variable
+            <a href="#adapter-inbox">associated</a> with the current
+            <code><a>NFCAdapter</a></code> object be <var>message</var>.
           </li>
         </ol>
       </li>
       <li>
-        For matching <var>message</var> against the registered
-        <a>NFC watch</a>es, for each <a>NFC watch</a> <var>watch</var> that has
-        been registered using the <code>watch()</code> method, execute the
-        following sub-steps:
+        If <var>suspended</var> variable
+        <a href="#adapter-suspended">associated</a> with the current
+        <a>NFC adapter</a> is <code>false</code>, then for each
+        <a>NFC watch</a> <var>watch</var> registered using the
+        <code>watch()</code> method for the current <a>NFC adapter</a>,
+        execute the <a href="#steps-dispatch">dispatch NFC content</a>
+        algorithm.
+      </li>
+    </ol>
+    </section>
+
+    <section><h4>Dispatching NFC content</h4>
+    <p>
+      The following steps are used for dispatching received <a>NFC content</a>:
+    </p>
+    <ol id="steps-dispatch">
+      <li>
+        Let <var>message</var> be the <var>receivedMessage</var>
+        <a href="#adapter-inbox">associated</a> with the current
+        <a>NFC adapter</a>. If it is <code>null</code>, then abort these steps.
+      </li>
+      <li>
+        For each <a>NFC watch</a> <var>watch</var> that has
+        been registered using the <code>watch()</code> method on the current
+        <a>NFC adapter</a>, execute the following sub-steps:
         <ol>
           <li>
             Let <var>options</var> be the <code><a>NFCWatchOptions</a></code>
-            saved with the watch, and let <var>callback</var> be the registered
-            callback function.
+            saved with <var>watch</var>, and let <var>callback</var> be the
+            registered callback function.
           </li>
           <li>
             If <var>options</var>.mode is <code>"web-nfc-only"</code>, and
@@ -2458,26 +2558,83 @@
                 <a>NFC watch</a>.
               </li>
               <li>
-                If <var>options</var>.kind is not equal to
-                <var>record</var>.kind, then skip to the next <a>NFC watch</a>.
+                If <var>options</var>.kind is not equal to any
+                <var>record</var>.kind where <var>record</var> is an element of
+                <var>message</var>, then skip to the next <a>NFC watch</a>.
               </li>
               <li>
-                If <var>options</var>.type is not equal to
-                <var>record</var>.type, then skip to the next <a>NFC watch</a>.
+                If <var>options</var>.type is not equal to any
+                <var>record</var>.type where <var>record</var> is an element of
+                <var>message</var>, then skip to the next <a>NFC watch</a>.
               </li>
               <li>
                 <a>Queue a task</a> using the <dfn>Web NFC task source</dfn>
                 to invoke the <code>MessageCallback</code>
-                <var>callback</var> with <var>record</var> as its first
-                argument, and <var>messageId</var> as its second argument.
+                <var>callback</var> with <var>message</var> as its first
+                argument, and <var>messageId</var> as its second argument,
+                and then set the <var>receivedMessage</var> variable
+                <a href="#adapter-inbox">associated</a> with the current
+                <a>NFC adapter</a> be <code>null</code>.
               </li>
             </ol>
           </li>
         </ol>
       </li>
     </ol>
-  </p>
+    </section>
+  </section> <!-- receiving content -->
+
+  <section><h3>Handling visibility and focus</h3>
+    <p>
+      With the term <dfn id="nfc-suspended">suspended</dfn> this specification
+      refers to NFC operations being suspended, i.e. no <a>NFC content</a> is
+      pushed, and no received <a>NFC content</a> is presented via watches while
+      suspended.
+      However, timers instantiated on platform level for the
+      <code><a>NFCAdapter.pushMessage</a>()</code> method continue running,
+      and if they expire, the event should be recorded and handled
+      next time the execution is resumed, i.e. when the <code>focus</code>
+      event is fired on the <code>Window</code> object.
+    </p>
+    <p>
+      When the <code>Window</code> object associated with the
+      <code><a>Document</a></code> using the Web NFC API
+      <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
+      becomes visible</a> and
+      <a href="https://html.spec.whatwg.org/#handler-onfocus">in focus</a>,
+      then execute the following steps:
+    </p>
+    <ol id="steps-visible-focus">
+      <li>
+        Set the <var>suspended</var> variable
+        <a href="#adapter-suspended">associated</a> with the current
+        <a>NFC adapter</a> to <code>false</code>.
+      </li>
+      <li>
+        If the <var>receivedMessage</var> variable
+        <a href="#adapter-inbox">associated</a> with the current
+        <a>NFC adapter</a> is not <code>null</code>, then for each
+        <a>NFC watch</a> <var>watch</var> registered using the
+        <code>watch()</code> method for the current <a>NFC adapter</a>,
+        execute the <a href="#steps-dispatch">dispatch NFC content</a>
+        algorithm.
+      </li>
+    </ol>
+    <p>
+      When the <code>Window</code> object associated with the
+      <code><a>Document</a></code> using the Web NFC API
+      <a href="https://html.spec.whatwg.org/#handler-onblur">loses focus</a>,
+      then execute the following steps:
+    </p>
+    <ol id="steps-focus-lost">
+      <li>
+        Set the <var>suspended</var> variable
+        <a href="#adapter-suspended">associated</a> with the current
+        <a>NFC adapter</a> to <code>true</code>.
+      </li>
+    </ol>
   </section>
+
 </section> <!-- NFCAdapter -->
 
 <!-- - - - - - - - - - - - - - -  Changes - - - - - - - - - - - - - - - - - -->
