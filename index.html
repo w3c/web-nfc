@@ -1958,7 +1958,7 @@
         <pre>
           <em>&lt;url-pattern&gt;</em> := <em>&lt;scheme&gt;</em>://<em>&lt;host&gt;</em><em>&lt;path&gt;</em>
           <em>&lt;scheme&gt;</em> := '*' | 'https'
-          <em>&lt;host&gt;</em> := '*' | '*.' <em>&lt;any char except '/' and '*'&gt;</em>+
+          <em>&lt;host&gt;</em> := '*' | '*.' <em>&lt;any char except '/' and '*'&gt;</em>
           <em>&lt;path&gt;</em> := '/' <em>&lt;any chars&gt;</em>
         </pre>
       </p>
@@ -1969,7 +1969,10 @@
         <code>'https'</code> scheme.
         If the <i>host</i> is <code>'*'</code>, then it matches any host. If the
         <i>host</i> is e.g. <code>'*.myhost'</code>, then it will match the
-        specified host or any of its subdomains.
+        specified host or any of its subdomains. Note that in the <i>host</i>
+        part, <code>'*'</code> MUST be the first character, so it can only be
+        used for matching <i>any host</i>, or subdomains of a given host, but
+        no partial matches on host names.
         In the <i>path</i> part, each <code>'*'</code> matches 0 or more
         characters.
       </p>
