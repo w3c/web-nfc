@@ -1397,6 +1397,10 @@
             then continue running this algorithm <a>in parallel</a>.
           </li>
           <li>
+            If any exception occurs while running these steps, reject
+            <var>promise</var> with that exception, and abort these steps.
+          </li>
+          <li>
             If there are any existing instance of this algorithm running
             for the current <a>NFC adapter</a>
             whose <var>target</var> equal to <var>options</var>.target or
@@ -1412,7 +1416,9 @@
             </p>
             <p class="note">
               Implementations are expected to clean up state on termination,
-              e.g. reset <var>timer</var>, clear <var>output</var>, etc.
+              e.g. clear timers, and platform resources bound to NFC
+              functionality, so that new invocations of this algorithm don't
+              depend on previous invocations.
             </p>
           </li>
           <li>
@@ -1448,12 +1454,6 @@
             Let <var>output</var> be the notation for the <a>NDEF message</a>
             to be created by an API call to the underlying platform, based on
             data provided by these steps.
-            <p class="note">
-              On any termination of this algorithm, all platform resources
-              bound to <var>output</var> should be cleared, so that the
-              platform resources are available for the next invocation of the
-              algorithm.
-            </p>
           </li>
           <li>
             For each <a>NFCRecord</a> <var>record</var> in the sequence
@@ -1546,8 +1546,7 @@
             If <var>options</var>.timeout value is not <code>Infinity</code>,
             let <var>timer</var> be a new timer associated with this invocation
             of <code>pushMessage()</code>, set to <var>options</var>.timeout,
-            and start <var>timer</var>. On any termination of this algorithm,
-            <var>timer</var> MUST be cleared.
+            and start <var>timer</var>.
           </li>
           <li>
             Wait until one of the following events happens:
@@ -1639,7 +1638,7 @@
             then return <code>true</code>.
           </li>
           <li>
-            Otherwise, if an <a>expressed permission</a> has been granted
+            Otherwise, if an <a>expressed permission</a> has been granted to
             the <a>origin</a> using the
             <a href="http://www.w3.org/TR/permissions/">Permissions API</a>,
             then return <code>true</code>.
@@ -2100,6 +2099,10 @@
           <li>
             Return <var>promise</var> and continue the following steps
             <a>in parallel</a>.
+          </li>
+          <li>
+            If any exception occurs while running these steps, reject
+            <var>promise</var> with that exception, and abort these steps.
           </li>
           <li>
             If the <a>incumbent settings object</a> is not a
