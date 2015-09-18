@@ -1037,7 +1037,7 @@
       dictionary NFCRecord {
         NFCRecordType kind;
         USVString type;
-        any data;
+        NFCRecordData data;
       };
     </pre>
     <p>
@@ -1049,25 +1049,6 @@
       The <dfn>NFCRecord.data</dfn> property represents the
       payload data of the <a>NDEF record</a> with an appropriate ECMAScript
       type, which depends on the <a>IANA media type</a>.
-    </p>
-    <p>
-      A <dfn>valid NFCRecord</dfn> <var>record</var> is an instance of
-      <code><a>NFCRecord</a></code> which matches the following criteria:
-      <ol>
-        <li>
-          <var>record</var>.kind has values defined by
-          <code>NFCRecordType</code>, or <code>undefined</code>.
-        </li>
-        <li>
-          <var>record</var>.type is a <a>valid MIME type</a>, or
-          <code>undefined</code>.
-        </li>
-        <li>
-          <var>record</var>.data is <code>null</code>, or of type
-          <code>"string"</code>, or <code>"number"</code>, or instance of
-          <code>Object</code>, or <code>ArrayBuffer</code>.
-        </li>
-      </ol>
     </p>
   </section> <!-- NFCRecord dictionary -->
 
@@ -1094,6 +1075,12 @@
     and <a>Writing or pushing content</a> sections.
   </p>
   </section> <!-- NFCRecordType interface -->
+
+  <section><h3>The <strong>NFCRecordData</strong> type</h3>
+    <pre class="idl">
+      typedef (DOMString or unrestricted double or object or ArrayBuffer) NFCRecordData;
+    </pre>
+  </section>
 
   <section><h3>Data mapping</h3>
   <p>
@@ -1454,28 +1441,15 @@
           </li>
           <li>
             If the <var>message</var> parameter is an empty sequence,
-            or if any <code><a>NFCRecord</a></code> element in
-            <var>message</var> is not a <a>valid NFCRecord</a>, then
-            reject <var>promise</var> with <code>"SyntaxError"</code>,
-            and abort these steps.
-          </li>
-          <li>
-            If the <var>options</var> parameter is undefined, then
-            let <var>options</var> be a new <code><a>NFCPushOptions</a></code>
-            object with the default values. If any of the
-            <code><a>NFCPushOptions</a></code> properties are undefined, use
-            the default values.
-          </li>
-            Otherwise, if the <var>options</var> parameter is defined and it is
-            not a valid instance of <code><a>NFCPushOptions</a></code>, then
-            reject <var>promise</var> with <code>"SyntaxError"</code>,
+            then reject <var>promise</var> with <code>"SyntaxError"</code>,
             and abort these steps.
           </li>
           <li>
             Let <var>output</var> be the notation for the <a>NDEF message</a>
             to be created by an API call to the underlying platform, based on
             data provided by these steps. On any termination of this algorithm,
-            <var>output</var> MUST be cleared.
+            <var>output</var> SHOULD be cleared, so that the platform resources
+            are available for the next invocation of the algorithm.
           </li>
           <li>
             For each <a>NFCRecord</a> <var>record</var> in the sequence
@@ -2154,17 +2128,6 @@
             <code>"SecurityError"</code>, and abort these steps.
           </li>
           <li>
-            If the first argument <var>options</var> contains invalid values,
-            reject <var>promise</var> with a <code>"<a>SyntaxError</a>"</code>,
-            and abort these steps.
-          </li>
-          <li>
-            If the second argument <var>callback</var> is not a
-            <a href="http://heycam.github.io/webidl/#common-Function">
-            Function</a>, reject <var>promise</var> with a
-            <code>"<a>SyntaxError</a>"</code>, and abort these steps.
-          </li>
-          <li>
             If this is the first watch being set up for the current
             <a>NFC adapter</a>, make a request to the underlying platform to
             listen to <a>NDEF message</a>s.
@@ -2455,6 +2418,9 @@
             </ol>
           </li> <!-- parsing NDEF External/Unknown record -->
           <li>
+            Otherwise, skip to the next <a>NDEF record</a> in <var>input</var>.
+          </li>
+          <li>
             Add <var>record</var> to <var>message</var>.
           </li>
         </ol>
@@ -2482,17 +2448,16 @@
             <code>"any"</code>, then execute the following sub-steps:
             <ol>
               <li>
-                If <var>options</var>.url is defined, and if
-                <var>messageId</var> does not match the <a>URL pattern</a>
+                If <var>messageId</var> does not match the <a>URL pattern</a>
                 stored in <var>options</var>.url, then skip to the next
                 <a>NFC watch</a>.
               </li>
               <li>
-                If <var>options</var>.kind is defined, and it is not equal to
+                If <var>options</var>.kind is not equal to
                 <var>record</var>.kind, then skip to the next <a>NFC watch</a>.
               </li>
               <li>
-                If <var>options</var>.type is defined, and it is not equal to
+                If <var>options</var>.type is not equal to
                 <var>record</var>.type, then skip to the next <a>NFC watch</a>.
               </li>
               <li>
