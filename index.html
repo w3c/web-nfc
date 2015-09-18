@@ -1459,46 +1459,36 @@
             <ol id="steps-map-nfcrecord-ndef">
               <li>
                 If <var>record</var>.kind is <code>"empty"</code>, then
-                <ol>
-                  <li>
-                    Let <var>ndef</var> be the result of passing
-                    <var>record</var> to <a>map empty record to NDEF</a>.
-                    If this threw an exception, reject <var>promise</var> with
-                    that exception and abort these steps.
-                  </li>
-                  <li>
-                    Clear <var>output</var> and add <var>ndef</var> to it.
-                  </li>
-                  <li>
-                    Skip the remaining substeps for the sequence
-                    <var>message</var>.
-                  </li>
-                </ol>
+                Let <var>ndef</var> be the result of passing <var>record</var>
+                to <a>map empty record to NDEF</a>.
+                If this threw an exception, reject <var>promise</var> with
+                that exception and abort these steps.
               </li>
               <li>
-                If <var>record</var>.kind is <code>"text"</code>, then let
-                <var>ndef</var> be the result of passing <var>record</var>
-                to <a>map text to NDEF</a>. If this threw an exception, reject
+                Otherwise, if <var>record</var>.kind is <code>"text"</code>,
+                then let <var>ndef</var> be the result of passing
+                <var>record</var> to <a>map text to NDEF</a>.
+                If this threw an exception, reject
                 <var>promise</var> with that exception and abort these steps.
               </li>
               <li>
-                If <var>record</var>.kind is <code>"url"</code>, then let
-                <var>ndef</var> the be result of passing <var>record</var> to
-                <a>map a URL to NDEF</a>.
+                Otherwise, if <var>record</var>.kind is <code>"url"</code>,
+                then let <var>ndef</var> the be result of passing
+                <var>record</var> to <a>map a URL to NDEF</a>.
                 If this threw an exception, reject <var>promise</var> with that
                 exception and abort these steps.
               </li>
               <li>
-                If <var>record</var>.kind is <code>"json"</code>, then let
-                <var>ndef</var> the be result of passing <var>record</var> to
-                <a>map a JSON object to NDEF</a>.
+                Otherwise, if <var>record</var>.kind is <code>"json"</code>,
+                then let <var>ndef</var> the be result of passing
+                <var>record</var> to <a>map a JSON object to NDEF</a>.
                 If this threw an exception, reject <var>promise</var> with that
                 exception and abort these steps.
               </li>
               <li>
-                If <var>record</var>.kind is <code>"opaque"</code>, then let
-                <var>ndef</var> the be result of passing <var>record</var> to
-                <a>map binary data to NDEF</a>.
+                Otherwise, if <var>record</var>.kind is <code>"opaque"</code>,
+                then let <var>ndef</var> the be result of passing
+                <var>record</var> to <a>map binary data to NDEF</a>.
                 If this threw an exception, reject <var>promise</var> with that
                 exception and abort these steps.
               </li>
