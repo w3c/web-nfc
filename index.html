@@ -1945,21 +1945,21 @@
     </section>
     <section id="URL_pattern"> <h3>URL patterns</h3>
       <p>
-        A URL pattern is a URL which can contain <code>'*'</code>
+        A URL pattern is a URL which can contain <code>"*"</code>
         characters. Each URL pattern is in the form of
         <ul>
-          <li><em>scheme</em>— for example, 'https' or '*'</li>
-          <li><em>host</em> — for example, 'www.w3.org' or '*.w3.org'</li>
-          <li><em>path</em> — for example, '/*', '/foo*', or '/foo/bar'.</li>
+          <li><em>scheme</em> — for example, <code>"https"</code> or <code>"*"</code></li>
+          <li><em>host</em> — for example, <code>"www.w3.org"</code> or <code>"*.w3.org"</code></li>
+          <li><em>path</em> — for example, <code>"/*"</code>, <code>"/foo*"</code>, or <code>"/foo/bar"</code>.</li>
         </ul>
       </p>
       <p>
         The syntax is the following:
         <pre>
-          <em>&lt;url-pattern&gt;</em> := <em>&lt;scheme&gt;</em>://<em>&lt;host&gt;</em><em>&lt;path&gt;</em>
-          <em>&lt;scheme&gt;</em> := '*' | 'https'
-          <em>&lt;host&gt;</em> := '*' | '*.' <em>&lt;any char except '/' and '*'&gt;</em>
-          <em>&lt;path&gt;</em> := '/' <em>&lt;any chars&gt;</em>
+          <dfn>url-pattern</dfn> = <a data-lt="url-scheme">scheme</a> :// <a data-lt="url-host">host</a> <a data-lt="url-path">path</a>
+          <dfn data-lt="url-scheme">scheme</dfn>      = <code>"*"</code> | <code>"https"</code>
+          <dfn data-lt="url-path">path</dfn>        = <code>"*"</code> | <code>"*."</code> &lt;any char except <code>"/"</code> and <code>"*"</code>&gt
+          <dfn data-lt="url-host">host</dfn>        = <code>"/"</code> &lt;any char&gt;
         </pre>
       </p>
       <p>
