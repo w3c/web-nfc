@@ -98,7 +98,7 @@
     table.simple td {
         border-right: 1px solid #000;
     }
-    .issue[id^='issue-'] > *:not([role='heading']) { /* display: none; */ }
+    .issue[id^='issue-'] > *:not([role='heading']) {}
   </style>
 </head>
 
@@ -165,6 +165,11 @@
     the entity which invokes this API, which can be a <i>web app</i>, a
     <i>web page</i>, or an
     <a href="https://html.spec.whatwg.org/#the-iframe-element">iframe</a>.
+  </p>
+  <p>
+    The term
+    <a href="https://html.spec.whatwg.org/#script-execution-environment">
+    <dfn>script execution environment</dfn></a> is defined in [[!HTML5]].
   </p>
   <p>
     The term <a href="https://html.spec.whatwg.org/#top-level-browsing-context">
@@ -920,7 +925,7 @@
     </p>
     <ul>
       <li>
-        Only <code>
+        Only <a>script execution environment</a>s of <code>
         <a href="https://html.spec.whatwg.org/#document">Document</a></code>s
         with a <a>browsing context</a>, and an <a>incumbent settings object</a>
         which is a <a>secure context</a> are allowed to access
@@ -934,8 +939,8 @@
         top level browsing context</a> using
         the Web NFC API must be
         <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
-        visible</a> and
-        <a href="https://html.spec.whatwg.org/#handler-onfocus">in focus</a>.
+        visible</a> and in
+        <a href="https://html.spec.whatwg.org/#focus">focus</a>.
         This also means that UAs should make sure the display is on, and the
         device is unlocked.
         For web pages in background, receiving and sending <a>NFC content</a>
@@ -1265,14 +1270,12 @@
       </li>
       <li>
         Let <var>adapter</var> be <code>null</code>.
-        Associate <var>adapter</var> with the current <code>Window</code>
-        object.
         <p class="note">
-          There is a different NFC adapter instance per <code>Window</code>
-          object, whose
+          There is a different <code>NFCAdapter</code> instance per
+          <code>Window</code> object, whose
           <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
            visibility</a> and
-           <a href="https://html.spec.whatwg.org/#handler-onfocus">focus</a>
+           <a href="https://html.spec.whatwg.org/#focus">focus</a>
            state determines the <a href="#nfc-suspended">suspended</a> state
            of the adapter.
         </p>
@@ -1323,29 +1326,31 @@
         </ol>
       </li>
       <li id="adapter-inbox">
-        Let <var>receivedMessage</var> be <code>null</code>, and associate it
-        with <var>adapter</var> to be used by the other algorithms of this
-        specification.
+        Let <var>receivedMessage</var> be associated with <var>adapter</var>,
+        in order to be used by the other algorithms of this specification,
+        initially <code>null</code>.
       </li>
       <li id="adapter-suspended">
-        Let <var>suspended</var> be <code>false</code>, and associate it
-        with <var>adapter</var> to be used by the other algorithms of this
-        specification.
+        Let <var>suspended</var> be associated with <var>adapter</var>,
+        in order to be used by the other algorithms of this specification,
+        initially <code>false</code>.
       </li>
       <li id="adapter-timer">
         Let <var>timer</var> be a new timer associated with <var>adapter</var>
-        to be used in the <a href="#steps-pushMessage">pushMessage()</a>
-        algorithm.
+        in order to be used in the
+        <a href="#steps-pushMessage">pushMessage()</a> algorithm.
       </li>
       <li id="adapter-tagmessage">
-        Let <var>tagMessage</var> be <code>null</code>, and associate it with
-        <var>adapter</var> in order to be used in the
-        <a href="#steps-pushMessage">pushMessage()</a> algorithm.
+        Let <var>tagMessage</var> be associated with <var>adapter</var>,
+        in order to be used in the
+        <a href="#steps-pushMessage">pushMessage()</a> algorithm,
+        initially <code>null</code>.
       </li>
       <li id="adapter-peermessage">
-        Let <var>peerMessage</var> be <code>null</code>, and associate it with
-        <var>adapter</var> in order to be used in the
-        <a href="#steps-pushMessage">pushMessage()</a> algorithm.
+        Let <var>peerMessage</var> be associated with <var>adapter</var>,
+        in order to be used in the
+        <a href="#steps-pushMessage">pushMessage()</a> algorithm,
+        initially <code>null</code>.
       </li>
       <li>
         Resolve <var>promise</var> with <var>adapter</var>.
@@ -2600,8 +2605,8 @@
       When the <code>Window</code> object associated with the
       <code><a>Document</a></code> using the Web NFC API
       <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
-      becomes visible</a> and
-      <a href="https://html.spec.whatwg.org/#handler-onfocus">in focus</a>,
+      becomes visible</a> and in
+      <a href="https://html.spec.whatwg.org/#focus">focus</a>,
       then execute the following steps:
     </p>
     <ol id="steps-visible-focus">
