@@ -1381,6 +1381,82 @@
       <a>Web NFC message</a> can be set for sending.
     </p>
   </section>
+  <section> <h3>The <strong>NFCWatchOptions</strong> dictionary</h3>
+      <p>
+        To describe which messages an application is interested in, the
+        <dfn>NFCWatchOptions</dfn> dictionary is used:
+      </p>
+      <pre class="idl">
+        enum NFCWatchMode {
+          "web-nfc-only",
+          "any"
+        };
+
+        dictionary NFCWatchOptions {
+          USVString url = null;
+          USVString kind = null;
+          USVString type = null;
+          NFCWatchMode mode = "web-nfc-only";
+        };
+      </pre>
+      <p>
+        The <dfn>NFCWatchOptions.url</dfn> property
+        denotes the <a>URL pattern</a> which is used for matching the
+        URL <a>origin</a> and <a>URL path</a> of the <a>Web NFC message</a>
+        which is stored in the <a>Web NFC record</a>.
+        The values <code>null</code>, <code>undefined</code>, and
+        <code>""</code> mean that no matching happens.
+      </p>
+      <p>
+        The <dfn>NFCWatchOptions.kind</dfn> property
+        denotes the string value which is used for matching the
+        <code>kind</code> property of each <code>NFCRecord</code> object
+        in a <a>Web NFC message</a>.
+        The values <code>null</code> and <code>undefined</code> mean that
+        no matching happens.
+      </p>
+      <p>
+        The <dfn>NFCWatchOptions.type</dfn> property
+        denotes the <a>match pattern</a> which is used for matching the
+        <code>type</code> property of each <code>NFCRecord</code> object
+        in a <a>Web NFC message</a>.
+        The values <code>null</code> and <code>undefined</code> mean that
+        no matching happens. The value <code>""</code> matches missing type
+        information.
+      </p>
+      <p>
+        The <dfn>NFCWatchOptions.mode</dfn> property tells
+        whether only <a>Web NFC content</a> or any <a>NFC content</a> will be
+        watched.
+      </p>
+      <p>
+        The <code>"web-nfc-only"</code> value means that only those
+        <a>NDEF message</a>s are exposed which contain a
+        <a>Web NFC record</a>, i.e. which are meant for web pages.
+      </p>
+      <p>
+        The <code>"any"</code> value means that all <a>NDEF message</a>s
+        are exposed.
+      </p>
+      <pre
+        title="Filter accepting only JSON content from https://www.w3.org"
+        class="example highlight">
+        var watchOptions = {
+          url: "www.w3.org/*",  // any path from the domain is accepted
+          kind: "json",
+          type: "application/*+json"  // any JSON-based IANA media type
+        }
+      </pre>
+      <pre
+        title="Filter which only accept binary content from a given path but any domain"
+        class="example highlight">
+        var watchOptions = {
+          url: "*://*/info/restaurant/daily-menu/",  // accepted from any domain
+          kind: "opaque",
+          type: "application/octet-stream"
+        }
+      </pre>
+    </section> <!-- NFCWatchOptions -->
 
   <section><h3><dfn>Writing or pushing content</dfn></h3>
     <p>
@@ -2042,82 +2118,6 @@
         <code>'https://info.mydomain.com/general/'</code>.
       </p>
     </section>
-    <section> <h3>The <strong>NFCWatchOptions</strong> dictionary</h3>
-      <p>
-        To describe which messages an application is interested in, the
-        <dfn>NFCWatchOptions</dfn> dictionary is used:
-      </p>
-      <pre class="idl">
-        enum NFCWatchMode {
-          "web-nfc-only",
-          "any"
-        };
-
-        dictionary NFCWatchOptions {
-          USVString url = null;
-          USVString kind = null;
-          USVString type = null;
-          NFCWatchMode mode = "web-nfc-only";
-        };
-      </pre>
-      <p>
-        The <dfn>NFCWatchOptions.url</dfn> property
-        denotes the <a>URL pattern</a> which is used for matching the
-        URL <a>origin</a> and <a>URL path</a> of the <a>Web NFC message</a>
-        which is stored in the <a>Web NFC record</a>.
-        The values <code>null</code>, <code>undefined</code>, and
-        <code>""</code> mean that no matching happens.
-      </p>
-      <p>
-        The <dfn>NFCWatchOptions.kind</dfn> property
-        denotes the string value which is used for matching the
-        <code>kind</code> property of each <code>NFCRecord</code> object
-        in a <a>Web NFC message</a>.
-        The values <code>null</code> and <code>undefined</code> mean that
-        no matching happens.
-      </p>
-      <p>
-        The <dfn>NFCWatchOptions.type</dfn> property
-        denotes the <a>match pattern</a> which is used for matching the
-        <code>type</code> property of each <code>NFCRecord</code> object
-        in a <a>Web NFC message</a>.
-        The values <code>null</code> and <code>undefined</code> mean that
-        no matching happens. The value <code>""</code> matches missing type
-        information.
-      </p>
-      <p>
-        The <dfn>NFCWatchOptions.mode</dfn> property tells
-        whether only <a>Web NFC content</a> or any <a>NFC content</a> will be
-        watched.
-      </p>
-      <p>
-        The <code>"web-nfc-only"</code> value means that only those
-        <a>NDEF message</a>s are exposed which contain a
-        <a>Web NFC record</a>, i.e. which are meant for web pages.
-      </p>
-      <p>
-        The <code>"any"</code> value means that all <a>NDEF message</a>s
-        are exposed.
-      </p>
-      <pre
-        title="Filter accepting only JSON content from https://www.w3.org"
-        class="example highlight">
-        var watchOptions = {
-          url: "www.w3.org/*",  // any path from the domain is accepted
-          kind: "json",
-          type: "application/*+json"  // any JSON-based IANA media type
-        }
-      </pre>
-      <pre
-        title="Filter which only accept binary content from a given path but any domain"
-        class="example highlight">
-        var watchOptions = {
-          url: "*://*/info/restaurant/daily-menu/",  // accepted from any domain
-          kind: "opaque",
-          type: "application/octet-stream"
-        }
-      </pre>
-    </section> <!-- NFCWatchOptions -->
     <section> <h3>The <strong>watch()</strong> method</h3>
       <p>
         This method enables listening to incoming <a>NDEF message</a>s.
