@@ -1015,24 +1015,22 @@
 
 <!-- - - - - - - - - - - - - Data representation - - - - - - - - - - - - - -->
 <section> <h2>Data Representation</h2>
-  <!-- NFCMessage -->
-  <section> <h3>The <strong>NFCMessage</strong> sequence</h3>
-    </h3>
-    <p>
-      The content of any <a>Web NFC message</a> is exposed by the following
-      sequence:
-    </p>
-    <pre class="idl">
-      typedef sequence&lt;NFCRecord&gt; NFCMessage;
-    </pre>
-  </section>
-
   <section> <h3>The <strong>NFCRecord</strong> dictionary</h3>
     <p>
-      The content of any <a>NDEF record</a> is exposed by the following
+      The content of any <a>NDEF record</a> is exposed by the <dfn>NFCRecord</dfn>
       dictionary:
     </p>
     <pre class="idl">
+      enum NFCRecordType {
+        "empty",
+        "text",
+        "url",
+        "json",
+        "opaque"
+      };
+
+      typedef (DOMString or unrestricted double or object or ArrayBuffer) NFCRecordData;
+
       dictionary NFCRecord {
         NFCRecordType kind;
         USVString type;
@@ -1049,37 +1047,14 @@
       payload data of the <a>NDEF record</a> with an appropriate ECMAScript
       type, which depends on the <a>IANA media type</a>.
     </p>
-  </section> <!-- NFCRecord dictionary -->
-
-  <section><h3>The <strong>NFCRecordType</strong> enum</h3>
-  <p>
-    <dfn>NFCRecordType</dfn> denotes the data types
-    supported as <a>NDEF record</a> payload in read and send operations in
-    this API.
-  </p>
-  <pre class="idl">
-    enum NFCRecordType {
-      "empty",
-      "text",
-      "url",
-      "json",
-      "opaque"
-    };
-  </pre>
-  <p>
+    <p>
     The mapping from data types of an <code><a>NFCRecord</a></code> to and from
     <a>NDEF record</a> types is presented in the algorithmic steps which handle
     the data and described in the
     <a href="#steps-receiving">Receiving and parsing content</a>
     and <a>Writing or pushing content</a> sections.
-  </p>
-  </section> <!-- NFCRecordType interface -->
-
-  <section><h3>The <strong>NFCRecordData</strong> type</h3>
-    <pre class="idl">
-      typedef (DOMString or unrestricted double or object or ArrayBuffer) NFCRecordData;
-    </pre>
-  </section>
+    </p>
+  </section> <!-- NFCRecord dictionary -->
 
   <section><h3>Data mapping</h3>
   <p>
@@ -1366,29 +1341,26 @@
   to handle incoming <a>Web NFC message</a>s either from an <a>NFC tag</a> or an
   <a>NFC peer</a>.
   <pre class="idl">
+    typedef sequence&lt;NFCRecord&gt; NFCMessage;
+
     interface NFCAdapter {
       Promise&lt;void&gt; pushMessage(NFCMessage message, optional NFCPushOptions options);
       void cancelPush();
       Promise&lt;long&gt; watch(NFCWatchOptions options, MessageCallback callback);
       Promise&lt;void&gt; unwatch(long id);
     };
-  </pre>
-  <pre class="idl">
+
     callback MessageCallback = void (NFCMessage message, USVString url);
   </pre>
 
-  <section> <h3>The <strong>NFCPushTarget</strong> enum</h3>
+  <section> <h3>The <strong>NFCPushOptions</strong> dictionary</h3>
     <pre class="idl">
       enum NFCPushTarget {
         "tag",
         "peer",
         "any"
       };
-    </pre>
-  </section>
 
-  <section> <h3>The <strong>NFCPushOptions</strong> dictionary</h3>
-    <pre class="idl">
       dictionary NFCPushOptions {
         NFCPushTarget target = "any";
         unsigned long timeout;
@@ -2070,31 +2042,17 @@
         <code>'https://info.mydomain.com/general/'</code>.
       </p>
     </section>
-
-    <section> <h3>The <strong>NFCWatchMode</strong> enum</h3>
+    <section> <h3>The <strong>NFCWatchOptions</strong> dictionary</h3>
+      <p>
+        To describe which messages an application is interested in, the
+        <dfn>NFCWatchOptions</dfn> dictionary is used:
+      </p>
       <pre class="idl">
         enum NFCWatchMode {
           "web-nfc-only",
           "any"
         };
-      </pre>
-      <p>
-        The <code>"web-nfc-only"</code> value means that only those
-        <a>NDEF message</a>s are exposed which contain a
-        <a>Web NFC record</a>, i.e. which are meant for web pages.
-      </p>
-      <p>
-        The <code>"any"</code> value means that all <a>NDEF message</a>s
-        are exposed.
-      </p>
-    </section>
 
-    <section> <h3>The <strong>NFCWatchOptions</strong> dictionary</h3>
-      <p>
-        To describe which messages an application is interested in, the
-        following dictionary is used:
-      </p>
-      <pre class="idl">
         dictionary NFCWatchOptions {
           USVString url = null;
           USVString kind = null;
@@ -2132,6 +2090,15 @@
         whether only <a>Web NFC content</a> or any <a>NFC content</a> will be
         watched.
       </p>
+      <p>
+        The <code>"web-nfc-only"</code> value means that only those
+        <a>NDEF message</a>s are exposed which contain a
+        <a>Web NFC record</a>, i.e. which are meant for web pages.
+      </p>
+      <p>
+        The <code>"any"</code> value means that all <a>NDEF message</a>s
+        are exposed.
+      </p>
       <pre
         title="Filter accepting only JSON content from https://www.w3.org"
         class="example highlight">
@@ -2151,7 +2118,6 @@
         }
       </pre>
     </section> <!-- NFCWatchOptions -->
-
     <section> <h3>The <strong>watch()</strong> method</h3>
       <p>
         This method enables listening to incoming <a>NDEF message</a>s.
