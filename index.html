@@ -2094,23 +2094,18 @@
         <pre>
           <dfn data-lt="url pattern">url-pattern</dfn> = <a data-lt="star scheme">scheme</a> <code>"://"</code> <a data-lt="star host">host</a> <a data-lt="star path">path</a>
           <dfn data-lt="star scheme">scheme</dfn>      = <code>"*"</code> | <code>"https"</code>
-          <dfn data-lt="star host">host</dfn>        = <code>"/"</code> &lt;any char&gt;
-          <dfn data-lt="star path">path</dfn>        = <code>"*"</code> | <code>"*."</code> &lt;any char except <code>"/"</code> and <code>"*"</code>&gt;
+          <dfn data-lt="star host">host</dfn>        = <code>"*"</code> | <code>"*."</code> &lt;any char except <code>"/"</code> and <code>"*"</code>&gt;
+          <dfn data-lt="star path">path</dfn>        = <code>"/"</code> &lt;any char&gt;
         </pre>
       </p>
+      <p>
+        Most characters match themselves, however <code>'*'</code> (wildcard)
+        matches a sequence of characters.
+      </p>
       <p class="note">
-        The <code>'*'</code> character has slightly different meaning depending
-        on whether it is in the <i>scheme</i>, <i>host</i> or <i>path</i> part.
-        In a <i>scheme</i> <code>'*'</code> will match only the allowed
-        <code>'https'</code> scheme.
-        If the <i>host</i> is <code>'*'</code>, then it matches any host. If the
-        <i>host</i> is e.g. <code>'*.myhost'</code>, then it will match the
-        specified host or any of its subdomains. In the <i>host</i>
-        part, <code>'*'</code> MUST be the first character, so it can only be
-        used for matching <i>any host</i>, or subdomains of a given host, but
-        no partial matches on host names.
-        In the <i>path</i> part, each <code>'*'</code> matches 0 or more
-        characters.
+        Though <code>'*'</code> matches a sequence of characters, only URLs
+        which scheme <code>"https"</code> are accepted in the algorithms
+        taking a <a>URL pattern</a>.
       </p>
       <p>
         For example, <code>'*://*.mydomain.com/*'</code> will match
