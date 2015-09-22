@@ -1393,9 +1393,9 @@
         };
 
         dictionary NFCWatchOptions {
-          USVString url = null;
-          USVString kind = null;
-          USVString type = null;
+          USVString url = "";
+          USVString kind = "";
+          USVString type = "";
           NFCWatchMode mode = "web-nfc-only";
         };
       </pre>
@@ -1404,25 +1404,21 @@
         denotes the <a>URL pattern</a> which is used for matching the
         URL <a>origin</a> and <a>URL path</a> of the <a>Web NFC message</a>
         which is stored in the <a>Web NFC record</a>.
-        The values <code>null</code>, <code>undefined</code>, and
-        <code>""</code> mean that no matching happens.
+        The default value <code>""</code> means that no matching happens.
       </p>
       <p>
         The <dfn>NFCWatchOptions.kind</dfn> property
         denotes the string value which is used for matching the
         <code>kind</code> property of each <code>NFCRecord</code> object
         in a <a>Web NFC message</a>.
-        The values <code>null</code> and <code>undefined</code> mean that
-        no matching happens.
+        The default value <code>""</code> means that no matching happens.
       </p>
       <p>
         The <dfn>NFCWatchOptions.type</dfn> property
         denotes the <a>match pattern</a> which is used for matching the
         <code>type</code> property of each <code>NFCRecord</code> object
         in a <a>Web NFC message</a>.
-        The values <code>null</code> and <code>undefined</code> mean that
-        no matching happens. The value <code>""</code> matches missing type
-        information.
+        The default value <code>""</code> means that no matching happens.
       </p>
       <p>
         The <dfn>NFCWatchOptions.mode</dfn> property tells
@@ -1442,7 +1438,7 @@
         title="Filter accepting only JSON content from https://www.w3.org"
         class="example highlight">
         var watchOptions = {
-          url: "www.w3.org/*",  // any path from the domain is accepted
+          url: "https://www.w3.org/*",  // any path from the domain is accepted
           kind: "json",
           type: "application/*+json"  // any JSON-based IANA media type
         }
@@ -1647,7 +1643,7 @@
             <a href="#adapter-peermessage">associated</a> with the current
             <a>NFC adapter</a> to <var>output</var>.
           </li>
-          <li id="adapter-timer">
+          <li>
             If <var>options</var>.timeout value is not <code>Infinity</code>,
             start the timer <var>timer</var>
             <a href="#adapter-timer">associated</a> with the current
@@ -2067,24 +2063,24 @@
     <a>NFCAdapter.watch</a>() to opt into content of interest.
 
 
-    <section id="match_pattern"> <h3>Match patterns</h3>
+    <section> <h3>Match patterns</h3>
       <p>
-        A <a>match pattern</a> is a string which can contain the
-        <code>'*'</code> wildcard character.
-        It is defined by the following ABNF:
+        A <a>match pattern</a> is defined by the following ABNF:
         <pre>
           <dfn data-lt="match pattern">match-pattern</dfn> = <a>top-level type name</a> <code>"/"</code> [ tree <code>"."</code> ] <a>subtype name</a> [ <code>"+"</code> suffix ] [ <code>";"</code> parameters ]
-          <dfn>top-level type name</dfn> = <code>"*"</code> | &lt;any char except <code>"/"</code> and <code>"*"</code>&gt;
-          <dfn>subtype name</dfn>        = <code>"*"</code> | &lt;any char except <code>"+"</code>&gt;
+          <dfn>top-level type name</dfn> = <code>"*"</code> | &lt;any char except <code>'/'</code> and <code>"*"</code>&gt;
+          <dfn>subtype name</dfn>        = <code>"*"</code> | &lt;any char except <code>'+'</code>&gt;
         </pre>
-        A <a>match pattern</a> is used primarily for matching <a>IANA media type</a>s,
+        A <a>match pattern</a> is a
+        <a href="http://pubs.opengroup.org/onlinepubs/007904875/utilities/xcu_chap02.html#tag_02_13_03">
+        glob</a> used for matching <a>IANA media type</a>s,
         for instance the pattern <code>'application/*+json'</code> matches
         <code>'application/calendar+json'</code>, but does not match
         <code>'application/json'</code>. The pattern
         <code>'*/*json'</code>, on the other hand, matches both.
       </p>
     </section>
-    <section id="URL_pattern"> <h3>URL patterns</h3>
+    <section> <h3>URL patterns</h3>
       <p>
         A <a>URL pattern</a> is a URL which may contain the <code>'*'</code>
         wildcard character.
@@ -2181,9 +2177,6 @@
           <li>
             If the request fails, reject <var>promise</var> with
             <code>"NotSupportedError"</code> , and abort these steps.
-          </li>
-          <li>
-            Let <var id="watch-suspended">suspended</var> be <code>false</code>.
           </li>
           <li>
             Let <var>watchId</var> be a locally unique number
@@ -2300,8 +2293,8 @@
         which has been received by the underlying platform.
         <p class="note">
           This is a placeholder for a possible future feature. In this step,
-          implementations MAY check if the <a>origin</a> matches the
-          <a>Web NFC Id</a> of <var>input</var>.
+          implementations MAY check if the <a>origin</a> of the <a>incumbent
+          settings object</a> matches the <a>Web NFC Id</a> of <var>input</var>.
           If yes, and also <a>prearranged trust relationship</a>
           exists so that <var>input</var> is <a>trusted integrity NFC content</a>,
           then same-origin policies MAY be applied.
@@ -2579,9 +2572,7 @@
       <li>
         If the <var>receivedMessage</var> variable
         <a href="#adapter-inbox">associated</a> with the current
-        <a>NFC adapter</a> is not <code>null</code>, then for each
-        <a>NFC watch</a> <var>watch</var> registered using the
-        <code>watch()</code> method for the current <a>NFC adapter</a>,
+        <a>NFC adapter</a> is not <code>null</code>, then
         execute the <a href="#steps-dispatch">dispatch NFC content</a>
         algorithm.
       </li>
