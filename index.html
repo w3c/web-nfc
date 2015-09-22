@@ -168,6 +168,9 @@
     internal slots</a> of an object, instead of saying "the [[\y]] internal slot of x."
   </p>
   <p>
+    The Augmented Backus-Naur Form (ABNF) notation used is specified in RFC5234. [[ABNF]]
+  </p>
+  <p>
     The term
     <a href="https://html.spec.whatwg.org/#script-execution-environment">
     <dfn>script execution environment</dfn></a> is defined in [[!HTML5]].
@@ -213,10 +216,6 @@
     The term <a href="https://html.spec.whatwg.org/#ascii-serialisation-of-an-origin">
     <dfn>ASCII serialized origin</dfn></a> is defined in [[!HTML5]].
   </p>
-  <!--p>
-    <code><a href="http://www.w3.org/TR/FileAPI/#blob"><dfn>Blob</dfn></a>
-    </code> is defined in [[!FILEAPI]].
-  </p-->
   <p>
     <a href="http://heycam.github.io/webidl/#idl-DOMString">
       <code><dfn>DOMString</dfn></code></a>,
@@ -1061,6 +1060,13 @@
 
   <section><h3>Data mapping</h3>
   <p>
+    A <dfn>JSON compatible <a>IANA media type</a></dfn> is defined by the following
+    ABNF:
+    <pre>
+      <code>"application/"</code> (<code>"json"</code> / &lt;VCHAR except '/' and "*"&gt; <code>"+json"</code>)
+    </pre>
+  </p>
+  <p>
     The mapping from data types of an <code><a>NFCRecord</a></code> to
     <a>NDEF record</a> types, as used in the <a>Writing or pushing content</a>
     section is as follows:
@@ -1092,12 +1098,12 @@
     </tr>
     <tr>
       <td>"json"</td>
-      <td>"application/json", "application/<code>*</code>+json"</td>
+      <td><a>JSON compatible IANA media type</a></td>
       <td>
         <code>null</code> or <code>DOMString</code> or <code>Number</code> or
         <code>Object</code>
       </td>
-      <td>Media-type as defined in [[RFC2046]] (<a>TNF</a>=2) with associated
+      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) with
         <a>IANA media type</a> specified in the <code>type</code> attribute.
       </td>
     </tr>
@@ -1105,7 +1111,7 @@
       <td>"opaque"</td>
       <td><a>IANA media type</a></td>
       <td><code>ArrayBuffer</code></td>
-      <td>Media-type as defined in [[RFC2046]] (<a>TNF</a>=2)</td>
+      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2)</td>
     </tr>
     <tr>
       <td>"opaque"</td>
@@ -1159,9 +1165,8 @@
       <td><code>DOMString</code></td>
     </tr>
     <tr>
-      <td>Media-type as defined in [[RFC2046]] (<a>TNF</a>=2) with associated
-        <a>IANA media type</a> <code>"application/json"</code> or
-        <code>"application/*-json"</code>
+      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) with
+        <a>JSON compatible IANA media type</a>
       </td>
       <td>"json"</td>
       <td>The <a>IANA media type</a> used in the NDEF record</td>
@@ -1171,7 +1176,7 @@
       </td>
     </tr>
     <tr>
-      <td>Media-type as defined in [[RFC2046]] (<a>TNF</a>=2)</td>
+      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2)</td>
       <td>"opaque"</td>
       <td>The <a>IANA media type</a> used in the NDEF record</td>
       <td><code>ArrayBuffer</code></td>
@@ -2091,9 +2096,9 @@
       <p>
         A <a>match pattern</a> is defined by the following ABNF:
         <pre>
-          <dfn data-lt="match pattern">match-pattern</dfn> = <a>top-level type name</a> <code>"/"</code> [ tree <code>"."</code> ] <a>subtype name</a> [ <code>"+"</code> suffix ] [ <code>";"</code> parameters ]
-          <dfn>top-level type name</dfn> = <code>"*"</code> | &lt;any char except <code>'/'</code> and <code>"*"</code>&gt;
-          <dfn>subtype name</dfn>        = <code>"*"</code> | &lt;any char except <code>'+'</code>&gt;
+          <dfn data-lt="match pattern">match-pattern</dfn>       = <a>top-level type name</a> <code>"/"</code> [ tree <code>"."</code> ] <a>subtype name</a> [ <code>"+"</code> suffix ] [ <code>";"</code> parameters ]
+          <dfn>top-level type name</dfn> = <code>"*"</code> / &lt;VCHAR except <code>'/'</code> and <code>"*"</code>&gt;
+          <dfn>subtype name</dfn>        = <code>"*"</code> / &lt;VCHAR except <code>'+'</code>&gt;
         </pre>
         A <a>match pattern</a> is a
         <a href="http://pubs.opengroup.org/onlinepubs/007904875/utilities/xcu_chap02.html#tag_02_13_03">
@@ -2113,9 +2118,9 @@
         <a data-lt="star path">path</a>, defined by the following ABNF:
         <pre>
           <dfn data-lt="url pattern">url-pattern</dfn> = <a data-lt="star scheme">scheme</a> <code>"://"</code> <a data-lt="star host">host</a> <a data-lt="star path">path</a>
-          <dfn data-lt="star scheme">scheme</dfn>      = <code>"*"</code> | <code>"https"</code>
-          <dfn data-lt="star host">host</dfn>        = <code>"*"</code> | <code>"*."</code> &lt;any char except <code>"/"</code> and <code>"*"</code>&gt;
-          <dfn data-lt="star path">path</dfn>        = <code>"/"</code> &lt;any char&gt;
+          <dfn data-lt="star scheme">scheme</dfn>      = <code>"*"</code> / <code>"https"</code>
+          <dfn data-lt="star host">host</dfn>        = <code>"*"</code> / <code>"*."</code> &lt;VCHAR except <code>"/"</code> and <code>"*"</code>&gt;
+          <dfn data-lt="star path">path</dfn>        = <code>"/"</code> &lt;VCHAR&gt;
         </pre>
       </p>
       <p>
