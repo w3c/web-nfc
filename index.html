@@ -94,7 +94,6 @@
   <style>
     table.simple { border: 1px solid #000; }
     table.simple td { border-right: 1px solid #000; }
-    .issue[id^='issue-'] > *:not([role='heading']) {}
   </style>
 </head>
 
@@ -300,7 +299,9 @@
     UA has already established a trust relationship for a
     certain operation using a platform specific mechanism, so that an
     <a>expressed permission</a> from the user is not any more needed.
-    See also this <a href="http://w3c.github.io/web-nfc/security-privacy.html#prearranged-trust-relationship">section</a> in the Security and Privacy document.
+    See also this
+    <a href="http://w3c.github.io/web-nfc/security-privacy.html#prearranged-trust-relationship">
+    section</a> in the Security and Privacy document.
   </p>
   <p>
     The term <dfn>obtain permission</dfn> for a certain operation indicates
@@ -414,9 +415,9 @@
     data, and possible actions).
   </p>
   <p>
-    An <dfn>NFC watch</dfn> is a mechanism used to watch for available
-    <a>Web NFC message</a>s fulfilling certain criteria.
-    It is defined in more detail in <a href="#the-watch-method">The watch()
+    An <strong><a>NFC watch</a></strong> is a mechanism used to watch for
+    available <a>Web NFC message</a>s fulfilling certain criteria.
+    It is defined in more detail in <a href="#dfn-nfc-watch">The watch()
     method</a> section.
   </p>
   <p>
@@ -1227,21 +1228,31 @@
       Promise&lt;NFCAdapter&gt; requestAdapter();
     };
   </pre>
-  <p>Instances of <a>NFCAdapter</a> are created with the internal slots described in the following table:
+  <p>
+    Instances of <a>NFCAdapter</a> are created with the internal slots
+    described in the following table:
   </p>
   <table class="simple">
     <thead>
      <tr>
-      <th>Internal Slot
-      </th><th>Description (<em>non-normative</em>)
-    </th></tr></thead><tbody>
+      <th>Internal Slot</th>
+      <th>Description (<em>non-normative</em>)</th>
+     </tr>
+    </thead>
+    <tbody>
      <tr>
       <td>[[\receivedMessage]]</td>
-      <td>An <a>NFCMessage</a> to hold the last received message, initially set to <code>null</code>.</td>
+      <td>
+        An <a>NFCMessage</a> to hold the last received message, initially
+        set to <code>null</code>.
+      </td>
      </tr>
      <tr>
       <td>[[\suspended]]</td>
-      <td>A boolean flag indicating whether the adapter is suspended or not, initially <code>false</code>.</td>
+      <td>
+        A boolean flag indicating whether the adapter is suspended or not,
+        initially <code>false</code>.
+      </td>
      </tr>
      <tr>
       <td>[[\timer]]</td>
@@ -1249,14 +1260,26 @@
      </tr>
      <tr>
       <td>[[\tagMessage]]</td>
-      <td>An <a>NFCMessage</a> to hold the message to be pushed to a <a>NFC tag</a>, initially set to <code>null</code>.</td>
+      <td>
+        An <a>NFCMessage</a> to hold the message to be pushed to a
+        <a>NFC tag</a>, initially set to <code>null</code>.
+      </td>
      </tr>
      <tr>
       <td>[[\peerMessage]]</td>
-      <td>An <a>NFCMessage</a> to hold the message to be pushed to a <a>NFC peer</a>, initially set to <code>null</code>.</td>
+      <td>
+        An <a>NFCMessage</a> to hold the message to be pushed to a
+        <a>NFC peer</a>, initially set to <code>null</code>.
+      </td>
      </tr>
-
-   </td></tr></tbody></table>
+     <tr>
+      <td>[[\watchList]]</td>
+      <td>
+        A list of <a>NFC watch</a>es initially set to empty list.
+      </td>
+     </tr>
+    </tbody>
+  </table>
   <p>
     The <dfn>NFC.requestAdapter</dfn>() method, when invoked MUST return a new
     promise <var>promise</var> and run the following steps <a>in parallel</a>:
@@ -1476,7 +1499,8 @@
     </p>
     <section><h3>The pushMessage() method</h3>
       <p id="steps-pushMessage">
-        The <dfn>NFCAdapter.pushMessage</dfn>(<var>message</var>, <var>options</var>)
+        The
+        <dfn>NFCAdapter.pushMessage</dfn>(<var>message</var>, <var>options</var>)
         </code> method, when invoked, MUST run the
         <dfn>push a message</dfn> algorithm:
         <ol>
@@ -1504,7 +1528,8 @@
             </p>
             <p class="note">
               Implementations are expected to clean up state on aborting these
-              steps, e.g. reset <var>this@[[\timer]]</var>, <var>this@[[\tagMessage]]</var>
+              steps, e.g. reset <var>this@[[\timer]]</var>,
+              <var>this@[[\tagMessage]]</var>
               and <var>this@[[\peerMessage]]</var>, as well as release platform
               resources bound to NFC functionality, so that new invocations of
               this algorithm don't depend on previous invocations.
@@ -1672,8 +1697,12 @@
                 <ol>
                   <li>
                     If <var>this@[[\suspended]]</var> is <code>true</code>,
-                    then reject <var>promise</var> with
-                    <code>"InvalidAccessError"</code> and abort these steps.
+                    then abort these steps without rejecting <var>promise</var>.
+                    <p class="note">
+                      The <var>promise</var> will then be pending until a
+                      timeout, or until <var>this@[[\suspended]]</var> gets back
+                      to <code>false</code> and a new tap happens.
+                    </p>
                   </li>
                   <li>
                     If <var>device</var> is an <a>NFC tag</a>, and
@@ -1686,6 +1715,9 @@
                     <var>peerMessage</var> is <code>null</code>, then  reject
                     <var>promise</var> with <code>"InvalidAccessError"</code>
                     and abort these steps.
+                  </li>
+                  <li>
+                    Initiate data transfer to <var>device</var>.
                   </li>
                   <li>
                     If the connection is lost during the transfer, or an error
@@ -1707,7 +1739,7 @@
         </ol>
       </p>
 
-      <section><h4>Obtaining push permission</h4>
+      <section><h3>Obtaining push permission</h3>
       <p>
         To <dfn>obtain push permission</dfn>, run these steps:
         <ol>
@@ -1728,7 +1760,7 @@
       </p>
       </section>
 
-      <section><h4>Mapping empty record to NDEF</h4>
+      <section><h3>Mapping empty record to NDEF</h3>
       <p>
         To <dfn>map empty record to NDEF</dfn> given a <var>record</var>, run
         these steps:
@@ -1756,7 +1788,7 @@
       </p>
       </section>
 
-      <section><h4>Mapping string to NDEF</h4>
+      <section><h3>Mapping string to NDEF</h3>
       <p>
         To <dfn>map text to NDEF</dfn> given a <var>record</var>, run these
         steps:
@@ -1854,7 +1886,7 @@
       </p>
       </section>
 
-      <section><h4>Mapping URL to NDEF</h4>
+      <section><h3>Mapping URL to NDEF</h3>
       <p>
         To <dfn>map a URL to NDEF</dfn> given a <var>record</var>, run these
         steps:
@@ -1889,7 +1921,7 @@
       </p>
       </section>
 
-      <section><h4>Mapping JSON to NDEF</h4>
+      <section><h3>Mapping JSON to NDEF</h3>
       <p>
         To <dfn>map a JSON object to NDEF</dfn> given a <var>record</var>,
         run these steps:
@@ -1929,7 +1961,7 @@
       </p>
       </section>
 
-      <section><h4>Mapping binary data to NDEF</h4>
+      <section><h3>Mapping binary data to NDEF</h3>
       <p>
         To <dfn>map binary data to NDEF</dfn> given a <var>record</var>,
         run these steps:
@@ -1965,7 +1997,7 @@
       </p>
       </section>
 
-      <section><h4>Creating a Web NFC record</h4>
+      <section><h3>Creating a Web NFC record</h3>
       <p>
         To <dfn>create a <a>Web NFC record</a></dfn>, run these steps:
         <ol>
@@ -2111,8 +2143,9 @@
         <a>URL pattern</a>s used in <a>NFC watch</a>es.
       </p>
       <p>
-        A <a>NFC watch</a> is referring to a <code><a>NFCWatchOptions</a></code>
-        filter saved together the information with <a>NFC adapter</a> it belongs
+        An <dfn>NFC watch</dfn> is referring to a
+        <code><a>NFCWatchOptions</a></code> filter saved together with the
+        <code><a>NFCAdapter</a></code> instance it belongs
         to, and a locally unique identifier which is used for cancellation.
         The section <a href="#steps-receiving">
         Receiving and parsing content</a> uses <a>NFC watch</a>es to match
@@ -2173,7 +2206,8 @@
           <li>
             Let <var>watchId</var> be a locally unique number
             assigned to <var>options</var>, <var>suspended</var> and
-            <var>callback</var>, and store them together as an <a>NFC watch</a>.
+            <var>callback</var>, and store them together as an <a>NFC watch</a>
+            in <var>this@[[\watchList]]</var>.
           </li>
           <li>
             Resolve <var>promise</var> with <var>watchId</var>.
@@ -2272,11 +2306,12 @@
   <section id="steps-receiving">
   <h3>Receiving and parsing content</h3>
   <p>
-    If there are any <a>NFC watch</a>es set up for any <a>NFC adapter</a>, then
+    If there are any <a>NFC watch</a>es set up for any <a>NFC adapter</a> in
+    their <var>NFCAdapter@[[\watchList]]</var>, then
     UAs MUST listen to <a>NDEF message</a>s, according to step 9
     of the <a href="#steps-watch">NFC watch algorithm</a>.
   </p>
-  <section><h4>The NDEF parsing algorithm</h4>
+  <section><h3>The NDEF parsing algorithm</h3>
     When the <a>UA</a> is to <dfn>receive an NDEF message</dfn> it MUST run the
     following algorithm:
     <ol id ="parse-ndef">
@@ -2460,27 +2495,25 @@
       </li>
       <li>
         If <var>NFCAdapter@[[\suspended]]</var> is <code>false</code>,
-        then for each <a>NFC watch</a> <var>watch</var> registered using the
-        <code>watch()</code> method for the current <a>NFC adapter</a>,
-        execute the <a href="#steps-dispatch">dispatch NFC content</a>
+        then execute the <a href="#steps-dispatch">dispatch NFC content</a>
         algorithm.
       </li>
     </ol>
     </section>
 
-    <section><h4>Dispatching NFC content</h4>
+    <section><h3>Dispatching NFC content</h3>
     <p>
       The following steps are used for dispatching received <a>NFC content</a>:
     </p>
     <ol id="steps-dispatch">
       <li>
-        Set <var>message</var> to be the <var>NFCAdapter@[[\receivedMessage]]</var>.
-        If it is <code>null</code>, then abort these steps.
+        Set <var>message</var> to be the
+        <var>NFCAdapter@[[\receivedMessage]]</var>.
       </li>
       <li>
         For each <a>NFC watch</a> <var>watch</var> that has
-        been registered using the <code>watch()</code> method on the current
-        <a>NFC adapter</a>, execute the following sub-steps:
+        been registered using the <code>watch()</code> method in
+        <var>this@[[\watchList]]</var>, execute the following sub-steps:
         <ol>
           <li>
             Let <var>options</var> be the <code><a>NFCWatchOptions</a></code>
@@ -2523,6 +2556,9 @@
             </ol>
           </li>
         </ol>
+      </li>
+      <li>
+        Set <var>NFCAdapter@[[\receivedMessage]]</var> to <code>null</code>.
       </li>
     </ol>
     </section>
