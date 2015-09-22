@@ -941,9 +941,9 @@
         <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
         visible</a> and in
         <a href="https://html.spec.whatwg.org/#focus">focus</a>.
-        This also means that UAs should make sure the display is on, and the
-        device is unlocked.
-        For web pages in background, receiving and sending <a>NFC content</a>
+        This also means that UAs should block access to the NFC radio if
+        the display is off or the device is locked.
+        For backgrounded web pages, receiving and sending <a>NFC content</a>
         must be <a id="#nfc-suspended">suspended</a>.
       </li>
       <li>
@@ -1246,13 +1246,14 @@
       <li>
         Let <var>adapter</var> be <code>null</code>.
         <p class="note">
-          There is a different <code>NFCAdapter</code> instance per
-          <code>Window</code> object, whose
+          Each <code>Window</code> object has a separate <code>NFCAdapter</code>
+          instance. The
           <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
            visibility</a> and
            <a href="https://html.spec.whatwg.org/#focus">focus</a>
-           state determines the <a href="#nfc-suspended">suspended</a> state
-           of the adapter.
+           state of the <code>Window</code> object
+           determines the <a href="#nfc-suspended">suspended</a> state
+           of the associated <code>NFCAdapter</code> instance.
         </p>
       </li>
       <li>
