@@ -1057,6 +1057,27 @@
     and <a>Writing or pushing content</a> sections.
     </p>
   </section> <!-- NFCRecord dictionary -->
+  <section> <h3>The <strong>NFCMessage</strong> dictionary</h3>
+    <p>
+      The content of any <a>Web NFC message</a> is exposed by the
+      <dfn>NFCMessage</dfn> dictionary:
+    </p>
+    <pre class="idl">
+      dictionary NFCMessage {
+        sequence&lt;NFCRecord&gt; data;
+        USVString url;
+      };
+    </pre>
+    <p>
+      The <dfn>NFCMessage.url</dfn>
+      property represents the <a>Web NFC Id</a> of the <a>Web NFC message</a>.
+    </p>
+    <p>
+      The <dfn>NFCMessage.data</dfn>
+      property represents the <a>NDEF message</a> defining the
+      <a>Web NFC message</a>.
+    </p>
+  </section>
 
   <section><h3>Data mapping</h3>
   <p>
@@ -1379,8 +1400,6 @@
   to handle incoming <a>Web NFC message</a>s either from an <a>NFC tag</a> or an
   <a>NFC peer</a>.
   <pre class="idl">
-    typedef sequence&lt;NFCRecord&gt; NFCMessage;
-
     interface NFCAdapter {
       Promise&lt;void&gt; pushMessage(NFCMessage message, NFCPushOptions options);
       void cancelPush(NFCPushTarget target);
@@ -1388,7 +1407,7 @@
       Promise&lt;void&gt; unwatch(long id);
     };
 
-    callback MessageCallback = void (NFCMessage message, USVString url);
+    callback MessageCallback = void (NFCMessage message);
   </pre>
 
   <section> <h3>The <strong>NFCPushOptions</strong> dictionary</h3>
@@ -1711,7 +1730,7 @@
           </li>
           <li>
             For each <a>NFCRecord</a> <var>record</var> in the sequence
-            <var>message</var>, execute the following steps, or make sure
+            <var>message</var>.data, execute the following steps, or make sure
             that the underlying platform provides equivalent values to
             <var>ndef</var>:
             <ol id="steps-map-nfcrecord-ndef">
@@ -1850,7 +1869,8 @@
 
             In addition, UAs MAY check that
             <var>record</var>.type is an IANA registered media type
-            for <a href="http://www.iana.org/assignments/media-types/media-types.xhtml#text">text</a>.
+            for <a href="http://www.iana.org/assignments/media-types/media-types.xhtml#text">
+            text</a>.
             If not, then the UA MAY throw a <code>"SyntaxError"</code>
             exception, and abort these steps.
           </li>
@@ -1863,7 +1883,8 @@
             the language code extracted from <var>record</var>.type.
 
             If <var>language</var> is not one of the language codes listed
-            in the <a href="http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry">IANA language registry</a>
+            in the <a href="http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry">
+            IANA language registry</a>
             (or [[ISO-639.2]]), then UAs MAY throw a <code>"SyntaxError"</code>
             exception, and abort these steps.
 
@@ -2374,11 +2395,10 @@
         </p>
       </li>
       <li>
-        Let <var>message</var> be a new empty sequence of <code>NFCRecord</code>
-        objects.
+        Let <var>message</var> be a new <code>NFCMessage</code> object.
       </li>
       <li>
-        Let <var>messageId</var> be <code>null</code>, used for storing the
+        Let <var>message</var>.url be <code>null</code>, used for storing the
         <a>Web NFC Id</a> of <var>message</var>.
       </li>
       <li>
@@ -2500,7 +2520,7 @@
           <li>
             If <var>ndef.TNF</var> is 4 (NFC External Type record), and
             <var>ndef.TYPE</var> is <code>urn:nfc:ext:w3.org:webnfc</code>,
-            then set <var>messageId</var> to the value decoded from
+            then set <var>message</var>.url to the value decoded from
             <var>ndef.PAYLOAD</var> in UTF-16.
           </li> <!-- parsing Web NFC record -->
           <li>
@@ -2525,10 +2545,12 @@
             Otherwise, skip to the next <a>NDEF record</a> in <var>input</var>.
           </li>
           <li>
-            Add <var>record</var> to <var>message</var>.
-            Set <var>NFCAdapter@[[\receivedMessage]]</var> to <var>message</var>.
+            Add <var>record</var> to <var>message</var>.data.
           </li>
         </ol>
+      </li>
+      <li>
+        Set <var>NFCAdapter@[[\receivedMessage]]</var> to <var>message</var>.
       </li>
       <li>
         If <var>NFCAdapter@[[\suspended]]</var> is <code>false</code>,
@@ -2544,8 +2566,7 @@
     </p>
     <ol id="steps-dispatch">
       <li>
-        Set <var>message</var> to be the
-        <var>NFCAdapter@[[\receivedMessage]]</var>.
+        Let <var>message</var> be <var>NFCAdapter@[[\receivedMessage]]</var>.
       </li>
       <li>
         For each <a>NFC watch</a> <var>watch</var> that has
@@ -2559,17 +2580,17 @@
           </li>
           <li>
             If <var>options</var>.mode is <code>"web-nfc-only"</code>, and
-            <var>messageId</var> is <var>null</var>, then skip to the next
+            <var>message</var>.url is <var>null</var>, then skip to the next
             <a>NFC watch</a>.
           </li>
           <li>
             Otherwise, if <var>options</var>.mode is
-            <code>"web-nfc-only"</code>, and <var>messageId</var> is not
+            <code>"web-nfc-only"</code>, and <var>message</var>.url is not
             <code>null</code>, or if <var>options</var>.mode is
             <code>"any"</code>, then execute the following sub-steps:
             <ol>
               <li>
-                If <var>messageId</var> does not match the <a>URL pattern</a>
+                If <var>message</var>.url does not match the <a>URL pattern</a>
                 stored in <var>options</var>.url, then skip to the next
                 <a>NFC watch</a>.
               </li>
@@ -2586,9 +2607,11 @@
               <li>
                 <a>Queue a task</a> using the <dfn>Web NFC task source</dfn>
                 to invoke the <code>MessageCallback</code>var>callback</var>
-                with <var>message</var> as its first argument, and
-                <var>messageId</var> as its second. Then set
-                <var>NFCAdapter@[[\receivedMessage]]</var> to <code>null</code>.
+                with <var>message</var> as its argument.
+              </li>
+              <li>
+                Set <var>NFCAdapter@[[\receivedMessage]]</var> to
+                <code>null</code>.
               </li>
             </ol>
           </li>
