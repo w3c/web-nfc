@@ -551,7 +551,7 @@
     <ol>
       <li>
         <b>NFC Forum Type 1</b>: This tag is based on the ISO/IEC 14443-3A
-        (also known as NFC-A,  as defined in ISO/IEC 14443-3:2011, Part 3:
+        (also known as NFC-A, as defined in ISO/IEC 14443-3:2011, Part 3:
         Initialization and anticollision). The tags are rewritable and can be
         configured to become read-only. Memory size can be between 96 bytes and
         2 Kbytes. Communication speed is 106 kbit/sec.
@@ -567,7 +567,7 @@
         Standard (JIS) X 6319-4, commonly known as FeliCa. The tags are
         preconfigured to be either rewritable or read-only. Memory availability
         is variable, theoretical memory limit is 1MByte per service.
-        Communication speed is 106 kbit/sec.  Like Type 2, it supports
+        Communication speed is 106 kbit/sec. Like Type 2, it supports
         anti-collision protection.
       </li>
       <li><b>NFC Forum Type 4</b> (November 2010): This tag is based on the
@@ -1665,13 +1665,13 @@
                   </li>
                   <li>
                     If <var>device</var> is an <a>NFC tag</a>, and
-                    <var>tagMessage</var> is <code>null</code>, then  reject
+                    <var>tagMessage</var> is <code>null</code>, then reject
                     <var>promise</var> with <code>"InvalidAccessError"</code>
                     and abort these steps.
                   </li>
                   <li>
                     If <var>device</var> is an <a>NFC peer</a>, and
-                    <var>peerMessage</var> is <code>null</code>, then  reject
+                    <var>peerMessage</var> is <code>null</code>, then reject
                     <var>promise</var> with <code>"InvalidAccessError"</code>
                     and abort these steps.
                   </li>
@@ -2647,7 +2647,7 @@
         Set <var>NFCAdapter@[[\suspended]]</var> to <code>false</code>.
       </li>
       <li>
-        If  <var>NFCAdapter@[[\receivedMessage]]</var> is not
+        If <var>NFCAdapter@[[\receivedMessage]]</var> is not
         <code>null</code>, then run the <a href="#steps-dispatch">
         dispatch NFC content</a> algorithm.
       </li>
@@ -2660,7 +2660,7 @@
     </p>
     <ol id="steps-focus-lost">
       <li>
-        Set  <var>NFCAdapter@[[\suspended]]</var> to <code>true</code>.
+        Set <var>NFCAdapter@[[\suspended]]</var> to <code>true</code>.
       </li>
     </ol>
   </section>
@@ -2678,25 +2678,14 @@
     recently closed bugs</a>.
   </p>
   <ul>
-    <li>Changed data types and mapping to and from NDEF records.</li>
-    <li>
-      Changed storage conventions of Web NFC content: changed Web NFC record,
-      made it optional to store origin to the NDEF ID field.
-    </li>
-    <li>Reworked the permissions and user prompting model.</li>
-    <li>
-      Fixed terminology related issues.
-    </li>
-    <li>Changed send() to pushMessage() and added more options.</li>
-    <li>Re-added watches/filters, in updated form.</li>
-    <li>
-      Removed event handling for received data, and replaced with handling it
-      in watches, to avoid side effects in adding event listeners.
-    <li>
-      Updated existing algorithms related to writing or pushing content, and
-      added new algorithms, related to receiving content.
-    </li>
-    <li>Updated the code examples.</li>
+    <li>Corrections in the usage of origin.</li>
+    <li>Defined <code><a>NFCRecordData</a></code> as explicit union.</li>
+    <li>Defined <code><a>NFCMessage</a></code> as a dictionary.</li>
+    <li>Improved definitions for URL and match pattern.</a>
+    <li>Added section for handling visibility and focus.</li>
+    <li>Added internal slots to <code><a>NFCAdapter</a></code>.</li>
+    <li>Changed push policy for background pages.</li>
+    <li>Changed receive policy for background pages.</li>
   </ul>
 </section>
 
@@ -2714,16 +2703,17 @@
         Suggest a permission UI flow.</a>
       </li>
       <li>
+        <a href="https://github.com/w3c/web-nfc/issues/40">
+        Simplify process for obtaining permissions.</a>
+      </li>
+      <li>
         <a href="https://github.com/w3c/web-nfc/issues/17">
         Using service workers and protocol handlers.</a>
       </li>
       <li>
-        <a href="https://github.com/w3c/web-nfc/issues/26">
-        URL objects.</a>
-      </li>
-      <li>
-        <a href="https://github.com/w3c/web-nfc/issues/40">
-        Simplify process for obtaining permissions.</a>
+        <a href="https://github.com/w3c/web-nfc/issues/53">
+        How much needs to be hidden from pages that lose focus during NFC
+        operations?</a>
       </li>
     </ul>
     This version addresses the issues above, and also other issues.
