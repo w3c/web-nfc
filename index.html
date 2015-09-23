@@ -1289,7 +1289,7 @@
      </tr>
      <tr>
       <td>[[\tagTimer]]</td>
-      <td>A timer which can do an action after <i>timeout</i> milliseconds.</td>
+      <td>A timer which can perform an action after <i>timeout</i> milliseconds.</td>
      </tr>
      <tr>
       <td>[[\peerMessage]]</td>
@@ -1300,7 +1300,7 @@
      </tr>
      <tr>
       <td>[[\peerTimer]]</td>
-      <td>A timer which can do an action after <i>timeout</i> milliseconds.</td>
+      <td>A timer which can perform an action after <i>timeout</i> milliseconds.</td>
      </tr>
      <tr>
       <td>[[\watchList]]</td>
@@ -1350,9 +1350,8 @@
         steps.
       </li>
       <li>
-        Otherwise, make a request to the underlying platform to enumerate
-        available <a>NFC adapter</a>s. If the request fails,
-        reject <var>promise</var> with
+        Otherwise, make a request to enumerate available <a>NFC adapter</a>s.
+        If the request fails, reject <var>promise</var> with
         <code>"<a>NotFoundError</a>"</code>, and abort these steps.
       </li>
       <li>
@@ -1543,7 +1542,7 @@
           <li>
             If there are any existing instance of this algorithm running
             for the current <a>NFC adapter</a>
-            whose <var>target</var> equal to <var>options</var>.target, abort
+            whose <var>target</var> is equal to <var>options</var>.target, abort
             that instance of this algorithm by rejecting its
             <var>promise</var> with <code>"<a>AbortError</a>"</code>.
             <p class="note">
@@ -1556,7 +1555,7 @@
               steps, e.g. reset the related timer (either
               <var>this@[[\tagTimer]]</var> or <var>this@[[\peerTimer]]</var>),
               clear the related message (either <var>this@[[\tagMessage]]</var>
-              or <var>this@[[\peerMessage]]</var>), as well as release platform
+              or <var>this@[[\peerMessage]]</var>), as well as release any
               resources bound to NFC functionality, so that new invocations of
               this algorithm do not depend on previous invocations.
             </p>
@@ -1592,14 +1591,14 @@
           </li>
           <li>
             Let <var>output</var> be the notation for the <a>NDEF message</a>
-            to be created by the underlying platform, as the result of passing
+            to be created by UA, as the result of passing
             <var>message</var> to <a>create Web NFC message</a>.
             If this threw an exception, reject <var>promise</var> with that
             exception and abort these steps.
           </li>
           <li>
             If <var>options</var>.timeout value is not valid or not supported
-            in the underlying platform, reject <var>promise</var> with
+            by the UA, reject <var>promise</var> with
             <code>"SyntaxError"</code>, and abort these steps.
           </li>
           <li>
@@ -1681,9 +1680,9 @@
                   </li>
                   <li>
                     If the connection is lost during the transfer, or an error
-                    is signaled by the underlying platform, reject
-                    <var>promise</var> with <code>"<a>NetworkError</a>"</code>
-                    and terminate this algorithm.
+                    occured, reject <var>promise</var> with
+                    <code>"<a>NetworkError</a>"</code> and terminate this
+                    algorithm.
                   </li>
                   <li>
                     Otherwise if the transfer is successful, cancel
@@ -1726,11 +1725,11 @@
         <ol id="create-web-nfc-message">
           <li>
             Let <var>output</var> be the notation for the <a>NDEF message</a>
-            to be created by the underlying platform as a result of these steps.
+            to be created by the UA as a result of these steps.
           </li>
           <li>
             For each <a>NFCRecord</a> <var>record</var> in the sequence
-            <var>message</var>.data, execute the following steps, or make sure
+            <var>message</var>.data, run the following steps, or make sure
             that the underlying platform provides equivalent values to
             <var>ndef</var>:
             <ol id="steps-map-nfcrecord-ndef">
@@ -1776,22 +1775,21 @@
                   <li>
                     If <var>record</var>.data is instance of
                     <code>ArrayBuffer</code>, then set <var>record</var>.type to
-                    <code>"application/octet-stream"</code> and execute the
+                    <code>"application/octet-stream"</code> and run the
                     <a>map binary data to NDEF</a>
                     steps.
                   </li>
                   <li>
                     Otherwise, if type of <var>record</var>.data is
                     <code>"object"</code>, then set <var>record</var>.type to
-                    <code>"application/json"</code> and execute the
+                    <code>"application/json"</code> and run the
                     <a>map a JSON object to NDEF</a> steps.
                   </li>
                   <li>
                     Otherwise, if type of <var>record</var>.data is
                     <code>"number"</code> or <code>"string"</code>, then
                     set <var>record</var>.type to <code>"plain/text"</code> and
-                    execute the <a>
-                    map text to NDEF</a> steps.
+                    run the <a>map text to NDEF</a> steps.
                   </li>
                   <li>
                     Otherwise reject <var>promise</var> with
@@ -1825,7 +1823,7 @@
         <ol>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
-            be created by the underlying platform.
+            be created by the UA.
           </li>
           <li>Set the
             <var>ndef.TNF</var> field to 0 (NFC Empty Type record).
@@ -1896,7 +1894,7 @@
           </li>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
-            be created by the underlying platform.
+            be created by the UA.
           </li>
           <li>
             Set the <var>ndef.TNF</var> field to 1 (NFC Well Known Type).
@@ -1957,7 +1955,7 @@
           </li>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
-            be created by the underlying platform.
+            be created by the UA.
           </li>
           <li>
             Set the <var>ndef.TNF</var> field to 1 (Well Known Type).
@@ -2002,7 +2000,7 @@
           </li>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
-            be created by the underlying platform.
+            be created by the UA.
           </li>
           <li>
             Set the <var>ndef.TNF</var> field to 2 (Media Type).
@@ -2038,7 +2036,7 @@
           </li>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
-            be created by the underlying platform.
+            be created by the UA.
           </li>
           <li>
             Set the <var>ndef.TNF</var> field to 2 (Media Type).
@@ -2063,7 +2061,7 @@
         <ol>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
-            be created by the underlying platform.
+            be created by the UA.
           </li>
           <li>
             Set <var>ndef.TNF</var> to 4 (NDEF External Type).
@@ -2109,7 +2107,7 @@
         </li>
         <li>
           If the parameter <var>target</var> is <code>"tag"</code>, and
-          if <var>this@[[\tagMessage]]</var> is not <code>null</code>, then
+          if <var>this@[[\tagMessage]]</var> is non-<code>null</code>, then
           <ol>
             <li>Reset <var>this@[[\tagTimer]]</var>.</li>
             <li>Set <var>this@[[\tagMessage]]</var> to <code>null</code>.</li>
@@ -2122,7 +2120,7 @@
         </li>
         <li>
           If the parameter <var>target</var> is <code>"peer"</code>, and
-          if <var>this@[[\peerMessage]]</var> is not <code>null</code>, then
+          if <var>this@[[\peerMessage]]</var> is non-<code>null</code>, then
           <ol>
             <li>Reset <var>this@[[\peerTimer]]</var>.</li>
             <li>Set <var>this@[[\peerMessage]]</var> to <code>null</code>.</li>
@@ -2175,8 +2173,8 @@
       </p>
       <p>
         Most characters match themselves, however <code>'*'</code> (wildcard)
-        matches a sequence of characters. A <a>URL pattern</a> that doesn't
-        obey the above ABNF matches nothing.
+        matches a sequence of visible characters. A <a>URL pattern</a> that
+        doesn't conform to the above ABNF is a non-match.
       </p>
       <p class="note">
         Though <code>'*'</code> matches a sequence of characters, only URLs
@@ -2252,8 +2250,8 @@
           </li>
           <li>
             If this is the first watch being set up for the current
-            <a>NFC adapter</a>, make a request to the underlying platform to
-            listen to <a>NDEF message</a>s.
+            <a>NFC adapter</a>, then make a request to listen to
+            <a>NDEF message</a>s.
           </li>
           <li>
             If the request fails, reject <var>promise</var> with
@@ -2349,9 +2347,9 @@
             <code>"<a>NotFoundError</a>"</code>, and abort these steps.
           </li>
           <li>
-            If there are no more watches on the current <a>NFC adapter</a>, then
-            make a request to the underlying platform to stop listening to
-            <a>NDEF message</a>s on that adapter.
+            If there are no more watches on the current <a>NFC adapter</a>,
+            then make a request to stop listening to <a>NDEF message</a>s
+            on that adapter.
           </li>
           <li>
             Resolve <var>promise</var>.
@@ -2375,7 +2373,7 @@
     <ol id ="parse-ndef">
       <li>
         Let <var>input</var> be the notation for the <a>NDEF message</a>
-        which has been received by the underlying platform.
+        which has been received.
         <p class="note">
           This is a placeholder for a possible future feature. In this step,
           implementations MAY check if the <a>origin</a> of the <a>incumbent
@@ -2422,7 +2420,7 @@
           <li>
             If <var>ndef.TNF</var> is 1 (NFC Well Known Type Record), and
             <var>ndef.TYPE</var> is <code>"T"</code> (value 0x54 following NFC
-            binary encoding), then execute the following sub-steps for
+            binary encoding), then run the following sub-steps for
             <dfn>parsing NDEF Text record</dfn>, or ensure that the
             underlying platform provides equivalent values to the
             <var>record</var> object properties:
@@ -2450,7 +2448,7 @@
           <li>
             If <var>ndef.TNF</var> is 1 (NFC Well Known Type Record), and
             <var>ndef.TYPE</var> is <code>"U"</code> (value 0x55 in NFC binary
-            encoding), then execute the following sub-steps for
+            encoding), then run the following sub-steps for
             <dfn>parsing NDEF URL record</dfn>, or make sure that the
             underlying platform provides equivalent values to the
             <var>record</var> object properties:
@@ -2482,7 +2480,7 @@
             <var>ndef.PAYLOAD</var>.
           </li> <!-- parsing NDEF Absolute URI record -->
           <li>
-            If <var>ndef.TNF</var> is 2 (NFC Media Type record), then execute
+            If <var>ndef.TNF</var> is 2 (NFC Media Type record), then run
             the following sub-steps for <dfn>parsing NDEF Media record</dfn>, or
             make sure that the underlying platform provides equivalent values to
             the <var>record</var> object properties:
@@ -2525,7 +2523,7 @@
           </li> <!-- parsing Web NFC record -->
           <li>
             Otherwise, if <var>ndef.TNF</var> is 4 (NFC External Type record),
-            or 5 (NFC Unknown Type record) then execute the following sub-steps,
+            or 5 (NFC Unknown Type record) then run the following sub-steps,
             or make sure that the underlying platform provides equivalent values
             to the <var>record</var> object properties:
             <ol>
@@ -2554,7 +2552,7 @@
       </li>
       <li>
         If <var>NFCAdapter@[[\suspended]]</var> is <code>false</code>,
-        then execute the <a href="#steps-dispatch">dispatch NFC content</a>
+        then run the <a href="#steps-dispatch">dispatch NFC content</a>
         algorithm.
       </li>
     </ol>
@@ -2571,7 +2569,7 @@
       <li>
         For each <a>NFC watch</a> <var>watch</var> that has
         been registered using the <code>watch()</code> method in
-        <var>this@[[\watchList]]</var>, execute the following sub-steps:
+        <var>this@[[\watchList]]</var>, run the following sub-steps:
         <ol>
           <li>
             Let <var>options</var> be the <code><a>NFCWatchOptions</a></code>
@@ -2587,7 +2585,7 @@
             Otherwise, if <var>options</var>.mode is
             <code>"web-nfc-only"</code>, and <var>message</var>.url is not
             <code>null</code>, or if <var>options</var>.mode is
-            <code>"any"</code>, then execute the following sub-steps:
+            <code>"any"</code>, then run the following sub-steps:
             <ol>
               <li>
                 If <var>message</var>.url does not match the <a>URL pattern</a>
@@ -2642,7 +2640,7 @@
       <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
       becomes visible</a> and in
       <a href="https://html.spec.whatwg.org/#focus">focus</a>,
-      then execute the following steps:
+      then run the following steps:
     </p>
     <ol id="steps-visible-focus">
       <li>
@@ -2650,7 +2648,7 @@
       </li>
       <li>
         If  <var>NFCAdapter@[[\receivedMessage]]</var> is not
-        <code>null</code>, then execute the <a href="#steps-dispatch">
+        <code>null</code>, then run the <a href="#steps-dispatch">
         dispatch NFC content</a> algorithm.
       </li>
     </ol>
@@ -2658,7 +2656,7 @@
       When the <code>Window</code> object associated with the
       <code><a>Document</a></code> using the Web NFC API
       <a href="https://html.spec.whatwg.org/#handler-onblur">loses focus</a>,
-      then execute the following steps:
+      then run the following steps:
     </p>
     <ol id="steps-focus-lost">
       <li>
