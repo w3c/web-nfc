@@ -1573,95 +1573,10 @@
           </li>
           <li>
             Let <var>output</var> be the notation for the <a>NDEF message</a>
-            to be created by an API call to the underlying platform, based on
-            data provided by these steps.
-          </li>
-          <li>
-            For each <a>NFCRecord</a> <var>record</var> in the sequence
-            <var>message</var>, execute the following steps, or make sure
-                that the underlying platform provides equivalent values to
-                <var>ndef</var>:
-            <ol id="steps-map-nfcrecord-ndef">
-              <li>
-                If <var>record</var>.kind is <code>"empty"</code>, then
-                Let <var>ndef</var> be the result of passing <var>record</var>
-                to <a>map empty record to NDEF</a>.
-                If this threw an exception, reject <var>promise</var> with
-                that exception and abort these steps.
-              </li>
-              <li>
-                Otherwise, if <var>record</var>.kind is <code>"text"</code>,
-                then let <var>ndef</var> be the result of passing
-                <var>record</var> to <a>map text to NDEF</a>.
-                If this threw an exception, reject
-                <var>promise</var> with that exception and abort these steps.
-              </li>
-              <li>
-                Otherwise, if <var>record</var>.kind is <code>"url"</code>,
-                then let <var>ndef</var> the be result of passing
-                <var>record</var> to <a>map a URL to NDEF</a>.
-                If this threw an exception, reject <var>promise</var> with that
-                exception and abort these steps.
-              </li>
-              <li>
-                Otherwise, if <var>record</var>.kind is <code>"json"</code>,
-                then let <var>ndef</var> the be result of passing
-                <var>record</var> to <a>map a JSON object to NDEF</a>.
-                If this threw an exception, reject <var>promise</var> with that
-                exception and abort these steps.
-              </li>
-              <li>
-                Otherwise, if <var>record</var>.kind is <code>"opaque"</code>,
-                then let <var>ndef</var> the be result of passing
-                <var>record</var> to <a>map binary data to NDEF</a>.
-                If this threw an exception, reject <var>promise</var> with that
-                exception and abort these steps.
-              </li>
-              <li> <!-- guess type from data and map to NDEF -->
-                Otherwise, if <var>record</var>.kind is <code>undefined</code>,
-                then:
-                <ol id="steps-map-data-to-ndef">
-                  <li>
-                    If <var>record</var>.data is instance of
-                    <code>ArrayBuffer</code>, then set <var>record</var>.type to
-                    <code>"application/octet-stream"</code> and execute the
-                    <a>map binary data to NDEF</a>
-                    steps.
-                  </li>
-                  <li>
-                    Otherwise, if type of <var>record</var>.data is
-                    <code>"object"</code>, then set <var>record</var>.type to
-                    <code>"application/json"</code> and execute the
-                    <a>map a JSON object to NDEF</a> steps.
-                  </li>
-                  <li>
-                    Otherwise, if type of <var>record</var>.data is
-                    <code>"number"</code> or <code>"string"</code>, then
-                    set <var>record</var>.type to <code>"plain/text"</code> and
-                    execute the <a>
-                    map text to NDEF</a> steps.
-                  </li>
-                  <li>
-                    Otherwise reject <var>promise</var> with
-                    <code>"SyntaxError"</code>, and abort these steps.
-                  </li>
-                </ol>
-              </li>
-              <li>
-                Add <var>ndef</var> to <var>output</var>.
-              </li>
-            </ol>
-          </li> <!-- guessing record.type from the data -->
-          <li>
-            Let <var>webnfc</var> be the result of invoking
-            <a>create a Web NFC record</a>.
-          </li>
-          <li>
-            Add <var>webnfc</var> to <var>output</var>.
-            <p class="note">
-              Implementations may choose the location of the Web NFC record
-              within the <a>NDEF message</a>.
-            </p>
+            to be created by the underlying platform, as the result of passing
+            <var>message</var> to <a>create Web NFC message</a>.
+            If this threw an exception, reject <var>promise</var> with that
+            exception and abort these steps.
           </li>
           <li>
             If <var>options</var>.timeout value is not valid or not supported
@@ -1782,6 +1697,106 @@
           </li>
         </ol>
       </p>
+      </section>
+
+      <section><h3>Creating Web NFC message</h3>
+        <p>
+          To <dfn>create Web NFC message</dfn> given a <var>message</var> run
+          these steps:
+        </p>
+        <ol id="create-web-nfc-message">
+          <li>
+            Let <var>output</var> be the notation for the <a>NDEF message</a>
+            to be created by the underlying platform as a result of these steps.
+          </li>
+          <li>
+            For each <a>NFCRecord</a> <var>record</var> in the sequence
+            <var>message</var>, execute the following steps, or make sure
+            that the underlying platform provides equivalent values to
+            <var>ndef</var>:
+            <ol id="steps-map-nfcrecord-ndef">
+              <li>
+                If <var>record</var>.kind is <code>"empty"</code>, then
+                Let <var>ndef</var> be the result of passing <var>record</var>
+                to <a>map empty record to NDEF</a>.
+                If this threw an exception, reject <var>promise</var> with
+                that exception and abort these steps.
+              </li>
+              <li>
+                Otherwise, if <var>record</var>.kind is <code>"text"</code>,
+                then let <var>ndef</var> be the result of passing
+                <var>record</var> to <a>map text to NDEF</a>.
+                If this threw an exception, reject
+                <var>promise</var> with that exception and abort these steps.
+              </li>
+              <li>
+                Otherwise, if <var>record</var>.kind is <code>"url"</code>,
+                then let <var>ndef</var> the be result of passing
+                <var>record</var> to <a>map a URL to NDEF</a>.
+                If this threw an exception, reject <var>promise</var> with that
+                exception and abort these steps.
+              </li>
+              <li>
+                Otherwise, if <var>record</var>.kind is <code>"json"</code>,
+                then let <var>ndef</var> the be result of passing
+                <var>record</var> to <a>map a JSON object to NDEF</a>.
+                If this threw an exception, reject <var>promise</var> with that
+                exception and abort these steps.
+              </li>
+              <li>
+                Otherwise, if <var>record</var>.kind is <code>"opaque"</code>,
+                then let <var>ndef</var> the be result of passing
+                <var>record</var> to <a>map binary data to NDEF</a>.
+                If this threw an exception, reject <var>promise</var> with that
+                exception and abort these steps.
+              </li>
+              <li> <!-- guess type from data and map to NDEF -->
+                Otherwise, if <var>record</var>.kind is <code>undefined</code>,
+                then:
+                <ol id="steps-map-data-to-ndef">
+                  <li>
+                    If <var>record</var>.data is instance of
+                    <code>ArrayBuffer</code>, then set <var>record</var>.type to
+                    <code>"application/octet-stream"</code> and execute the
+                    <a>map binary data to NDEF</a>
+                    steps.
+                  </li>
+                  <li>
+                    Otherwise, if type of <var>record</var>.data is
+                    <code>"object"</code>, then set <var>record</var>.type to
+                    <code>"application/json"</code> and execute the
+                    <a>map a JSON object to NDEF</a> steps.
+                  </li>
+                  <li>
+                    Otherwise, if type of <var>record</var>.data is
+                    <code>"number"</code> or <code>"string"</code>, then
+                    set <var>record</var>.type to <code>"plain/text"</code> and
+                    execute the <a>
+                    map text to NDEF</a> steps.
+                  </li>
+                  <li>
+                    Otherwise reject <var>promise</var> with
+                    <code>"SyntaxError"</code>, and abort these steps.
+                  </li>
+                </ol>
+              </li>
+              <li>
+                Add <var>ndef</var> to <var>output</var>.
+              </li>
+            </ol>
+          </li> <!-- guessing record.type from the data -->
+          <li>
+            Let <var>webnfc</var> be the result of invoking
+            <a>create a Web NFC record</a>.
+          </li>
+          <li>
+            Add <var>webnfc</var> to <var>output</var>.
+            <p class="note">
+              Implementations may choose the location of the Web NFC record
+              within the <a>NDEF message</a>.
+            </p>
+          </li>
+        </ol>
       </section>
 
       <section><h3>Mapping empty record to NDEF</h3>
