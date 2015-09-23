@@ -1260,22 +1260,26 @@
       </td>
      </tr>
      <tr>
-      <td>[[\timer]]</td>
-      <td>A timer which can do an action after <i>timeout</i> milliseconds.</td>
-     </tr>
-     <tr>
       <td>[[\tagMessage]]</td>
       <td>
-        An <a>NFCMessage</a> to hold the message to be pushed to a
+        An <a>NFCMessage</a> to hold the <a>NDEF message</a> to be pushed to a
         <a>NFC tag</a>, initially set to <code>null</code>.
       </td>
      </tr>
      <tr>
+      <td>[[\tagTimer]]</td>
+      <td>A timer which can do an action after <i>timeout</i> milliseconds.</td>
+     </tr>
+     <tr>
       <td>[[\peerMessage]]</td>
       <td>
-        An <a>NFCMessage</a> to hold the message to be pushed to a
+        An <a>NFCMessage</a> to hold the <a>NDEF message</a> to be pushed to a
         <a>NFC peer</a>, initially set to <code>null</code>.
       </td>
+     </tr>
+     <tr>
+      <td>[[\peerTimer]]</td>
+      <td>A timer which can do an action after <i>timeout</i> milliseconds.</td>
      </tr>
      <tr>
       <td>[[\watchList]]</td>
@@ -1378,8 +1382,8 @@
     typedef sequence&lt;NFCRecord&gt; NFCMessage;
 
     interface NFCAdapter {
-      Promise&lt;void&gt; pushMessage(NFCMessage message, optional NFCPushOptions options);
-      void cancelPush();
+      Promise&lt;void&gt; pushMessage(NFCMessage message, NFCPushOptions options);
+      void cancelPush(NFCPushTarget target);
       Promise&lt;long&gt; watch(NFCWatchOptions options, MessageCallback callback);
       Promise&lt;void&gt; unwatch(long id);
     };
@@ -1520,24 +1524,22 @@
           <li>
             If there are any existing instance of this algorithm running
             for the current <a>NFC adapter</a>
-            whose <var>target</var> equal to <var>options</var>.target or
-            <code>"any"</code>, abort that instance of this algorithm,
-             by rejecting its <var>promise</var> with
-             <code>"<a>AbortError</a>"</code>.
+            whose <var>target</var> equal to <var>options</var>.target, abort
+            that instance of this algorithm by rejecting its
+            <var>promise</var> with <code>"<a>AbortError</a>"</code>.
             <p class="note">
             In other words, the current invocation of <code>pushMessage()</code>
             rejects and replaces existing running invocations handling the same
-            <var>options</var>.target. As <code>"any"</code> handles both <code>
-            "peer"</code> and <code>"tag"</code>, existing running invocations
-            for <code>"any"</code> always gets rejected.
+            <var>options</var>.target.
             </p>
             <p class="note">
               Implementations are expected to clean up state on aborting these
-              steps, e.g. reset <var>this@[[\timer]]</var>,
-              <var>this@[[\tagMessage]]</var>
-              and <var>this@[[\peerMessage]]</var>, as well as release platform
+              steps, e.g. reset the related timer (either
+              <var>this@[[\tagTimer]]</var> or <var>this@[[\peerTimer]]</var>),
+              clear the related message (either <var>this@[[\tagMessage]]</var>
+              or <var>this@[[\peerMessage]]</var>), as well as release platform
               resources bound to NFC functionality, so that new invocations of
-              this algorithm don't depend on previous invocations.
+              this algorithm do not depend on previous invocations.
             </p>
           </li>
           <li>
@@ -1667,19 +1669,38 @@
             <code>"SyntaxError"</code>, and abort these steps.
           </li>
           <li>
-            If <var>target</var> has the value <code>"tag"</code> or
-            <code>"any"</code>, then set <var>this@[[\tagMessage]]</var>
-            to <var>output</var>.
+            If <var>target</var> has the value <code>"tag"</code>, then
+            <ol>
+              <li>
+                Set <var>this@[[\tagMessage]]</var> (referred to as
+                <var>message</var> in this instance of the algorithm) to
+                <var>output</var>.
+              </li>
+              <li>
+                If <var>options</var>.timeout value is not
+                <code>Infinity</code>, start the timer
+                <var>this@[[\tagTimer]]</var> (referred to as
+                <var>timer</var> in this instance of the algorithm) with the
+                timeout value set to <var>options</var>.timeout.
+              </li>
+            </ol>
           </li>
           <li>
-            If <var>target</var> has the value <code>"peer"</code> or
-            <code>"any"</code>, then set <var>this@[[\peerMessage]]</var>
-            to <var>output</var>.
-          </li>
-          <li>
-            If <var>options</var>.timeout value is not <code>Infinity</code>,
-            start the timer <var>this@[[\timer]]</var> with the timeout value
-            set to <var>options</var>.timeout.
+            If <var>target</var> has the value <code>"peer"</code>, then
+            <ol>
+              <li>
+                Set <var>this@[[\peerMessage]]</var> (referred to as
+                <var>message</var> in this instance of the algorithm) to
+                <var>output</var>.
+              </li>
+              <li>
+                If <var>options</var>.timeout value is not
+                <code>Infinity</code>, start the timer
+                <var>this@[[\peerTimer]]</var> (referred to as
+                <var>timer</var> in this instance of the algorithm) with the
+                timeout value set to <var>options</var>.timeout.
+              </li>
+            </ol>
           </li>
           <li>
             Wait until one of the following events happens:
@@ -1705,8 +1726,8 @@
                     then abort these steps without rejecting <var>promise</var>.
                     <p class="note">
                       The <var>promise</var> will then be pending until a
-                      timeout, or until <var>this@[[\suspended]]</var> gets back
-                      to <code>false</code> and a new tap happens.
+                      timeout, or until <var>this@[[\suspended]]</var>
+                      becomes <code>false</code> and a new tap happens.
                     </p>
                   </li>
                   <li>
@@ -1731,10 +1752,8 @@
                     and terminate this algorithm.
                   </li>
                   <li>
-                    Otherwise if the transfer is successful, cancel the
-                    <var>this@[[\timer]]</var> and set
-                    <var>this@[[\tagMessage]]</var> and
-                    <var>this@[[\peerMessage]]</var> to
+                    Otherwise if the transfer is successful, cancel
+                    <var>timer</var> and set <var>message</var> to
                     <code>null</code> and then resolve <var>promise</var>.
                   </li>
                 </ol>
@@ -2037,53 +2056,48 @@
       </section>
     </section> <!-- pushMessage() -->
 
-    <section id="cancelPush"><h3>The cancelPush() method</h3>
+    <section id="cancelPush"><h3>The cancelPush method</h3>
       <p>
         The <code>
-        <dfn>NFCAcapter.cancelPush</dfn></code>
-        method is used for resetting the <a>NDEF message</a> set to be pushed
-        next time an <a>NFC device</a> comes in range.
+        <dfn>NFCAdapter.cancelPush</dfn>(target)</code>
+        method, when invoked, MUST run <dfn>cancel push</dfn> algorithm:
       </p>
-      <p id="steps-cancelPush">
-        When the <code>cancelPush()</code> method is invoked, the UA
-        MUST run the following algorithm:
-        <ol>
-          <li>
-            If the <a>incumbent settings object</a> is not a
-            <a>secure context</a>, reject <var>promise</var> with
-            <code>"<a>SecurityError</a>"</code>, and abort these steps.
-            <div class="note">
-              Browsers may ignore this rule for development purposes only.
-            </div>
-          </li>
-          <li>
-            If there is no message set for pushing as described in the
-            <a href="#steps-pushMessage"><code>pushMessage()</code> algorithm</a>,
-            or no active timers associated with it, then terminate this
-            algorithm.
-          </li>
-          <li>
-            Otherwise, if there is an active timer <var>this@[[\timer]]</var>
-            for a message set to be pushed, then run the following sub-steps:
-            <ol>
-              <li>
-                Reset <var>this@[[\timer]]</var>.
-              </li>
-              <li>
-                Set <var>this@[[\tagMessage]]</var> to <code>null</code>.
-              </li>
-              <li>
-                Set <var>this@[[\peerMessage]]</var> to <code>null</code>.
-              </li>
-              <li>
-                Reject the pending <var>promise</var> in the
-                <a href="#steps-pushMessage"><code>pushMessage()</code></a>
-                algorithm with <code>"<a>AbortError</a>"</code>.
-              </li>
-            </ol>
-          </li>
-        </ol>
-      </p>
+      <ol id="steps-cancelPush">
+        <li>
+          If the <a>incumbent settings object</a> is not a
+          <a>secure context</a>, reject <var>promise</var> with
+          <code>"<a>SecurityError</a>"</code>, and abort these steps.
+          <div class="note">
+            Browsers may ignore this rule for development purposes only.
+          </div>
+        </li>
+        <li>
+          If the parameter <var>target</var> is <code>"tag"</code>, and
+          if <var>this@[[\tagMessage]]</var> is not <code>null</code>, then
+          <ol>
+            <li>Reset <var>this@[[\tagTimer]]</var>.</li>
+            <li>Set <var>this@[[\tagMessage]]</var> to <code>null</code>.</li>
+            <li>
+              Reject the pending <var>promise</var> in the connected instance
+              of the <a href="#steps-pushMessage"><code>pushMessage()</code></a>
+              algorithm with <code>"<a>AbortError</a>"</code>.
+            </li>
+          </ol>
+        </li>
+        <li>
+          If the parameter <var>target</var> is <code>"peer"</code>, and
+          if <var>this@[[\peerMessage]]</var> is not <code>null</code>, then
+          <ol>
+            <li>Reset <var>this@[[\peerTimer]]</var>.</li>
+            <li>Set <var>this@[[\peerMessage]]</var> to <code>null</code>.</li>
+            <li>
+              Reject the pending <var>promise</var> in the connected instance
+              of the <a href="#steps-pushMessage"><code>pushMessage()</code></a>
+              algorithm with <code>"<a>AbortError</a>"</code>.
+            </li>
+          </ol>
+        </li>
+      </ol>
     </section>
   </section> <!-- Writing or pushing content -->
 
