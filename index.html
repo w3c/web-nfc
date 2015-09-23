@@ -2125,11 +2125,12 @@
       </p>
       <p>
         Most characters match themselves, however <code>'*'</code> (wildcard)
-        matches a sequence of characters.
+        matches a sequence of characters. A <a>URL pattern</a> that doesn't
+        obey the above ABNF matches nothing.
       </p>
       <p class="note">
         Though <code>'*'</code> matches a sequence of characters, only URLs
-        which scheme <code>"https"</code> are accepted in the algorithms
+        with scheme <code>"https"</code> are accepted in the algorithms
         taking a <a>URL pattern</a>.
       </p>
       <p>
@@ -2209,10 +2210,12 @@
             <code>"NotSupportedError"</code> , and abort these steps.
           </li>
           <li>
-            Let <var>watchId</var> be a locally unique number
-            assigned to <var>options</var>, <var>suspended</var> and
-            <var>callback</var>, and store them together as an <a>NFC watch</a>
-            in <var>this@[[\watchList]]</var>.
+            Let <var>watchId</var> be a number that will identify this
+            <a>NFC watch</a>.
+          </li>
+          <li>
+            Add <var>watchId</var>, <var>options</var>, and <var>callback</var>
+            together as an <a>NFC watch</a> to <var>this@[[\watchList]]</var>.
           </li>
           <li>
             Resolve <var>promise</var> with <var>watchId</var>.
