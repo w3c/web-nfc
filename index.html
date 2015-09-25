@@ -279,7 +279,7 @@
     The term <dfn><a href="https://html.spec.whatwg.org/#task-source">task
     source</a></dfn> is defined in [[!HTML5]].
   </p>
-  <section> <h3>Security</h3>
+  <section> <h3>Security related terms</h3>
   <p>
     The term <dfn>expressed permission</dfn> refers to an act by the user, e.g.
     via user interface or setting or host device platform features, using which
@@ -309,7 +309,7 @@
     <a>prearranged trust relationship</a> exists.
   </p>
   </section>
-  <section> <h3>NFC specific</h3>
+  <section> <h3>NFC specific terms</h3>
   <p>
     <b>NFC</b> stands for Near Field Communications, short-range wireless
     technology operating at 13.56 MHz which enables communication between
@@ -993,7 +993,7 @@
         <a>obtain permission</a>.
       </li>
       <li>
-        The process of reading an <a>NDEF message</a>does not need to
+        The process of reading an <a>NDEF message</a> does not need to
         <a>obtain permission</a>.
       </li>
       <li>
@@ -1255,7 +1255,7 @@
     };
   </pre>
   <p>
-    Instances of <a>NFCAdapter</a> are created with the internal slots
+    Instances of <a>NFCAdapter</a> are created with the <a>internal slots</a>
     described in the following table:
   </p>
   <table class="simple">
@@ -1470,28 +1470,25 @@
       <p>
         The <dfn>NFCWatchOptions.kind</dfn> property
         denotes the string value which is used for matching the
-        <code>kind</code> property of each <code>NFCRecord</code> object
-        in a <a>Web NFC message</a>.
+        <code>
+        <a href="#idl-def-nfcrecordtype">kind</a></code> property of each
+        <code><a>NFCRecord</a></code> object in a <a>Web NFC message</a>.
         The default value <code>""</code> means that no matching happens.
       </p>
       <p>
         The <dfn>NFCWatchOptions.type</dfn> property
         denotes the <a>match pattern</a> which is used for matching the
-        <code>type</code> property of each <code>NFCRecord</code> object
-        in a <a>Web NFC message</a>.
+        <code><a href="#dom-nfcrecord-type">type</a></code> property of each
+        <code><a>NFCRecord</a></code> object in a <a>Web NFC message</a>.
         The default value <code>""</code> means that no matching happens.
       </p>
       <p>
-        The <dfn>NFCWatchOptions.mode</dfn> property tells
-        whether only <a>Web NFC content</a> or any <a>NFC content</a> will be
-        watched.
-      </p>
-      <p>
+        The <dfn>NFCWatchOptions.mode</dfn> property denotes the
+        <code><a>NFCWatchMode</a></code> value telling whether only
+        <a>Web NFC content</a> or any <a>NFC content</a> will be watched.
         The <code>"web-nfc-only"</code> value means that only those
         <a>NDEF message</a>s are exposed which contain a
         <a>Web NFC record</a>, i.e. which are meant for web pages.
-      </p>
-      <p>
         The <code>"any"</code> value means that all <a>NDEF message</a>s
         are exposed.
       </p>
@@ -2730,7 +2727,7 @@
   <p>
     The editors would like to express their gratitude to the former editors
     Luc Yriarte and Samuel Ortiz, and also to Don Coleman, Anne van Kesteren,
-    Domenic Denicola, Jonas Sickling, Jeffrey Yasskin, Alexander Shalamov,
+    Domenic Denicola, Jonas Sicking, Jeffrey Yasskin, Alexander Shalamov,
     Salvatore Iovene, Rijubrata Bhaumik and Anssi Kostiainen for their technical
     guidance, implementation feedback and support.
   </p>
