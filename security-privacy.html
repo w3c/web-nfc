@@ -262,25 +262,22 @@
         proximity of an <a>NFC tag</a> or <a>NFC peer</a>.
         Therefore other means are also needed to make sure the NFC operation is
         according to the intentions of the user.
-        For instance, the display MUST be on, the device MUST be unlocked,
-        the <a>browsing context</a> using the NFC API MUST be visible and in
-        focus, information about ongoing NFC operation SHOULD be visible (in the
+        For instance, the display must be on, the device must be unlocked,
+        the <a>browsing context</a> using the NFC API must be visible and in
+        focus, information about ongoing NFC operation should be visible (in the
         form of icons, information banners, etc).
       </li>
-      <li>
+      <li id="ndef-integrity">
         The integrity of an <a>NDEF message</a> cannot be guaranteed, unless the
-        <a>NFC content</a> is encrypted. Therefore <a>NFC content</a> cannot be
-        handled using the same-origin policy, since the <a>origin</a> of the
-        content of an <a>NDEF message</a> cannot be established by means
-        provided by the NFC standards alone. A <a>URL</a> can be included with
-        <a>NFC content</a>, but it can be faked or changed by 3rd parties not
-        using the Web NFC API.
+        <a>NFC content</a> is encrypted by applications.
+        Therefore security policies cannot be based on the <a>NFC content</a>,
+        since that can be changed by 3rd parties which are not using the
+        Web NFC API.
         <p class="warning">
-          Malicious 3rd parties can write arbitrary URL's into the
-          <a>NDEF Id</a> field, and provide a prepared attack vector as data to
-          services which use the Web NFC API as well.
-          Therefore the <a>Web NFC Id</a> cannot be considered the authentic
-          origin of the data of the <a>NDEF message</a>.
+          For instance malicious 3rd parties can write arbitrary URL's into the
+          <a>NDEF Id</a> field or to the <a>Web NFC Id</a>, and inject a
+          prepared attack vector as data to services which use the Web NFC API
+          as well.
         </p>
       </li>
       <li>
@@ -314,7 +311,7 @@
   <p>
     Web pages using the NFC API are not trusted.
     This means that the user needs to be aware of exactly what a web page is
-    intending to do with NFC at any given moment. Also, implementations SHOULD
+    intending to do with NFC at any given moment. Also, implementations should
     make sure that when the user authorizes an NFC operation, then only that
     action is run, without side effects, and exactly in the context and the
     number of times the user allows the execution of NFC operations.
@@ -367,8 +364,8 @@
           Or, require permission and user prompt needed for writing tags.
           Or, control what tags can be written by a given web page, for instance
           a web page can write only a tag which can be connected to its origin.
-          Or, allow this since tags not meant to be written can be protected
-          by making them read only.
+          Or, allow overwriting since tags not meant to be written can be
+          protected by making them read only.
         </td>
       </tr>
       <tr>
@@ -377,7 +374,7 @@
           devices.
         </td>
         <td>
-          The user SHOULD be able to be aware of what data can be shared using
+          The user should be able to be aware of what data can be shared using
           NFC from the given web page.
           Use permission/user prompt for writing tags and peers.
         </td>
@@ -528,7 +525,7 @@
     For trusting the integrity of the data exchanged via NFC, user agents MAY
     use encrypted <a>NFC content</a> with key management based on Public Key
     Infrastructure. Key management is out of the scope of the Web NFC
-    llllspecification.
+    specification.
   </p>
   <p>
     When the risk of 3rd party native applications modifying and faking tags is
@@ -718,9 +715,9 @@
 
 <section id="acknowledgments"> <h2>Acknowledgments</h2>
   <p>
-    Big thanks to Jonas Sicking and Jeffrey Yasskin for the initiating thoughts,
-    and to Elena Reshetova and Sandeep Tamrakar for reviews and valuable
-    suggestions.
+    The editors would like to express their gratitude to Jonas Sicking and
+    Jeffrey Yasskin for the initiating thoughts, and to Elena Reshetova and
+    Sandeep Tamrakar for reviews and valuable suggestions.
   </p>
 </section>
 
