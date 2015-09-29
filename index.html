@@ -1216,6 +1216,7 @@
       Promise&lt;NFCAdapter&gt; requestAdapter();
     };
   </pre>
+  <section><h3>Internal slots of NFCAdapter</h3>
   <p>
     Instances of <a>NFCAdapter</a> are created with the <a>internal slots</a>
     described in the following table:
@@ -1276,6 +1277,9 @@
      </tr>
     </tbody>
   </table>
+  </section>
+
+  <section><h3>The requestAdapter() method</h3>
   <p>
     The <dfn>NFC.requestAdapter</dfn>() method, when invoked MUST return a new
     promise <var>promise</var> and run the following steps <a>in parallel</a>:
@@ -1296,16 +1300,6 @@
       </li>
       <li>
         Let <var>adapter</var> be <code>null</code>.
-        <p class="note">
-          Each <code>Window</code> object has a separate <code>NFCAdapter</code>
-          instance. The
-          <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
-           visibility</a> and
-           <a href="https://html.spec.whatwg.org/#focus">focus</a>
-           state of the <code>Window</code> object
-           determines the <a href="#nfc-suspended">suspended</a> state
-           of the associated <code>NFCAdapter</code> instance.
-        </p>
       </li>
       <li>
         If there is a default <a>NFC adapter</a>, set <var>adapter</var> to the
@@ -1356,6 +1350,104 @@
       </li>
     </ol>
   </p>
+  </section> <!-- requestAdapter() -->
+
+  <section><h3>Handling Window visibility and focus</h3>
+    <p>
+      Each <code>Window</code> object connected to the
+       <a>script execution environment</a> has a separate
+       <code>NFCAdapter</code> instance. The
+      <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
+       visibility</a> and
+       <a href="https://html.spec.whatwg.org/#focus">focus</a> state of the
+       <code>Window</code> object determines the
+       <a href="#nfc-suspended">suspended</a> state of the associated
+       <code>NFCAdapter</code> instance.
+    </p>
+    <p>
+      The term <dfn id="nfc-suspended">suspended</dfn> in this specification
+      refers to NFC operations being suspended, i.e. no <a>NFC content</a> is
+      pushed, and no received <a>NFC content</a> is presented via watches while
+      suspended.
+      However, platform level timers for the
+      <code><a>NFCAdapter.pushMessage</a>()</code> method continue running,
+      and if they expire, the event should be recorded and handled
+      when execution next resumes, i.e. when the <code>focus</code>
+      event is fired on the <code>Window</code> object.
+    </p>
+    <p>
+      When the <code>Window</code> object associated with the
+      <code><a>Document</a></code> using the Web NFC API
+      <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
+      becomes visible</a> and in
+      <a href="https://html.spec.whatwg.org/#focus">focus</a>,
+      then run the following steps:
+    </p>
+    <ol id="steps-visible-focus">
+      <li>
+        Set <var>NFCAdapter@[[\suspended]]</var> to <code>false</code>.
+      </li>
+      <li>
+        If <var>NFCAdapter@[[\receivedMessage]]</var> is not
+        <code>null</code>, then run the <a href="#steps-dispatch">
+        dispatch NFC content</a> algorithm.
+      </li>
+    </ol>
+    <p>
+      When the <code>Window</code> object associated with the
+      <code><a>Document</a></code> using the Web NFC API
+      <a href="https://html.spec.whatwg.org/#handler-onblur">loses focus</a>,
+      then run the following steps:
+    </p>
+    <ol id="steps-focus-lost">
+      <li>
+        Set <var>NFCAdapter@[[\suspended]]</var> to <code>true</code>.
+      </li>
+    </ol>
+  </section> <!-- visibility & focus: the suspended state -->
+
+  <section><h3>Handling Window unload</h3>
+  <p>
+    When the <code>Window</code> associated to an <code>NFCAdapter</code>
+    <var>adapter</var> instance receives the <code>
+    <a href="https://html.spec.whatwg.org/#event-beforeunload">beforeunload</a>
+    </code> event, it MAY display information about releasing Web NFC related
+    resources, and it MAY execute the <dfn>adapter release steps</dfn>:
+  </p>
+  <ol id="steps-adapter-release">
+    <li>
+      Set <var>adapter</var>@[[\suspended]] to <code>true</code>.
+    </li>
+    <li>
+      Run the <a href="#steps-cancelPush">cancelPush()</a> steps with
+      <code>"tag"</code> as parameter.
+    </li>
+    <li>
+      Run the <a href="#steps-cancelPush">cancelPush()</a> steps with
+      <code>"peer"</code> as parameter.
+    </li>
+    <li>
+      If the <a href="#steps-dispatch">dispatch NFC content</a> algorithm is
+      running, stop it, and set <var>adapter</var>@[[\receivedMessage]] to
+      <code>null</code>.
+    </li>
+    <li>
+      If <var>adapter</var>@[[\watchList]] is not empty, clear it.
+    </li>
+    <li>
+      Release the NFC related resources on the underlying platform.
+    </li>
+  </ol>
+  <p>
+    When the <code>Window</code> associated to an <code>NFCAdapter</code>
+    <var>adapter</var> instance receives the
+    <code><a href="https://html.spec.whatwg.org/#event-unload">unload</a></code>
+    event, the UA MUST run the <a>adapter release steps</a>, unless they have
+    been run when getting the <code>
+    <a href="https://html.spec.whatwg.org/#event-beforeunload">beforeunload</a>
+    </code> event.
+  </p>
+  </section> <!-- Window unload -->
 </section> <!-- NFC interface -->
 
 <section> <h2>The <strong>NFCAdapter</strong> interface</h2>
@@ -2620,50 +2712,6 @@
     </ol>
     </section>
   </section> <!-- receiving content -->
-
-  <section><h3>Handling visibility and focus</h3>
-    <p>
-      The term <dfn id="nfc-suspended">suspended</dfn> in this specification
-      refers to NFC operations being suspended, i.e. no <a>NFC content</a> is
-      pushed, and no received <a>NFC content</a> is presented via watches while
-      suspended.
-      However, platform level timers for the
-      <code><a>NFCAdapter.pushMessage</a>()</code> method continue running,
-      and if they expire, the event should be recorded and handled
-      when execution next resumes, i.e. when the <code>focus</code>
-      event is fired on the <code>Window</code> object.
-    </p>
-    <p>
-      When the <code>Window</code> object associated with the
-      <code><a>Document</a></code> using the Web NFC API
-      <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
-      becomes visible</a> and in
-      <a href="https://html.spec.whatwg.org/#focus">focus</a>,
-      then run the following steps:
-    </p>
-    <ol id="steps-visible-focus">
-      <li>
-        Set <var>NFCAdapter@[[\suspended]]</var> to <code>false</code>.
-      </li>
-      <li>
-        If <var>NFCAdapter@[[\receivedMessage]]</var> is not
-        <code>null</code>, then run the <a href="#steps-dispatch">
-        dispatch NFC content</a> algorithm.
-      </li>
-    </ol>
-    <p>
-      When the <code>Window</code> object associated with the
-      <code><a>Document</a></code> using the Web NFC API
-      <a href="https://html.spec.whatwg.org/#handler-onblur">loses focus</a>,
-      then run the following steps:
-    </p>
-    <ol id="steps-focus-lost">
-      <li>
-        Set <var>NFCAdapter@[[\suspended]]</var> to <code>true</code>.
-      </li>
-    </ol>
-  </section>
-
 </section> <!-- NFCAdapter -->
 
 <!-- - - - - - - - - - - - - - -  Changes - - - - - - - - - - - - - - - - - -->
