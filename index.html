@@ -594,8 +594,8 @@
   </p>
   <pre title="Read and update data stored on tag" class="example highlight">
     navigator.nfc.requestAdapter().then((adapter) => {
-      adapter.watch({}, (message, url) => {
-        console.log("NDEF message received from URL " + url);
+      adapter.watch({}, (message) => {
+        console.log("NDEF message received from URL " + message.url);
         if (message[0].kind == 'empty') {
           adapter.pushMessage([
             {
@@ -610,7 +610,7 @@
     });
 
     function processMessage(message) {
-      message.forEach((record) => {
+      message.data.forEach((record) => {
         if (record.kind == "string") {
           console.log(“Data is string: “ + data);
         } else if (record.kind == "json") {
@@ -618,7 +618,7 @@
         } else if (record.kind == "url") {
         console.log("Data is URL: " + record.data;
         } else if (record.kind == "opaque") {
-          processBinary(data);
+          processBinary(record.data);
       });
     };
 
@@ -1458,7 +1458,7 @@
   <a>NFC peer</a>.
   <pre class="idl">
     interface NFCAdapter {
-      Promise&lt;void&gt; pushMessage(NFCMessage message, NFCPushOptions options);
+      Promise&lt;void&gt; pushMessage(sequence&lt;NFCRecord&gt; message, NFCPushOptions options);
       void cancelPush(NFCPushTarget target);
       Promise&lt;long&gt; watch(NFCWatchOptions options, MessageCallback callback);
       Promise&lt;void&gt; unwatch(long id);
