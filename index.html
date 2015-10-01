@@ -172,12 +172,20 @@
     <a href="https://html.spec.whatwg.org/#script-execution-environment">
     <dfn>script execution environment</dfn></a>,
 
-    <a href="https://html.spec.whatwg.org/#document"><dfn>Document</dfn></a>,
+    <a href="https://html.spec.whatwg.org/#document">
+    <dfn>Document</dfn></a>,
 
     <a href="http://www.w3.org/TR/2011/WD-html5-20110113/urls.html#document-base-url">
     <dfn>document base URL</dfn></a>,
 
-    <a href="https://html.spec.whatwg.org/#origin"><dfn>origin</dfn></a>,
+    <a href="https://html.spec.whatwg.org/#window">
+    <dfn>Window</dfn></a>,
+
+    <a href="https://html.spec.whatwg.org/#windowproxy">
+    <dfn>WindowProxy</dfn></a>,
+
+    <a href="https://html.spec.whatwg.org/#origin">
+    <dfn>origin</dfn></a>,
 
     <a href="https://html.spec.whatwg.org/#ascii-serialisation-of-an-origin">
     <dfn>ASCII serialized origin</dfn></a>,
@@ -200,9 +208,9 @@
   <p>
     A <a>browsing context</a> refers to the environment in which
     <a>Document</a> objects are presented to the user. A given
-    <a>browsing context</a> has a single <code>WindowProxy</code> object, but it
-    can have many <code>Document</code> objects, with their associated
-    <code>Window</code> objects. The <a>script execution environment</a>
+    <a>browsing context</a> has a single <code><a>WindowProxy</a></code> object,
+    but it can have many <code>Document</code> objects, with their associated
+    <code><a>Window</a></code> objects. The <a>script execution environment</a>
     associated with the <i>browsing context</i> identifies the entity which
     invokes this API, which can be a <i>web app</i>, a <i>web page</i>, or an
     <a>iframe</a>.
@@ -612,7 +620,7 @@
     function processMessage(message) {
       message.data.forEach((record) => {
         if (record.kind == "string") {
-          console.log(“Data is string: “ + data);
+          console.log(“Data is string: “ + record.data);
         } else if (record.kind == "json") {
           processJSON(record.data);
         } else if (record.kind == "url") {
@@ -652,8 +660,8 @@
     navigator.nfc.requestAdapter().then((adapter) => {
       console.log("Awaiting game state");
 
-      adapter.watch({ url: "*://mydomain/mygame/*" }, (message, url) => {
-        console.log("Game state received from: " + url;
+      adapter.watch({ url: "*://mydomain/mygame/*" }, (message) => {
+        console.log("Game state received from: " + message.url;
         console.log("Stored state: " + message.data);
 
         // Now do some calculations and then update the state.
@@ -897,16 +905,15 @@
     </p>
     <ul>
       <li>
-        Only <a>script execution environment</a>s of <code>
-        <a href="https://html.spec.whatwg.org/#document">Document</a></code>s
-        with a <a>browsing context</a>, and an <a>incumbent settings object</a>
-        which is a <a>secure context</a> are allowed to access
-        <a>NFC content</a>.
+        Only <a>script execution environment</a>s of
+        <code><a>Document</a></code>s with a <a>browsing context</a>, and an
+        <a>incumbent settings object</a> which is a <a>secure context</a> are
+        allowed to access <a>NFC content</a>.
         Browsers may ignore this rule for development purposes only.
       </li>
       <li>
-        In order to use NFC, the <code>Window</code> object associated with the
-        <code><a>Document</a></code> contained by the
+        In order to use NFC, the <code><a>Window</a></code> object associated
+        with the <code><a>Document</a></code> contained by the
         <a href="http://www.w3.org/TR/html5/browsers.html#top-level-browsing-context">
         top level browsing context</a> using
         the Web NFC API must be
@@ -1354,13 +1361,13 @@
 
   <section><h3>Handling Window visibility and focus</h3>
     <p>
-      Each <code>Window</code> object connected to the
+      Each <code><a>Window</a></code> object connected to the
        <a>script execution environment</a> has a separate
        <code>NFCAdapter</code> instance. The
       <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
        visibility</a> and
        <a href="https://html.spec.whatwg.org/#focus">focus</a> state of the
-       <code>Window</code> object determines the
+       <code><a>Window</a></code> object determines the
        <a href="#nfc-suspended">suspended</a> state of the associated
        <code>NFCAdapter</code> instance.
     </p>
@@ -1373,10 +1380,10 @@
       <code><a>NFCAdapter.pushMessage</a>()</code> method continue running,
       and if they expire, the event should be recorded and handled
       when execution next resumes, i.e. when the <code>focus</code>
-      event is fired on the <code>Window</code> object.
+      event is fired on the <code><a>Window</a></code> object.
     </p>
     <p>
-      When the <code>Window</code> object associated with the
+      When the <code><a>Window</a></code> object associated with the
       <code><a>Document</a></code> using the Web NFC API
       <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
       becomes visible</a> and in
@@ -1394,7 +1401,7 @@
       </li>
     </ol>
     <p>
-      When the <code>Window</code> object associated with the
+      When the <code><a>Window</a></code> object associated with the
       <code><a>Document</a></code> using the Web NFC API
       <a href="https://html.spec.whatwg.org/#handler-onblur">loses focus</a>,
       then run the following steps:
@@ -1406,48 +1413,53 @@
     </ol>
   </section> <!-- visibility & focus: the suspended state -->
 
-  <section><h3>Handling Window unload</h3>
+  <section><h3>Releasing NFCAdapter</h3>
   <p>
-    When the <code>Window</code> associated to an <code>NFCAdapter</code>
-    <var>adapter</var> instance receives the <code>
-    <a href="https://html.spec.whatwg.org/#event-beforeunload">beforeunload</a>
-    </code> event, it MAY display information about releasing Web NFC related
-    resources, and it MAY execute the <dfn>adapter release steps</dfn>:
+    If a user agent is to
+    <a href="https://html.spec.whatwg.org/#make-disappear">make disappear</a>
+    an <code><a>NFCAdapter</a></code> object <var>adapter</var>,
+    run the following <dfn>NFC adapter release steps</dfn>, given
+    <var>adapter</var>:
   </p>
   <ol id="steps-adapter-release">
     <li>
       Set <var>adapter</var>@[[\suspended]] to <code>true</code>.
     </li>
     <li>
-      Run the <a href="#steps-cancelPush">cancelPush()</a> steps with
-      <code>"tag"</code> as parameter.
+      Run the <var>adapter</var>.<a href="#steps-cancelPush">cancelPush()</a>
+      steps with <code>"tag"</code> as parameter.
     </li>
     <li>
-      Run the <a href="#steps-cancelPush">cancelPush()</a> steps with
-      <code>"peer"</code> as parameter.
+      Run the <var>adapter</var>.<a href="#steps-cancelPush">cancelPush()</a>
+      steps with <code>"peer"</code> as parameter.
     </li>
     <li>
-      If the <a href="#steps-dispatch">dispatch NFC content</a> algorithm is
-      running, stop it, and set <var>adapter</var>@[[\receivedMessage]] to
-      <code>null</code>.
+      Stop the <a href="#steps-dispatch">dispatch NFC content</a> steps.
     </li>
     <li>
-      If <var>adapter</var>@[[\watchList]] is not empty, clear it.
+      Set <var>adapter</var>@[[\receivedMessage]] to <code>null</code>.
     </li>
     <li>
-      Release the NFC related resources on the underlying platform.
+      Clear <var>adapter</var>@[[\watchList]].
+    </li>
+    <li>
+      Release the NFC resources associated with <var>adapter</var> on the
+      underlying platform.
     </li>
   </ol>
   <p>
-    When the <code>Window</code> associated to an <code>NFCAdapter</code>
-    <var>adapter</var> instance receives the
-    <code><a href="https://html.spec.whatwg.org/#event-unload">unload</a></code>
-    event, the UA MUST run the <a>adapter release steps</a>, unless they have
-    been run when getting the <code>
-    <a href="https://html.spec.whatwg.org/#event-beforeunload">beforeunload</a>
-    </code> event.
+    The UA should run the <a>NFC adapter release steps</a>, given
+    <var>adapter</var>, as additional steps to the
+    <a href="https://html.spec.whatwg.org/#unloading-document-cleanup-steps">
+    unloading document cleanup steps</a>.
   </p>
-  </section> <!-- Window unload -->
+  <p class="note">
+    Since no <a href="https://html.spec.whatwg.org/#microtask">microtasks</a>
+    are run during <a href="https://html.spec.whatwg.org/#unload-a-document">
+    document unload</a>, the promise rejections that happen during the
+    <a>NFC adapter release steps</a> are not observable.
+  </p>
+  </section> <!-- release NFCAdapter -->
 </section> <!-- NFC interface -->
 
 <section> <h2>The <strong>NFCAdapter</strong> interface</h2>
