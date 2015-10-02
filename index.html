@@ -603,7 +603,7 @@
   <pre title="Read and update data stored on tag" class="example highlight">
     navigator.nfc.requestAdapter().then((adapter) => {
       adapter.watch({}, (message) => {
-        console.log("NDEF message received from URL " + message.url);
+        console.log('NDEF message received from URL ' + message.url);
         if (message[0].kind == 'empty') {
           adapter.pushMessage([
             {
@@ -620,24 +620,24 @@
     function processMessage(message) {
       message.data.forEach((record) => {
         if (record.kind == "string") {
-          console.log(“Data is string: “ + record.data);
-        } else if (record.kind == "json") {
+          console.log('Data is string: ' + record.data);
+        } else if (record.kind == 'json') {
           processJSON(record.data);
-        } else if (record.kind == "url") {
-        console.log("Data is URL: " + record.data;
-        } else if (record.kind == "opaque") {
+        } else if (record.kind == 'url') {
+        console.log('Data is URL: ' + record.data);
+        } else if (record.kind == 'opaque') {
           processBinary(record.data);
       });
     };
 
     function processBinary(data) {
-      console.log("Known (string) binary data: ");
+      console.log('Known (string) binary data: ');
       console.log(String.fromCharCode.apply(null, new Uint16Array(data)));
     };
 
     function processJSON(data) {
       var obj = JSON.parse(data);
-      console.log("JSON data: " + obj.myProperty.toString());
+      console.log('JSON data: ' + obj.myProperty.toString());
     };
   </pre>
   <pre title="Sending data to a peer device" class="example highlight">
@@ -649,9 +649,9 @@
           data: "Data meant for peers"
         }
       ]).then(() => {
-        console.log("Message sent.")
+        console.log("Message sent.");
       }).catch(() => {
-        console.log("Send failed :-( try again.")
+        console.log("Send failed :-( try again.");
       });
     });
   </pre>
@@ -661,15 +661,15 @@
       console.log("Awaiting game state");
 
       adapter.watch({ url: "*://mydomain/mygame/*" }, (message) => {
-        console.log("Game state received from: " + message.url;
+        console.log("Game state received from: " + message.url);
         console.log("Stored state: " + message.data);
 
         // Now do some calculations and then update the state.
         // ...
-        adapter.pushMessage([ data: { level: 3, points: 4500, lives: 3 } ])
-        .then(() => { console.log("We have stored your current game state.") })
-        .catch(() => { console.log("Failed updating game state, try again.") });
-      };
+        adapter.pushMessage([ { data: { level: 3, points: 4500, lives: 3 }} ])
+        .then(() => { console.log('We have stored your current game state.'); })
+        .catch(() => { console.log('Failed updating game state, try again.'); });
+      });
     });
   </pre>
   </section> <!-- Usage examples -->
