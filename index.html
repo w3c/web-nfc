@@ -1237,13 +1237,6 @@
     </thead>
     <tbody>
      <tr>
-      <td>[[\receivedMessage]]</td>
-      <td>
-        An <a>NFCMessage</a> to hold the last received message, initially
-        set to <code>null</code>.
-      </td>
-     </tr>
-     <tr>
       <td>[[\suspended]]</td>
       <td>
         A boolean flag indicating whether the adapter is suspended or not,
@@ -1394,11 +1387,6 @@
       <li>
         Set <var>NFCAdapter@[[\suspended]]</var> to <code>false</code>.
       </li>
-      <li>
-        If <var>NFCAdapter@[[\receivedMessage]]</var> is not
-        <code>null</code>, then run the <a href="#steps-dispatch">
-        dispatch NFC content</a> algorithm.
-      </li>
     </ol>
     <p>
       When the <code><a>Window</a></code> object associated with the
@@ -1434,10 +1422,7 @@
       steps with <code>"peer"</code> as parameter.
     </li>
     <li>
-      Stop the <a href="#steps-dispatch">dispatch NFC content</a> steps.
-    </li>
-    <li>
-      Set <var>adapter</var>@[[\receivedMessage]] to <code>null</code>.
+      Stop the <a>dispatch NFC content</a> steps.
     </li>
     <li>
       Clear <var>adapter</var>@[[\watchList]].
@@ -2492,15 +2477,17 @@
     following algorithm:
     <ol id ="parse-ndef">
       <li>
+        If <var>NFCAdapter@[[\suspended]]</var> is <code>true</code>, abort
+        these steps.
+      </li>
+      <li>
         Let <var>input</var> be the notation for the <a>NDEF message</a>
         which has been received.
       </li>
       <li>
-        Let <var>message</var> be a new <code>NFCMessage</code> object.
-      </li>
-      <li>
-        Let <var>message</var>.url be <code>null</code>, used for storing the
-        <a>Web NFC Id</a> of <var>message</var>.
+        Let <var>message</var> be a new <code>NFCMessage</code> object, with
+        <var>message</var>.url set to <code>null</code> and
+        <var>message</var>.data set to empty sequence.
       </li>
       <li>
         For each <a>NDEF record</a> which is part of <var>input</var>, run the
@@ -2651,24 +2638,19 @@
         </ol>
       </li>
       <li>
-        Set <var>NFCAdapter@[[\receivedMessage]]</var> to <var>message</var>.
-      </li>
-      <li>
-        If <var>NFCAdapter@[[\suspended]]</var> is <code>false</code>,
-        then run the <a href="#steps-dispatch">dispatch NFC content</a>
-        algorithm.
+        If <var>NFCAdapter@[[\suspended]]</var> is <code>false</code> and
+        <var>message</var>.data is not empty, run the
+        <a>dispatch NFC content</a> steps given <var>message</var>.
       </li>
     </ol>
     </section>
 
     <section><h3>Dispatching NFC content</h3>
     <p>
-      The following steps are used for dispatching received <a>NFC content</a>:
+      To <dfn>dispatch NFC content</dfn> given a <var>message</var> of type
+      <code><a>NFCMessage</a></code> run these steps:
     </p>
-    <ol id="steps-dispatch">
-      <li>
-        Let <var>message</var> be <var>NFCAdapter@[[\receivedMessage]]</var>.
-      </li>
+    <ol>
       <li>
         For each <a>NFC watch</a> <var>watch</var> that has
         been registered using the <code>watch()</code> method in
@@ -2710,16 +2692,9 @@
                 to invoke the <code>MessageCallback</code>var>callback</var>
                 with <var>message</var> as its argument.
               </li>
-              <li>
-                Set <var>NFCAdapter@[[\receivedMessage]]</var> to
-                <code>null</code>.
-              </li>
             </ol>
           </li>
         </ol>
-      </li>
-      <li>
-        Set <var>NFCAdapter@[[\receivedMessage]]</var> to <code>null</code>.
       </li>
     </ol>
     </section>
