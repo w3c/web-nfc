@@ -2662,37 +2662,33 @@
             registered callback function.
           </li>
           <li>
-            If <var>options</var>.mode is <code>"web-nfc-only"</code>, and
-            <var>message</var>.url is <var>null</var>, then skip to the next
+            If <var>options</var>.mode is <code>"web-nfc-only"</code> and
+            <var>message</var>.url is <var>null</var>, skip to the next
             <a>NFC watch</a>.
           </li>
           <li>
-            Otherwise, if <var>options</var>.mode is
-            <code>"web-nfc-only"</code>, and <var>message</var>.url is not
-            <code>null</code>, or if <var>options</var>.mode is
-            <code>"any"</code>, then run the following sub-steps:
-            <ol>
-              <li>
-                If <var>message</var>.url does not match the <a>URL pattern</a>
-                stored in <var>options</var>.url, then skip to the next
-                <a>NFC watch</a>.
-              </li>
-              <li>
-                If <var>options</var>.kind is not equal to any
-                <var>record</var>.kind where <var>record</var> is an element of
-                <var>message</var>, then skip to the next <a>NFC watch</a>.
-              </li>
-              <li>
-                If <var>options</var>.type is not equal to any
-                <var>record</var>.type where <var>record</var> is an element of
-                <var>message</var>, then skip to the next <a>NFC watch</a>.
-              </li>
-              <li>
-                <a>Queue a task</a> using the <dfn>Web NFC task source</dfn>
-                to invoke the <code>MessageCallback</code>var>callback</var>
-                with <var>message</var> as its argument.
-              </li>
-            </ol>
+            Otherwise, if <var>options</var>.mode is <code>"any"</code>,
+            set <var>options</var>.url to <code>""</code>.
+          </li>
+          <li>
+            If the <a>URL pattern</a> <var>options</var>.url is not
+            <code>""</code> and it does not match <var>message</var>.url,
+            skip to the next <a>NFC watch</a>.
+          </li>
+          <li>
+            If <var>options</var>.kind is not <code>""</code> and it is not
+            equal to any <var>record</var>.kind where <var>record</var> is an
+            element of <var>message</var>, skip to the next <a>NFC watch</a>.
+          </li>
+          <li>
+            If <var>options</var>.type is not <code>""</code> and it is not
+            equal to any <var>record</var>.type where <var>record</var> is an
+            element of <var>message</var>, skip to the next <a>NFC watch</a>.
+          </li>
+          <li>
+            <a>Queue a task</a> using the <dfn>Web NFC task source</dfn>
+            to invoke the <code>MessageCallback</code>var>callback</var>
+            with <var>message</var> as its argument.
           </li>
         </ol>
       </li>
