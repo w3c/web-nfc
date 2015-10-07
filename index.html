@@ -262,6 +262,8 @@
       <dfn>NotFoundError</dfn></a>,
     <a href="http://www.w3.org/TR/dom/#networkerror">
       <dfn>NetworkError</dfn></a>,
+    <a href="http://www.w3.org/TR/dom/#nomodificationallowederror">
+    <dfn>NoModificationAllowedError</dfn>,
     <a href="http://www.w3.org/TR/dom/#securityerror">
       <dfn>SecurityError</dfn></a>
     are defined in [[!DOM4]].
@@ -1586,7 +1588,7 @@
             </p>
             <p class="note">
               Implementations are expected to clean up state on aborting these
-              steps, e.g. reset the related timer, clear the related push
+              steps, e.g. stop the related timer, clear the related push
               message, as well as release any resources bound to NFC
               functionality, so that new invocations of this algorithm do not
               depend on previous invocations.
@@ -1655,28 +1657,22 @@
               </li>
               <li>
                 When an <a>NFC device</a> <var>device</var> comes within
-                communication range,
+                communication range, and if <var>this@[[\suspended]]</var> is
+                <code>false</code>, and if <var>device</var> is an
+                <a>NFC tag</a> and <var>target</var> is <code>"tag"</code> or if
+                <var>device</var> is an <a>NFC peer</a> and <var>target</var>
+                is <code>"peer"</code>, then
                 <ol>
                   <li>
-                    If <var>this@[[\suspended]]</var> is <code>true</code>,
-                    then abort these steps without rejecting <var>promise</var>.
-                    <p class="note">
-                      The <var>promise</var> will be then pending until a
-                      timeout, or until <var>this@[[\suspended]]</var>
-                      becomes <code>false</code> and a new tap happens.
-                    </p>
+                    Stop <var>timer</var> if active.
                   </li>
                   <li>
-                    If <var>device</var> is an <a>NFC tag</a> and
-                    <var>target</var> is <code>"tag"</code>, or if
-                    <var>device</var> is an <a>NFC peer</a> and
-                    <var>target</var> is <code>"peer"</code>,
-                    initiate data transfer to <var>device</var> using
+                    Initiate data transfer to <var>device</var> using
                     <var>output</var> as buffer.
                   </li>
                   <li>
-                    If the transfer is successful, resolve <var>promise</var>
-                    and terminate these steps.
+                    If the transfer is successful, resolve
+                    <var>promise</var> and terminate these steps.
                   </li>
                   <li>
                     Otherwise reject <var>promise</var> with
@@ -1685,6 +1681,12 @@
                   </li>
                 </ol>
               </li>
+              <p class="note">
+                If <var>this@[[\suspended]]</var> is <code>true</code>,
+                continue waiting until <var>timer</var> expires (if set), or
+                until <code>cancelPush()</code> is called, or until
+                an <a>NFC device</a> comes within communication range.
+              </p>
             </ul>
           </li>
         </ol>
@@ -2153,7 +2155,13 @@
           with <var>options</var>.target <code>"peer"</code>, then
           <ol>
             <li>
-              Reset the instance's <var>timer</var> if it is active.
+              Stop the instance's <var>timer</var> if it is active.
+            </li>
+            <li>
+              If the instance has already initiated NFC data transfer,
+              reject <var>promise</var> with
+              <code>"<a>NoModificationAllowedError</a>"</code> and abort these
+              steps.
             </li>
             <li>
               Reject the instance's pending <var>promise</var> with
