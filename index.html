@@ -1649,9 +1649,9 @@
               <li>
                 If the <a href="cancelPush"><code>cancelPush()</code></a>
                 method is called while <var>timer</var> is active, reject
-                <var>promise</var> with <code>"<a>AbortError</a>"</code>, as
-                described in the <a href="#steps-cancelPush"><code>
-                cancelPush()</code>algorithm</a>.
+                <var>promise</var> with <code>"<a>AbortError</a>"</code>, and
+                terminate these steps, as described in the
+                <a href="#steps-cancelPush"><code>cancelPush()</code>algorithm</a>.
               </li>
               <li>
                 When an <a>NFC device</a> <var>device</var> comes within
@@ -2157,18 +2157,25 @@
             </li>
             <li>
               Reject the instance's pending <var>promise</var> with
-              <code>"<a>AbortError</a>"</code>.
+              <code>"<a>AbortError</a>"</code> and terminate the steps of the
+              instance.
             </li>
           </ol>
         </li>
       </ol>
+      <p class="note">
+        The <code>cancelPush()</code> method does not <i>interrupt</i> ongoing
+        transfers, it only cancels pushing <i>before</i> an <a>NFC device</a>
+        comes in range.
+      </p>
     </section>
   </section> <!-- Writing or pushing content -->
 
   <section> <h3>Watching for content</h3>
-    In order to receive <a>NFC content</a>, the client needs to call the
-    <a>NFCAdapter.watch</a>() to opt into content of interest.
-
+    <p>
+      In order to receive <a>NFC content</a>, the client needs to call the
+      <a>NFCAdapter.watch</a>() to opt into content of interest.
+    </p>
 
     <section> <h3>Match patterns</h3>
       <p>
