@@ -2415,19 +2415,23 @@
   <section><h3>The NDEF parsing algorithm</h3>
     When the <a>UA</a> is to <dfn>receive an NDEF message</dfn> it MUST run the
     following algorithm:
+    <p class="note">
+       The UA SHOULD represent an unformatted <a>NFC tag</a> as an
+       <a>NDEF message</a> containing a single empty <a>NDEF record</a>.
+    </p>
     <ol id ="parse-ndef">
       <li>
         If <var>NFCAdapter@[[\suspended]]</var> is <code>true</code>, abort
         these steps.
       </li>
       <li>
-        Let <var>input</var> be the notation for the <a>NDEF message</a>
-        which has been received.
-      </li>
-      <li>
         Let <var>message</var> be a new <code>NFCMessage</code> object, with
         <var>message</var>.url set to <code>null</code> and
         <var>message</var>.data set to empty sequence.
+      </li>
+      <li>
+        Let <var>input</var> be the notation for the <a>NDEF message</a>
+        which has been received.
       </li>
       <li>
         For each <a>NDEF record</a> which is part of <var>input</var>, run the
@@ -2443,9 +2447,8 @@
           </li>
           <li>
             If <var>ndef.TNF</var> is 0 (NFC Empty Record), then set
-            <var>record</var>.kind to <code>"empty"</code>,
-            <var>record</var>.type to <code>""</code>,
-            and <var>record</var>.data to <code>null</code>.
+            <var>record</var>.kind to <code>"empty"</code> and set
+            <var>record</var>.type to <code>""</code>.
           </li>
           <li>
             If <var>ndef.TNF</var> is 1 (NFC Well Known Type Record), and
