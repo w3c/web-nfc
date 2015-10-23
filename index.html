@@ -1282,54 +1282,50 @@
         <code>"<a>NotSupportedError</a>"</code>, and abort these steps.
       </li>
       <li>
-        Let <var>adapter</var> be <code>null</code>.
+        Make a request to enumerate available <a>NFC adapter</a>s.
       </li>
       <li>
-        If there is a default <a>NFC adapter</a>, set <var>adapter</var> to the
-        corresponding <code><a>NFCAdapter</a></code> object, or if that does not
-        exist, a new <code><a>NFCAdapter</a></code> object which is bound to
-        work with the default <a>NFC adapter</a>.
-        Resolve <a>promise</a> with <var>adapter</var>, and terminate these
-        steps.
-      </li>
-      <li>
-        Otherwise, make a request to enumerate available <a>NFC adapter</a>s.
         If the request fails, reject <var>promise</var> with
         <code>"<a>NotFoundError</a>"</code>, and abort these steps.
       </li>
       <li>
-        If the request is successful, select one of the <a>NFC adapter</a>s
-        based on the following algorithm:
+        Select one of the <a>NFC adapter</a>s based on the following steps:
         <ol>
-          <li>Let <var>adapter</var> be a new <code><a>NFCAdapter</a></code>
-            object.
+          <li>Let <var>adapter</var> be <code>null</code>.
           </li>
           <li>
-            If there is only one <a>NFC adapter</a>, then bind
-            <var>adapter</var> to that.
+            If there is only one <a>NFC adapter</a>, let <var>adapter</var>
+            denote that.
           </li>
           <li>
-            Otherwise, if there are multiple <a>NFC adapter</a>s available, and
-            there is a system or user setting available with a preference to
-            select the default adapter, then bind <var>adapter</var> to that.
-          </li>
-          <li>
-            Otherwise, the UA MAY pop up a user dialog for
-            selecting one of the <a>NFC adapter</a>, and bind <var>adapter</var>
-            to the selected one.
-          </li>
-          <li>
-            Otherwise if user prompt is blocked or canceled, bind
-            <var>adapter</var> to the first built-in <a>NFC adapter</a>
-          </li>
-          <li>
-            Otherwise, if no built-in adapters are found, bind
-            <var>adapter</var> the first external (e.g. USB) <a>NFC adapter</a>.
+            Otherwise, the UA MAY set <var>adapter</var> to a UA default or
+            allow the user to select one, for instance via a dialog.
           </li>
         </ol>
       </li>
       <li>
-        Resolve <var>promise</var> with <var>adapter</var>.
+        If <var>adapter</var> is <code>null</code>, reject <var>promise</var>
+        with <code>"<a>NotFoundError</a>"</code>, and abort these steps.
+      </li>
+      <li>
+        If there is any <code><a>NFCAdapter</a></code> instance
+        <var>oldAdapter</var> as a result of a previous invocation of this
+        algorithm, run the following sub-steps:
+        <ol>
+          <li>
+            If <var>oldAdapter</var> is bound to <var>adapter</var>, resolve
+            <var>promise</var> with <var>oldAdapter</var> and terminate these
+            steps.
+          </li>
+          <li>
+            Otherwise run the <a>NFC adapter release steps</a> given
+            <var>oldAdapter</var>.
+          </li>
+        </ol>
+      </li>
+      <li>
+        Resolve <var>promise</var> with a new <code><a>NFCAdapter</a></code>
+        object bound to <var>adapter</var>.
       </li>
     </ol>
   </p>
