@@ -611,11 +611,11 @@
     navigator.nfc.requestAdapter().then((adapter) => {
       adapter.watch({}, (message) => {
         console.log('NDEF message received from URL ' + message.url);
-        if (message[0].kind == 'empty') {
+        if (message[0].recordType == 'empty') {
           adapter.pushMessage([
             {
-              kind: "text",
-              type: "",
+              recordType: "text",
+              mediaType: "",
               data: "Initializing tag"
             }
           ]);
@@ -626,13 +626,13 @@
 
     function processMessage(message) {
       message.data.forEach((record) => {
-        if (record.kind == "string") {
+        if (record.recordType == "string") {
           console.log('Data is string: ' + record.data);
-        } else if (record.kind == 'json') {
+        } else if (record.recordType == 'json') {
           processJSON(record.data);
-        } else if (record.kind == 'url') {
+        } else if (record.recordType == 'url') {
         console.log('Data is URL: ' + record.data);
-        } else if (record.kind == 'opaque') {
+        } else if (record.recordType == 'opaque') {
           processBinary(record.data);
       });
     };
@@ -651,8 +651,8 @@
     navigator.nfc.requestAdapter().then((adapter) => {
       adapter.pushMessage([
         {
-          kind: "text",
-          type: "",
+          recordType: "text",
+          mediaType: "",
           data: "Data meant for peers"
         }
       ]).then(() => {
@@ -1009,13 +1009,13 @@
       typedef (DOMString or unrestricted double or object or ArrayBuffer) NFCRecordData;
 
       dictionary NFCRecord {
-        NFCRecordType kind;
-        USVString type;
+        NFCRecordType recordType;
+        USVString mediaType;
         NFCRecordData data;
       };
     </pre>
     <p>
-      The <dfn>NFCRecord.type</dfn>
+      The <dfn>NFCRecord.mediaType</dfn>
       property represents the <a>IANA media type</a> of the <a>NDEF record</a>
       payload.
     </p>
@@ -1025,9 +1025,11 @@
       type, which depends on the <a>IANA media type</a>.
     </p>
     <p>
-    The mapping from data types of an <code><a>NFCRecord</a></code> to and from
-    <a>NDEF record</a> types is presented in the algorithmic steps which handle
-    the data and described in the
+      The <dfn>NFCRecord.recordType</dfn> property represents the
+      <a>NDEF record</a> types.
+      The mapping from data types of an <code><a>NFCRecord</a></code> to and
+      from <a>NDEF record</a> types is presented in the algorithmic steps which
+      handle the data and described in the
     <a href="#steps-receiving">Receiving and parsing content</a>
     and <a>Writing or pushing content</a> sections.
     </p>
@@ -1070,8 +1072,8 @@
   </p>
   <table class="simple">
     <tr>
-      <th>NFCRecord kind</th>
-      <th>NFCRecord type</th>
+      <th>NFCRecord recordType</th>
+      <th>NFCRecord mediaType</th>
       <th>NFCRecord data</th>
       <th>NDEF record type</th>
     </tr>
@@ -1126,8 +1128,8 @@
   <table class="simple">
     <tr>
       <th>NDEF record type</th>
-      <th>NFCRecord kind</th>
-      <th>NFCRecord type</th>
+      <th>NFCRecord recordType</th>
+      <th>NFCRecord mediaType</th>
       <th>NFCRecord data</th>
     </tr>
     <tr>
@@ -1280,54 +1282,50 @@
         <code>"<a>NotSupportedError</a>"</code>, and abort these steps.
       </li>
       <li>
-        Let <var>adapter</var> be <code>null</code>.
+        Make a request to enumerate available <a>NFC adapter</a>s.
       </li>
       <li>
-        If there is a default <a>NFC adapter</a>, set <var>adapter</var> to the
-        corresponding <code><a>NFCAdapter</a></code> object, or if that does not
-        exist, a new <code><a>NFCAdapter</a></code> object which is bound to
-        work with the default <a>NFC adapter</a>.
-        Resolve <a>promise</a> with <var>adapter</var>, and terminate these
-        steps.
-      </li>
-      <li>
-        Otherwise, make a request to enumerate available <a>NFC adapter</a>s.
         If the request fails, reject <var>promise</var> with
         <code>"<a>NotFoundError</a>"</code>, and abort these steps.
       </li>
       <li>
-        If the request is successful, select one of the <a>NFC adapter</a>s
-        based on the following algorithm:
+        Select one of the <a>NFC adapter</a>s based on the following steps:
         <ol>
-          <li>Let <var>adapter</var> be a new <code><a>NFCAdapter</a></code>
-            object.
+          <li>Let <var>adapter</var> be <code>null</code>.
           </li>
           <li>
-            If there is only one <a>NFC adapter</a>, then bind
-            <var>adapter</var> to that.
+            If there is only one <a>NFC adapter</a>, let <var>adapter</var>
+            denote that.
           </li>
           <li>
-            Otherwise, if there are multiple <a>NFC adapter</a>s available, and
-            there is a system or user setting available with a preference to
-            select the default adapter, then bind <var>adapter</var> to that.
-          </li>
-          <li>
-            Otherwise, the UA MAY pop up a user dialog for
-            selecting one of the <a>NFC adapter</a>, and bind <var>adapter</var>
-            to the selected one.
-          </li>
-          <li>
-            Otherwise if user prompt is blocked or canceled, bind
-            <var>adapter</var> to the first built-in <a>NFC adapter</a>
-          </li>
-          <li>
-            Otherwise, if no built-in adapters are found, bind
-            <var>adapter</var> the first external (e.g. USB) <a>NFC adapter</a>.
+            Otherwise, the UA MAY set <var>adapter</var> to a UA default or
+            allow the user to select one, for instance via a dialog.
           </li>
         </ol>
       </li>
       <li>
-        Resolve <var>promise</var> with <var>adapter</var>.
+        If <var>adapter</var> is <code>null</code>, reject <var>promise</var>
+        with <code>"<a>NotFoundError</a>"</code>, and abort these steps.
+      </li>
+      <li>
+        If there is any <code><a>NFCAdapter</a></code> instance
+        <var>oldAdapter</var> as a result of a previous invocation of this
+        algorithm, run the following sub-steps:
+        <ol>
+          <li>
+            If <var>oldAdapter</var> is bound to <var>adapter</var>, resolve
+            <var>promise</var> with <var>oldAdapter</var> and terminate these
+            steps.
+          </li>
+          <li>
+            Otherwise run the <a>NFC adapter release steps</a> given
+            <var>oldAdapter</var>.
+          </li>
+        </ol>
+      </li>
+      <li>
+        Resolve <var>promise</var> with a new <code><a>NFCAdapter</a></code>
+        object bound to <var>adapter</var>.
       </li>
     </ol>
   </p>
@@ -1484,8 +1482,8 @@
 
         dictionary NFCWatchOptions {
           USVString url = "";
-          USVString kind = "";
-          USVString type = "";
+          USVString recordType = "";
+          USVString mediaType = "";
           NFCWatchMode mode = "web-nfc-only";
         };
       </pre>
@@ -1496,15 +1494,15 @@
         The default value <code>""</code> means that no matching happens.
       </p>
       <p>
-        The <dfn>NFCWatchOptions.kind</dfn> property
+        The <dfn>NFCWatchOptions.recordType</dfn> property
         denotes the string value which is used for matching the
         <code>
-        <a href="#idl-def-nfcrecordtype">kind</a></code> property of each
+        <a href="#idl-def-nfcrecordtype">type</a></code> property of each
         <code><a>NFCRecord</a></code> object in a <a>Web NFC message</a>.
         The default value <code>""</code> means that no matching happens.
       </p>
       <p>
-        The <dfn>NFCWatchOptions.type</dfn> property
+        The <dfn>NFCWatchOptions.mediaType</dfn> property
         denotes the <a>match pattern</a> which is used for matching the
         <code><a href="#dom-nfcrecord-type">type</a></code> property of each
         <code><a>NFCRecord</a></code> object in a <a>Web NFC message</a>.
@@ -1525,8 +1523,8 @@
         class="example highlight">
         var watchOptions = {
           url: "https://www.w3.org/*",  // any path from the domain is accepted
-          kind: "json",
-          type: "application/*+json"  // any JSON-based IANA media type
+          recordType: "json",
+          mediaType: "application/*+json"  // any JSON-based IANA media type
         }
       </pre>
       <pre
@@ -1534,8 +1532,8 @@
         class="example highlight">
         var watchOptions = {
           url: "*://*/info/restaurant/daily-menu/",  // accepted from any domain
-          kind: "opaque",
-          type: "application/octet-stream"
+          recordType: "opaque",
+          mediaType: "application/octet-stream"
         }
       </pre>
     </section> <!-- NFCWatchOptions -->
@@ -1776,25 +1774,27 @@
             <var>ndef</var>:
             <ol>
               <li>
-                If <var>record</var>.kind is <code>undefined</code>, then:
-                <ol> <!-- guess type and kind from data -->
+                If <var>record</var>.recordType is <code>undefined</code>, then:
+                <ol> <!-- guess type and mediaType from data -->
                   <li>
                     If <var>record</var>.data is instance of
-                    <code>ArrayBuffer</code>, then set <var>record</var>.type to
+                    <code>ArrayBuffer</code>, then
+                    set <var>record</var>.mediaType to
                     <code>"application/octet-stream"</code> and
-                    <var>record</var>.kind to <code>"opaque"</code>.
+                    <var>record</var>.recordType to <code>"opaque"</code>.
                   </li>
                   <li>
-                    Otherwise, if type of <var>record</var>.data is
-                    <code>"object"</code>, then set <var>record</var>.type to
+                    Otherwise, if the type of <var>record</var>.data is
+                    <code>"object"</code>, then set
+                    <var>record</var>.mediaType to
                     <code>"application/json"</code> and
-                    <var>record</var>.kind to <code>"json"</code>.
+                    <var>record</var>.recordType to <code>"json"</code>.
                   </li>
                   <li>
-                    Otherwise, if type of <var>record</var>.data is
+                    Otherwise, if the type of <var>record</var>.data is
                     <code>"number"</code> or <code>"string"</code>, then
-                    set <var>record</var>.type to <code>"plain/text"</code> and
-                    <var>record</var>.kind to <code>"text"</code>.
+                    set <var>record</var>.mediaType to <code>"plain/text"</code>
+                    and <var>record</var>.recordType to <code>"text"</code>.
                   </li>
                   <li>
                     Otherwise reject <var>promise</var> with
@@ -1803,35 +1803,35 @@
                 </ol>
               </li>
               <li>
-                If <var>record</var>.kind is <code>"empty"</code>, then
+                If <var>record</var>.recordType is <code>"empty"</code>, then
                 Let <var>ndef</var> be the result of passing <var>record</var>
                 to <a>map empty record to NDEF</a>.
                 If this threw an exception, reject <var>promise</var> with
                 that exception and abort these steps.
               </li>
               <li>
-                Otherwise, if <var>record</var>.kind is <code>"text"</code>,
+                Otherwise, if <var>record</var>.recordType is <code>"text"</code>,
                 then let <var>ndef</var> be the result of passing
                 <var>record</var> to <a>map text to NDEF</a>.
                 If this threw an exception, reject
                 <var>promise</var> with that exception and abort these steps.
               </li>
               <li>
-                Otherwise, if <var>record</var>.kind is <code>"url"</code>,
+                Otherwise, if <var>record</var>.recordType is <code>"url"</code>,
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map a URL to NDEF</a>.
                 If this threw an exception, reject <var>promise</var> with that
                 exception and abort these steps.
               </li>
               <li>
-                Otherwise, if <var>record</var>.kind is <code>"json"</code>,
+                Otherwise, if <var>record</var>.recordType is <code>"json"</code>,
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map a JSON object to NDEF</a>.
                 If this threw an exception, reject <var>promise</var> with that
                 exception and abort these steps.
               </li>
               <li>
-                Otherwise, if <var>record</var>.kind is <code>"opaque"</code>,
+                Otherwise, if <var>record</var>.recordType is <code>"opaque"</code>,
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map binary data to NDEF</a>.
                 If this threw an exception, reject <var>promise</var> with that
@@ -1901,12 +1901,12 @@
             throw a <code>"SyntaxError"</code> exception, and abort these steps.
           </li>
           <li>
-            If <var>record</var>.type is not a string or starts with <code>
+            If <var>record</var>.mediaType is not a string or starts with <code>
             "text/"</code>, then throw a <code>"SyntaxError"</code> exception,
             and abort these steps.
 
             In addition, UAs MAY check that
-            <var>record</var>.type is an IANA registered media type
+            <var>record</var>.mediaType is an IANA registered media type
             for <a href="http://www.iana.org/assignments/media-types/media-types.xhtml#text">
             text</a>.
             If not, then the UA MAY throw a <code>"SyntaxError"</code>
@@ -1915,10 +1915,10 @@
           <li>
             Let <var>language</var> be <code>"en"</code>.
 
-            If <var>record</var>.type includes a <code>lang=</code>
+            If <var>record</var>.mediaType includes a <code>lang=</code>
             parameter, detailing the language encoding (e.g.
             "text/plain; lang=fr"), then set <var>language</var> to
-            the language code extracted from <var>record</var>.type.
+            the language code extracted from <var>record</var>.mediaType.
 
             If <var>language</var> is not one of the language codes listed
             in the <a href="http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry">
@@ -1953,7 +1953,7 @@
                 The first octet is a status byte containing bit flags.
                 <ol>
                   <li>
-                    If <var>record</var>.type contains the parameter
+                    If <var>record</var>.mediaType contains the parameter
                     "charset=UTF-8" (e.g. "text/plain; charset=UTF-8;"),
                     then set bit 7 (MSB) to 0 (UTF-8 encoding),
                     otherwise to 1 (UTF-16 encoding).
@@ -2031,7 +2031,7 @@
             and abort these steps.
           </li>
           <li>
-            If <var>record</var>.type doesn't match
+            If <var>record</var>.mediaType doesn't match
             <code>"application/json"</code>, or any other
             <a>IANA media type</a> for JSON
             (starting with <code>"application/"</code> and ending with <code>
@@ -2046,7 +2046,7 @@
             Set the <var>ndef.TNF</var> field to 2 (Media Type).
           </li>
           <li>
-            Set the <var>ndef.TYPE</var> field to <var>record</var>.type.
+            Set the <var>ndef.TYPE</var> field to <var>record</var>.mediaType.
           </li>
           <li>
             Set the <var>ndef.PAYLOAD</var> field to <var>data</var>
@@ -2070,7 +2070,7 @@
             <code>"SyntaxError"</code>, and abort these steps.
           </li>
           <li>
-            The UA MAY check if <var>record</var>.type is
+            The UA MAY check if <var>record</var>.mediaType is
             a valid IANA registered type. If not, then MAY throw a <code>
             "SyntaxError"</code> exception and abort these steps.
           </li>
@@ -2082,7 +2082,7 @@
             Set the <var>ndef.TNF</var> field to 2 (Media Type).
           </li>
           <li>
-            Set the <var>ndef.TYPE</var> field to <var>record</var>.type.
+            Set the <var>ndef.TYPE</var> field to <var>record</var>.mediaType.
           </li>
           <li>
             Set the <var>ndef.PAYLOAD</var> field to <var>record</var>.data
@@ -2447,8 +2447,8 @@
           </li>
           <li>
             If <var>ndef.TNF</var> is 0 (NFC Empty Record), then set
-            <var>record</var>.kind to <code>"empty"</code> and set
-            <var>record</var>.type to <code>""</code>.
+            <var>record</var>.recordType to <code>"empty"</code> and set
+            <var>record</var>.mediaType to <code>""</code>.
           </li>
           <li>
             If <var>ndef.TNF</var> is 1 (NFC Well Known Type Record), and
@@ -2458,8 +2458,10 @@
             underlying platform provides equivalent values to the
             <var>record</var> object properties:
             <ol>
-              <li>Set <var>record</var>.kind to <code>"text"</code>.</li>
-              <li>Set <var>record</var>.type to <code>"text/plain"</code>.</li>
+              <li>Set <var>record</var>.recordType to <code>"text"</code>.</li>
+              <li>
+                Set <var>record</var>.mediaType to <code>"text/plain"</code>.
+              </li>
               <li>
                 Read the first octet of <var>ndef.PAYLOAD</var>.
                 Let <var>offset</var> be the value given by bits 5 to 0 of the
@@ -2469,7 +2471,7 @@
                 Let <var>language</var> be the string defined by the consecutive
                 <var>offset</var> number of octets, converted from US-ASCII
                 encoding. Append <code>";lang="</code> and then the value of
-                <var>language</var> to <var>record</var>.type.
+                <var>language</var> to <var>record</var>.mediaType.
               </li>
               <li>
                 Set <var>record</var>.data to the string created from the
@@ -2486,8 +2488,10 @@
             underlying platform provides equivalent values to the
             <var>record</var> object properties:
             <ol>
-              <li>Set <var>record</var>.kind to <code>"url"</code>.</li>
-              <li>Set <var>record</var>.type to <code>"text/plain"</code>.</li>
+              <li>Set <var>record</var>.recordType to <code>"url"</code>.</li>
+              <li>
+                Set <var>record</var>.mediaType to <code>"text/plain"</code>.
+              </li>
               <li>
                 Let <var>scheme</var> be the value of the first octet of
                 <var>ndef.PAYLOAD</var>.
@@ -2507,8 +2511,8 @@
           </li> <!-- parsing NDEF URL record -->
           <li>
             If <var>ndef.TNF</var> is 3 (NFC Absolute URI Type record), then
-            set <var>record</var>.kind to <code>"url"</code>,
-            set <var>record</var>.type to <code>"text/plain"</code> and
+            set <var>record</var>.recordType to <code>"url"</code>,
+            set <var>record</var>.mediaType to <code>"text/plain"</code> and
             set <var>record</var>.data to the string converted from
             <var>ndef.PAYLOAD</var>.
           </li> <!-- parsing NDEF Absolute URI record -->
@@ -2522,8 +2526,10 @@
                 If <var>ndef.TYPE</var> matches the <a>match pattern</a>
                 <code>"application/*json"</code>, then
                 <ol>
-                  <li>Set <var>record</var>.kind to <code>"json"</code>.</li>
-                  <li>Set <var>record</var>.type to <var>ndef.TYPE</var>.</li>
+                  <li>Set <var>record</var>.recordType to <code>"json"</code>.</li>
+                  <li>
+                    Set <var>record</var>.mediaType to <var>ndef.TYPE</var>.
+                  </li>
                   <li>
                     Set <var>record</var>.data to the result of converting
                     <var>ndef.PAYLOAD</var> to string.
@@ -2537,8 +2543,10 @@
               <li>
                 Otherwise,
                 <ol>
-                  <li>Set <var>record</var>.kind to <code>"opaque"</code>.</li>
-                  <li>Set <var>record</var>.type to <var>ndef.TYPE</var>.</li>
+                  <li>Set <var>record</var>.recordType to <code>"opaque"</code>.</li>
+                  <li>
+                    Set <var>record</var>.mediaType to <var>ndef.TYPE</var>.
+                  </li>
                   <li>
                     Set <var>record</var>.data to a new <code>ArrayBuffer</code>
                     object constructed from the octets of
@@ -2560,10 +2568,10 @@
             or make sure that the underlying platform provides equivalent values
             to the <var>record</var> object properties:
             <ol>
-              <li>Set <var>record</var>.kind to <code>"opaque"</code>.</li>
+              <li>Set <var>record</var>.recordType to <code>"opaque"</code>.</li>
               <li>
                 If <var>ndef.TYPE</var> is defined, then set
-                <var>record</var>.type to that string value, otherwise to
+                <var>record</var>.mediaType to that string value, otherwise to
                 <code>"application/octet-stream</code>.
               </li>
               <li>
@@ -2619,14 +2627,14 @@
             skip to the next <a>NFC watch</a>.
           </li>
           <li>
-            If <var>options</var>.kind is not <code>""</code> and it is not
-            equal to any <var>record</var>.kind where <var>record</var> is an
+            If <var>options</var>.recordType is not <code>""</code> and it is not
+            equal to any <var>record</var>.recordType where <var>record</var> is an
             element of <var>message</var>, skip to the next <a>NFC watch</a>.
           </li>
           <li>
-            If <var>options</var>.type is not <code>""</code> and it is not
-            equal to any <var>record</var>.type where <var>record</var> is an
-            element of <var>message</var>, skip to the next <a>NFC watch</a>.
+            If <var>options</var>.mediaType is not <code>""</code> and it is not
+            equal to any <var>record</var>.mediaType where <var>record</var> is
+            an element of <var>message</var>, skip to the next <a>NFC watch</a>.
           </li>
           <li>
             <a>Queue a task</a> using the <dfn>Web NFC task source</dfn>
