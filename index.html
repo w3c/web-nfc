@@ -444,6 +444,8 @@
   <p>
     The <dfn>Web NFC message origin</dfn> is an <a>ASCII serialized origin</a>
     with <code>"https"</code> scheme, stored in the <a>Web NFC record</a>.
+    For <a>NFC content</a> that is not a <a>Web NFC message</a>, it is
+    <code>null</code>.
   </p>
   <p>
     The <dfn id="web-nfc-id">Web NFC Id</dfn> is a <a>URL</a> according to
@@ -1229,9 +1231,11 @@
   to handle incoming <a>Web NFC message</a>s either from an <a>NFC tag</a> or an
   <a>NFC peer</a>.
   <pre class="idl">
+    typedef (DOMString or ArrayBuffer or NFCMessage) NFCPushMessage;
+
     interface NFC {
-      Promise&lt;void&gt; push(sequence&lt;NFCRecord&gt; message, NFCPushOptions options);
-      void cancelPush(NFCPushTarget target);
+      Promise&lt;void&gt; push(NFCPushMessage message, optional NFCPushOptions options);
+      Promise&lt;void&gt; cancelPush(NFCPushTarget target);
       Promise&lt;long&gt; watch(NFCWatchOptions options, MessageCallback callback);
       Promise&lt;void&gt; unwatch(long id);
     };
@@ -1281,6 +1285,7 @@
 
     The <a>NFC</a> object represents all NFC hardware devices that can read and
     write <a>NFC content</a>.
+  </section>
 
   <section><h3>Handling Window visibility and focus</h3>
     <p>
@@ -1373,12 +1378,14 @@
     <pre class="idl">
       enum NFCPushTarget {
         "tag",
-        "peer"
+        "peer",
+        "any"
       };
 
       dictionary NFCPushOptions {
-        NFCPushTarget target;
-        unsigned long timeout;
+        NFCPushTarget target = "any";
+        unrestricted double timeout = Infinity;
+        boolean ignoreRead = true;
       };
     </pre>
     <p>
@@ -1395,7 +1402,15 @@
       expires, the message set for pushing is cleared, an error is returned,
       and a new <a>Web NFC message</a> can be set for pushing.
     </p>
+    <p>
+      The <dfn>NFCPushOptions.ignoreRead</dfn> property if <code>true</code>,
+      will make the <a href="#steps-push">push algorithm</a> skip invoking the
+      <a href="steps-receiving">receiving and parsing steps</a> on the
+      read <a>NFC content</a> if the <a>NFC device</a> in communication range
+      is an <a>NFC tag</a>.
+    </p>
   </section>
+
   <section> <h3>The <strong>NFCWatchOptions</strong> dictionary</h3>
       <p>
         To describe which messages an application is interested in, the
@@ -1493,33 +1508,6 @@
             <var>promise</var> with that exception, and abort these steps.
           </li>
           <li>
-            If <var>options</var>.target is undefined, reject <var>promise</var>
-             with <code>"<a>SyntaxError</a>"</code>, and abort these steps.
-             Otherwise let <var>target</var> be <var>options</var>.target, and
-             <var>timeout</var> be <var>options</var>.timeout.
-          </li>
-          <li>
-            If there are any existing instance of this algorithm running
-            whose <var>target</var> is equal to <var>options</var>.target,
-            abort that instance of this algorithm
-            by rejecting its <var>promise</var> with
-            <code>"<a>AbortError</a>"</code>.
-            <p class="note">
-            In other words, the current invocation of <code>push()</code>
-            rejects and replaces existing running invocations handling the same
-            <var>options</var>.target. At any given moment there may be
-            maximum two instances of this algorithm running: one targeting
-            <a>NFC tag</a>s, and another targeting <a>NFC peer</a>s.
-            </p>
-            <p class="note">
-              Implementations are expected to clean up state on aborting these
-              steps, e.g. stop the related timer, clear the related push
-              message, as well as release any resources bound to NFC
-              functionality, so that new invocations of this algorithm do not
-              depend on previous invocations.
-            </p>
-          </li>
-          <li>
             If the <a>incumbent settings object</a> is not a
             <a>secure context</a>, reject <var>promise</var> with
             <code>"<a>SecurityError</a>"</code>, and abort these steps.
@@ -1539,18 +1527,27 @@
             </div>
           </li>
           <li>
-            If the <a>obtain push permission</a> steps given <var>target</var>
-            as parameter return <code>false</code>, then reject
-            <var>promise</var> with <code>"SecurityError"</code>, and abort
-            these steps.
+            Let <var>target</var> be <var>options</var>.target or the default
+            <code>"any"</code>.
           </li>
           <li>
-            If the <var>message</var> parameter is an empty sequence,
-            then reject <var>promise</var> with <code>"SyntaxError"</code>,
-            and abort these steps.
+            Let <var>timeout</var> be <var>options</var>.timeout or the
+            default <code>Infinity</code>.
           </li>
           <li>
-            If <var>options</var>.timeout value is not valid or not supported
+            If the <var>message</var> parameter is not of type
+            <code>DOMString</code> or <code>ArrayBuffer</code> or instance of
+            <code>NFCPushMessage</code>, reject <var>promise</var> with
+            <code>"SyntaxError"</code>, and abort these steps.
+          </li>
+          <li>
+            If the <var>message</var> parameter is instance of
+            <code>NFCPushMessage</code>, and <var>message</var>.data is an
+            empty sequence, reject <var>promise</var> with
+            <code>"SyntaxError"</code>, and abort these steps.
+          </li>
+          <li>
+            If <var>timeout</var> value is not valid or it is not supported
             by the UA, reject <var>promise</var> with
             <code>"SyntaxError"</code>, and abort these steps.
           </li>
@@ -1562,9 +1559,41 @@
             exception and abort these steps.
           </li>
           <li>
-            If <var>options</var>.timeout value is not <code>Infinity</code>,
+            If <var>target</var> is <code>"any"</code>, run the following
+            steps twice, once with <var>slot</var> with value
+            <code>"tag"</code>, and once with the value <code>"peer"</code>;
+            otherwise run the following step once, with
+            <var>slot</var> given the value of <var>target</var>.
+          </li>
+          <ul>
+            <li>
+              If there are any existing instance of this algorithm running whose
+              <var>target</var> is equal to <var>slot</var>, abort that
+              instance of this algorithm by rejecting its <var>promise</var>
+              with <code>"<a>AbortError</a>"</code>.
+              <p class="note">
+                In other words, the current invocation of <code>push()</code>
+                rejects and replaces existing running invocations handling the
+                same <var>slot</var>. At any given moment there may be
+                maximum two instances of this algorithm running: one targeting
+                <a>NFC tag</a>s, and another targeting <a>NFC peer</a>s.
+              </p>
+              <p class="note">
+                Implementations are expected to clean up state on aborting these
+                steps, e.g. stop the related timer, clear the related push
+                message, as well as release any resources bound to NFC
+                functionality, so that new invocations of this algorithm do not
+                depend on previous invocations.
+              </p>
+            </li>
+            <li>
+              Associate <var>output</var> with <var>slot</var>.
+            </li>
+          </ul>
+          <li>
+            If <var>timeout</var> value is not <code>Infinity</code>,
             start a timer <var>timer</var> with the timeout value set to
-            <var>options</var>.timeout.
+            <var>timeout</var>.
           </li>
           <li>
             Wait until one of the following events happens:
@@ -1575,21 +1604,42 @@
               </li>
               <li>
                 If the <a href="cancelPush"><code>cancelPush()</code></a>
-                method is called while <var>timer</var> is active, reject
-                <var>promise</var> with <code>"<a>AbortError</a>"</code>, and
+                method is called while <var>timer</var> is active with
+                <var>target</var> or <code>"any"</code>, then reject
+                <var>promise</var> with <code>"<a>AbortError</a>"</code> and
                 terminate these steps, as described in the
-                <a href="#steps-cancelPush"><code>cancelPush()</code>algorithm</a>.
+                <a href="#steps-cancelPush"><code>cancelPush()</code> steps</a>.
               </li>
               <li>
-                When an <a>NFC device</a> <var>device</var> comes within
-                communication range, and if <var>this@[[\suspended]]</var> is
-                <code>false</code>, and if <var>device</var> is an
-                <a>NFC tag</a> and <var>target</var> is <code>"tag"</code> or if
-                <var>device</var> is an <a>NFC peer</a> and <var>target</var>
-                is <code>"peer"</code>, then
+                If an <a>NFC device</a> <var>device</var> comes within
+                communication range, which an <a>NFC tag</a> and
+                <var>target</var> is <code>"tag"</code> or <code>"any"</code>,
+                or if <var>device</var> is an <a>NFC peer</a> and
+                <var>target</var> is <code>"peer"</code> or <code>"any"</code>,
+                and <var>this@[[\suspended]]</var> is <code>false</code>, then
+                run the following sub-steps:
                 <ol>
                   <li>
                     Stop <var>timer</var> if active.
+                  </li>
+                  <li>
+                    If <var>device</var> is an <a>NFC tag</a>,
+                    <ul>
+                      <li>Read the tag.</li>
+                      <li>
+                        If <var>options</var>.ignoreRead is not <code>true</code>,
+                        run the <a href="#steps-receiving">receiving steps</a>.
+                      </li>
+                      <li>
+                        If the <a>Web NFC message origin</a> of the read
+                        <a>NFC content</a> is <code>null</code>, or it is
+                        different than the <a>ASCII serialized origin</a> of the
+                        <a>incumbent settings object</a>, and if the
+                        <a>obtain push permission</a> steps return
+                        <code>false</code>, then reject <var>promise</var> with
+                        <code>"SecurityError"</code>, and abort these steps.
+                      </li>
+                    </ul>
                   </li>
                   <li>
                     Initiate data transfer to <var>device</var> using
@@ -1603,24 +1653,21 @@
                     steps.
                     <p class="note">
                       There is very small likelihood that a simultaneous tap
-                      will happen on two or multiple different
+                      will happen on two or multiple different and connected
                       <a>NFC adapter</a>s.
                       If it happens, the user will likely need to repeat the
-                      tap until full success. The error here gives an indication
-                      that the operation needs to be repeated. Otherwise the
-                      user may think the operation succeeded on all
-                      <a>NFC adapter</a>s.
+                      taps until full success, or one device at a time.
+                      The error here gives an indication that the operation
+                      needs to be repeated. Otherwise the user may think the
+                      operation succeeded on all connected <a>NFC adapter</a>s.
                     </p>
                   </li>
                   <li>
-                    Clear <var>output</var> if no other <a>NFC adapter</a>s are
-                    using it for an ongoing transfer.
+                    When the transfer has finished, clear <var>output</var>
+                    associated with <var>target</var>, resolve
+                    <var>promise</var> and terminate these steps.
                   </li>
                 </ol>
-                <li>
-                  When all ongoing transfers have finished, resolve
-                  <var>promise</var> and terminate these steps.
-                </li>
               </li>
               <p class="note">
                 If <var>this@[[\suspended]]</var> is <code>true</code>,
@@ -1635,32 +1682,14 @@
 
       <section><h3>Obtaining push permission</h3>
       <p>
-        To <dfn>obtain push permission</dfn> given <var>target</var> of type
-        <code><a>NFCPushTarget</a></code>, run these steps:
+        To <dfn>obtain push permission</dfn>, run these steps:
         <ol>
           <li>
-            If a <a>prearranged trust relationship</a> exists,
+            If there is a <a>prearranged trust relationship</a>,
             return <code>true</code>.
           </li>
           <li>
-            If <var>target</var> has the value <code>"peer"</code>,
-            return <code>true</code>.
-          </li>
-          <li>
-            If <var>target</var> has the value <code>"tag"</code>, read that
-            <a>NFC tag</a>. If it contains a <a>Web NFC message</a> with its
-            <a>Web NFC message origin</a> equal to the
-            <a>ASCII serialized origin</a> of the
-            <a>incumbent settings object</a>, then return <code>true</code>.
-            <p class="note">
-              In other words, updating <a>NFC tag</a>s written by the same
-              <a>origin</a> does not require <a>expressed permission</a>. All
-              other writes, including that of empty tags, require
-              <a>expressed permission</a>.
-            </p>
-           </li>
-          <li>
-            Optionally run the
+            Run the
             <a href="https://w3c.github.io/permissions/#dom-permissions-query">
             query permission status</a> steps for the
             <a>Web NFC permission name</a> until completion.
@@ -1676,9 +1705,11 @@
               <li>
                 Otherwise, if it resolved with <code>
                 <a href="https://w3c.github.io/permissions/#idl-def-PermissionState">
-                "prompt"</a></code>, then request permission</a> from the user
-                for the <a>Web NFC permission name</a>. If that is granted,
-                return <code>true</code>.
+                "prompt"</a></code>, then optionally
+                <a href="https://w3c.github.io/permissions/#dom-permissions-request">
+                request permission</a> from the user for the
+                <a>Web NFC permission name</a>.
+                If that is granted, return <code>true</code>.
                 <p class="issue">
                   The
                   <a href="https://w3c.github.io/permissions/#dom-permissions-request">
@@ -1688,7 +1719,7 @@
                   <a>origin</a> and <a>global object</a>, store the result
                   in the
                   <a href="https://w3c.github.io/permissions/#permission-store">
-                  permission store</a>, and return the status.
+                  permission store</a>, and on success return <code>true</code>.
                 </p>
               </li>
             </ul>
@@ -2081,6 +2112,10 @@
       </p>
       <ol id="steps-cancelPush">
         <li>
+          Return a new <a><code>Promise</code></a> <var>promise</var>, and
+          then continue running this algorithm <a>in parallel</a>.
+        </li>
+        <li>
           If the <a>incumbent settings object</a> is not a
           <a>secure context</a>, reject <var>promise</var> with
           <code>"<a>SecurityError</a>"</code>, and abort these steps.
@@ -2089,13 +2124,9 @@
           </div>
         </li>
         <li>
-          If the parameter <var>target</var> is <code>"tag"</code> and
-          there is an instance of the
-          <code><a>NFC.push</a>()</code> algorithm running with
-          <var>options</var>.target <code>"tag"</code>, or if
-          <var>target</var> is <code>"peer"</code> and there is an instance of
-          the <code><a>NFC.push</a>()</code> algorithm running
-          with <var>options</var>.target <code>"peer"</code>, then
+          If there is an instance of the <code><a>NFC.push</a>()</code>
+          algorithm running with its <var>target</var> equal to
+          <var>target</var> or <code>"any"</code>, then
           <ol>
             <li>
               Stop the instance's <var>timer</var> if it is active.
@@ -2108,10 +2139,13 @@
             </li>
             <li>
               Reject the instance's pending <var>promise</var> with
-              <code>"<a>AbortError</a>"</code> and terminate the steps of the
+              <code>"<a>AbortError</a>"</code> and abort the steps of the
               instance.
             </li>
           </ol>
+          <li>
+            Resolve <var>promise</var> and terminate these steps.
+          </li>
         </li>
       </ol>
       <p class="note">
