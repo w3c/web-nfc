@@ -1235,9 +1235,9 @@
 
     interface NFC {
       Promise&lt;void&gt; push(NFCPushMessage message, optional NFCPushOptions options);
-      Promise&lt;void&gt; cancelPush(NFCPushTarget target);
-      Promise&lt;long&gt; watch(NFCWatchOptions options, MessageCallback callback);
-      Promise&lt;void&gt; unwatch(long id);
+      Promise&lt;void&gt; cancelPush(optional NFCPushTarget target="any");
+      Promise&lt;long&gt; watch(MessageCallback callback, optional NFCWatchOptions options);
+      Promise&lt;void&gt; unwatch(optional long id);
     };
 
     callback MessageCallback = void (NFCMessage message);
