@@ -609,20 +609,55 @@
     This section shows how developers can make use of the various features of
     this specification.
   </p>
+  <pre title="Push a text string to a peer device" class="example highlight">
+    // Specifying an option for pushing to peers only,
+    // and thus, do nothing when the user taps a tag.
+    navigator.nfc.push("Text meant for peers only", { target: "peer" })
+      .then(() => {
+        console.log("Message pushed.");
+      }).catch((error) => {
+        console.log("Push failed :-( try again.");
+      });
+  </pre>
+  <pre title="Push a text string to either a tag or peer"
+       class="example highlight">
+    // Push a text string (here: serialized JSON), with no options specified
+    // (target defaults to any device).
+    navigator.nfc.push('{ prop1: "value1"; prop2: "value2" }')
+      .then(() => {
+        console.log("Message pushed.");
+      }).catch((error) => {
+        console.log("Push failed :-( try again.");
+      });
+  </pre>
+  <pre title="Push a URL to either a tag or peer" class="example highlight">
+    // To push an NDEF record of URL type, use NFCMessage
+    navigator.nfc.push({
+        data: [{ recordType: "url", data: "/path/resource/" }];
+      }).then(() => {
+        console.log("Message pushed.");
+      }).catch((error) => {
+        console.log("Push failed :-( try again.");
+      });
+  </pre>
   <pre title="Read and update data stored on tag" class="example highlight">
-    navigator.nfc.watch({}, (message) => {
+    // Use default options for watch.
+    navigator.nfc.watch((message) => {
       console.log('NDEF message received from URL ' + message.url);
-      if (message[0].recordType == 'empty') {
-        navigator.nfc.push([
-          {
-            recordType: "text",
-            mediaType: "",
-            data: "Initializing tag"
-          }
-        ]);
+      if (message.data[0].recordType == 'empty') {
+        navigator.nfc.push({
+          url: "/mypath/myapp",  // path set by the application
+          data: [
+            {
+              recordType: "url",
+              mediaType: "",  // this line could be omitted
+              data: "Initial data"
+            }
+          ]});
       }
       processMessage(message);
-    });
+    }).then(() => { console.log("Watch added.");})
+    .catch((error) => { console.log("Adding watch failed: " + error.name )});
 
     function processMessage(message) {
       message.data.forEach((record) => {
@@ -647,31 +682,32 @@
       console.log('JSON data: ' + obj.myProperty.toString());
     };
   </pre>
-  <pre title="Sending data to a peer device" class="example highlight">
-    navigator.nfc.push([
-        {
-          recordType: "text",
-          mediaType: "",
-          data: "Data meant for peers"
-        }
-      ]).then(() => {
-        console.log("Message sent.");
-      }).catch(() => {
-        console.log("Send failed :-( try again.");
-      });
-  </pre>
   <pre title="Save and restore game progress with another device"
        class="example highlight">
-    navigator.nfc.watch({ url: "*://mydomain/mygame/*" }, (message) => {
+    // Watching for specific content; here only own game data.
+    navigator.nfc.watch(reader, { url: "*/mypath/mygame/*" });
+
+    function reader(message) {
       console.log("Game state received from: " + message.url);
       console.log("Stored state: " + message.data);
 
       // Now do some calculations and then update the state.
-      // ...
-      navigator.nfc.push([ { data: { level: 3, points: 4500, lives: 3 }} ])
+
+      // Specify custom format, to control NDEF data layout.
+      var message = {
+        url: "https://company.com/path/game/update",  // app specific path
+        data: [{
+          recordType: "json",
+          mediaType: "application/json",
+          data: { level: 3, points: 4500, lives: 3 }
+        }]
+      };
+
+      // Push the message to tag or peer, whichever is tapped first.
+      navigator.nfc.push(message)
       .then(() => { console.log('We have stored your current game state.'); })
-      .catch(() => { console.log('Failed updating game state, try again.'); });
-    });
+      .catch((error) => { console.log('Failed updating game state, try again.'); });
+    };
   </pre>
   </section> <!-- Usage examples -->
 
@@ -1048,7 +1084,10 @@
     </pre>
     <p>
       The <dfn>NFCMessage.url</dfn>
-      property represents the <a>Web NFC Id</a> of the <a>Web NFC message</a>.
+      property represents the <a>Web NFC Id</a> of a received
+      <a>Web NFC message</a>. When used in the <code><a>NFC.push</a>()</code>
+      method, it represents a <a>URL path</a> used for constructing the
+      <a>Web NFC Id</a> of the pushed <a>Web NFC content</a>.
     </p>
     <p>
       The <dfn>NFCMessage.data</dfn>
@@ -1827,7 +1866,9 @@
           </li> <!-- converting message -->
           <li>
             Let <var>webnfc</var> be the result of invoking
-            <a>create a Web NFC record</a>.
+            <a>create a Web NFC record</a> given <var>message</var>.url.
+            If this threw an exception, reject <var>promise</var> with that
+            exception and abort these steps.
           </li>
           <li>
             Add <var>webnfc</var> to <var>output</var>.
@@ -1885,7 +1926,7 @@
           </li>
           <li>
             If <var>record</var>.mediaType is not a string or starts with <code>
-            "text/"</code>, then throw a <code>"SyntaxError"</code> exception,
+            "text/"</code>, then throw a <code>"SyntaxError"</code> exception
             and abort these steps.
 
             In addition, UAs MAY check that
@@ -2080,7 +2121,8 @@
 
       <section><h3>Creating a Web NFC record</h3>
       <p>
-        To <dfn>create a <a>Web NFC record</a></dfn>, run these steps:
+        To <dfn>create a <a>Web NFC record</a></dfn> given <var>url</var>,
+        run these steps:
         <ol>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
@@ -2092,6 +2134,11 @@
           <li>
             Set <var>ndef.TYPE</var> to
             <code>"urn:nfc:ext:w3.org:webnfc"</code>.
+          </li>
+          <li>
+            Let <var>payload</var> be the result of invoking
+            <a>create a Web NFC Id</a> given <var>url</var>.
+            If this threw an exception, re-throw it.
           </li>
           <li>
             Set <var>ndef.PAYLOAD</var> to the <a>URL path</a> of the
@@ -2107,6 +2154,29 @@
           </li>
           <li>
             Return <var>ndef</var>.
+          </li>
+        </ol>
+      </p>
+      </section>
+
+      <section><h3>Creating a Web NFC Id</h3>
+      <p>
+        To <dfn>create a <a>Web NFC Id</a></dfn> given <var>url</var>,
+        run these steps:
+        <ol>
+          <li>
+            Let <var>id</var> be the <a>ASCII serialized origin</a> of the
+            <a>browsing context</a>, appended with <var>url</var>.
+          </li>
+          <li>
+            If <var>id</var> is a not a valid <a>URL</a>, throw a
+            <code>"SyntaxError"</code> exception and abort these steps.
+            <p class="note">
+              This means <var>url</var> should be a valid <a>URL path</a>.
+            </p>
+          </li>
+          <li>
+            Return <var>id</var>, encoded in UTF-16.
           </li>
         </ol>
       </p>
