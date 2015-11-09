@@ -609,106 +609,222 @@
     This section shows how developers can make use of the various features of
     this specification.
   </p>
-  <pre title="Push a text string to a peer device" class="example highlight">
-    // Specifying an option for pushing to peers only,
-    // and thus, do nothing when the user taps a tag.
-    navigator.nfc.push("Text meant for peers only", { target: "peer" })
-      .then(() => {
-        console.log("Message pushed.");
-      }).catch((error) => {
-        console.log("Push failed :-( try again.");
-      });
-  </pre>
-  <pre title="Push a text string to either a tag or peer"
-       class="example highlight">
-    // Push a text string (here: serialized JSON), with no options specified
-    // (target defaults to any device).
-    navigator.nfc.push('{ prop1: "value1"; prop2: "value2" }')
-      .then(() => {
-        console.log("Message pushed.");
-      }).catch((error) => {
-        console.log("Push failed :-( try again.");
-      });
-  </pre>
-  <pre title="Push a URL to either a tag or peer" class="example highlight">
-    // To push an NDEF record of URL type, use NFCMessage
+
+  <aside title="Push a text string to either a tag or peer"
+       class="example">
+    <p>
+      Pushing a text string (like the serialized JSON below)
+      to any kind of device is straight forward. Options can
+      be left out, as they default to pushing to both tags and
+      peers.
+    </p>
+    <pre class="highlight">
+navigator.nfc.push(
+    '{ "prop1": "value1", "prop2": "value2" }'
+  ).then(() => {
+    console.log("Message pushed.");
+  }).catch((error) => {
+    console.log("Push failed :-( try again.");
+  });
+    </pre>
+  </aside>
+
+  <aside title="Push a text string to a peer device" class="example">
+    <p>
+      It is possible to restrict to which devices (tags or peers) data
+      should be pushed. Below we specify to only push to peers,
+      and thus, no data is pushed when the user taps a tag.
+    </p>
+    <pre class="highlight">
+navigator.nfc.push(
+    "Text meant for peers only", { target: "peer" }
+  ).then(() => {
+    console.log("Message pushed.");
+  }).catch((error) => {
+    console.log("Push failed :-( try again.");
+  });
+    </pre>
+  </aside>
+
+  <aside title="Push a URL to either a tag or peer" class="example">
+    <p>
+      In order to push an NDEF record of URL type, simply use NFCMessage.
+    </p>
+    <pre class="highlight">
+navigator.nfc.push({
+    data: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
+  }).then(() => {
+    console.log("Message pushed.");
+  }).catch((error) => {
+    console.log("Push failed :-( try again.");
+  });
+    </pre>
+  </aside>
+
+  <aside title="Read data from tag, and write to empty ones" class="example">
+    <p>
+      Below we read various different kinds of data which can be stored on a tag.
+      In the case the tag is empty, we write a text message with the value
+      "Hello World".
+    </p>
+    <pre class="highlight">
+navigator.nfc.watch((message) => {
+  if (message.data[0].recordType == 'empty') {
     navigator.nfc.push({
-        data: [{ recordType: "url", data: "/path/resource/" }];
-      }).then(() => {
-        console.log("Message pushed.");
-      }).catch((error) => {
-        console.log("Push failed :-( try again.");
-      });
-  </pre>
-  <pre title="Read and update data stored on tag" class="example highlight">
-    // Use default options for watch.
-    navigator.nfc.watch((message) => {
-      console.log('NDEF message received from URL ' + message.url);
-      if (message.data[0].recordType == 'empty') {
-        navigator.nfc.push({
-          url: "/mypath/myapp",  // path set by the application
-          data: [
-            {
-              recordType: "url",
-              mediaType: "",  // this line could be omitted
-              data: "Initial data"
-            }
-          ]});
-      }
-      processMessage(message);
-    }).then(() => { console.log("Watch added.");})
-    .catch((error) => { console.log("Adding watch failed: " + error.name )});
+      url: "/custom/path",
+      data: [{ recordType: "text", data: 'Hello World' }]
+    });
+  } else {
+    console.log('Read message written by ' + message.url);
+    processMessage(message);
+  }
+}).then(() => {
+  console.log("Added a watch.");
+}).catch((error) => {
+  console.log("Adding watch failed: " + error.name);
+});
 
-    function processMessage(message) {
-      message.data.forEach((record) => {
-        if (record.recordType == "string") {
-          console.log('Data is string: ' + record.data);
-        } else if (record.recordType == 'json') {
-          processJSON(record.data);
-        } else if (record.recordType == 'url') {
+function processMessage(message) {
+  for (let record of message.data) {
+    switch (record.recordType) {
+      case "string":
+        console.log('Data is string: ' + record.data);
+        break;
+      case "url":
         console.log('Data is URL: ' + record.data);
-        } else if (record.recordType == 'opaque') {
-          processBinary(record.data);
-      });
-    };
+        break;
+      case "json":
+        let value = JSON.parse(record.data);
+        console.log('JSON data: ' + value.myProperty.toString());
+        break;
+      case "opaque":
+        if (record.mediaType == 'image/png') {
+          var img = document.createElement("img");
+          img.src = URL.createObjectURL(new Blob(record.data, record.mediaType));
+          img.onload = function() {
+            window.URL.revokeObjectURL(this.src);
+          };
+        }
+        break;
+    }
+  }
+}
+    </pre>
+  </aside>
 
-    function processBinary(data) {
-      console.log('Known (string) binary data: ');
-      console.log(String.fromCharCode.apply(null, new Uint16Array(data)));
-    };
+  <aside title="Save and restore game progress with another device"
+       class="example">
+    <p>
+      Filtering of relevant data sources can be done by the use of
+      the <a>NFCWatchOptions</a>. Below we accept any URL with <code>
+      "/mypath/mygame/"</code> in its path. When we read the data,
+      we immediately update the game progress by issueing a push
+      with a custom NDEF data layout.
+    </p>
+    <p>
+      The example allows reading and pushing to both peers and tags,
+      whichever one is tapped first.
+    </p>
+    <pre class="highlight">
+navigator.nfc.watch(reader, { url: "*/mypath/mygame/*" });
 
-    function processJSON(data) {
-      var obj = JSON.parse(data);
-      console.log('JSON data: ' + obj.myProperty.toString());
-    };
-  </pre>
-  <pre title="Save and restore game progress with another device"
-       class="example highlight">
-    // Watching for specific content; here only own game data.
-    navigator.nfc.watch(reader, { url: "*/mypath/mygame/*" });
+function reader(message) {
+  console.log("Source:     " + message.url);
+  console.log("Game state: " + message.data);
 
-    function reader(message) {
-      console.log("Game state received from: " + message.url);
-      console.log("Stored state: " + message.data);
+  var message = {
+    url: "/mypath/mygame/update",
+    data: [{
+      recordType: "json",
+      mediaType: "application/json",
+      data: JSON.stringify({ level: 3, points: 4500, lives: 3 })
+    }]
+  };
 
-      // Now do some calculations and then update the state.
+  navigator.nfc.push(message).then(() => {
+    console.log('Progress stored!');
+  }).catch((error) => {
+    console.log('Failure, please try again.');
+  });
+}
+    </pre>
+  </aside>
 
-      // Specify custom format, to control NDEF data layout.
-      var message = {
-        url: "https://company.com/path/game/update",  // app specific path
-        data: [{
-          recordType: "json",
-          mediaType: "application/json",
-          data: { level: 3, points: 4500, lives: 3 }
-        }]
-      };
+  <aside title="Push and read JSON (serialized and deserialized)"
+       class="example">
+    <p>
+      Storing and receiving JSON data is easy with serialization and deserialization.
+    </p>
+    <pre class="highlight">
+navigator.nfc.watch((message) => {
+  for (let record of message.data) {
+    let value = JSON.parse(record.data);
+    let article =/[aeio]/.test(value.title) ? "an" : "a";
+    console.log(`$(value.name) is $(article) $(value.title)`);
+  }
+}, { url: document.baseURI, recordType: = "json" });
 
-      // Push the message to tag or peer, whichever is tapped first.
-      navigator.nfc.push(message)
-      .then(() => { console.log('We have stored your current game state.'); })
-      .catch((error) => { console.log('Failed updating game state, try again.'); });
-    };
-  </pre>
+navigator.nfc.push({
+  data: [
+    {
+      recordType: "json",
+      mediaType: "application/json",
+      data: JSON.stringify({
+        name: "Benny Jensen",
+        title: "Banker"
+      })
+    },
+    {
+      recordType: "json",
+      mediaType: "application/json",
+      data: JSON.stringify({
+        name: "Zoey Braun",
+        title: "Engineer"
+      })
+    }]
+});
+    </pre>
+  </aside>
+
+  <aside title="Write data to tag and print out existing data" class="example">
+    <p>
+      Pushing data to a tag requires tapping it. If existing data should be
+      read during the same tap, we need to set the <code>ignoreRead</code>
+      property to <code>false</code> and set up a watch before the push.
+    </p>
+    <pre class="highlight">
+navigator.nfc.watch((message) => {
+  for (let record of message.data) {
+    console.log("Record type:  " + record.recordType);
+    console.log("MIME type:    " + record.mediaType);
+    console.log("=== data ===\n" + record.data);
+  }
+});
+
+navigator.nfc.push("Pushing data is fun!", { target: "tag", ignoreRead: false });
+    </pre>
+  </aside>
+
+  <aside title="Write Chinese text as UTF-8" class="example">
+    <p>
+      In order to write a non-UTF-16 string, the data mush be written
+      as an <a>ArrayBuffer</a> and the charset must be set as part
+      of the <a>IANA media type</a>.
+    </p>
+    <pre class="highlight">
+let encoder = new TextEncoder([utfLabel = "utf-8"]);
+let utf8Text = encoder.encode("电脑坏了。");
+
+navigator.nfc.push({ data: [
+  {
+    recordType: "text",
+    mediaType: "text/plain; lang=zh; charset=UTF-8;",
+    data: utf8Text.buffer
+  }
+]});
+    </pre>
+  </aside>
+
   </section> <!-- Usage examples -->
 
   <section class="informative"> <h3>Use Cases</h3>
@@ -1462,7 +1578,7 @@
 
         dictionary NFCWatchOptions {
           USVString url = "";
-          USVString recordType = "";
+          NFCRecordType? recordType;
           USVString mediaType = "";
           NFCWatchMode mode = "web-nfc-only";
         };
@@ -2401,7 +2517,7 @@
              In this step UAs are advised to notify users about
              that reading <a>NFC content</a> may indirectly reveal the physical
              location of the user. In addition, if <code>"any"</code>
-             <code><a>NfcWatchMode</a></code> is used, then also include in this
+             <code><a>NFCWatchMode</a></code> is used, then also include in this
              information that the <a>origin</a> is requesting to read not only
              <a>NFC content</a> meant for web pages, but any <a>NFC content</a>.
             </p>
