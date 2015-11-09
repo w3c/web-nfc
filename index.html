@@ -1158,7 +1158,7 @@ navigator.nfc.push({ data: [
         "opaque"
       };
 
-      typedef (DOMString or unrestricted double or object or ArrayBuffer) NFCRecordData;
+      typedef (DOMString or unrestricted double or ArrayBuffer or Dictionary) NFCRecordData;
 
       dictionary NFCRecord {
         NFCRecordType recordType;
@@ -1255,7 +1255,7 @@ navigator.nfc.push({ data: [
       <td><a>JSON compatible IANA media type</a></td>
       <td>
         <code>null</code> or <code>DOMString</code> or <code>Number</code> or
-        <code>Object</code>
+        <code>Dictionary</code>
       </td>
       <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) with
         <a>IANA media type</a> specified in the <code>type</code> attribute.
@@ -1326,7 +1326,7 @@ navigator.nfc.push({ data: [
       <td>The <a>IANA media type</a> used in the NDEF record</td>
       <td>
         <code>null</code> or <code>DOMString</code> or <code>Number</code> or
-        <code>Object</code>
+        <code>Dictionary</code>
       </td>
     </tr>
     <tr>
@@ -2696,12 +2696,12 @@ navigator.nfc.push({ data: [
                     Set <var>record</var>.mediaType to <var>ndef.TYPE</var>.
                   </li>
                   <li>
-                    Set <var>record</var>.data to the result of converting
-                    <var>ndef.PAYLOAD</var> to string.
-                    <p class="note">
-                      The payload SHOULD NOT be evaluated by UAs for
-                      security reasons.
-                    </p>
+                    Let <var>payload</var> be <var>ndef.PAYLOAD</var> converted
+                    to UTF-16, and set <var>record</var>.data to the result of
+                    passing <var>payload</var> to
+                    <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-json.parse">
+                    JSON.parse</a>. If this threw an exception, skip to the next
+                    <a>NDEF record</a>.
                   </li>
                 </ol>
               </li>
