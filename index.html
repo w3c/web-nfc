@@ -1707,7 +1707,7 @@ navigator.nfc.push({ data: [
             Let <var>output</var> be the notation for the <a>NDEF message</a>
             to be created by UA, as the result of passing
             <var>message</var> to <a>create Web NFC message</a>.
-            If this threw an exception, reject <var>promise</var> with that
+            If this throws an exception, reject <var>promise</var> with that
             exception and abort these steps.
           </li>
           <li>
@@ -1944,35 +1944,35 @@ navigator.nfc.push({ data: [
                 If <var>record</var>.recordType is <code>"empty"</code>, then
                 Let <var>ndef</var> be the result of passing <var>record</var>
                 to <a>map empty record to NDEF</a>.
-                If this threw an exception, reject <var>promise</var> with
+                If this throws an exception, reject <var>promise</var> with
                 that exception and abort these steps.
               </li>
               <li>
                 Otherwise, if <var>record</var>.recordType is <code>"text"</code>,
                 then let <var>ndef</var> be the result of passing
                 <var>record</var> to <a>map text to NDEF</a>.
-                If this threw an exception, reject
+                If this throws an exception, reject
                 <var>promise</var> with that exception and abort these steps.
               </li>
               <li>
                 Otherwise, if <var>record</var>.recordType is <code>"url"</code>,
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map a URL to NDEF</a>.
-                If this threw an exception, reject <var>promise</var> with that
+                If this throws an exception, reject <var>promise</var> with that
                 exception and abort these steps.
               </li>
               <li>
                 Otherwise, if <var>record</var>.recordType is <code>"json"</code>,
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map a JSON object to NDEF</a>.
-                If this threw an exception, reject <var>promise</var> with that
+                If this throws an exception, reject <var>promise</var> with that
                 exception and abort these steps.
               </li>
               <li>
                 Otherwise, if <var>record</var>.recordType is <code>"opaque"</code>,
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map binary data to NDEF</a>.
-                If this threw an exception, reject <var>promise</var> with that
+                If this throws an exception, reject <var>promise</var> with that
                 exception and abort these steps.
               </li>
               <li>
@@ -1983,7 +1983,7 @@ navigator.nfc.push({ data: [
           <li>
             Let <var>webnfc</var> be the result of invoking
             <a>create a Web NFC record</a> given <var>message</var>.url.
-            If this threw an exception, reject <var>promise</var> with that
+            If this throws an exception, reject <var>promise</var> with that
             exception and abort these steps.
           </li>
           <li>
@@ -2254,7 +2254,7 @@ navigator.nfc.push({ data: [
           <li>
             Let <var>payload</var> be the result of invoking
             <a>create a Web NFC Id</a> given <var>url</var>.
-            If this threw an exception, re-throw it.
+            If this throws an exception, re-throw it.
           </li>
           <li>
             Set <var>ndef.PAYLOAD</var> to the <a>URL path</a> of the
@@ -2698,10 +2698,9 @@ navigator.nfc.push({ data: [
                   <li>
                     Let <var>payload</var> be <var>ndef.PAYLOAD</var> converted
                     to UTF-16, and set <var>record</var>.data to the result of
-                    passing <var>payload</var> to
-                    <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-json.parse">
-                    JSON.parse</a>. If this threw an exception, skip to the next
-                    <a>NDEF record</a>.
+                    <a data-lt="JSON.parse">parsing</a> <var>payload</var>.
+                    If <a data-lt="JSON.parse">parsing</a> throws an error,
+                    skip to the next <a>NDEF record</a>.
                   </li>
                 </ol>
               </li>
