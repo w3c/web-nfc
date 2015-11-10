@@ -1158,7 +1158,7 @@ navigator.nfc.push({ data: [
         "opaque"
       };
 
-      typedef (DOMString or unrestricted double or object or ArrayBuffer) NFCRecordData;
+      typedef (DOMString or unrestricted double or ArrayBuffer or Dictionary) NFCRecordData;
 
       dictionary NFCRecord {
         NFCRecordType recordType;
@@ -1255,7 +1255,7 @@ navigator.nfc.push({ data: [
       <td><a>JSON compatible IANA media type</a></td>
       <td>
         <code>null</code> or <code>DOMString</code> or <code>Number</code> or
-        <code>Object</code>
+        <code>Dictionary</code>
       </td>
       <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) with
         <a>IANA media type</a> specified in the <code>type</code> attribute.
@@ -1326,7 +1326,7 @@ navigator.nfc.push({ data: [
       <td>The <a>IANA media type</a> used in the NDEF record</td>
       <td>
         <code>null</code> or <code>DOMString</code> or <code>Number</code> or
-        <code>Object</code>
+        <code>Dictionary</code>
       </td>
     </tr>
     <tr>
@@ -1707,7 +1707,7 @@ navigator.nfc.push({ data: [
             Let <var>output</var> be the notation for the <a>NDEF message</a>
             to be created by UA, as the result of passing
             <var>message</var> to <a>create Web NFC message</a>.
-            If this threw an exception, reject <var>promise</var> with that
+            If this throws an exception, reject <var>promise</var> with that
             exception and abort these steps.
           </li>
           <li>
@@ -1944,35 +1944,35 @@ navigator.nfc.push({ data: [
                 If <var>record</var>.recordType is <code>"empty"</code>, then
                 Let <var>ndef</var> be the result of passing <var>record</var>
                 to <a>map empty record to NDEF</a>.
-                If this threw an exception, reject <var>promise</var> with
+                If this throws an exception, reject <var>promise</var> with
                 that exception and abort these steps.
               </li>
               <li>
                 Otherwise, if <var>record</var>.recordType is <code>"text"</code>,
                 then let <var>ndef</var> be the result of passing
                 <var>record</var> to <a>map text to NDEF</a>.
-                If this threw an exception, reject
+                If this throws an exception, reject
                 <var>promise</var> with that exception and abort these steps.
               </li>
               <li>
                 Otherwise, if <var>record</var>.recordType is <code>"url"</code>,
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map a URL to NDEF</a>.
-                If this threw an exception, reject <var>promise</var> with that
+                If this throws an exception, reject <var>promise</var> with that
                 exception and abort these steps.
               </li>
               <li>
                 Otherwise, if <var>record</var>.recordType is <code>"json"</code>,
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map a JSON object to NDEF</a>.
-                If this threw an exception, reject <var>promise</var> with that
+                If this throws an exception, reject <var>promise</var> with that
                 exception and abort these steps.
               </li>
               <li>
                 Otherwise, if <var>record</var>.recordType is <code>"opaque"</code>,
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map binary data to NDEF</a>.
-                If this threw an exception, reject <var>promise</var> with that
+                If this throws an exception, reject <var>promise</var> with that
                 exception and abort these steps.
               </li>
               <li>
@@ -1983,7 +1983,7 @@ navigator.nfc.push({ data: [
           <li>
             Let <var>webnfc</var> be the result of invoking
             <a>create a Web NFC record</a> given <var>message</var>.url.
-            If this threw an exception, reject <var>promise</var> with that
+            If this throws an exception, reject <var>promise</var> with that
             exception and abort these steps.
           </li>
           <li>
@@ -2254,7 +2254,7 @@ navigator.nfc.push({ data: [
           <li>
             Let <var>payload</var> be the result of invoking
             <a>create a Web NFC Id</a> given <var>url</var>.
-            If this threw an exception, re-throw it.
+            If this throws an exception, re-throw it.
           </li>
           <li>
             Set <var>ndef.PAYLOAD</var> to the <a>URL path</a> of the
@@ -2696,12 +2696,11 @@ navigator.nfc.push({ data: [
                     Set <var>record</var>.mediaType to <var>ndef.TYPE</var>.
                   </li>
                   <li>
-                    Set <var>record</var>.data to the result of converting
-                    <var>ndef.PAYLOAD</var> to string.
-                    <p class="note">
-                      The payload SHOULD NOT be evaluated by UAs for
-                      security reasons.
-                    </p>
+                    Let <var>payload</var> be <var>ndef.PAYLOAD</var> converted
+                    to UTF-16, and set <var>record</var>.data to the result of
+                    <a data-lt="JSON.parse">parsing</a> <var>payload</var>.
+                    If <a data-lt="JSON.parse">parsing</a> throws an error,
+                    skip to the next <a>NDEF record</a>.
                   </li>
                 </ol>
               </li>
