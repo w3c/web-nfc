@@ -694,8 +694,7 @@ function processMessage(message) {
         console.log('Data is URL: ' + record.data);
         break;
       case "json":
-        let value = JSON.parse(record.data);
-        console.log('JSON data: ' + value.myProperty.toString());
+        console.log('JSON data: ' + record.data.myProperty.toString());
         break;
       case "opaque":
         if (record.mediaType == 'image/png') {
@@ -737,7 +736,7 @@ function reader(message) {
     data: [{
       recordType: "json",
       mediaType: "application/json",
-      data: JSON.stringify({ level: 3, points: 4500, lives: 3 })
+      data: { level: 3, points: 4500, lives: 3 }
     }]
   };
 
@@ -758,9 +757,8 @@ function reader(message) {
     <pre class="highlight">
 navigator.nfc.watch((message) => {
   for (let record of message.data) {
-    let value = JSON.parse(record.data);
-    let article =/[aeio]/.test(value.title) ? "an" : "a";
-    console.log(`$(value.name) is $(article) $(value.title)`);
+    let article =/[aeio]/.test(record.data.title) ? "an" : "a";
+    console.log(`$(record.data.name) is $(article) $(record.data.title)`);
   }
 }, { url: document.baseURI, recordType: = "json" });
 
@@ -769,18 +767,18 @@ navigator.nfc.push({
     {
       recordType: "json",
       mediaType: "application/json",
-      data: JSON.stringify({
+      data: {
         name: "Benny Jensen",
         title: "Banker"
-      })
+      }
     },
     {
       recordType: "json",
       mediaType: "application/json",
-      data: JSON.stringify({
+      data: {
         name: "Zoey Braun",
         title: "Engineer"
-      })
+      }
     }]
 });
     </pre>
@@ -2574,7 +2572,7 @@ navigator.nfc.push({ data: [
   <h3>Receiving and parsing content</h3>
   <p>
     If there are any <a>NFC watch</a>es set up in <var>NFC@[[\watchList]]</var>,
-    then UAs MUST listen to <a>NDEF message</a>s, according to step 9
+    then UAs MUST listen to <a>NDEF message</a>s, according to step 7
     of the <a href="#steps-watch">NFC watch algorithm</a>.
   </p>
   <section><h3>The NDEF parsing algorithm</h3>
