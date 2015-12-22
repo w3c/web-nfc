@@ -1687,12 +1687,12 @@ navigator.nfc.push({ data: [
           <li>
             If the type of the <var>message</var> parameter is not
             <code>DOMString</code> or <code>ArrayBuffer</code>, and it is not an
-            instance of <code>NFCPushMessage</code>, reject <var>promise</var>
+            instance of <code>NFCMessage</code>, reject <var>promise</var>
             with <code>"SyntaxError"</code>, and abort these steps.
           </li>
           <li>
             If the <var>message</var> parameter is instance of
-            <code>NFCPushMessage</code>, and <var>message</var>.data is an
+            <code>NFCMessage</code>, and <var>message</var>.data is an
             empty sequence, reject <var>promise</var> with
             <code>"SyntaxError"</code> and abort these steps.
           </li>
