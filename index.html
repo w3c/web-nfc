@@ -687,8 +687,8 @@ navigator.nfc.watch((message) => {
 function processMessage(message) {
   for (let record of message.data) {
     switch (record.recordType) {
-      case "string":
-        console.log('Data is string: ' + record.data);
+      case "text":
+        console.log('Data is text: ' + record.data);
         break;
       case "url":
         console.log('Data is URL: ' + record.data);
