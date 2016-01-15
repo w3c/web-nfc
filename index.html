@@ -620,12 +620,12 @@
     </p>
     <pre class="highlight">
 navigator.nfc.push(
-    '{ "prop1": "value1", "prop2": "value2" }'
-  ).then(() => {
-    console.log("Message pushed.");
-  }).catch((error) => {
-    console.log("Push failed :-( try again.");
-  });
+  '{ "prop1": "value1", "prop2": "value2" }'
+).then(() => {
+  console.log("Message pushed.");
+}).catch((error) => {
+  console.log("Push failed :-( try again.");
+});
     </pre>
   </aside>
 
@@ -637,12 +637,12 @@ navigator.nfc.push(
     </p>
     <pre class="highlight">
 navigator.nfc.push(
-    "Text meant for peers only", { target: "peer" }
-  ).then(() => {
-    console.log("Message pushed.");
-  }).catch((error) => {
-    console.log("Push failed :-( try again.");
-  });
+  "Text meant for peers only", { target: "peer" }
+).then(() => {
+  console.log("Message pushed.");
+}).catch((error) => {
+  console.log("Push failed :-( try again.");
+});
     </pre>
   </aside>
 
@@ -652,12 +652,12 @@ navigator.nfc.push(
     </p>
     <pre class="highlight">
 navigator.nfc.push({
-    data: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
-  }).then(() => {
-    console.log("Message pushed.");
-  }).catch((error) => {
-    console.log("Push failed :-( try again.");
-  });
+  data: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
+}).then(() => {
+  console.log("Message pushed.");
+}).catch((error) => {
+  console.log("Push failed :-( try again.");
+});
     </pre>
   </aside>
 
