@@ -1,8 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
   <title>
@@ -36,7 +33,7 @@
   </ul>
 </section>
 
-<section><h2>Goals</h2>
+<section><h2 id="goals">Goals</h2>
   <p>
     Near-field communication (NFC) is a form of short range wireless
     communication in which NFC devices such as mobile phones can communicate
@@ -45,6 +42,7 @@
     are emulated by NFC devices and NFC Forum tags are formatted and the
     protocols for communicating between devices. There are three modes of
     operation:
+  </p>
     <ul>
       <li>read/write mode - the NFC device can read or write records, each of
       which has a type. There are currently several defined record types (Text,
@@ -60,7 +58,6 @@
       split across 16 sectors.
       </li>
     </ul>
-  </p>
 
   <p>
     The main benefit of NFC is the speed and simplicity of operation for end
@@ -87,7 +84,7 @@
   </p>
 </section>
 
-<section><h2>Scope of Work</h2>
+<section><h2 id="scope-of-work">Scope of Work</h2>
   <p>
     The goal is to provide a Web NFC API that satisfies the most important use
     cases for NFC from Web pages. We believe that means that the API will not
@@ -99,6 +96,7 @@
     The scope of the Web Near Field Communications Community Group is limited to
     the development of APIs for Web page scripts to perform the following
     operations with NFC devices:
+  </p>
     <ul>
       <li>Reading NDEF messages</li>
       <li>Writing NDEF messages</li>
@@ -112,7 +110,6 @@
       <li> Optionally, initiation of handover mode to Bluetooth or WiFi
       technology.</li>
     </ul>
-  </p>
   <p>
     The APIs will be designed to permit execution in the Web browser context,
     using the security model of the Web. The very short range of NFC devices
@@ -138,6 +135,7 @@
       <li>Whether the application has been given additional trust by being
         "installed", ie. added to the home screen.</li>
     </ul>
+    <p>
     The Community Group will also explore the
     possibility of sites registering with the user agent for particular types
     of messages. When multiple registrations are made for a particular type of
@@ -171,14 +169,14 @@
   </p>
 </section>
 
-<section><h3>Out of Scope</h3>
+<section><h3 id="out-of-scope">Out of Scope</h3>
   <p>
     The Community Group will be implemented on top of NFC implementations
     provided by the platform.  Low level NFC specification is out of scope.
   </p>
 </section>
 
-<section><h2>Deliverables</h2>
+<section><h2 id="deliverables">Deliverables</h2>
   <section><h3>Community Group Reports that are Specifications</h3>
     <p>
       The CG will define a Web NFC API specification, suitable for use from Web
@@ -210,7 +208,7 @@
   </section>
 </section>
 
-<section><h2>Dependencies or Liaisons</h2>
+<section><h2 id="liaisons">Dependencies or Liaisons</h2>
   <p>
     This group’s specifications have no direct dependencies on any other
     developing specification other than the Web Applications Working Group’s
@@ -292,13 +290,13 @@
 </section>
 
 <section>
-    <h2>Community and Business Group Process</h2>
+    <h2 id="process">Community and Business Group Process</h2>
     <p>Terms of in this charter that conflict with those of the Community and
     Business Group Process are void.</p>
   </section>
   
   <section>
-    <h2>Work Limited to Charter Scope</h2>
+    <h2 id="worklimit">Work Limited to Charter Scope</h2>
     <p>The group will not publish Community Group Reports that are
     Specifications other than those described in "Community
     Group Reports that are Specifications" above. See below for how to modify
@@ -306,7 +304,7 @@
   </section>
   
   <section>
-    <h2>Contribution Mechanics</h2>
+    <h2 id="contrib">Contribution Mechanics</h2>
     
 	  <section>
 	    <h3>Who can make Contributions</h3>
@@ -346,7 +344,7 @@
   </section>
   
   <section>
-    <h2>Decision Process</h2>
+    <h2 id="decision">Decision Process</h2>
     <p>This group will seek to make decisions when there is consensus. When
     the group discusses an issue on the mailing or Issues list and there is a
     call from the group for assessing consensus, after due consideration of
@@ -377,7 +375,7 @@
   </section>
   
   <section>
-    <h2>Transparency</h2>
+    <h2 id="transparency">Transparency</h2>
     <p>The group will conduct all of its technical work in public.</p>
     
     <p>Discussions MAY take place on the group's public mailing list. Other
@@ -395,7 +393,7 @@
   </section>
   
   <section>
-    <h2>Chair Selection</h2>
+    <h2 id="chairs">Chair Selection</h2>
     <p>Participants in this group choose their Chair(s) and can replace their
     Chair(s) at any time using whatever means they prefer.</p>
     <p>The following process is used if the less formal process above is not
@@ -420,7 +418,7 @@
   </section>
   
   <section>
-    <h2>Amendments to this Charter</h2>
+    <h2 id="charter-change">Amendments to this Charter</h2>
     <p>The group MAY decide to work on a proposed amended charter, editing
     the text using the Decision Process described above. The decision on
     whether to adopt the amended charter is made by conducting a 30-day vote
