@@ -1697,9 +1697,14 @@ navigator.nfc.push({ data: [
             <code>"SyntaxError"</code> and abort these steps.
           </li>
           <li>
-            If <var>timeout</var> value is not valid or it is not supported
-            by the UA, reject <var>promise</var> with
-            <code>"SyntaxError"</code> and abort these steps.
+            If <var>timeout</var> value is NaN or negative, reject
+            <var>promise</var> with <code>"TypeError"</code> and abort
+            these steps.
+          </li>
+          <li>
+            If <var>timeout</var> value is not supported by the UA, reject
+            <var>promise</var> with <code>"NotSupportedError"</code> and
+            abort these steps.
           </li>
           <li>
             Let <var>output</var> be the notation for the <a>NDEF message</a>
