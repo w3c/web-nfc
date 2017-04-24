@@ -1685,16 +1685,15 @@ navigator.nfc.push({ data: [
             Let <var>timeout</var> be <var>options</var>.timeout.
           </li>
           <li>
-            If the type of the <var>message</var> parameter is not
-            <code>DOMString</code> or <code>ArrayBuffer</code>, and it is not an
-            instance of <code>NFCMessage</code>, reject <var>promise</var>
-            with <code>"SyntaxError"</code>, and abort these steps.
+            If the <var>message</var> parameter is not of type defined by
+            the <code>NFCPushMessage</code> union, reject <var>promise</var>
+            with <code>"TypeError"</code>, and abort these steps.
           </li>
           <li>
-            If the <var>message</var> parameter is instance of
-            <code>NFCMessage</code>, and <var>message</var>.data is an
+            If the <var>message</var> parameter is of
+            <code>NFCMessage</code> type, and <var>message</var>.data is an
             empty sequence, reject <var>promise</var> with
-            <code>"SyntaxError"</code> and abort these steps.
+            <code>"TypeError"</code> and abort these steps.
           </li>
           <li>
             If <var>timeout</var> value is not valid or it is not supported
