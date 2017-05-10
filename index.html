@@ -1917,28 +1917,29 @@ navigator.nfc.push({ data: [
                 If <var>record</var>.recordType is <code>undefined</code>, then:
                 <ol> <!-- guess type and mediaType from data -->
                   <li>
-                    If <var>record</var>.data is instance of
-                    <code>ArrayBuffer</code>, then
-                    set <var>record</var>.mediaType to
-                    <code>"application/octet-stream"</code> and
-                    <var>record</var>.recordType to <code>"opaque"</code>.
+                    If the type of <var>record</var>.data is an
+                    <code>ArrayBuffer</code>, set <var>record</var>.recordType
+                    to <code>"opaque"</code> and if <var>record</var>.mediaType
+                    is an empty string, set <var>record</var>.mediaType to
+                    <code>"application/octet-stream"</code>.
+                  </li>
+                  <li>
+                    Otherwise, if the type of <var>record</var>.data is an
+                    <code>Object</code>, set <var>record</var>.recordType
+                    to <code>"json"</code> and if <var>record</var>.mediaType
+                    is an empty string, set <var>record</var>.mediaType to
+                    <code>"application/json"</code>.
                   </li>
                   <li>
                     Otherwise, if the type of <var>record</var>.data is
-                    <code>"object"</code>, then set
-                    <var>record</var>.mediaType to
-                    <code>"application/json"</code> and
-                    <var>record</var>.recordType to <code>"json"</code>.
-                  </li>
-                  <li>
-                    Otherwise, if the type of <var>record</var>.data is
-                    <code>"number"</code> or <code>"string"</code>, then
-                    set <var>record</var>.mediaType to <code>"plain/text"</code>
-                    and <var>record</var>.recordType to <code>"text"</code>.
+                    <code>UnrestrictedDouble</code> or <code>String</code>, then
+                    set <var>record</var>.recordType to <code>"text"</code>
+                    and if <var>record</var>.mediaType is an empty string,
+                    set <var>record</var>.mediaType to <code>"plain/text"</code>.
                   </li>
                   <li>
                     Otherwise reject <var>promise</var> with
-                    <code>"SyntaxError"</code> and abort these steps.
+                    <code>"TypeError"</code> and abort these steps.
                   </li>
                 </ol>
               </li>
@@ -2039,8 +2040,9 @@ navigator.nfc.push({ data: [
         </p>
         <ol>
           <li>
-            If <var>record</var>.data is not a string or number,
-            throw a <code>"SyntaxError"</code> exception and abort these steps.
+            If the type of a <var>record</var>.data is not a <code>String</code>
+            or a <code>UnrestrictedDouble</code>, throw a <code>"TypeError"</code>
+            exception and abort these steps.
           </li>
           <li>
             If <var>record</var>.mediaType is not a string or starts with <code>
@@ -2132,8 +2134,12 @@ navigator.nfc.push({ data: [
         steps:
         <ol>
           <li>
-            If <var>record</var>.data is not a string,
-            throw a <code>"SyntaxError"</code> exception and abort these steps.
+            If the type of a <var>record</var>.data is not a <code>String</code>,
+            throw a <code>"TypeError"</code> exception and abort these steps.
+          </li>
+          <li>
+            If the <var>record</var>.data is not a valid <a>URL</a>, throw a
+            <code>"SyntaxError"</code> exception and abort these steps.
           </li>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
@@ -2167,9 +2173,13 @@ navigator.nfc.push({ data: [
         run these steps:
         <ol>
           <li>
+            If the type of a <var>record</var>.data is not an <code>Object</code>,
+            throw a <code>"TypeError"</code> exception and abort these steps.
+          </li>
+          <li>
             Let <var>data</var> be the result of
             <a data-lt="JSON.stringify">serializing</a> <var>record</var>.data
-            and if that throws, throw a <code>"TypeError"</code> exception
+            and if that throws, throw a <code>"SyntaxError"</code> exception
             and abort these steps.
           </li>
           <li>
@@ -2207,9 +2217,9 @@ navigator.nfc.push({ data: [
         run these steps:
         <ol>
           <li>
-            If <var>record</var>.data is not of instance of
-            <code>ArrayBuffer</code>, reject <var>promise</var> with
-            <code>"SyntaxError"</code> and abort these steps.
+            If the type of a <var>record</var>.data is not an
+            <code>ArrayBuffer</code>, throw a <code>"TypeError"</code>
+            exception and abort these steps.
           </li>
           <li>
             The UA MAY check if <var>record</var>.mediaType is
