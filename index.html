@@ -1918,24 +1918,18 @@ navigator.nfc.push({ data: [
                 <ol> <!-- guess type and mediaType from data -->
                   <li>
                     If the type of <var>record</var>.data is an
-                    <code>ArrayBuffer</code>, set <var>record</var>.recordType
-                    to <code>"opaque"</code> and if <var>record</var>.mediaType
-                    is an empty string, set <var>record</var>.mediaType to
-                    <code>"application/octet-stream"</code>.
+                    <code>ArrayBuffer</code>, then set <var>record</var>.recordType
+                    to <code>"opaque"</code>.
                   </li>
                   <li>
                     Otherwise, if the type of <var>record</var>.data is an
-                    <code>Object</code>, set <var>record</var>.recordType
-                    to <code>"json"</code> and if <var>record</var>.mediaType
-                    is an empty string, set <var>record</var>.mediaType to
-                    <code>"application/json"</code>.
+                    <code>Object</code>, then set <var>record</var>.recordType
+                    to <code>"json"</code>.
                   </li>
                   <li>
                     Otherwise, if the type of <var>record</var>.data is
                     <code>UnrestrictedDouble</code> or <code>String</code>, then
-                    set <var>record</var>.recordType to <code>"text"</code>
-                    and if <var>record</var>.mediaType is an empty string,
-                    set <var>record</var>.mediaType to <code>"plain/text"</code>.
+                    set <var>record</var>.recordType to <code>"text"</code>.
                   </li>
                   <li>
                     Otherwise reject <var>promise</var> with
@@ -2045,9 +2039,13 @@ navigator.nfc.push({ data: [
             exception and abort these steps.
           </li>
           <li>
-            If <var>record</var>.mediaType is not a string or starts with <code>
-            "text/"</code>, then throw a <code>"SyntaxError"</code> exception
-            and abort these steps.
+            If <var>record</var>.mediaType is an empty string, then
+            set <var>record</var>.mediaType to <code>"text/plain"</code>.
+          </li>
+          <li>
+            Otherwise, if <var>record</var>.mediaType is not an empty string
+            that doesn't start with <code>"text/"</code>, then throw a
+            <code>"SyntaxError"</code> exception and abort these steps.
 
             In addition, UAs MAY check that
             <var>record</var>.mediaType is an IANA registered media type
@@ -2177,18 +2175,22 @@ navigator.nfc.push({ data: [
             throw a <code>"TypeError"</code> exception and abort these steps.
           </li>
           <li>
-            Let <var>data</var> be the result of
-            <a data-lt="JSON.stringify">serializing</a> <var>record</var>.data
-            and if that throws, throw a <code>"SyntaxError"</code> exception
-            and abort these steps.
+            If <var>record</var>.mediaType is an empty string, then set
+            <var>record</var>.mediaType to <code>"application/json"</code>.
           </li>
           <li>
-            If <var>record</var>.mediaType doesn't match
-            <code>"application/json"</code>, or any other
+            Otherwise, if <var>record</var>.mediaType is not an empty string
+            that doesn't match <code>"application/json"</code>, or any other
             <a>IANA media type</a> for JSON
             (starting with <code>"application/"</code> and ending with <code>
             "+json"</code>), throw a <code>"SyntaxError"</code> exception and
             abort these steps.
+          </li>
+          <li>
+            Let <var>data</var> be the result of
+            <a data-lt="JSON.stringify">serializing</a> <var>record</var>.data
+            and if that throws, throw a <code>"SyntaxError"</code> exception
+            and abort these steps.
           </li>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
@@ -2222,9 +2224,15 @@ navigator.nfc.push({ data: [
             exception and abort these steps.
           </li>
           <li>
-            The UA MAY check if <var>record</var>.mediaType is
-            a valid IANA registered type. If not, then MAY throw a <code>
-            "SyntaxError"</code> exception and abort these steps.
+            If <var>record</var>.mediaType is an empty string, set
+            <var>record</var>.mediaType to
+            <code>"application/octet-stream"</code>.
+          </li>
+          <li>
+            Otherwise, if <var>record</var>.mediaType is not an empty string,
+            the UA MAY check if <var>record</var>.mediaType is
+            a valid IANA registered type. If not, then the UA MAY throw a
+            <code>"SyntaxError"</code> exception and abort these steps.
           </li>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
