@@ -2405,7 +2405,7 @@ navigator.nfc.push({ data: [
           <dfn data-lt="url pattern">url-pattern</dfn> = <a data-lt="star scheme">scheme</a> <code>"://"</code> <a data-lt="star host">host</a> <a data-lt="star path">path</a>
           <dfn data-lt="star scheme">scheme</dfn>      = <code>"*"</code> / <code>"https"</code>
           <dfn data-lt="star host">host</dfn>        = <code>"*"</code> / <code>"*."</code> &lt;VCHAR except <code>"/"</code> and <code>"*"</code>&gt;
-          <dfn data-lt="star path">path</dfn>        = <code>"*"</code> / <code>"/"</code> &lt;VCHAR&gt;
+          <dfn data-lt="star path">path</dfn>        = [ <code>"/*"</code> / <code>"/"</code> &lt;VCHAR&gt; ]
         </pre>
       </p>
       <p>
@@ -2416,7 +2416,11 @@ navigator.nfc.push({ data: [
       <p class="note">
         Though <code>'*'</code> matches a sequence of characters, only URLs
         with scheme <code>"https"</code> are accepted in the algorithms
-        taking a <a>URL pattern</a>.
+        taking a <a>URL pattern</a>. The <code>'*'</code> is a valid
+        character for the URL path component, therefore,
+        <code>'https://www.mydomain.com/*'</code> pattern will match
+        <code>'https://www.mydomain.com/*'</code> and
+        <code>'https://www.mydomain.com/service'</code> URLs.
       </p>
       <p>
         For example, <code>'*://*.mydomain.com/*'</code> will match
