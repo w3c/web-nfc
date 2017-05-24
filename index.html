@@ -2495,6 +2495,12 @@ navigator.nfc.push({ data: [
             <code>"NotSupportedError"</code> and abort these steps.
           </li>
           <li>
+            If the <var>options</var>.url is not an empty string, validate
+            <var>options</var>.url against <a>URL pattern</a> syntax.
+            If validation fails, reject <var>promise</var> with
+            <code>"SyntaxError"</code> and abort these steps.
+          </li>
+          <li>
             Let <var>watchId</var> be a number that will identify this
             <a>NFC watch</a>.
           </li>
