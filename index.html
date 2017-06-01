@@ -151,9 +151,17 @@
 <!-- - - - - - - - - - - - - - -  Terminology - - - - - - - - - - - - - - - -->
 <section> <h2>Terminology and conventions</h2>
   <p>
-    The terms <a href="http://www.w3.org/TR/url-1/"><dfn>URL</dfn></a> and
+    The terms <a href="http://www.w3.org/TR/url-1/"><dfn>URL</dfn></a>,
+    <a href="https://url.spec.whatwg.org/#concept-url-scheme">
+    <dfn>URL scheme</dfn></a>,
+    <a href="https://url.spec.whatwg.org/#concept-url-host">
+    <dfn>URL host</dfn></a>,
     <a href="https://url.spec.whatwg.org/#concept-url-path">
-    <dfn>URL path</dfn></a> are defined in [[!URL]].
+    <dfn>URL path</dfn></a>,
+    <a href="https://url.spec.whatwg.org/#concept-url">
+    <dfn>URL record</dfn></a> and
+    <a href="https://url.spec.whatwg.org/#concept-basic-url-parser">
+    <dfn>basic URL parser</dfn></a> are defined in [[!URL]].
   </p>
   <p>
     The following terms are defined in [[!HTML5]]:
@@ -2395,39 +2403,106 @@ navigator.nfc.push({ data: [
       </p>
     </section>
     <section> <h3>URL patterns</h3>
+        A <dfn>URL pattern</dfn> is a <a>URL record</a> that can be used to match
+        the <a>Web NFC Id</a> of a <a>Web NFC message</a>.
+        A <dfn>valid URL pattern</dfn> is a valid <a>URL record</a> whose
+        <a href="#dfn-url-scheme">scheme</a> component is equal to
+        <code>"https"</code>.
+
       <p>
-        A <a>URL pattern</a> is a URL which may contain the <code>'*'</code>
-        wildcard character.
-        It consists of a <a data-lt="star scheme">scheme</a>, a
-        <a data-lt="star host">host</a> and (optionally) a
-        <a data-lt="star path">path</a>, defined by the following ABNF:
-        <pre>
-          <dfn data-lt="url pattern">url-pattern</dfn> = <a data-lt="star scheme">scheme</a> <code>"://"</code> <a data-lt="star host">host</a> <a data-lt="star path">path</a>
-          <dfn data-lt="star scheme">scheme</dfn>      = <code>"*"</code> / <code>"https"</code>
-          <dfn data-lt="star host">host</dfn>        = <code>"*"</code> / <code>"*."</code> &lt;VCHAR except <code>"/"</code> and <code>"*"</code>&gt;
-          <dfn data-lt="star path">path</dfn>        = [ <code>"/*"</code> / <code>"/"</code> &lt;VCHAR&gt; ]
-        </pre>
+        <a href="#dfn-url-scheme">Scheme</a>, <a href="#dfn-url-host">host</a> and
+        <a href="#dfn-url-path">path</a> components of a <a>URL pattern</a> that are
+        used by the <a href="#dfn-match-web-nfc-id-with-url-pattern">URL pattern match
+        algorithm</a> have the following matching rules:
+
+        <table class="simple">
+          <tr>
+            <th><strong>URL pattern component</strong></th>
+            <th><strong>Match rule</strong></th>
+          </tr>
+          <tr>
+            <td><a href="#dfn-url-scheme">scheme</a></td>
+            <td>exact match</td>
+          </tr>
+          <tr>
+            <td><a href="#dfn-url-host">host</a></td>
+            <td>ends with</td>
+          </tr>
+          <tr>
+            <td><a href="#dfn-url-path">path</a></td>
+            <td><code>"/*"</code> - any path, begins with otherwise</td>
+          </tr>
+        </table>
       </p>
-      <p>
-        Most characters match themselves, however <code>'*'</code> (wildcard)
-        matches a sequence of visible characters. A <a>URL pattern</a> that
-        doesn't conform to the above ABNF is a non-match.
-      </p>
+
       <p class="note">
-        Though <code>'*'</code> matches a sequence of characters, only URLs
-        with scheme <code>"https"</code> are accepted in the algorithms
-        taking a <a>URL pattern</a>. The <code>'*'</code> is a valid
-        character for the URL path component, therefore,
-        <code>'https://www.mydomain.com/*'</code> pattern will match
+        For example, <code>'https://mydomain.com/*'</code> will match
+        <code>'https://service.mydomain.com/myapp/'</code> and
+        <code>'https://info.mydomain.com/general/'</code>, while
+        <code>'https://app.mydomain.com/contacts'</code> will match
+        <code>'https://app.mydomain.com/contacts'</code> and
+        <code>'https://app.mydomain.com/contacts/all'</code>
+
+        The <code>'*'</code> is a valid character for the URL path component,
+        therefore,
+        <code>'https://www.mydomain.com/*'</code> pattern will match both
         <code>'https://www.mydomain.com/*'</code> and
         <code>'https://www.mydomain.com/service'</code> URLs.
       </p>
-      <p>
-        For example, <code>'*://*.mydomain.com/*'</code> will match
-        <code>'https://services.mydomain.com/myservice1/myapp2/'</code> and
-        <code>'https://info.mydomain.com/general/'</code>.
-      </p>
     </section>
+
+    <section> <h3>URL pattern match algorithm</h3>
+        To <dfn>match Web NFC Id with URL pattern</dfn> for a given
+        <code><a>Web NFC Id</a></code> and <code><a>URL pattern</a></code>, run
+        these steps:
+        <ol>
+          <li>
+            Let <var>id</var> be a <code><a>Web NFC Id</a></code> passed to this algorithm.
+          </li>
+          <li>
+            Let <var>pattern</var> be a <a>URL pattern</a> passed to this algorithm.
+          </li>
+          <li>
+            If <var>id</var> and <var>pattern</var> are empty <code>String</code>s,
+            return <code>true</code> and abort these steps.
+          </li>
+          <li>
+            Let <code>id_url</code> be the result of invoking the
+            <a>basic URL parser</a> algorithm with <var>id</var> as an input.
+            If the <a>basic URL parser</a> algorithm returns
+            <code>failure</code>, return <code>false</code> and abort these steps.
+          </li>
+          <li>
+            Let <code>pattern_url</code> be the result of invoking the
+            <a>basic URL parser</a> algorithm with <var>pattern</var> as an input.
+            If the <a>basic URL parser</a> algorithm returns
+            <code>failure</code>, return <code>false</code> and abort these steps.
+          </li>
+          <li>
+            If <code>id_url</code>'s <a href="#dfn-url-scheme">scheme</a> <code>String</code>
+            does not match <code>pattern_url</code>'s <a href="#dfn-url-scheme">scheme</a>
+            <code>String</code>, return <code>false</code> and abort these steps.
+          </li>
+          <li>
+            If <code>id_url</code>'s <a href="#dfn-url-host">host</a> <code>String</code>
+            does not end with <code>pattern_url</code>'s <a href="#dfn-url-host">host</a>
+            <code>String</code>, return <code>false</code> and abort these steps.
+          </li>
+          <li>
+            If <code>pattern_url</code>'s <a href="#dfn-url-path">path</a> <code>String</code>
+            equal to <code>"/*"</code>, return <code>true</code> and abort these steps.
+          </li>
+          <li>
+            If <code>id_url</code>'s <a href="#dfn-url-path">path</a> <code>String</code>
+            begins with <code>pattern_url</code>'s <a href="#dfn-url-path">path</a>
+            <code>String</code>, return true and abort these steps.
+          </li>
+          <li>
+            Otherwise, return false.
+          </li>
+        </ol>
+    </section>
+
     <section> <h3>The <strong>watch()</strong> method</h3>
       <p>
         This method enables listening to incoming <a>NDEF message</a>s.
@@ -2493,6 +2568,11 @@ navigator.nfc.push({ data: [
           <li>
             If the request fails, reject <var>promise</var> with
             <code>"NotSupportedError"</code> and abort these steps.
+          </li>
+          <li>
+            If the <var>options</var>.url is not an empty <code>String</code>
+            and it is not a <a>valid URL pattern</a>, throw <code>"SyntaxError"</code>
+            exception and abort these steps.
           </li>
           <li>
             Let <var>watchId</var> be a number that will identify this
@@ -2811,8 +2891,12 @@ navigator.nfc.push({ data: [
           </li>
           <li>
             If the <a>URL pattern</a> <var>options</var>.url is not
-            <code>""</code> and it does not match <var>message</var>.url,
-            skip to the next <a>NFC watch</a>.
+            an empty <code>String</code> invoke
+            <a href="#dfn-match-web-nfc-id-with-url-pattern">URL pattern match</a>
+            algorithm, providing <var>options</var>.url as a <a>URL pattern</a> and
+            <var>message</var>.url as a <code><a>Web NFC Id</a></code>. If
+            <a href="#dfn-match-web-nfc-id-with-url-pattern">URL pattern match</a>
+            algorithm returns <code>false</code>, skip to the next <a>NFC watch</a>.
           </li>
           <li>
             If <var>options</var>.recordType is not <code>""</code> and it is not
