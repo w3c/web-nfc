@@ -660,7 +660,7 @@ navigator.nfc.push(
     </p>
     <pre class="highlight">
 navigator.nfc.push({
-  data: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
+  records: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
 }).then(() => {
   console.log("Message pushed.");
 }).catch((error) => {
@@ -677,10 +677,10 @@ navigator.nfc.push({
     </p>
     <pre class="highlight">
 navigator.nfc.watch((message) => {
-  if (message.data[0].recordType == 'empty') {
+  if (message.records[0].recordType == 'empty') {
     navigator.nfc.push({
       url: "/custom/path",
-      data: [{ recordType: "text", data: 'Hello World' }]
+      records: [{ recordType: "text", data: 'Hello World' }]
     });
   } else {
     console.log('Read message written by ' + message.url);
@@ -693,7 +693,7 @@ navigator.nfc.watch((message) => {
 });
 
 function processMessage(message) {
-  for (let record of message.data) {
+  for (let record of message.records) {
     switch (record.recordType) {
       case "text":
         console.log('Data is text: ' + record.data);
@@ -737,11 +737,11 @@ navigator.nfc.watch(reader, { url: "*/mypath/mygame/*" });
 
 function reader(message) {
   console.log("Source:     " + message.url);
-  console.log("Game state: " + message.data);
+  console.log("Game state: " + JSON.stringify(message.records));
 
   var message = {
     url: "/mypath/mygame/update",
-    data: [{
+    records: [{
       recordType: "json",
       mediaType: "application/json",
       data: { level: 3, points: 4500, lives: 3 }
@@ -764,14 +764,14 @@ function reader(message) {
     </p>
     <pre class="highlight">
 navigator.nfc.watch((message) => {
-  for (let record of message.data) {
+  for (let record of message.records) {
     let article =/[aeio]/.test(record.data.title) ? "an" : "a";
     console.log(`$(record.data.name) is $(article) $(record.data.title)`);
   }
 }, { url: document.baseURI, recordType: = "json" });
 
 navigator.nfc.push({
-  data: [
+  records: [
     {
       recordType: "json",
       mediaType: "application/json",
@@ -800,7 +800,7 @@ navigator.nfc.push({
     </p>
     <pre class="highlight">
 navigator.nfc.watch((message) => {
-  for (let record of message.data) {
+  for (let record of message.records) {
     console.log("Record type:  " + record.recordType);
     console.log("MIME type:    " + record.mediaType);
     console.log("=== data ===\n" + record.data);
@@ -821,7 +821,7 @@ navigator.nfc.push("Pushing data is fun!", { target: "tag", ignoreRead: false })
 let encoder = new TextEncoder([utfLabel = "utf-8"]);
 let utf8Text = encoder.encode("电脑坏了。");
 
-navigator.nfc.push({ data: [
+navigator.nfc.push({ records: [
   {
     recordType: "text",
     mediaType: "text/plain; lang=zh; charset=UTF-8;",
@@ -1200,7 +1200,7 @@ navigator.nfc.push({ data: [
     </p>
     <pre class="idl">
       dictionary NFCMessage {
-        sequence&lt;NFCRecord&gt; data;
+        sequence&lt;NFCRecord&gt; records;
         USVString url;
       };
     </pre>
@@ -1212,7 +1212,7 @@ navigator.nfc.push({ data: [
       <a>Web NFC Id</a> of the pushed <a>Web NFC content</a>.
     </p>
     <p>
-      The <dfn>NFCMessage.data</dfn>
+      The <dfn>NFCMessage.records</dfn>
       property represents the <a>NDEF message</a> defining the
       <a>Web NFC message</a>.
     </p>
@@ -1699,7 +1699,7 @@ navigator.nfc.push({ data: [
           </li>
           <li>
             If the <var>message</var> parameter is of
-            <code>NFCMessage</code> type, and <var>message</var>.data is an
+            <code>NFCMessage</code> type, and <var>message</var>.records is an
             empty sequence, reject <var>promise</var> with
             <code>"TypeError"</code> and abort these steps.
           </li>
@@ -1917,7 +1917,7 @@ navigator.nfc.push({ data: [
           </li>
           <li>
             For each <a>NFCRecord</a> <var>record</var> in the sequence
-            <var>message</var>.data, run the following steps, or make sure
+            <var>message</var>.records, run the following steps, or make sure
             that the underlying platform provides equivalent values to
             <var>ndef</var>:
             <ol>
@@ -2696,7 +2696,7 @@ navigator.nfc.push({ data: [
       <li>
         Let <var>message</var> be a new <code>NFCMessage</code> object, with
         <var>message</var>.url set to <code>null</code> and
-        <var>message</var>.data set to empty sequence.
+        <var>message</var>.records set to empty sequence.
       </li>
       <li>
         Let <var>input</var> be the notation for the <a>NDEF message</a>
@@ -2852,13 +2852,13 @@ navigator.nfc.push({ data: [
             Otherwise, skip to the next <a>NDEF record</a> in <var>input</var>.
           </li>
           <li>
-            Add <var>record</var> to <var>message</var>.data.
+            Add <var>record</var> to <var>message</var>.records.
           </li>
         </ol>
       </li>
       <li>
         If <var>NFC@[[\suspended]]</var> is <code>false</code> and
-        <var>message</var>.data is not empty, run the
+        <var>message</var>.records is not empty, run the
         <a>dispatch NFC content</a> steps given <var>message</var>.
       </li>
     </ol>
