@@ -725,17 +725,17 @@ function processMessage(message) {
        class="example">
     <p>
       Filtering of relevant data sources can be done by the use of
-      the <a>NFCWatchOptions</a>. Below we accept any URL with <code>
-      "/mypath/mygame/"</code> in its path. When we read the data,
-      we immediately update the game progress by issueing a push
-      with a custom NDEF data layout.
+      the <a>NFCWatchOptions</a>. Below we accept URL with <code>
+      "/mypath/mygame/"</code> in its path from <code>"mygame.com"</code>
+      domain and its subdomains. When we read the data, we immediately update
+      the game progress by issueing a push with a custom NDEF data layout.
     </p>
     <p>
       The example allows reading and pushing to both peers and tags,
       whichever one is tapped first.
     </p>
     <pre class="highlight">
-navigator.nfc.watch(reader, { url: "*/mypath/mygame/*" });
+navigator.nfc.watch(reader, { url: "https://mygame.com/mypath/mygame" });
 
 function reader(message) {
   console.log("Source:     " + message.url);
@@ -903,7 +903,7 @@ navigator.nfc.push({ records: [
         which has a web page open and in focus that uses the Web NFC API and has
         set up a <a>NFC watch</a> to listen to <a>Web NFC content</a>, then the
         content is delivered to the web page through the parameters of an
-        <code>NFCMessageCallback</code>.
+        <a>MessageCallback</a>.
       </p>
     </section>
     <section> <h3>Handover to another wireless connection type</h3>
@@ -1152,20 +1152,37 @@ navigator.nfc.push({ records: [
 
 <!-- - - - - - - - - - - - - Data representation - - - - - - - - - - - - - -->
 <section> <h2>Data Representation</h2>
-  <section> <h3>The <strong>NFCRecord</strong> dictionary</h3>
+  <section> <h3>The <dfn>NFCMessage</dfn> dictionary</h3>
     <p>
-      The content of any <a>NDEF record</a> is exposed by the
-      <dfn>NFCRecord</dfn> dictionary:
+      The content of any <a>Web NFC message</a> is exposed by the
+      <a>NFCMessage</a> dictionary:
     </p>
     <pre class="idl">
-      enum NFCRecordType {
-        "empty",
-        "text",
-        "url",
-        "json",
-        "opaque"
+      dictionary NFCMessage {
+        sequence&lt;NFCRecord&gt; records;
+        USVString url;
       };
+    </pre>
+    <p>
+      The <dfn>NFCMessage.url</dfn>
+      property represents the <a>Web NFC Id</a> of a received
+      <a>Web NFC message</a>. When used in the <code><a>NFC.push</a>()</code>
+      method, it represents a <a>URL path</a> used for constructing the
+      <a>Web NFC Id</a> of the pushed <a>Web NFC content</a>.
+    </p>
+    <p>
+      The <dfn>NFCMessage.records</dfn>
+      property represents the <a>NDEF message</a> defining the
+      <a>Web NFC message</a>.
+    </p>
+  </section>
 
+  <section> <h3>The <dfn>NFCRecord</dfn> dictionary</h3>
+    <p>
+      The content of any <a>NDEF record</a> is exposed by the
+      <a>NFCRecord</a> dictionary:
+    </p>
+    <pre class="idl">
       typedef (DOMString or unrestricted double or ArrayBuffer or Dictionary) NFCRecordData;
 
       dictionary NFCRecord {
@@ -1174,6 +1191,10 @@ navigator.nfc.push({ records: [
         NFCRecordData data;
       };
     </pre>
+    <p>
+      The <dfn>NFCRecordData</dfn> is a union type representing data types allowed
+      for <a>NFCRecord.data</a> property.
+    </p>
     <p>
       The <dfn>NFCRecord.mediaType</dfn>
       property represents the <a>IANA media type</a> of the <a>NDEF record</a>
@@ -1195,30 +1216,46 @@ navigator.nfc.push({ records: [
     </p>
   </section> <!-- NFCRecord dictionary -->
 
-  <section> <h3>The <strong>NFCMessage</strong> dictionary</h3>
-    <p>
-      The content of any <a>Web NFC message</a> is exposed by the
-      <dfn>NFCMessage</dfn> dictionary:
-    </p>
-    <pre class="idl">
-      dictionary NFCMessage {
-        sequence&lt;NFCRecord&gt; records;
-        USVString url;
-      };
-    </pre>
-    <p>
-      The <dfn>NFCMessage.url</dfn>
-      property represents the <a>Web NFC Id</a> of a received
-      <a>Web NFC message</a>. When used in the <code><a>NFC.push</a>()</code>
-      method, it represents a <a>URL path</a> used for constructing the
-      <a>Web NFC Id</a> of the pushed <a>Web NFC content</a>.
-    </p>
-    <p>
-      The <dfn>NFCMessage.records</dfn>
-      property represents the <a>NDEF message</a> defining the
-      <a>Web NFC message</a>.
-    </p>
-  </section>
+  <section data-dfn-for="NFCRecordType">
+    <h2>The <dfn>NFCRecordType</dfn> enum</h2>
+      <p>
+        This enum defines the set of known types for a <a>NFCRecord</a>. The
+        <a href="#data-mapping">data mapping</a> section describes how
+        <a>NFCRecordType</a> is mapped to <a>NDEF record</a> types.
+      </p>
+
+      <pre class="idl">
+        enum NFCRecordType {
+          "empty",
+          "text",
+          "url",
+          "json",
+          "opaque"
+        };
+      </pre>
+      <dl>
+        <dt><dfn>empty</dfn></dt>
+        <dd>
+          The enum value representing <a href="#dfn-empty-1">empty</a> <a>NFCRecord</a>.
+        </dd>
+        <dt><dfn>text</dfn></dt>
+        <dd>
+          The enum value representing <a>NFCRecord</a> of a <a href="#dfn-text">text</a> type.
+        </dd>
+        <dt><dfn>url</dfn></dt>
+        <dd>
+          The enum value representing <a>NFCRecord</a> of a <a href="#dfn-url-1">url</a> type.
+        </dd>
+        <dt><dfn>json</dfn></dt>
+        <dd>
+          The enum value representing <a>NFCRecord</a> of a <a href="#dfn-json-1">json</a> type.
+        </dd>
+        <dt><dfn>opaque</dfn></dt>
+        <dd>
+          The enum value representing <a>NFCRecord</a> of a <a href="#dfn-opaque">opaque</a> type.
+        </dd>
+      </dl>
+  </section> <!-- NFCRecordType enum -->
 
   <section><h3>Data mapping</h3>
   <p>
@@ -1241,25 +1278,25 @@ navigator.nfc.push({ records: [
       <th>NDEF record type</th>
     </tr>
     <tr>
-      <td>"empty"</td>
+      <td><dfn>"empty"</dfn></td>
       <td><i>not used</i></td>
       <td><i>not used</i></td>
       <td>NFC Forum Empty Type (<a>TNF</a>=0)</td>
     </tr>
     <tr>
-      <td>"text"</td>
+      <td><dfn>"text"</dfn></td>
       <td><i>not used</i></td>
       <td><code>DOMString</code></td>
       <td>NFC Forum Well Known Type (<a>TNF</a>=1) with type <i>Text</i></td>
     </tr>
     <tr>
-      <td>"url"</td>
+      <td><dfn>"url"</dfn></td>
       <td><i>not used</i></td>
       <td><code>DOMString</code></td>
       <td>NFC Forum Well Known Type (<a>TNF</a>=1) with type <i>URI</i></td>
     </tr>
     <tr>
-      <td>"json"</td>
+      <td><dfn>"json"</dfn></td>
       <td><a>JSON compatible IANA media type</a></td>
       <td>
         <code>null</code> or <code>DOMString</code> or <code>Number</code> or
@@ -1270,13 +1307,12 @@ navigator.nfc.push({ records: [
       </td>
     </tr>
     <tr>
-      <td>"opaque"</td>
+      <td rowspan="2"><dfn>"opaque"</dfn></td>
       <td><a>IANA media type</a></td>
       <td><code>ArrayBuffer</code></td>
       <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2)</td>
     </tr>
     <tr>
-      <td>"opaque"</td>
       <td><code>""</code> (<i>empty</i>)</td>
       <td><code>ArrayBuffer</code> or typed array</td>
       <td>NFC Forum External Type (<a>TNF</a>=4)</td>
@@ -1369,7 +1405,7 @@ navigator.nfc.push({ records: [
   <p>
     The HTML document defines a
     <a href="http://www.whatwg.org/specs/web-apps/current-work/#dom-navigator">
-    <code>Navigator</code></a> interface [HTML] which this specification
+    <dfn>Navigator</dfn></a> interface [HTML] which this specification
     extends.
   </p>
   <pre class="idl">
@@ -1380,7 +1416,7 @@ navigator.nfc.push({ records: [
   <!-- - - - - - - - - - - - nfc attribute  - - - - - - - - - - - -->
   <section> <h3>The <strong>nfc</strong> attribute</h3>
   <p>
-    On getting the <a>nfc</a> attribute, the UA MUST return the <a>NFC</a>
+    On getting the <dfn data-dfn-for="Navigator">nfc</dfn> attribute, the UA MUST return the <a>NFC</a>
     object, which provides NFC related functionality.
   </p>
   </section> <!-- nfc attribute -->
@@ -1405,6 +1441,14 @@ navigator.nfc.push({ records: [
 
     callback MessageCallback = void (NFCMessage message);
   </pre>
+  <p>
+    The <dfn>NFCPushMessage</dfn> is a union type representing argument types
+    accepted by the <code><a href="#dom-nfc-push">push()</a></code> method.
+  </p>
+  <p>
+    The <dfn>MessageCallback</dfn> is a callback function that must be
+    provided to <code><a href="#dom-nfc-watch">watch()</a></code> metod.
+  </p>
   <p class="note">
     In later versions <code>cancelPush()</code> and <code>cancelWatch()</code>
     may be obsoleted by <a href="https://github.com/domenic/cancelable-promise">
@@ -1537,14 +1581,8 @@ navigator.nfc.push({ records: [
   </p>
   </section> <!-- release NFC -->
 
-  <section> <h3>The <strong>NFCPushOptions</strong> dictionary</h3>
+  <section> <h3>The <dfn>NFCPushOptions</dfn> dictionary</h3>
     <pre class="idl">
-      enum NFCPushTarget {
-        "tag",
-        "peer",
-        "any"
-      };
-
       dictionary NFCPushOptions {
         NFCPushTarget target = "any";
         unrestricted double timeout = Infinity;
@@ -1573,17 +1611,47 @@ navigator.nfc.push({ records: [
     </p>
   </section>
 
-  <section> <h3>The <strong>NFCWatchOptions</strong> dictionary</h3>
+  <section data-dfn-for="NFCPushTarget">
+    <h2>The <dfn>NFCPushTarget</dfn> enum</h2>
+    <p>
+      This enum defines the set of intended target values for the
+      <code><a href="#the-push-method">push()</a></code> operation.
+    </p>
+    <pre class="idl">
+      enum NFCPushTarget {
+        "tag",
+        "peer",
+        "any"
+      };
+    </pre>
+    <dl>
+      <dt><dfn>tag</dfn></dt>
+      <dd>
+        The enum value representing the intended target for the
+        <code><a href="#the-push-method">push()</a></code> operation to be
+        a <a>NFC tag</a>.
+      </dd>
+      <dt><dfn>peer</dfn></dt>
+      <dd>
+        The enum value representing the intended target for the
+        <code><a href="#the-push-method">push()</a></code> operation to be
+        a <a>NFC peer</a>.
+      </dd>
+      <dt><dfn>any</dfn></dt>
+      <dd>
+        The enum value representing the intended target for the
+        <code><a href="#the-push-method">push()</a></code> operation to be
+        a <a>NFC tag</a> or a <a>NFC peer</a>.
+      </dd>
+    </dl>
+  </section> <!-- NFCPushTarget enum -->
+
+  <section> <h3>The <dfn>NFCWatchOptions</dfn> dictionary</h3>
       <p>
         To describe which messages an application is interested in, the
-        <dfn>NFCWatchOptions</dfn> dictionary is used:
+        <a>NFCWatchOptions</a> dictionary is used:
       </p>
       <pre class="idl">
-        enum NFCWatchMode {
-          "web-nfc-only",
-          "any"
-        };
-
         dictionary NFCWatchOptions {
           USVString url = "";
           NFCRecordType? recordType;
@@ -1616,12 +1684,8 @@ navigator.nfc.push({ records: [
         The <dfn>NFCWatchOptions.mode</dfn> property denotes the
         <code><a>NFCWatchMode</a></code> value telling whether only
         <a>Web NFC content</a> or any <a>NFC content</a> will be watched.
-        The <code>"web-nfc-only"</code> value means that only those
-        <a>NDEF message</a>s are exposed which contain a
-        <a>Web NFC record</a>, i.e. which are meant for web pages.
-        The <code>"any"</code> value means that all <a>NDEF message</a>s
-        are exposed.
       </p>
+
       <pre
         title="Filter accepting only JSON content from https://www.w3.org"
         class="example highlight">
@@ -1632,15 +1696,44 @@ navigator.nfc.push({ records: [
         }
       </pre>
       <pre
-        title="Filter which only accept binary content from a given path but any domain"
+        title="Filter which only accepts binary content from a given path for w3 domain and its subdomains"
         class="example highlight">
         var watchOptions = {
-          url: "*://*/info/restaurant/daily-menu/",  // accepted from any domain
+          url: "https://w3.org/info/restaurant/daily-menu/",
           recordType: "opaque",
           mediaType: "application/octet-stream"
         }
       </pre>
     </section> <!-- NFCWatchOptions -->
+
+  <section data-dfn-for="NFCWatchMode">
+    <h2>The <dfn>NFCWatchMode</dfn> enum</h2>
+    <p>
+      This enum defines the set of known values denoting whether
+      <code><a href="#dom-nfc-watch">watch()</a></code> operation should
+      <a>dispatch NFC content</a> for <a>Web NFC content</a> or any
+      <a>NFC content</a>
+    </p>
+    <pre class="idl">
+      enum NFCWatchMode {
+        "web-nfc-only",
+        "any"
+      };
+    </pre>
+    <dl>
+      <dt><dfn>web-nfc-only</dfn></dt>
+      <dd>
+        The <code>"web-nfc-only"</code> value means that only those
+        <a>NDEF message</a>s are dispatched which contain a
+        <a>Web NFC record</a>, i.e. which are meant for web pages.
+      </dd>
+      <dt><dfn>any</dfn></dt>
+      <dd>
+        The <code>"any"</code> value means that all <a>NDEF message</a>s
+        are dispatched.
+      </dd>
+    </dl>
+  </section> <!-- NFCWatchMode enum -->
 
   <section><h3><dfn>Writing or pushing content</dfn></h3>
     <p>
@@ -1654,7 +1747,7 @@ navigator.nfc.push({ records: [
       canceled by the
       <a href="cancelPush"><code>cancelPush()</code></a> method.
     </p>
-    <section><h3>The push() method</h3>
+    <section><h3>The <strong>push()</strong> method</h3>
       <p id="steps-push">
         The
         <dfn>NFC.push</dfn>(<var>message</var>, <var>options</var>)
@@ -2329,7 +2422,7 @@ navigator.nfc.push({ records: [
       </section>
     </section> <!-- push() -->
 
-    <section id="cancelPush"><h3>The cancelPush method</h3>
+    <section id="cancelPush"><h3>The <strong>cancelPush()</strong> method</h3>
       <p>
         The <code>
         <dfn>NFC.cancelPush</dfn>(target)</code>
