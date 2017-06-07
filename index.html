@@ -2505,15 +2505,16 @@ navigator.nfc.push({ records: [
         <code>"https"</code>.
 
       <p>
-        <a href="#dfn-url-scheme">Scheme</a>, <a href="#dfn-url-host">host</a> and
-        <a href="#dfn-url-path">path</a> components of a <a>URL pattern</a> that are
-        used by the <a href="#dfn-match-web-nfc-id-with-url-pattern">URL pattern match
-        algorithm</a> have the following matching rules:
+        A <a>URL pattern</a>'s <a href="#dfn-url-scheme">scheme</a>,
+        <a href="#dfn-url-host">host</a> and <a href="#dfn-url-path">path</a>
+        components that are used by the
+        <a href="#dfn-match-web-nfc-id-with-url-pattern">URL pattern match algorithm</a>
+        have the following matching rules:
 
         <table class="simple">
           <tr>
             <th><strong>URL pattern component</strong></th>
-            <th><strong>Match rule</strong></th>
+            <th><strong>Matching rule for Web NFC Id</strong></th>
           </tr>
           <tr>
             <td><a href="#dfn-url-scheme">scheme</a></td>
@@ -2521,11 +2522,19 @@ navigator.nfc.push({ records: [
           </tr>
           <tr>
             <td><a href="#dfn-url-host">host</a></td>
-            <td>ends with</td>
+            <td>
+              exact match or ends with (<a>URL pattern</a>'s
+              <a href="#dfn-url-host">host</a> <code>String</code> prepended
+              with <code>"."</code>) <code>String</code>
+            </td>
           </tr>
           <tr>
             <td><a href="#dfn-url-path">path</a></td>
-            <td><code>"/*"</code> - any path, begins with otherwise</td>
+            <td>
+              If <a>URL pattern</a>'s path is <code>"/*"</code>, match any
+              <a>Web NFC Id</a> path. Otherwise, begins with <a>URL pattern</a>'s
+              <a href="#dfn-url-path">path</a> <code>String</code>
+            </td>
           </tr>
         </table>
       </p>
@@ -2579,9 +2588,16 @@ navigator.nfc.push({ records: [
             <code>String</code>, return <code>false</code> and abort these steps.
           </li>
           <li>
+            Let <code>subdomain_pattern</code> be the result of prepending <code>"."</code>
+            <code>String</code> to <code>pattern_url</code>'s <a href="#dfn-url-host">host</a>
+            <code>String</code>.
+          </li>
+          <li>
             If <code>id_url</code>'s <a href="#dfn-url-host">host</a> <code>String</code>
-            does not end with <code>pattern_url</code>'s <a href="#dfn-url-host">host</a>
-            <code>String</code>, return <code>false</code> and abort these steps.
+            does not end with <code>subdomain_pattern</code> <code>String</code> and
+            <code>id_url</code>'s <a href="#dfn-url-host">host</a> <code>String</code> is
+            not equal to <code>pattern_url</code>'s <a href="#dfn-url-host">host</a> <code>String</code>,
+            return <code>false</code> and abort these steps.
           </li>
           <li>
             If <code>pattern_url</code>'s <a href="#dfn-url-path">path</a> <code>String</code>
