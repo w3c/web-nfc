@@ -918,7 +918,11 @@ navigator.nfc.push({ records: [
     </section>
     <section> <h3>Payment scenarios</h3>
       <p>
-        The user buys goods in a store, and payments options include NFC.
+        Payment scenarios with Web NFC generally do not refer to supporting
+        the payment process itself, but associating the payment status with
+        a web page in order to have secondary actions. For instance,
+        the user buys goods in a store, and payments options include contactless
+        payment using NFC technology.
         In general, touching the device to the point of sales terminal receiver
         area will result in a transaction between the secure element from the
         device and the point of sales terminal. With the Web NFC API, if the
@@ -926,6 +930,8 @@ navigator.nfc.push({ records: [
         with that site regarding the payment, e.g. the user could get points and
         discounts, or get delivered application or service specific data (e.g.
         tickets, keys, etc) to the device.
+      </p>
+      <p class="note">
         This use case is not supported in this version of the specification.
       </p>
     </section>
