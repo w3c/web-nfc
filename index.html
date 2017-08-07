@@ -770,7 +770,7 @@ navigator.nfc.watch((message) => {
     let article =/[aeio]/.test(record.data.title) ? "an" : "a";
     console.log(`$(record.data.name) is $(article) $(record.data.title)`);
   }
-}, { url: document.baseURI, recordType: = "json" });
+}, { url: document.baseURI, recordType: "json" });
 
 navigator.nfc.push({
   records: [
