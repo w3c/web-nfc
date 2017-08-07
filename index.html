@@ -709,7 +709,8 @@ function processMessage(message) {
       case "opaque":
         if (record.mediaType == 'image/png') {
           var img = document.createElement("img");
-          img.src = URL.createObjectURL(new Blob(record.data, record.mediaType));
+          img.src = URL.createObjectURL(new Blob([record.data], {type: record.mediaType}));
+          document.body.appendChild(img);
           img.onload = function() {
             window.URL.revokeObjectURL(this.src);
           };
