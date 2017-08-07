@@ -769,7 +769,7 @@ function reader(message) {
 navigator.nfc.watch((message) => {
   for (let record of message.records) {
     let article =/[aeio]/.test(record.data.title) ? "an" : "a";
-    console.log(`$(record.data.name) is $(article) $(record.data.title)`);
+    console.log(`${record.data.name} is ${article} ${record.data.title}`);
   }
 }, { url: document.baseURI, recordType: "json" });
 
