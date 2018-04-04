@@ -1439,6 +1439,7 @@ navigator.nfc.push({ records: [
   <pre class="idl">
     typedef (DOMString or ArrayBuffer or NFCMessage) NFCPushMessage;
 
+    [SecureContext]
     interface NFC {
       Promise&lt;void&gt; push(NFCPushMessage message, optional NFCPushOptions options);
       Promise&lt;void&gt; cancelPush(optional NFCPushTarget target="any");
@@ -1768,14 +1769,6 @@ navigator.nfc.push({ records: [
           <li>
             If any exception occurs while running these steps, reject
             <var>promise</var> with that exception and abort these steps.
-          </li>
-          <li>
-            If the <a>incumbent settings object</a> is not a
-            <a>secure context</a>, reject <var>promise</var> with
-            <code>"<a>SecurityError</a>"</code> and abort these steps.
-            <div class="note">
-              Browsers may ignore this rule for development purposes only.
-            </div>
           </li>
           <li>
             An implementation MAY reject <var>promise</var> with <code>
@@ -2441,14 +2434,6 @@ navigator.nfc.push({ records: [
           then continue running this algorithm <a>in parallel</a>.
         </li>
         <li>
-          If the <a>incumbent settings object</a> is not a
-          <a>secure context</a>, reject <var>promise</var> with
-          <code>"<a>SecurityError</a>"</code> and abort these steps.
-          <div class="note">
-            Browsers may ignore this rule for development purposes only.
-          </div>
-        </li>
-        <li>
           If there is an instance of the <code><a>NFC.push</a>()</code>
           algorithm running with its <var>options.</var>target equal to
           <var>target</var> or <code>"any"</code>, then
@@ -2661,14 +2646,6 @@ navigator.nfc.push({ records: [
             <var>promise</var> with that exception and abort these steps.
           </li>
           <li>
-            If the <a>incumbent settings object</a> is not a
-            <a>secure context</a>, reject <var>promise</var> with
-            <code>"<a>SecurityError</a>"</code> and abort these steps.
-            <div class="note">
-              Browsers may ignore this rule for development purposes only.
-            </div>
-          </li>
-          <li>
             If there is no support for the functionality of receiving data from
             an <a>NFC peer</a> or <a>NFC tag</a> in proximity range, reject
             <var>promise</var> with <code>"NotSupportedError"</code> and
@@ -2758,14 +2735,6 @@ navigator.nfc.push({ records: [
         invoked, the UA MUST return a <a><code>Promise</code></a>
         <var>promise</var> and run the following steps <a>in parallel</a>.
         <ol id="steps-cancelWatch">
-          <li>
-            If the <a>incumbent settings object</a> is not a
-            <a>secure context</a>, reject <var>promise</var> with
-            <code>"<a>SecurityError</a>"</code> and abort these steps.
-            <div class="note">
-              Browsers may ignore this rule for development purposes only.
-            </div>
-          </li>
           <li>
             If the parameter <var>id</var> is <code>undefined</code>, then
             remove all watches and filters set by successive calls of the
