@@ -1417,7 +1417,7 @@ navigator.nfc.push({ records: [
   </p>
   <pre class="idl">
     partial interface Navigator {
-      readonly attribute NFC nfc;
+      [SecureContext, SameObject] readonly attribute NFC nfc;
     };
   </pre>
   <!-- - - - - - - - - - - - nfc attribute  - - - - - - - - - - - -->
