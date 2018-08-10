@@ -826,7 +826,7 @@ let utf8Text = encoder.encode("电脑坏了。");
 
 navigator.nfc.push({ records: [
   {
-    recordType: "text",
+    recordType: "opaque",
     mediaType: "text/plain; lang=zh; charset=UTF-8;",
     data: utf8Text.buffer
   }
