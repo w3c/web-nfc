@@ -252,9 +252,11 @@
     <a href="http://heycam.github.io/webidl/#idl-ArrayBuffer">
       <code><dfn>ArrayBuffer</dfn></code></a>,
     <a href="http://heycam.github.io/webidl/#common-BufferSource">
-      <code><dfn>BufferSource</dfn></code></a> and
+      <code><dfn>BufferSource</dfn></code></a>,
     <a href="http://heycam.github.io/webidl/#idl-any">
-      <code><dfn>any</dfn></code></a>
+    <code><dfn>any</dfn></code></a> and
+      <a href="https://heycam.github.io/webidl/#dfn-present">
+    <code><dfn>not present</dfn></code></a>
     are defined in [[!WEBIDL]].
   </p>
   <p>
@@ -1662,7 +1664,7 @@ navigator.nfc.push({ records: [
       <pre class="idl">
         dictionary NFCWatchOptions {
           USVString url = "";
-          NFCRecordType? recordType;
+          NFCRecordType recordType;
           USVString mediaType = "";
           NFCWatchMode mode = "web-nfc-only";
         };
@@ -1675,11 +1677,12 @@ navigator.nfc.push({ records: [
       </p>
       <p>
         The <dfn>NFCWatchOptions.recordType</dfn> property
-        denotes the string value which is used for matching the
+        denotes the enum value which is used for matching the
         <code>
         <a href="#idl-def-nfcrecordtype">type</a></code> property of each
         <code><a>NFCRecord</a></code> object in a <a>Web NFC message</a>.
-        The default value <code>""</code> means that no matching happens.
+        If the dictionary member is <a>not present</a>, then it will be ignored by the
+        <a href="#steps-watch">NFC watch algorithm</a>.
       </p>
       <p>
         The <dfn>NFCWatchOptions.mediaType</dfn> property
@@ -2986,9 +2989,9 @@ navigator.nfc.push({ records: [
             algorithm returns <code>false</code>, skip to the next <a>NFC watch</a>.
           </li>
           <li>
-            If <var>options</var>.recordType is not <code>""</code> and it is not
-            equal to any <var>record</var>.recordType where <var>record</var> is an
-            element of <var>message</var>, skip to the next <a>NFC watch</a>.
+            If <var>options</var>.recordType is <a href=#dfn-not-present>present</a> and
+            it is not equal to any <var>record</var>.recordType where <var>record</var>
+            is an element of <var>message</var>, skip to the next <a>NFC watch</a>.
           </li>
           <li>
             If <var>options</var>.mediaType is not <code>""</code> and it is not
