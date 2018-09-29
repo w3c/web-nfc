@@ -153,7 +153,7 @@
 <!-- - - - - - - - - - - - - - -  Terminology - - - - - - - - - - - - - - - -->
 <section> <h2>Terminology and conventions</h2>
   <p>
-    The terms <a href="http://www.w3.org/TR/url-1/"><dfn>URL</dfn></a>,
+    The terms <a href="https://url.spec.whatwg.org/#concept-url"><dfn>URL</dfn></a>,
     <a href="https://url.spec.whatwg.org/#concept-url-scheme">
     <dfn>URL scheme</dfn></a>,
     <a href="https://url.spec.whatwg.org/#concept-url-host">
@@ -166,65 +166,63 @@
     <dfn>basic URL parser</dfn></a> are defined in [[!URL]].
   </p>
   <p>
-    The following terms are defined in [[!HTML5]]:
-    <a href="https://html.spec.whatwg.org/#browsing-context">
+    The following terms are defined in [[!HTML]]:
+    <a href="https://html.spec.whatwg.org/multipage/#browsing-context">
     <dfn>browsing context</dfn></a>,
 
-    <a href="https://html.spec.whatwg.org/#top-level-browsing-context">
+    <a href="https://html.spec.whatwg.org/multipage/#top-level-browsing-context">
     <dfn>top-level browsing context</dfn></a>,
 
-    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">
+    <a href="https://html.spec.whatwg.org/multipage/#global-object">
     <dfn>global object</dfn></a>,
 
-    <a href="http://www.w3.org/TR/html5/webappapis.html#incumbent-settings-object">
+    <a href="https://html.spec.whatwg.org/multipage/#incumbent-settings-object">
     <dfn>incumbent settings object</dfn></a>,
 
-    <a href="https://html.spec.whatwg.org/#script-execution-environment">
-    <dfn>script execution environment</dfn></a>,
-
-    <a href="https://html.spec.whatwg.org/#document">
+    <a href="https://html.spec.whatwg.org/multipage/#document">
     <dfn>Document</dfn></a>,
 
-    <a href="http://www.w3.org/TR/2011/WD-html5-20110113/urls.html#document-base-url">
+    <a href="https://html.spec.whatwg.org/multipage/#document-base-url">
     <dfn>document base URL</dfn></a>,
 
-    <a href="https://html.spec.whatwg.org/#window">
-    <dfn>Window</dfn></a>,
+    <a href="https://html.spec.whatwg.org/multipage/#window">
+    <dfn><code>Window</code></dfn></a>,
 
-    <a href="https://html.spec.whatwg.org/#windowproxy">
-    <dfn>WindowProxy</dfn></a>,
+    <a href="https://html.spec.whatwg.org/multipage/#windowproxy">
+    <dfn><code>WindowProxy</code></dfn></a>,
 
-    <a href="https://html.spec.whatwg.org/#origin">
+    <a href="https://html.spec.whatwg.org/multipage/#origin">
     <dfn>origin</dfn></a>,
 
-    <a href="https://html.spec.whatwg.org/#ascii-serialisation-of-an-origin">
-    <dfn>ASCII serialized origin</dfn></a>,
+    <a href="https://html.spec.whatwg.org/multipage/#ascii-serialisation-of-an-origin">
+    <dfn>serialized origin</dfn></a>,
 
-    executing algorithms <a href="https://html.spec.whatwg.org/#in-parallel">
+    executing algorithms <a href="https://html.spec.whatwg.org/multipage/#in-parallel">
     <dfn>in parallel</dfn></a>,
 
-    <a href="https://html.spec.whatwg.org/#queue-a-task">
+    <a href="https://html.spec.whatwg.org/multipage/#queue-a-task">
     <dfn>queue a task</dfn></a>,
 
-    <a href="https://html.spec.whatwg.org/#task-source">
+    <a href="https://html.spec.whatwg.org/multipage/#task-source">
     <dfn>task source</dfn></a>,
 
-    <a href="https://html.spec.whatwg.org/#the-iframe-element">
-    <dfn>iframe</dfn></a>,
-
-    <a href="https://html.spec.whatwg.org/#valid-mime-type">
-    <dfn>valid MIME type</dfn></a>.
+    <a href="https://html.spec.whatwg.org/multipage/#the-iframe-element">
+    <dfn>iframe</dfn></a>.
   </p>
   <p>
     A <a>browsing context</a> refers to the environment in which
     <a>Document</a> objects are presented to the user. A given
     <a>browsing context</a> has a single <code><a>WindowProxy</a></code> object,
     but it can have many <code>Document</code> objects, with their associated
-    <code><a>Window</a></code> objects. The <a>script execution environment</a>
+    <code><a>Window</a></code> objects. The <dfn>script execution environment</dfn>
     associated with the <i>browsing context</i> identifies the entity which
     invokes this API, which can be a <i>web app</i>, a <i>web page</i>, or an
     <a>iframe</a>.
   </p>
+  <p>
+    The term
+    <a href="https://mimesniff.spec.whatwg.org/#valid-mime-type">
+    <dfn>valid MIME type string</dfn></a> is defined in [[!MIMESNIFF]].
   <p>
     The term
     <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">
@@ -233,7 +231,7 @@
   <p>
     Inspired by the <a href="https://streams.spec.whatwg.org/#conventions">
     Streams specification</a>, we use the notation <i>x@[[\y]]</i> to refer to
-    <a href="http://ecma-international.org/ecma-262/6.0/#sec-object-internal-methods-and-internal-slots">
+    <a href="https://tc39.github.io/ecma262/#sec-object-internal-methods-and-internal-slots">
     <dfn>internal slots</dfn></a> of an object, instead of saying
     <i>"the [[\y]] internal slot of x"</i>.
   </p>
@@ -254,47 +252,43 @@
     <a href="http://heycam.github.io/webidl/#common-BufferSource">
       <code><dfn>BufferSource</dfn></code></a>,
     <a href="http://heycam.github.io/webidl/#idl-any">
-    <code><dfn>any</dfn></code></a> and
-      <a href="https://heycam.github.io/webidl/#dfn-present">
-    <code><dfn>not present</dfn></code></a>
+    <code><dfn>any</dfn></code></a>,
+    <a href="https://heycam.github.io/webidl/#dfn-present">
+    <dfn>not present</dfn></a>,
+    <a href="https://heycam.github.io/webidl/#idl-DOMException">
+      <code><dfn>DOMException</dfn></code></a>,
+    <a href="https://heycam.github.io/webidl/#aborterror">
+      <code><dfn>AbortError</dfn></code></a>,
+    <a href="https://heycam.github.io/webidl/#syntaxerror">
+      <code><dfn>SyntaxError</dfn></code></a>,
+    <a href="https://heycam.github.io/webidl/#notsupportederror">
+      <code><dfn>NotSupportedError</dfn></code></a>,
+    <a href="https://heycam.github.io/webidl/#notfounderror">
+      <code><dfn>NotFoundError</dfn></code></a>,
+    <a href="https://heycam.github.io/webidl/#networkerror">
+      <code><dfn>NetworkError</dfn></code></a>,
+    <a href="https://heycam.github.io/webidl/#nomodificationallowederror">
+      <code><dfn>NoModificationAllowedError</dfn></code></a>, and
+    <a href="https://heycam.github.io/webidl/#securityerror">
+      <code><dfn>SecurityError</dfn></code></a>,
     are defined in [[!WEBIDL]].
   </p>
   <p>
-    <!--a href="http://www.w3.org/TR/dom/#eventinit">
-      <dfn>EventInit</dfn></a>,-->
-    <a href="http://www.w3.org/TR/dom/#domexception">
-      <dfn>DOMException</dfn></a>,
-    <a href="http://www.w3.org/TR/dom/#aborterror">
-      <dfn>AbortError</dfn></a>,
-    <a href="http://www.w3.org/TR/dom/#syntaxerror">
-      <dfn>SyntaxError</dfn></a>,
-    <a href="http://www.w3.org/TR/dom/#notsupportederror">
-      <dfn>NotSupportedError</dfn></a>,
-    <a href="http://www.w3.org/TR/dom/#notfounderror">
-      <dfn>NotFoundError</dfn></a>,
-    <a href="http://www.w3.org/TR/dom/#networkerror">
-      <dfn>NetworkError</dfn></a>,
-    <a href="http://www.w3.org/TR/dom/#nomodificationallowederror">
-    <dfn>NoModificationAllowedError</dfn>,
-    <a href="http://www.w3.org/TR/dom/#securityerror">
-      <dfn>SecurityError</dfn></a>
-    are defined in [[!DOM4]].
-  </p>
-  <p>
-    <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">
-    <dfn>Promise</dfn></a>,
-    <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-json-object">
+    <a href="https://tc39.github.io/ecma262/#sec-promise-objects">
+    <dfn><code>Promise</code></dfn></a>,
+    <a href="https://tc39.github.io/ecma262/#sec-json-object">
     <dfn>JSON</dfn></a>,
-    <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-json.stringify">
+    <a href="https://tc39.github.io/ecma262/#sec-json.stringify">
     <dfn>JSON.stringify</dfn></a> and
-    <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-json.parse">
+    <a href="https://tc39.github.io/ecma262/#sec-json.parse">
     <dfn>JSON.parse</dfn></a>
     are defined in [[!ECMASCRIPT]].
   </p>
   <p>
-    The algorithms <a href="http://www.w3.org/TR/encoding/#utf-8-encode">
+  <p>
+    The algorithms <a href="https://encoding.spec.whatwg.org/#utf-8-encode">
     <dfn>utf-8 encode</dfn></a>, and
-    <a href="http://www.w3.org/TR/encoding/#utf-8-decode">
+    <a href="https://encoding.spec.whatwg.org/#utf-8-decode">
     <dfn>utf-8 decode</dfn></a> are defined in [[!ENCODING]].
   </p>
   <p>
@@ -454,7 +448,7 @@
     one of which is a <a>Web NFC record</a>.
   </p>
   <p>
-    The <dfn>Web NFC message origin</dfn> is an <a>ASCII serialized origin</a>
+    The <dfn>Web NFC message origin</dfn> is a <a>serialized origin</a>
     with <code>"https"</code> scheme, stored in the <a>Web NFC record</a>.
     For <a>NFC content</a> that is not a <a>Web NFC message</a>, it is
     <code>null</code>.
@@ -1103,7 +1097,7 @@ navigator.nfc.push({ records: [
       </li>
       <li>
         When pushing <a>Web NFC content</a>, the
-        <a>ASCII serialized origin</a> and the <a>URL path</a> of
+        <a>serialized origin</a> and the <a>URL path</a> of
         the <a>incumbent settings object</a> of the
         <a>script execution environment</a> requesting the operation must be
         recorded in each sent <a>NDEF message</a>'s <a>Web NFC record</a>.
@@ -1118,7 +1112,7 @@ navigator.nfc.push({ records: [
         Pushing <a>Web NFC content</a> to an <a>NFC tag</a> does not need to
         <a>obtain permission</a>, if the <a>Web NFC message origin</a> of the
         <a>Web NFC message</a> on that <a>NFC tag</a> is equal to the
-        <a>ASCII serialized origin</a> of the <a>incumbent settings object</a>.
+        <a>serialized origin</a> of the <a>incumbent settings object</a>.
         Otherwise the UA must <a>obtain permission</a> for pushing
         <a>NFC content</a> which overwrites existing information.
         See also the <a>Writing or pushing content</a> section.
@@ -1904,7 +1898,7 @@ navigator.nfc.push({ records: [
                       <li>
                         If the <a>Web NFC message origin</a> of the read
                         <a>NFC content</a> is <code>null</code>, or it is
-                        different than the <a>ASCII serialized origin</a> of the
+                        different than the <a>serialized origin</a> of the
                         <a>incumbent settings object</a>, and the
                         <a>obtain push permission</a> steps return
                         <code>false</code>, then reject <var>promise</var> with
@@ -2407,7 +2401,7 @@ navigator.nfc.push({ records: [
         run these steps:
         <ol>
           <li>
-            Let <var>id</var> be the <a>ASCII serialized origin</a> of the
+            Let <var>id</var> be the <a>serialized origin</a> of the
             <a>browsing context</a>, appended with <var>url</var>.
           </li>
           <li>
