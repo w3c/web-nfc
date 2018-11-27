@@ -1440,7 +1440,6 @@ navigator.nfc.push({ records: [
       Promise&lt;void&gt; push(NFCPushMessage message, optional NFCPushOptions options);
       Promise&lt;void&gt; cancelPush(optional NFCPushTarget target="any");
       Promise&lt;long&gt; watch(MessageCallback callback, optional NFCWatchOptions options);
-      Promise&lt;void&gt; cancelWatch(optional long id);
     };
 
     callback MessageCallback = void (NFCMessage message);
@@ -1452,12 +1451,6 @@ navigator.nfc.push({ records: [
   <p>
     The <dfn>MessageCallback</dfn> is a callback function that must be
     provided to <code><a href="#dom-nfc-watch">watch()</a></code> metod.
-  </p>
-  <p class="note">
-    In later versions <code>cancelPush()</code> and <code>cancelWatch()</code>
-    may be obsoleted by <a href="https://github.com/domenic/cancelable-promise">
-    cancelable Promises</a> used with <code>push()</code> and
-    <code>watch()</code>, respectively.
   </p>
   <section><h3>Internal slots of NFC</h3>
   <p>
@@ -1661,6 +1654,7 @@ navigator.nfc.push({ records: [
           NFCRecordType recordType;
           USVString mediaType = "";
           NFCWatchMode mode = "web-nfc-only";
+          AbortSignal? signal;
         };
       </pre>
       <p>
@@ -1689,6 +1683,10 @@ navigator.nfc.push({ records: [
         The <dfn>NFCWatchOptions.mode</dfn> property denotes the
         <code><a>NFCWatchMode</a></code> value telling whether only
         <a>Web NFC content</a> or any <a>NFC content</a> will be watched.
+      </p>
+      <p>
+        The <dfn>NFCWatchOptions.AbortSignal</dfn> property allows to abort / cancel
+        the watch.
       </p>
 
       <pre
@@ -2613,10 +2611,10 @@ navigator.nfc.push({ records: [
         <a>URL pattern</a>s used in <a>NFC watch</a>es.
       </p>
       <p>
-        An <dfn>NFC watch</dfn> is referring to a
-        <code><a>NFCWatchOptions</a></code> filter saved together with the
-        <code><a>NFC</a></code> instance it belongs
-        to, and a locally unique identifier which is used for cancellation.
+        An <dfn>NFC watch</dfn> is referring to a tuple of a <code><a>Promise</a></code>,
+        a <code><a>NFCWatchOptions</a></code> and a <code><a>MessageCallback</a></code>.
+      </p>
+      <p>
         The section <a href="#steps-receiving">
         Receiving and parsing content</a> uses <a>NFC watch</a>es to match
         incoming <a>NFC content</a>.
@@ -2626,62 +2624,85 @@ navigator.nfc.push({ records: [
         same <a>origin</a> create filters which are in OR relationship.
       </p>
       <p>
-        When the <code>
-        <dfn>NFC.watch</dfn>(<var>callback</var>, <var>options</var>)
-        </code> method is invoked, the UA MUST run the following
+        When the <code><dfn>NFC.watch</dfn></code> method is invoked, the UA
+        MUST run the following
         <dfn id="steps-watch">NFC watch algorithm</dfn>:
         <ol>
           <li>
-            Let <var>promise</var> be a new <a><code>Promise</code></a> object.
+            Let <var>p</var> be a new <a><code>Promise</code></a> object.
           </li>
           <li>
-            Return <var>promise</var> and continue the following steps
-            <a>in parallel</a>.
+            Let <var>callback</var> be the first argument.
           </li>
           <li>
-            If any exception occurs while running these steps, reject
-            <var>promise</var> with that exception and abort these steps.
+            Let <var>options</var> be the second callback.
+          </li>
+          <li>
+            Let <var>signal</var> be the options’ dictionary member of the same 
+            name if present, or null otherwise.
+          </li>
+          <li>
+            If <var>signal</var>’s aborted flag is set, then reject <var>p</var>
+            with an <code>"AbortError"</code> DOMException and return <var>p</var>.
           </li>
           <li>
             If there is no support for the functionality of receiving data from
             an <a>NFC peer</a> or <a>NFC tag</a> in proximity range, reject
-            <var>promise</var> with <code>"NotSupportedError"</code> and
-            abort these steps.
+            <var>p</var> with <code>"NotSupportedError"</code> and return <var>p</var>.
           </li>
           <li>
-            If the <a>obtain watch permission</a> steps return
-            <code>false</code>, then reject <var>promise</var> with
-            <code>"SecurityError"</code> and abort these steps.
-          </li>
-          <li>
-            If this is the first watch being set up, then make a request to
-            all <a>NFC adapter</a>s to listen to <a>NDEF message</a>s.
-          </li>
-          <li>
-            If the request fails, reject <var>promise</var> with
-            <code>"NotSupportedError"</code> and abort these steps.
-          </li>
-          <li>
-            If the <var>options</var>.url is not an empty <code>String</code>
-            and it is not a <a>valid URL pattern</a>, throw <code>"SyntaxError"</code>
-            exception and abort these steps.
-          </li>
-          <li>
-            Let <var>watchId</var> be a number that will identify this
-            <a>NFC watch</a>.
-          </li>
-          <li>
-            Add <var>watchId</var>, <var>options</var>, and <var>callback</var>
+            Add <var>p</var>, <var>options</var>, and <var>callback</var>
             together as an <a>NFC watch</a> to <var>this@[[\watchList]]</var>.
           </li>
           <li>
-            Resolve <var>promise</var> with <var>watchId</var>.
+            If <var>signal</var> is not null, then
+            <a href="https://dom.spec.whatwg.org/#abortsignal-add">
+              add the following abort steps</a> to <var>signal</var>:
+              <ol>
+                <li>
+                  Remove the <a>NFC watch</a> from <var>this@[[\watchList]]</var>
+                </li>
+                <li>
+                  If <var>this@[[\watchList]]</var> is empty, then make a request
+                  to stop listening to <a>NDEF message</a>s on all <a>NFC adapter</a>s.
+                </li>
+                <li>
+                  Reject <var>p</var> with an <code>"AbortError"</code> DOMException
+                  and abort these steps.
+                </li>
+              </ol>
           </li>
           <li>
-            If the <a>browsing context</a> loses focus (e.g. the user navigated
-            to another page), then the registered watches still SHOULD continue
-            to exist, but SHOULD become paused, i.e. the UA SHOULD NOT check
-            and use them until the focus is regained.
+            Run the following steps <a>in parallel</a>:
+            <ol>
+              <li>
+                If the <a>obtain watch permission</a> steps return
+                <code>false</code>, then reject <var>p</var> with
+                <code>"SecurityError"</code> and return <var>p</var>.
+              </li>
+              <li>
+                If this is the first watch being set up, then make a request to
+                all <a>NFC adapter</a>s to listen to <a>NDEF message</a>s.
+              </li>
+              <li>
+                If the request fails, reject <var>p</var> with
+                <code>"NotSupportedError"</code> and return <var>p</var>.
+              </li>
+              <li>
+                If the <var>options</var>.url is not an empty <code>String</code>
+                and it is not a <a>valid URL pattern</a>, throw <code>"SyntaxError"</code>
+                exception and return <var>p</var>.
+              </li>
+              <li>
+                Resolve <var>p</var>.
+              </li>
+              <li>
+                If the <a>browsing context</a> loses focus (e.g. the user navigated
+                to another page), then the registered watches still SHOULD continue
+                to exist, but SHOULD become paused, i.e. the UA SHOULD NOT check
+                and use them until the focus is regained.
+              </li>
+            </ol>
           </li>
         </ol>
       </p>
@@ -2724,38 +2745,7 @@ navigator.nfc.push({ records: [
         </ol>
       </p>
     </section> <!-- watch() method -->
-
-    <!-- The cancelWatch() method -->
-    <section><h3>The <strong>cancelWatch</strong>() method</h3>
-      <p>
-        When the <code><dfn>NFC.cancelWatch</dfn>(id)</code> method is
-        invoked, the UA MUST return a <a><code>Promise</code></a>
-        <var>promise</var> and run the following steps <a>in parallel</a>.
-        <ol id="steps-cancelWatch">
-          <li>
-            If the parameter <var>id</var> is <code>undefined</code>, then
-            remove all watches and filters set by successive calls of the
-            <code><a>NFC watch</a>()</code> method on all <a>NFC adapter</a>s.
-          </li>
-          <li>
-            Otherwise, if the parameter <var>id</var> matches the local
-            identifier of one of the previously set up watches, remove the
-            corresponding watch.
-          </li>
-          <li>
-            Otherwise, reject <var>promise</var> with
-            <code>"<a>NotFoundError</a>"</code> and abort these steps.
-          </li>
-          <li>
-            If there are no more watches, then make a request to stop listening
-            to <a>NDEF message</a>s on all <a>NFC adapter</a>s.
-          </li>
-          <li>
-            Resolve <var>promise</var>.
-          </li>
-        </ol>
-      </p>
-    </section> <!-- cancelWatch() -->
+   
   </section>
 
   <section id="steps-receiving">
