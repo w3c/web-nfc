@@ -242,7 +242,7 @@
   </p>
   <p>
     The Augmented Backus-Naur Form (ABNF) notation used is specified in
-    [[RFC5234]].
+    [[!RFC5234]].
   </p>
   <p>
     <a href="http://heycam.github.io/webidl/#idl-DOMString">
@@ -487,7 +487,7 @@
   <p class="note">
     As part of the <a>NDEF record</a>, an <dfn>NDEF Id</dfn> field may be
     present for application specific usages. According to the
-    [[!NFC-STANDARDS]] it contains a URL with the maximum length of 256 octets.
+    [[NFC-STANDARDS]] it contains a URL with the maximum length of 256 octets.
     This URL is used for identifying the <a>NDEF record</a> payload in an
     application specific way.
     This version of the specification does not use <a>NDEF Id</a> for
@@ -1239,7 +1239,7 @@ navigator.nfc.push({ records: [
       <dl>
         <dt><dfn>empty</dfn></dt>
         <dd>
-          The enum value representing <a href="#dfn-empty-1">empty</a> <a>NFCRecord</a>.
+          The enum value representing <a href="#dfn-empty">empty</a> <a>NFCRecord</a>.
         </dd>
         <dt><dfn>text</dfn></dt>
         <dd>
@@ -1247,11 +1247,11 @@ navigator.nfc.push({ records: [
         </dd>
         <dt><dfn>url</dfn></dt>
         <dd>
-          The enum value representing <a>NFCRecord</a> of a <a href="#dfn-url-1">url</a> type.
+          The enum value representing <a>NFCRecord</a> of a <a href="#dfn-url">url</a> type.
         </dd>
         <dt><dfn>json</dfn></dt>
         <dd>
-          The enum value representing <a>NFCRecord</a> of a <a href="#dfn-json-1">json</a> type.
+          The enum value representing <a>NFCRecord</a> of a <a href="#dfn-json">json</a> type.
         </dd>
         <dt><dfn>opaque</dfn></dt>
         <dd>
@@ -1667,7 +1667,7 @@ navigator.nfc.push({ records: [
         The <dfn>NFCWatchOptions.recordType</dfn> property
         denotes the enum value which is used for matching the
         <code>
-        <a href="#idl-def-nfcrecordtype">type</a></code> property of each
+        <a href="#idl-def-nfcrecordtype">recordType</a></code> property of each
         <code><a>NFCRecord</a></code> object in a <a>Web NFC message</a>.
         If the dictionary member is <a>not present</a>, then it will be ignored by the
         <a href="#steps-watch">NFC watch algorithm</a>.
@@ -1675,7 +1675,7 @@ navigator.nfc.push({ records: [
       <p>
         The <dfn>NFCWatchOptions.mediaType</dfn> property
         denotes the <a>match pattern</a> which is used for matching the
-        <code><a href="#dom-nfcrecord-type">type</a></code> property of each
+        <code><a href="#dom-nfcrecord-mediatype">mediaType</a></code> property of each
         <code><a>NFCRecord</a></code> object in a <a>Web NFC message</a>.
         The default value <code>""</code> means that no matching happens.
       </p>
@@ -1685,7 +1685,7 @@ navigator.nfc.push({ records: [
         <a>Web NFC content</a> or any <a>NFC content</a> will be watched.
       </p>
       <p>
-        The <dfn>NFCWatchOptions.AbortSignal</dfn> property allows to abort / cancel
+        The <dfn>NFCWatchOptions.signal</dfn> property allows to abort / cancel
         the watch.
       </p>
 
@@ -2169,7 +2169,7 @@ navigator.nfc.push({ records: [
             <p class="note">
               Note that <code>lang=</code> is not standard parameter
               to <a>IANA media type</a>s, but it is used in this specification
-              in order to maintain compatibility with [[!NFC-STANDARDS]].
+              in order to maintain compatibility with [[NFC-STANDARDS]].
             </p>
           </li>
           <li>
@@ -2186,7 +2186,7 @@ navigator.nfc.push({ records: [
           <li>
             Set the <var>ndef.PAYLOAD</var> field to
             <var>record</var>.data encoded according to the
-            [[NFC-STANDARDS]], NFC Forum Text Record Type
+            [[!NFC-STANDARDS]], NFC Forum Text Record Type
             Definition specification:
             <ol>
               <li>
@@ -2302,7 +2302,7 @@ navigator.nfc.push({ records: [
           </li>
           <li>
             Set the <var>ndef.PAYLOAD</var> field to <var>data</var>
-            according to the [[NFC-STANDARDS]], i.e. as an opaque octet stream.
+            according to the [[!NFC-STANDARDS]], i.e. as an opaque octet stream.
           </li>
           <li>
             Return <var>ndef</var>.
@@ -2344,7 +2344,7 @@ navigator.nfc.push({ records: [
           </li>
           <li>
             Set the <var>ndef.PAYLOAD</var> field to <var>record</var>.data
-            according to the [[NFC-STANDARDS]], i.e. as an opaque octet stream.
+            according to the [[!NFC-STANDARDS]], i.e. as an opaque octet stream.
           </li>
           <li>
             Return <var>ndef</var>.
@@ -2469,11 +2469,11 @@ navigator.nfc.push({ records: [
 
     <section> <h3>Match patterns</h3>
       <p>
-        A <a>match pattern</a> is defined by the following ABNF:
+        A <dfn>match pattern</dfn> is defined by the following ABNF:
         <pre>
-          <dfn data-lt="match pattern">match-pattern</dfn>       = <a>top-level type name</a> <code>"/"</code> [ tree <code>"."</code> ] <a>subtype name</a> [ <code>"+"</code> suffix ] [ <code>";"</code> parameters ]
-          <dfn>top-level type name</dfn> = <code>"*"</code> / &lt;VCHAR except <code>'/'</code> and <code>"*"</code>&gt;
-          <dfn>subtype name</dfn>        = <code>"*"</code> / &lt;VCHAR except <code>'+'</code>&gt;
+          match-pattern       = top-level-type-name <code>"/"</code> [ tree <code>"."</code> ] subtype-name [ <code>"+"</code> suffix ] [ <code>";"</code> parameters ]
+          top-level-type-name = <code>"*"</code> / &lt; VCHAR except <code>"/"</code> and <code>"*"</code> &gt;
+          subtype-name        = <code>"*"</code> / &lt; VCHAR except <code>"+"</code> &gt;
         </pre>
         A <a>match pattern</a> is a
         <a href="http://pubs.opengroup.org/onlinepubs/007904875/utilities/xcu_chap02.html#tag_02_13_03">
@@ -2783,7 +2783,7 @@ navigator.nfc.push({ records: [
           <li>
             Let <var>ndef</var> be the notation for the current
             <a>NDEF record</a>. The fields of <var>ndef</var> are described by
-            the [[NFC-STANDARDS]].
+            the [[!NFC-STANDARDS]].
           </li>
           <li>
             Let <var>record</var> be a new <code><a>NFCRecord</a></code> object.
@@ -2843,7 +2843,7 @@ navigator.nfc.push({ records: [
                 If <var>scheme</var> is not 0, then set <var>record</var>.data
                 to the string obtained from mapping the value of
                 <var>scheme</var> to the URL scheme as specified in the
-                [[NFC-STANDARDS]] URI Record Type Definition specification,
+                [[!NFC-STANDARDS]] URI Record Type Definition specification,
                 Section 3.2.2.
               </li>
               <li>
