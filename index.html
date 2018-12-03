@@ -446,7 +446,7 @@
     method</a> section.
   </p>
   <p>
-    A <dfn>Web NFC message</dfn> consists of a set of <a>NDEF record</a>s,
+    A <dfn>Web NFC message</dfn> consists of a sequence of <a>NDEF record</a>s,
     one of which is a <a>Web NFC record</a>.
   </p>
   <p>
@@ -1186,7 +1186,7 @@ navigator.nfc.push({ records: [
     </p>
     <p>
       The <dfn>NFCMessage.records</dfn>
-      property represents the <a>NDEF message</a> defining the
+      property represents a <a>list</a> of <a>NDEF message</a>s defining the
       <a>Web NFC message</a>.
     </p>
   </section>
@@ -1486,7 +1486,7 @@ navigator.nfc.push({ records: [
      <tr>
       <td>[[\watchList]]</td>
       <td>
-        A list of <a>NFC watch</a>es initially set to empty list.
+        A <a>set</a> of <a>NFC watch</a>es initially set to be <a>empty</a>.
       </td>
      </tr>
     </tbody>
@@ -1842,8 +1842,8 @@ navigator.nfc.push({ records: [
               </li>
               <li>
                 If the <var>message</var> parameter is of
-                <code>NFCMessage</code> type, and <var>message</var>.records is an
-                empty sequence, reject <var>p</var> with
+                <code>NFCMessage</code> type, and <var>message</var>.records is
+                <a>empty</a>, reject <var>p</var> with
                 <code>"TypeError"</code> and abort these steps.
               </li>
               <li>
@@ -2057,7 +2057,7 @@ navigator.nfc.push({ records: [
             to be created by the UA as a result of these steps.
           </li>
           <li>
-            For each <a>NFCRecord</a> <var>record</var> in the sequence
+            <a>For each</a> <a>NFCRecord</a> <var>record</var> in the <a>list</a>
             <var>message</var>.records, run the following steps, or make sure
             that the underlying platform provides equivalent values to
             <var>ndef</var>:
@@ -2188,11 +2188,11 @@ navigator.nfc.push({ records: [
             exception and abort these steps.
           </li>
           <li>
-            If <var>record</var>.mediaType is an empty string, then
+            If <var>record</var>.mediaType is an empty <a>string</a>, then
             set <var>record</var>.mediaType to <code>"text/plain"</code>.
           </li>
           <li>
-            Otherwise, if <var>record</var>.mediaType is not an empty string
+            Otherwise, if <var>record</var>.mediaType is not an empty <a>string</a>
             that doesn't start with <code>"text/"</code>, then throw a
             <code>"SyntaxError"</code> exception and abort these steps.
 
@@ -2252,7 +2252,7 @@ navigator.nfc.push({ records: [
                   <li>Set bit 6 to 0.</li>
                   <li>
                     Set bits 5 to 0 to the length of the
-                    <var>language</var> string.
+                    <var>language</var> <a>string</a>.
                   </li>
                 </ol>
               </li>
@@ -2324,11 +2324,11 @@ navigator.nfc.push({ records: [
             throw a <code>"TypeError"</code> exception and abort these steps.
           </li>
           <li>
-            If <var>record</var>.mediaType is an empty string, then set
+            If <var>record</var>.mediaType is an empty <a>string</a>, then set
             <var>record</var>.mediaType to <code>"application/json"</code>.
           </li>
           <li>
-            Otherwise, if <var>record</var>.mediaType is not an empty string
+            Otherwise, if <var>record</var>.mediaType is not an empty <a>string</a>
             that doesn't match <code>"application/json"</code>, or any other
             <a>IANA media type</a> for JSON
             (starting with <code>"application/"</code> and ending with <code>
@@ -2373,12 +2373,12 @@ navigator.nfc.push({ records: [
             exception and abort these steps.
           </li>
           <li>
-            If <var>record</var>.mediaType is an empty string, set
+            If <var>record</var>.mediaType is an empty <a>string</a>, set
             <var>record</var>.mediaType to
             <code>"application/octet-stream"</code>.
           </li>
           <li>
-            Otherwise, if <var>record</var>.mediaType is not an empty string,
+            Otherwise, if <var>record</var>.mediaType is not an empty <a>string</a>,
             the UA MAY check if <var>record</var>.mediaType is
             a valid IANA registered type. If not, then the UA MAY throw a
             <code>"SyntaxError"</code> exception and abort these steps.
@@ -2672,7 +2672,7 @@ navigator.nfc.push({ records: [
                   Remove the <a>NFC watch</a> from <var>this@[[\watchList]]</var>
                 </li>
                 <li>
-                  If <var>this@[[\watchList]]</var> is empty, then make a request
+                  If <var>this@[[\watchList]]</var> <a>is empty</a>, then make a request
                   to stop listening to <a>NDEF message</a>s on all <a>NFC adapter</a>s.
                 </li>
                 <li>
@@ -2779,7 +2779,7 @@ navigator.nfc.push({ records: [
       <li>
         Let <var>message</var> be a new <code>NFCMessage</code> object, with
         <var>message</var>.url set to <code>null</code> and
-        <var>message</var>.records set to empty sequence.
+        <var>message</var>.records set to the empty <a>list</a>.
       </li>
       <li>
         Let <var>input</var> be the notation for the <a>NDEF message</a>
@@ -2820,13 +2820,13 @@ navigator.nfc.push({ records: [
                 first payload octet.
               </li>
               <li>
-                Let <var>language</var> be the string defined by the consecutive
+                Let <var>language</var> be the <a>string</a> defined by the consecutive
                 <var>offset</var> number of octets, converted from US-ASCII
                 encoding. Append <code>";lang="</code> and then the value of
                 <var>language</var> to <var>record</var>.mediaType.
               </li>
               <li>
-                Set <var>record</var>.data to the string created from the
+                Set <var>record</var>.data to the <a>string</a> created from the
                 consecutive <var>ndef.PAYLOAD</var> octets, converted to UTF-16
                 encoding.
               </li>
@@ -2850,13 +2850,13 @@ navigator.nfc.push({ records: [
               </li>
               <li>
                 If <var>scheme</var> is not 0, then set <var>record</var>.data
-                to the string obtained from mapping the value of
+                to the <a>string</a> obtained from mapping the value of
                 <var>scheme</var> to the URL scheme as specified in the
                 [[!NFC-STANDARDS]] URI Record Type Definition specification,
                 Section 3.2.2.
               </li>
               <li>
-                Set <var>record</var>.data to the UTF-16 string converted from
+                Set <var>record</var>.data to the UTF-16 <a>string</a> converted from
                 the octets of <var>ndef.PAYLOAD</var> except the first octet.
               </li>
             </ol>
@@ -2865,7 +2865,7 @@ navigator.nfc.push({ records: [
             If <var>ndef.TNF</var> is 3 (NFC Absolute URI Type record), then
             set <var>record</var>.recordType to <code>"url"</code>,
             set <var>record</var>.mediaType to <code>"text/plain"</code> and
-            set <var>record</var>.data to the string converted from
+            set <var>record</var>.data to the <a>string</a> converted from
             <var>ndef.PAYLOAD</var>.
           </li> <!-- parsing NDEF Absolute URI record -->
           <li>
@@ -2922,7 +2922,7 @@ navigator.nfc.push({ records: [
               <li>Set <var>record</var>.recordType to <code>"opaque"</code>.</li>
               <li>
                 If <var>ndef.TYPE</var> is defined, then set
-                <var>record</var>.mediaType to that string value, otherwise to
+                <var>record</var>.mediaType to that <a>string</a> value, otherwise to
                 <code>"application/octet-stream"</code>.
               </li>
               <li>
@@ -2935,13 +2935,13 @@ navigator.nfc.push({ records: [
             Otherwise, skip to the next <a>NDEF record</a> in <var>input</var>.
           </li>
           <li>
-            Add <var>record</var> to <var>message</var>.records.
+            <a>Append</a> <var>record</var> to <var>message</var>.records.
           </li>
         </ol>
       </li>
       <li>
         If <var>NFC@[[\suspended]]</var> is <code>false</code> and
-        <var>message</var>.records is not empty, run the
+        <var>message</var>.records <a>is not empty</a>, run the
         <a>dispatch NFC content</a> steps given <var>message</var>.
       </li>
     </ol>
@@ -3061,6 +3061,36 @@ navigator.nfc.push({ records: [
 <section id="idl-index" class="appendix">
   <!-- All the Web IDL will magically appear here -->
 </section>
+<section class="appendix">
+  <h3>
+    Terms defined by reference
+  </h3>
+  <li>[[!INFRA]] defines the following terms:
+    <ul>
+      <li>
+        <dfn data-cite="!INFRA#string">string</dfn>
+      </li>
+      <li>
+        <dfn data-cite="!INFRA#ordered-set">set</dfn>
+      </li>
+      <li>
+        <dfn data-cite="!INFRA#list">list</dfn>
+      </li>
+      <li>
+        <dfn data-cite="!INFRA#list-iterate">for each</dfn>
+      </li>
+      <li>
+        <dfn data-cite="!INFRA#list-is-empty">is empty</dfn>
+      </li>
+      <li>
+        <dfn data-cite="!INFRA#list-is-not-empty">is not empty</dfn>
+      </li>
+      <li>
+        <dfn data-cite="!INFRA#list-append" data-lt="list-append">append</dfn>
+      </li>
+    </ul>
+  </li>
+  </section>
 
 <!-- - - - - - - - - - - - - - - Acknowledgements - - - - - - - - - - - - - -->
 <section> <h2>Acknowledgements</h2>
