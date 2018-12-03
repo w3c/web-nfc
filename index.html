@@ -80,6 +80,12 @@
               publisher: "NFC Forum",
               date: "24 July 2006"
             },
+            "NFC-RTD": {
+              href: "http://members.nfc-forum.org/specs/spec_list/",
+              title: "NFC Record Type Definition (RTD) Technical Specification",
+              publisher: "NFC Forum",
+              date: "24 July 2006"
+            },
             "ISO-639.2": {
               href: "https://www.loc.gov/standards/iso639-2/php/code_list.php",
               title: "Codes for the Representation of Names of Languages",
@@ -397,45 +403,45 @@
     types:
     <table class="simple">
       <tr>
-        <th><strong>TNF value</strong></th>
-        <th><strong>NDEF record type</strong></th>
+        <th><strong>Value</strong></th>
+        <th><strong>Type Name Format</strong></th>
       </tr>
       <tr>
         <td>0</td>
-        <td><dfn>Empty</dfn></td>
+        <td>Empty</td>
       </tr>
       <tr>
         <td>1</td>
-        <td>NFC Forum <dfn>Well-Known Type</dfn>
+        <td>NFC Forum <dfn>well-known type</dfn> as defined in [[!NFC-RTD]]
         </td>
       </tr>
       <tr>
         <td>2</td>
-        <td><dfn>Media Type</dfn></td>
+        <td><a>IANA media type</a></td>
       </tr>
       <tr>
         <td>3</td>
-        <td><dfn>Absolute URI</dfn></td>
+        <td><a>Absolute-URL string</a></td>
       </tr>
       <tr>
         <td>4</td>
-        <td>NFC Forum <dfn>External Type</dfn></td>
+        <td>NFC Forum <dfn>external type</dfn> as defined in [[!NFC-RTD]]</td>
       </tr>
       <tr>
         <td>5</td>
-        <td><dfn>Unknown</dfn></td>
+        <td>Unknown</td>
       </tr>
       <tr>
         <td>6</td>
-        <td><dfn>Unchanged</dfn></td>
+        <td>Unchanged</td>
       </tr>
       <tr>
         <td>7</td>
-        <td><dfn>Reserved</dfn></td>
+        <td>Reserved</td>
       </tr>
     </table>
     <br>
-    NFC Forum <a>Well-Known Type</a> includes record types <i>text</i>,
+    NFC Forum <a>well-known type</a> includes record types <i>text</i>,
     <i>URI</i>, <i>Smart Poster</i> (containing an URL or other
     data, and possible actions).
   </p>
@@ -456,14 +462,14 @@
     <code>null</code>.
   </p>
   <p>
-    The <dfn id="web-nfc-id">Web NFC Id</dfn> is a <a>URL</a> according to
-    [[RFC3986]], specifically the <a>Web NFC message origin</a> optionally
-    followed by a <a>URL path</a>, stored in the <a>Web NFC Record</a>.
+    The <dfn id="web-nfc-id">Web NFC Id</dfn> is an <a>absolute-URL string</a>,
+    specifically the <a>Web NFC message origin</a> optionally
+    followed by a <a>path-absolute-URL string</a>, stored in the <a>Web NFC Record</a>.
     This enables matching <a>Web NFC content</a> with <a>URL pattern</a>s
     specified by <a>NFC watch</a>es.
   </p>
   <p>
-    A <dfn>Web NFC record</dfn> is an <a>NDEF record</a> of External Type,
+    A <dfn>Web NFC record</dfn> is an <a>NDEF record</a> of <a>external type</a> type,
     specific to Web NFC. It indicates that the containing <a>NDEF message</a>
     is targeted for <a>browsing context</a>s using this API
     and contains information useful for handling the <a>NDEF message</a> with
@@ -471,8 +477,8 @@
     The format of a <a>Web NFC record</a> is as follows:
     <ul>
       <li>
-        Uses NFC Forum External Type record (<a>TNF</a>=4) with the External
-        Type field set to <code>urn:nfc:ext:w3.org:webnfc</code>.
+        Uses NFC Forum <a>external type</a> record (<a>TNF</a>=4) with the
+        TYPE field set to <code>urn:nfc:ext:w3.org:webnfc</code>.
       </li>
       <li>
         The payload contains the <a>Web NFC Id</a> of the
@@ -1295,19 +1301,19 @@ navigator.nfc.push({ records: [
       <td><dfn>"empty"</dfn></td>
       <td><i>not used</i></td>
       <td><i>not used</i></td>
-      <td>NFC Forum Empty Type (<a>TNF</a>=0)</td>
+      <td>Empty (<a>TNF</a>=0) record</td>
     </tr>
     <tr>
       <td><dfn>"text"</dfn></td>
       <td><i>not used</i></td>
       <td><code>DOMString</code></td>
-      <td>NFC Forum Well Known Type (<a>TNF</a>=1) with type <i>Text</i></td>
+      <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type <i>Text</i></td>
     </tr>
     <tr>
       <td><dfn>"url"</dfn></td>
       <td><i>not used</i></td>
       <td><code>DOMString</code></td>
-      <td>NFC Forum Well Known Type (<a>TNF</a>=1) with type <i>URI</i></td>
+      <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type <i>URI</i></td>
     </tr>
     <tr>
       <td><dfn>"json"</dfn></td>
@@ -1316,7 +1322,7 @@ navigator.nfc.push({ records: [
         <code>null</code> or <code>DOMString</code> or <code>Number</code> or
         <code>Dictionary</code>
       </td>
-      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) with
+      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) record with
         <a>IANA media type</a> specified in the <code>type</code> attribute.
       </td>
     </tr>
@@ -1324,12 +1330,12 @@ navigator.nfc.push({ records: [
       <td rowspan="2"><dfn>"opaque"</dfn></td>
       <td><a>IANA media type</a></td>
       <td><code>ArrayBuffer</code></td>
-      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2)</td>
+      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) record</td>
     </tr>
     <tr>
       <td><code>""</code> (<i>empty</i>)</td>
       <td><code>ArrayBuffer</code> or typed array</td>
-      <td>NFC Forum External Type (<a>TNF</a>=4)</td>
+      <td>NFC Forum <a>external type</a> (<a>TNF</a>=4) record</td>
     </tr>
   </table>
   <p>
@@ -1346,38 +1352,38 @@ navigator.nfc.push({ records: [
       <th>NFCRecord data</th>
     </tr>
     <tr>
-      <td>NFC Forum Empty Type (<a>TNF</a>=0)</td>
+      <td>Empty (<a>TNF</a>=0) record</td>
       <td>"empty"</td>
       <td>""</td>
       <td><code>null</code></td>
     </tr>
     <tr>
-      <td>NFC Forum Well Known Type (<a>TNF</a>=1) with type <i>Text</i></td>
+      <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type <i>Text</i></td>
       <td>"text"</td>
       <td>"text/plain"</td>
       <td><code>DOMString</code></td>
     </tr>
     <tr>
-      <td>NFC Forum Well Known Type (<a>TNF</a>=1) with type <i>URI</i></td>
+      <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type <i>URI</i></td>
       <td>"url"</td>
       <td>"text/plain"</td>
       <td><code>DOMString</code></td>
     </tr>
     <tr>
-      <td>NFC Forum Well Known Type (<a>TNF</a>=1) with type
+      <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type
           <i>Smart Poster</i></td>
       <td>"url"</td>
       <td>"text/plain"</td>
       <td><code>DOMString</code></td>
     </tr>
     <tr>
-      <td>Absolute URI as defined in [[RFC3986]] (<a>TNF</a>=3)</td>
+      <td><a>Absolute-URL string</a> (<a>TNF</a>=3) record</td>
       <td>"url"</td>
       <td>"text/plain"</td>
       <td><code>DOMString</code></td>
     </tr>
     <tr>
-      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) with
+      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) record with
         <a>JSON compatible IANA media type</a>
       </td>
       <td>"json"</td>
@@ -1388,13 +1394,13 @@ navigator.nfc.push({ records: [
       </td>
     </tr>
     <tr>
-      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2)</td>
+      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) record</td>
       <td>"opaque"</td>
       <td>The <a>IANA media type</a> used in the NDEF record</td>
       <td><code>ArrayBuffer</code></td>
     </tr>
     <tr>
-      <td>NFC Forum External Type (<a>TNF</a>=4) with type other than
+      <td>NFC Forum <a>external type</a> type (<a>TNF</a>=4) record with type other than
         <code>urn:nfc:ext:w3.org:webnfc*</code></td>
       <td>"opaque"</td>
       <td>"application/octet-stream"</td>
@@ -1486,7 +1492,7 @@ navigator.nfc.push({ records: [
      <tr>
       <td>[[\watchList]]</td>
       <td>
-        A <a>set</a> of <a>NFC watch</a>es initially set to be <a>empty</a>.
+        A <a>set</a> of <a>NFC watch</a>es initially set to the empty <a>set</a>.
       </td>
      </tr>
     </tbody>
@@ -1842,8 +1848,8 @@ navigator.nfc.push({ records: [
               </li>
               <li>
                 If the <var>message</var> parameter is of
-                <code>NFCMessage</code> type, and <var>message</var>.records is
-                <a>empty</a>, reject <var>p</var> with
+                <code>NFCMessage</code> type, and <var>message</var>.records
+                <a>is empty</a>, reject <var>p</var> with
                 <code>"TypeError"</code> and abort these steps.
               </li>
               <li>
@@ -2152,7 +2158,7 @@ navigator.nfc.push({ records: [
             be created by the UA.
           </li>
           <li>Set the
-            <var>ndef.TNF</var> field to 0 (NFC Empty Type record).
+            <var>ndef.TNF</var> field to 0 (empty).
           </li>
           <li>Set
             <var>ndef.TYPE_LENGTH</var>,
@@ -2228,7 +2234,7 @@ navigator.nfc.push({ records: [
             be created by the UA.
           </li>
           <li>
-            Set the <var>ndef.TNF</var> field to 1 (NFC Well Known Type).
+            Set the <var>ndef.TNF</var> field to 1 (<a>well-known type</a>).
           </li>
           <li>
             Set the <var>def.TYPE</var> field to <code>"T"</code>
@@ -2293,7 +2299,7 @@ navigator.nfc.push({ records: [
             be created by the UA.
           </li>
           <li>
-            Set the <var>ndef.TNF</var> field to 1 (Well Known Type).
+            Set the <var>ndef.TNF</var> field to 1 (<a>well-known type</a>).
           </li>
           <li>
             Set the <var>ndef.TYPE</var> field to "U" (0x55
@@ -2414,7 +2420,7 @@ navigator.nfc.push({ records: [
             be created by the UA.
           </li>
           <li>
-            Set <var>ndef.TNF</var> to 4 (NDEF External Type).
+            Set <var>ndef.TNF</var> to 4 (<a>external type</a>).
           </li>
           <li>
             Set <var>ndef.TYPE</var> to
@@ -2798,12 +2804,12 @@ navigator.nfc.push({ records: [
             Let <var>record</var> be a new <code><a>NFCRecord</a></code> object.
           </li>
           <li>
-            If <var>ndef.TNF</var> is 0 (NFC Empty Record), then set
+            If <var>ndef.TNF</var> is 0 (empty), then set
             <var>record</var>.recordType to <code>"empty"</code> and set
             <var>record</var>.mediaType to <code>""</code>.
           </li>
           <li>
-            If <var>ndef.TNF</var> is 1 (NFC Well Known Type Record), and
+            If <var>ndef.TNF</var> is 1 (<a>well-known type</a>), and
             <var>ndef.TYPE</var> is <code>"T"</code> (value 0x54 following NFC
             binary encoding), then run the following sub-steps for
             <dfn>parsing NDEF Text record</dfn>, or ensure that the
@@ -2833,7 +2839,7 @@ navigator.nfc.push({ records: [
             </ol>
           </li> <!-- reading NDEF Text record -->
           <li>
-            If <var>ndef.TNF</var> is 1 (NFC Well Known Type Record), and
+            If <var>ndef.TNF</var> is 1 (<a>well-known type</a>), and
             <var>ndef.TYPE</var> is <code>"U"</code> (value 0x55 in NFC binary
             encoding), then run the following sub-steps for
             <dfn>parsing NDEF URL record</dfn>, or make sure that the
@@ -2862,14 +2868,14 @@ navigator.nfc.push({ records: [
             </ol>
           </li> <!-- parsing NDEF URL record -->
           <li>
-            If <var>ndef.TNF</var> is 3 (NFC Absolute URI Type record), then
+            If <var>ndef.TNF</var> is 3 (<a>absolute-URL string</a>), then
             set <var>record</var>.recordType to <code>"url"</code>,
             set <var>record</var>.mediaType to <code>"text/plain"</code> and
             set <var>record</var>.data to the <a>string</a> converted from
             <var>ndef.PAYLOAD</var>.
           </li> <!-- parsing NDEF Absolute URI record -->
           <li>
-            If <var>ndef.TNF</var> is 2 (NFC Media Type record), then run
+            If <var>ndef.TNF</var> is 2 (Media Type), then run
             the following sub-steps for <dfn>parsing NDEF Media record</dfn>, or
             make sure that the underlying platform provides equivalent values to
             the <var>record</var> object properties:
@@ -2908,14 +2914,14 @@ navigator.nfc.push({ records: [
             </ol>
           </li> <!-- parsing NDEF Media record -->
           <li>
-            If <var>ndef.TNF</var> is 4 (NFC External Type record), and
+            If <var>ndef.TNF</var> is 4 (<a>external type</a>), and
             <var>ndef.TYPE</var> is <code>urn:nfc:ext:w3.org:webnfc</code>,
             then set <var>message</var>.url to the value decoded from
             <var>ndef.PAYLOAD</var> in UTF-16.
           </li> <!-- parsing Web NFC record -->
           <li>
-            Otherwise, if <var>ndef.TNF</var> is 4 (NFC External Type record),
-            or 5 (NFC Unknown Type record) then run the following sub-steps,
+            Otherwise, if <var>ndef.TNF</var> is 4 (<a>external type</a>),
+            or 5 (unknown) then run the following sub-steps,
             or make sure that the underlying platform provides equivalent values
             to the <var>record</var> object properties:
             <ol>
@@ -3065,6 +3071,16 @@ navigator.nfc.push({ records: [
   <h3>
     Terms defined by reference
   </h3>
+  <li>[[!URL]] defines the following terms:
+    <ul>
+      <li>
+        <dfn data-cite="!URL#absolute-url-string">absolute-URL string</dfn>
+      </li>
+      <li>
+        <dfn data-cite="!URL#path-absolute-url-string">path-absolute-URL string</dfn>
+      </li>    
+    </ul>
+  </li>
   <li>[[!INFRA]] defines the following terms:
     <ul>
       <li>
