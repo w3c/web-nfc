@@ -271,8 +271,6 @@
       <code><dfn>SyntaxError</dfn></code></a>,
     <a href="https://heycam.github.io/webidl/#notsupportederror">
       <code><dfn>NotSupportedError</dfn></code></a>,
-    <a href="https://heycam.github.io/webidl/#notfounderror">
-      <code><dfn>NotFoundError</dfn></code></a>,
     <a href="https://heycam.github.io/webidl/#networkerror">
       <code><dfn>NetworkError</dfn></code></a>,
     <a href="https://heycam.github.io/webidl/#nomodificationallowederror">
@@ -1455,7 +1453,7 @@ navigator.nfc.push({ records: [
     [SecureContext]
     interface NFC {
       Promise&lt;void&gt; push(NFCPushMessage message, optional NFCPushOptions options);
-      Promise&lt;long&gt; watch(MessageCallback callback, optional NFCWatchOptions options);
+      Promise&lt;void&gt; watch(MessageCallback callback, optional NFCWatchOptions options);
     };
 
     callback MessageCallback = void (NFCMessage message);
@@ -1791,7 +1789,7 @@ navigator.nfc.push({ records: [
             Let <var>message</var> be the first argument.
           </li>
           <li>
-            Let <var>options</var> be the second callback.
+            Let <var>options</var> be the second argument.
           </li>
           <li>
             Let <var>signal</var> be the <var>options</var>’ dictionary member of the same
@@ -2650,7 +2648,7 @@ navigator.nfc.push({ records: [
             Let <var>callback</var> be the first argument.
           </li>
           <li>
-            Let <var>options</var> be the second callback.
+            Let <var>options</var> be the second argument.
           </li>
           <li>
             Let <var>signal</var> be the <var>options</var>’ dictionary member of the same
