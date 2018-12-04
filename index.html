@@ -1446,18 +1446,18 @@ navigator.nfc.push({ records: [
   to handle incoming <a>Web NFC message</a>s either from an <a>NFC tag</a> or an
   <a>NFC peer</a>.
   <pre class="idl">
-    typedef (DOMString or ArrayBuffer or NFCMessage) NFCPushMessage;
+    typedef (DOMString or ArrayBuffer or NFCMessage) NFCMessageSource;
 
     [SecureContext]
     interface NFC {
-      Promise&lt;void&gt; push(NFCPushMessage message, optional NFCPushOptions options);
+      Promise&lt;void&gt; push(NFCMessageSource message, optional NFCPushOptions options);
       Promise&lt;void&gt; watch(MessageCallback callback, optional NFCWatchOptions options);
     };
 
     callback MessageCallback = void (NFCMessage message);
   </pre>
   <p>
-    The <dfn>NFCPushMessage</dfn> is a union type representing argument types
+    The <dfn>NFCMessageSource</dfn> is a union type representing argument types
     accepted by the <code><a href="#dom-nfc-push">push()</a></code> method.
   </p>
   <p>
@@ -1839,7 +1839,7 @@ navigator.nfc.push({ records: [
               </li>
               <li>
                 If the <var>message</var> parameter is not of type defined by
-                the <code>NFCPushMessage</code> union, reject <var>p</var>
+                the <code>NFCMessageSource</code> union, reject <var>p</var>
                 with <code>"TypeError"</code>, and abort these steps.
               </li>
               <li>
