@@ -696,35 +696,36 @@ navigator.nfc.watch((message) => {
       records: [{ recordType: "text", data: 'Hello World' }]
     });
   } else {
-    console.log('Read message written by ' + message.url);
+    console.log(`Read message written by ${message.url}`);
     processMessage(message);
   }
 }).then(() => {
   console.log("Added a watch.");
 }).catch((error) => {
-  console.log("Adding watch failed: " + error.name);
+  console.log(`Adding watch failed: ${error.name}`);
 });
 
 function processMessage(message) {
   for (let record of message.records) {
     switch (record.recordType) {
       case "text":
-        console.log('Data is text: ' + record.data);
+        console.log(`Text: ${record.data}`);
         break;
       case "url":
-        console.log('Data is URL: ' + record.data);
+        console.log(`URL: ${record.data}`);
         break;
       case "json":
-        console.log('JSON data: ' + record.data.myProperty.toString());
+        console.log(`JSON: ${record.data.myProperty.toString()}`);
         break;
       case "opaque":
-        if (record.mediaType == 'image/png') {
-          var img = document.createElement("img");
-          img.src = URL.createObjectURL(new Blob([record.data], {type: record.mediaType}));
+        if (record.mediaType.startsWith('image/') {
+          const blob = new Blob([record.data], {type: record.mediaType});
+
+          const img = document.createElement("img");
+          img.src = URL.createObjectURL(blob);
+          img.onload = () => window.URL.revokeObjectURL(this.src);
+
           document.body.appendChild(img);
-          img.onload = function() {
-            window.URL.revokeObjectURL(this.src);
-          };
         }
         break;
     }
@@ -749,11 +750,11 @@ function processMessage(message) {
     <pre class="highlight">
 navigator.nfc.watch(reader, { url: "https://mygame.com/mypath/mygame" });
 
-function reader(message) {
-  console.log("Source:     " + message.url);
-  console.log("Game state: " + JSON.stringify(message.records));
+async function reader(message) {
+  console.log(`Source:     ${ message.url }`);
+  console.log(`Game state: ${ JSON.stringify(message.records) }`);
 
-  var message = {
+  const message = {
     url: "/mypath/mygame/update",
     records: [{
       recordType: "json",
@@ -762,11 +763,8 @@ function reader(message) {
     }]
   };
 
-  navigator.nfc.push(message).then(() => {
-    console.log('Progress stored!');
-  }).catch((error) => {
-    console.log('Failure, please try again.');
-  });
+  await navigator.nfc.push(message);
+  console.log("Pushed message");
 }
     </pre>
   </aside>
@@ -832,8 +830,8 @@ navigator.nfc.push("Pushing data is fun!", { target: "tag", ignoreRead: false })
       of the <a>IANA media type</a>.
     </p>
     <pre class="highlight">
-let encoder = new TextEncoder([utfLabel = "utf-8"]);
-let utf8Text = encoder.encode("电脑坏了。");
+const encoder = new TextEncoder([utfLabel = "utf-8"]);
+const utf8Text = encoder.encode("电脑坏了。");
 
 navigator.nfc.push({ records: [
   {
@@ -1719,7 +1717,7 @@ navigator.nfc.push({ records: [
       <pre
         title="Filter accepting only JSON content from https://www.w3.org"
         class="example highlight">
-        var watchOptions = {
+        const options = {
           url: "https://www.w3.org/*",  // any path from the domain is accepted
           recordType: "json",
           mediaType: "application/*+json"  // any JSON-based IANA media type
@@ -1728,7 +1726,7 @@ navigator.nfc.push({ records: [
       <pre
         title="Filter which only accepts binary content from a given path for w3 domain and its subdomains"
         class="example highlight">
-        var watchOptions = {
+        const options = {
           url: "https://w3.org/info/restaurant/daily-menu/",
           recordType: "opaque",
           mediaType: "application/octet-stream"
