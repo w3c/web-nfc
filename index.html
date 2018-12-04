@@ -238,7 +238,7 @@
   </p>
   <p>
     Inspired by the <a href="https://streams.spec.whatwg.org/#conventions">
-    Streams specification</a>, we use the notation <i>x@[[\y]]</i> to refer to
+    Streams specification</a>, we use the notation <i>x.[[\y]]</i> to refer to
     <a href="https://tc39.github.io/ecma262/#sec-object-internal-methods-and-internal-slots">
     <dfn>internal slots</dfn></a> of an object, instead of saying
     <i>"the [[\y]] internal slot of x"</i>.
@@ -1536,7 +1536,7 @@ navigator.nfc.push({ records: [
     </p>
     <ol id="steps-visible-focus">
       <li>
-        Set <var>NFC@[[\suspended]]</var> to <code>false</code>.
+        Set <var>NFC.[[\suspended]]</var> to <code>false</code>.
       </li>
     </ol>
     <p>
@@ -1547,7 +1547,7 @@ navigator.nfc.push({ records: [
     </p>
     <ol id="steps-focus-lost">
       <li>
-        Set <var>NFC@[[\suspended]]</var> to <code>true</code>.
+        Set <var>NFC.[[\suspended]]</var> to <code>true</code>.
       </li>
     </ol>
   </section> <!-- visibility & focus: the suspended state -->
@@ -1561,7 +1561,7 @@ navigator.nfc.push({ records: [
   </p>
   <ol id="steps-nfc-release">
     <li>
-      Set <var>nfc</var>@[[\suspended]] to <code>true</code>.
+      Set <var>nfc</var>.[[\suspended]] to <code>true</code>.
     </li>
     <li>
       For each pending <a>NFC.push</a>:
@@ -1583,7 +1583,7 @@ navigator.nfc.push({ records: [
       Stop the <a>dispatch NFC content</a> steps.
     </li>
     <li>
-      Clear <var>nfc</var>@[[\watchList]].
+      Clear <var>nfc</var>.[[\watchList]].
     </li>
     <li>
       Release the NFC resources associated with <var>nfc</var> on the
@@ -1927,7 +1927,7 @@ navigator.nfc.push({ records: [
                         <code>"any"</code>
                       </li>
                       <li>
-                        <var>this@[[\suspended]]</var> is <code>false</code>.
+                        <var>this.[[\suspended]]</var> is <code>false</code>.
                       </li>
                     </ul>
                     In case of success, run the following sub-steps:
@@ -1988,7 +1988,7 @@ navigator.nfc.push({ records: [
               </li>
             </ol>
             <p class="note">
-              If <var>this@[[\suspended]]</var> is <code>true</code>,
+              If <var>this.[[\suspended]]</var> is <code>true</code>,
               continue waiting until <var>timer</var> expires (if set), or
               promise is aborted by the user, or until an <a>NFC device</a>
               comes within communication range.
@@ -2663,7 +2663,7 @@ navigator.nfc.push({ records: [
           </li>
           <li>
             Add <var>p</var>, <var>options</var>, and <var>callback</var>
-            together as an <a>NFC watch</a> to <var>this@[[\watchList]]</var>.
+            together as an <a>NFC watch</a> to <var>this.[[\watchList]]</var>.
           </li>
           <li>
             If <var>signal</var> is not null, then
@@ -2671,10 +2671,10 @@ navigator.nfc.push({ records: [
               add the following abort steps</a> to <var>signal</var>:
               <ol>
                 <li>
-                  Remove the <a>NFC watch</a> from <var>this@[[\watchList]]</var>
+                  Remove the <a>NFC watch</a> from <var>this.[[\watchList]]</var>
                 </li>
                 <li>
-                  If <var>this@[[\watchList]]</var> <a>is empty</a>, then make a request
+                  If <var>this.[[\watchList]]</var> <a>is empty</a>, then make a request
                   to stop listening to <a>NDEF message</a>s on all <a>NFC adapter</a>s.
                 </li>
                 <li>
@@ -2762,7 +2762,7 @@ navigator.nfc.push({ records: [
   <section id="steps-receiving">
   <h3>Receiving and parsing content</h3>
   <p>
-    If there are any <a>NFC watch</a>es set up in <var>NFC@[[\watchList]]</var>,
+    If there are any <a>NFC watch</a>es set up in <var>NFC.[[\watchList]]</var>,
     then UAs MUST listen to <a>NDEF message</a>s, according to step 7
     of the <a href="#steps-watch">NFC watch algorithm</a>.
   </p>
@@ -2775,7 +2775,7 @@ navigator.nfc.push({ records: [
     </p>
     <ol id ="parse-ndef">
       <li>
-        If <var>NFC@[[\suspended]]</var> is <code>true</code>, abort
+        If <var>NFC.[[\suspended]]</var> is <code>true</code>, abort
         these steps.
       </li>
       <li>
@@ -2942,7 +2942,7 @@ navigator.nfc.push({ records: [
         </ol>
       </li>
       <li>
-        If <var>NFC@[[\suspended]]</var> is <code>false</code> and
+        If <var>NFC.[[\suspended]]</var> is <code>false</code> and
         <var>message</var>.records <a>is not empty</a>, run the
         <a>dispatch NFC content</a> steps given <var>message</var>.
       </li>
@@ -2958,7 +2958,7 @@ navigator.nfc.push({ records: [
       <li>
         For each <a>NFC watch</a> <var>watch</var> that has
         been registered using the <code>watch()</code> method in
-        <var>this@[[\watchList]]</var>, run the following sub-steps:
+        <var>this.[[\watchList]]</var>, run the following sub-steps:
         <ol>
           <li>
             Let <var>options</var> be the <code><a>NFCWatchOptions</a></code>
