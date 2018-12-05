@@ -216,16 +216,16 @@
 
     <a href="https://html.spec.whatwg.org/multipage/#the-iframe-element">
     <dfn>iframe</dfn></a>.
+
+    <a href="https://html.spec.whatwg.org/multipage/#settings-object">
+    <dfn>settings object</dfn></a>.
   </p>
   <p>
     A <a>browsing context</a> refers to the environment in which
     <a>Document</a> objects are presented to the user. A given
     <a>browsing context</a> has a single <code><a>WindowProxy</a></code> object,
     but it can have many <code>Document</code> objects, with their associated
-    <code><a>Window</a></code> objects. The <dfn>script execution environment</dfn>
-    associated with the <i>browsing context</i> identifies the entity which
-    invokes this API, which can be a <i>web app</i>, a <i>web page</i>, or an
-    <a>iframe</a>.
+    <code><a>Window</a></code> objects.
   </p>
   <p>
     The term
@@ -235,18 +235,6 @@
     The term
     <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">
     <dfn>secure context</dfn></a> is defined in [[!WEBAPPSEC]].
-  </p>
-  <p>
-    Inspired by the <a href="https://streams.spec.whatwg.org/#conventions">
-    Streams specification</a>, we use the notation <i>x.[[\y]]</i> to refer to
-    <a href="https://tc39.github.io/ecma262/#sec-object-internal-methods-and-internal-slots">
-    <dfn>internal slots</dfn></a> of an object, instead of saying
-    <i>"the [[\y]] internal slot of x"</i>.
-  </p>
-  <p class="note">
-    Internal slots are used only as a notation in this specification, and
-    implementations do not necessarily have to map them to explicit internal
-    properties.
   </p>
   <p>
     The Augmented Backus-Naur Form (ABNF) notation used is specified in
@@ -285,9 +273,11 @@
     <a href="https://tc39.github.io/ecma262/#sec-json-object">
     <dfn>JSON</dfn></a>,
     <a href="https://tc39.github.io/ecma262/#sec-json.stringify">
-    <dfn>JSON.stringify</dfn></a> and
+    <dfn>JSON.stringify</dfn></a>,
     <a href="https://tc39.github.io/ecma262/#sec-json.parse">
-    <dfn>JSON.parse</dfn></a>
+    <dfn>JSON.parse</dfn></a> and
+    <a href="https://tc39.github.io/ecma262/#sec-object-internal-methods-and-internal-slots">
+    <dfn>internal slots</dfn></a>
     are defined in [[!ECMASCRIPT]].
   </p>
   <p>
@@ -1096,10 +1086,7 @@ writer.push({ records: [
     </p>
     <ul>
       <li>
-        Only <a>script execution environment</a>s of
-        <code><a>Document</a></code>s with a <a>browsing context</a>, and an
-        <a>incumbent settings object</a> which is a <a>secure context</a> are
-        allowed to access <a>NFC content</a>.
+        Only <a>secure context</a>s are allowed to access <a>NFC content</a>.
         Browsers may ignore this rule for development purposes only.
       </li>
       <li>
@@ -1117,12 +1104,11 @@ writer.push({ records: [
         must be <a id="#nfc-suspended">suspended</a>.
       </li>
       <li>
-        When pushing <a>Web NFC content</a>, the
-        <a>serialized origin</a> and the <a>URL path</a> of
-        the <a>incumbent settings object</a> of the
-        <a>script execution environment</a> requesting the operation must be
-        recorded in each sent <a>NDEF message</a>'s <a>Web NFC record</a>.
-        For details see the <a>Writing or pushing content</a> section.
+        When pushing <a>Web NFC content</a>, the <a>serialized origin</a> and
+        the <a>URL path</a> of the <a>incumbent settings object</a> when
+        requesting the operation must be recorded in each sent <a>NDEF
+        message</a>'s <a>Web NFC record</a>.  For details see the <a>Writing
+        or pushing content</a> section.
       </li>
       <li>
         When setting up <a>NFC watch</a>es, when pushing <a>NFC content</a>,
@@ -1480,10 +1466,11 @@ writer.push({ records: [
     The <dfn>MessageCallback</dfn> is a callback function that must be
     provided to <code><a href="#dom-nfc-watch">watch()</a></code> metod.
   </p>
-  <section><h3>Internal slots of NFC</h3>
+  <section><h3>NFC state associated with the settings object</h3>
   <p>
-    The <a>NFC</a> object is created with the <a>internal slots</a>
-    described in the following table:
+    The <a>settings object</a> of a <a>browsing context</a> which supports
+    NFC has an associated <dfn>NFC state</dfn> record with the following
+    <a>internal slots</a>:
   </p>
   <table class="simple">
     <thead>
@@ -1494,7 +1481,7 @@ writer.push({ records: [
     </thead>
     <tbody>
      <tr>
-      <td>[[\suspended]]</td>
+      <td>[[\Suspended]]</td>
       <td>
         A boolean flag indicating whether NFC functionality is
         <a href="#nfc-suspended">suspended</a> or not, initially
@@ -1502,13 +1489,18 @@ writer.push({ records: [
       </td>
      </tr>
      <tr>
-      <td>[[\watchList]]</td>
+      <td>[[\WatchList]]</td>
       <td>
         A <a>set</a> of <a>NFC watch</a>es initially set to the empty <a>set</a>.
       </td>
      </tr>
     </tbody>
   </table>
+  <p class="note">
+    Internal slots are used only as a notation in this specification, and
+    implementations do not necessarily have to map them to explicit internal
+    properties.
+  </p>
   </section>
 
   <section> <h3>Handling NFC adapters</h3>
@@ -1521,15 +1513,14 @@ writer.push({ records: [
 
   <section><h3>Handling Window visibility and focus</h3>
     <p>
-      Each <code><a>Window</a></code> object connected to the
-       <a>script execution environment</a> has a separate <code>NFC</code>
-       instance. The
+      Each <code><a>Window</a></code> object where <code>NFC</code> is
+      <code>exposed</code> has a separate <code>NFC</code> instance. The
       <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
-       visibility</a> and
-       <a href="https://html.spec.whatwg.org/#focus">focus</a> state of the
-       <code><a>Window</a></code> object determines the
-       <a href="#nfc-suspended">suspended</a> state of the associated
-       <code>NFC</code> instance.
+      visibility</a> and
+      <a href="https://html.spec.whatwg.org/#focus">focus</a> state of the
+      <code><a>Window</a></code> object determines the
+      <a href="#nfc-suspended">suspended</a> state of the associated
+      <code>NFC</code> instance.
     </p>
     <p>
       The term <dfn id="nfc-suspended">suspended</dfn> in this specification
@@ -1543,29 +1534,36 @@ writer.push({ records: [
       event is fired on the <code><a>Window</a></code> object.
     </p>
     <p>
+      To <dfn id="suspend-nfc">suspend NFC</dfn>, set the [[\Suspended]] internal slot of the
+      <a>incumbent settings object</a>'s associated <a>NFC state</a> to <code>true</code>.
+    </p>
+    <p>
+      To <dfn id="resume-nfc">resume NFC</dfn>, set the [[\Suspended]] internal slot of the
+      <a>incumbent settings object</a>'s associated <a>NFC state</a> to <code>false</code>.
+    </p>
+    <p>
+      <dfn id="nfc-is-suspended">NFC is suspended</dfn> if the [[\Suspended]] internal slot of the
+      <a>incumbent settings object</a>'s associated <a>NFC state</a> is <code>true</code>.
+    </p>
+    <p>
+      The <dfn>incumbent NFC watch list</dfn> is the value of the [[\WatchList]] internal slot
+      of the <a>incumbent settings object</a>'s associated <a>NFC state</a>.
+
+    </p>
+    <p>
       When the <code><a>Window</a></code> object associated with the
       <code><a>Document</a></code> using the Web NFC API
       <a href="http://www.w3.org/TR/page-visibility/#now-visible-algorithm">
       becomes visible</a> and in
       <a href="https://html.spec.whatwg.org/#focus">focus</a>,
-      then run the following steps:
+      <a>resume NFC</a>.
     </p>
-    <ol id="steps-visible-focus">
-      <li>
-        Set <var>NFC.[[\suspended]]</var> to <code>false</code>.
-      </li>
-    </ol>
     <p>
       When the <code><a>Window</a></code> object associated with the
       <code><a>Document</a></code> using the Web NFC API
       <a href="https://html.spec.whatwg.org/#handler-onblur">loses focus</a>,
-      then run the following steps:
+      <a>suspend NFC</a>.
     </p>
-    <ol id="steps-focus-lost">
-      <li>
-        Set <var>NFC.[[\suspended]]</var> to <code>true</code>.
-      </li>
-    </ol>
   </section> <!-- visibility & focus: the suspended state -->
 
   <section><h3>Releasing NFC</h3>
@@ -1577,7 +1575,7 @@ writer.push({ records: [
   </p>
   <ol id="steps-nfc-release">
     <li>
-      Set <var>nfc</var>.[[\suspended]] to <code>true</code>.
+      <a>Suspend NFC</a>.
     </li>
     <li>
       For each pending <a>NFCWriter.push</a>:
@@ -1599,7 +1597,7 @@ writer.push({ records: [
       Stop the <a>dispatch NFC content</a> steps.
     </li>
     <li>
-      Clear <var>nfc</var>.[[\watchList]].
+      Clear the <a>incumbent NFC watch list</a>.
     </li>
     <li>
       Release the NFC resources associated with <var>nfc</var> on the
@@ -1943,7 +1941,7 @@ writer.push({ records: [
                         <code>"any"</code>
                       </li>
                       <li>
-                        <var>this.[[\suspended]]</var> is <code>false</code>.
+                        <a>NFC is suspended</a>.
                       </li>
                     </ul>
                     In case of success, run the following sub-steps:
@@ -2004,7 +2002,7 @@ writer.push({ records: [
               </li>
             </ol>
             <p class="note">
-              If <var>this.[[\suspended]]</var> is <code>true</code>,
+              If <a>NFC is suspended</a>,
               continue waiting until <var>timer</var> expires (if set), or
               promise is aborted by the user, or until an <a>NFC device</a>
               comes within communication range.
@@ -2679,7 +2677,7 @@ writer.push({ records: [
           </li>
           <li>
             Add <var>p</var>, <var>options</var>, and <var>callback</var>
-            together as an <a>NFC watch</a> to <var>this.[[\watchList]]</var>.
+            together as an <a>NFC watch</a> to the <a>incumbent NFC watch list</a>.
           </li>
           <li>
             If <var>signal</var> is not null, then
@@ -2687,10 +2685,10 @@ writer.push({ records: [
               add the following abort steps</a> to <var>signal</var>:
               <ol>
                 <li>
-                  Remove the <a>NFC watch</a> from <var>this.[[\watchList]]</var>
+                  Remove the <a>NFC watch</a> from the <a>incumbent NFC watch list</a>.
                 </li>
                 <li>
-                  If <var>this.[[\watchList]]</var> <a>is empty</a>, then make a request
+                  If the <a>incumbent NFC watch list</a> <a>is empty</a>, then make a request
                   to stop listening to <a>NDEF message</a>s on all <a>NFC adapter</a>s.
                 </li>
                 <li>
@@ -2778,8 +2776,8 @@ writer.push({ records: [
   <section id="steps-receiving">
   <h3>Receiving and parsing content</h3>
   <p>
-    If there are any <a>NFC watch</a>es set up in <var>NFC.[[\watchList]]</var>,
-    then UAs MUST listen to <a>NDEF message</a>s, according to step 7
+    If there are any <a>NFC watch</a>es set up in the <a>incumbent NFC watch
+    list</a> then UAs MUST listen to <a>NDEF message</a>s, according to step 7
     of the <a href="#steps-watch">NFC watch algorithm</a>.
   </p>
   <section><h3>The NDEF parsing algorithm</h3>
@@ -2791,8 +2789,7 @@ writer.push({ records: [
     </p>
     <ol id ="parse-ndef">
       <li>
-        If <var>NFC.[[\suspended]]</var> is <code>true</code>, abort
-        these steps.
+        If <a>NFC is suspended</a>, abort these steps.
       </li>
       <li>
         Let <var>message</var> be a new <code>NFCMessage</code> object, with
@@ -2958,7 +2955,7 @@ writer.push({ records: [
         </ol>
       </li>
       <li>
-        If <var>NFC.[[\suspended]]</var> is <code>false</code> and
+        If <a href="#nfc-is-suspended">NFC is not suspended</a> and
         <var>message</var>.records <a>is not empty</a>, run the
         <a>dispatch NFC content</a> steps given <var>message</var>.
       </li>
@@ -2974,7 +2971,7 @@ writer.push({ records: [
       <li>
         For each <a>NFC watch</a> <var>watch</var> that has
         been registered using the <code>watch()</code> method in
-        <var>this.[[\watchList]]</var>, run the following sub-steps:
+        the <a>incumbent NFC watch list</a>, run the following sub-steps:
         <ol>
           <li>
             Let <var>options</var> be the <code><a>NFCWatchOptions</a></code>
