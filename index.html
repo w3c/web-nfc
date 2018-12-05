@@ -1568,17 +1568,14 @@ writer.push({ records: [
 
   <section><h3>Releasing NFC</h3>
   <p>
-    If a user agent is to
-    <a href="https://html.spec.whatwg.org/#make-disappear">make disappear</a>
-    an <code><a>NFC</a></code> object <var>nfc</var>, run the following
-    <dfn>NFC release steps</dfn>, given <var>nfc</var>:
+    To <dfn>release NFC</dfn> on a <a>settings object</a>, perform the following steps:
   </p>
   <ol id="steps-nfc-release">
     <li>
       <a>Suspend NFC</a>.
     </li>
     <li>
-      For each pending <a>NFCWriter.push</a>:
+      For each pending <a>NFCWriter.push</a> associated with the <a>settings object</a>:
       <ol>
         <li>
           Stop the instance's <var>timer</var> if it is active.
@@ -1605,9 +1602,8 @@ writer.push({ records: [
     </li>
   </ol>
   <p>
-    The UA should run the <a>NFC release steps</a>, given <var>nfc</var>, as
-    additional steps to the
-    <a href="https://html.spec.whatwg.org/#unloading-document-cleanup-steps">
+    The UA must <a>release NFC</a> given the document's <a>settings object</a> as
+    additional <a href="https://html.spec.whatwg.org/#unloading-document-cleanup-steps">
     unloading document cleanup steps</a>.
   </p>
   </section> <!-- release NFC -->
