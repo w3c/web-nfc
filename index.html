@@ -640,7 +640,8 @@
       peers.
     </p>
     <pre class="highlight">
-navigator.nfc.push(
+const writer = new NFCWriter();
+writer.push(
   '{ "prop1": "value1", "prop2": "value2" }'
 ).then(() => {
   console.log("Message pushed.");
@@ -657,7 +658,8 @@ navigator.nfc.push(
       and thus, no data is pushed when the user taps a tag.
     </p>
     <pre class="highlight">
-navigator.nfc.push(
+const writer = new NFCWriter();
+writer.push(
   "Text meant for peers only", { target: "peer" }
 ).then(() => {
   console.log("Message pushed.");
@@ -672,7 +674,8 @@ navigator.nfc.push(
       In order to push an NDEF record of URL type, simply use NFCMessage.
     </p>
     <pre class="highlight">
-navigator.nfc.push({
+const writer = new NFCWriter();
+writer.push({
   records: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
 }).then(() => {
   console.log("Message pushed.");
@@ -689,9 +692,11 @@ navigator.nfc.push({
       "Hello World".
     </p>
     <pre class="highlight">
+const writer = new NFCWriter();
+
 navigator.nfc.watch((message) => {
   if (message.records[0].recordType == 'empty') {
-    navigator.nfc.push({
+    writer.push({
       url: "/custom/path",
       records: [{ recordType: "text", data: 'Hello World' }]
     });
@@ -762,8 +767,8 @@ async function reader(message) {
       data: { level: 3, points: 4500, lives: 3 }
     }]
   };
-
-  await navigator.nfc.push(message);
+  const writer = new NFCWriter();
+  await writer.push(message);
   console.log("Pushed message");
 }
     </pre>
@@ -782,7 +787,8 @@ navigator.nfc.watch((message) => {
   }
 }, { url: document.baseURI, recordType: "json" });
 
-navigator.nfc.push({
+const writer = new NFCWriter();
+writer.push({
   records: [
     {
       recordType: "json",
@@ -819,7 +825,8 @@ navigator.nfc.watch((message) => {
   }
 });
 
-navigator.nfc.push("Pushing data is fun!", { target: "tag", ignoreRead: false });
+const writer = new NFCWriter();
+writer.push("Pushing data is fun!", { target: "tag", ignoreRead: false });
     </pre>
   </aside>
 
@@ -832,8 +839,9 @@ navigator.nfc.push("Pushing data is fun!", { target: "tag", ignoreRead: false })
     <pre class="highlight">
 const encoder = new TextEncoder([utfLabel = "utf-8"]);
 const utf8Text = encoder.encode("电脑坏了。");
+const writer = new NFCWriter();
 
-navigator.nfc.push({ records: [
+writer.push({ records: [
   {
     recordType: "opaque",
     mediaType: "text/plain; lang=zh; charset=UTF-8;",
@@ -1182,7 +1190,7 @@ navigator.nfc.push({ records: [
     <p>
       The <dfn>NFCMessage.url</dfn>
       property represents the <a>Web NFC Id</a> of a received
-      <a>Web NFC message</a>. When used in the <code><a>NFC.push</a>()</code>
+      <a>Web NFC message</a>. When used in the <code><a>NFCWriter.push</a>()</code>
       method, it represents a <a>URL path</a> used for constructing the
       <a>Web NFC Id</a> of the pushed <a>Web NFC content</a>.
     </p>
@@ -1448,17 +1456,25 @@ navigator.nfc.push({ records: [
   <pre class="idl">
     typedef (DOMString or ArrayBuffer or NFCMessage) NFCMessageSource;
 
+    [Constructor(), SecureContext, Exposed=Window]
+    interface NFCWriter {
+      Promise&lt;void&gt; push(NFCMessageSource message, optional NFCPushOptions options);
+    };
+
     [SecureContext]
     interface NFC {
-      Promise&lt;void&gt; push(NFCMessageSource message, optional NFCPushOptions options);
       Promise&lt;void&gt; watch(MessageCallback callback, optional NFCWatchOptions options);
     };
 
     callback MessageCallback = void (NFCMessage message);
   </pre>
   <p>
+    The <dfn>NFCWriter</dfn> is an object used for writing data to NFC devices
+    such as tags.
+  </p>
+  <p>
     The <dfn>NFCMessageSource</dfn> is a union type representing argument types
-    accepted by the <code><a href="#dom-nfc-push">push()</a></code> method.
+    accepted by the <code><a href="#dom-nfcwriter-push">push()</a></code> method.
   </p>
   <p>
     The <dfn>MessageCallback</dfn> is a callback function that must be
@@ -1521,7 +1537,7 @@ navigator.nfc.push({ records: [
       pushed, and no received <a>NFC content</a> is presented via watches while
       suspended.
       However, platform level timers for the
-      <code><a>NFC.push</a>()</code> method continue running,
+      <code><a>NFCWriter.push</a>()</code> method continue running,
       and if they expire, the event should be recorded and handled
       when execution next resumes, i.e. when the <code>focus</code>
       event is fired on the <code><a>Window</a></code> object.
@@ -1564,7 +1580,7 @@ navigator.nfc.push({ records: [
       Set <var>nfc</var>.[[\suspended]] to <code>true</code>.
     </li>
     <li>
-      For each pending <a>NFC.push</a>:
+      For each pending <a>NFCWriter.push</a>:
       <ol>
         <li>
           Stop the instance's <var>timer</var> if it is active.
@@ -1777,7 +1793,7 @@ navigator.nfc.push({ records: [
     <section><h3>The <strong>push()</strong> method</h3>
       <p id="steps-push">
         The
-        <dfn>NFC.push</dfn></code> method, when invoked, MUST run the
+        <dfn>NFCWriter.push</dfn></code> method, when invoked, MUST run the
         <dfn>push a message</dfn> algorithm:
         <ol>
           <li>
