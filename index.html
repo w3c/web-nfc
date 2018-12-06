@@ -683,24 +683,19 @@ writer.push({
     </p>
     <pre class="highlight">
 const writer = new NFCWriter();
+const reader = new NFCReader();
 
-navigator.nfc.watch((message) => {
+reader.onreading = message => {
   if (message.records[0].recordType == 'empty') {
     writer.push({
       url: "/custom/path",
       records: [{ recordType: "text", data: 'Hello World' }]
     });
-  } else {
-    console.log(`Read message written by ${message.url}`);
-    processMessage(message);
+    return;
   }
-}).then(() => {
-  console.log("Added a watch.");
-}).catch((error) => {
-  console.log(`Adding watch failed: ${error.name}`);
-});
 
-function processMessage(message) {
+  console.log(`Read message written by ${message.url}`);
+
   for (let record of message.records) {
     switch (record.recordType) {
       case "text":
@@ -725,7 +720,9 @@ function processMessage(message) {
         break;
     }
   }
-}
+};
+
+reader.watch();
     </pre>
   </aside>
 
@@ -743,13 +740,13 @@ function processMessage(message) {
       whichever one is tapped first.
     </p>
     <pre class="highlight">
-navigator.nfc.watch(reader, { url: "https://mygame.com/mypath/mygame" });
-
-async function reader(message) {
+const reader = new NFCReader();
+reader.watch({url: "https://mygame.com/mypath/mygame"});
+reader.onreading = async message => {
   console.log(`Source:     ${ message.url }`);
   console.log(`Game state: ${ JSON.stringify(message.records) }`);
 
-  const message = {
+  const newMessage = {
     url: "/mypath/mygame/update",
     records: [{
       recordType: "json",
@@ -758,9 +755,9 @@ async function reader(message) {
     }]
   };
   const writer = new NFCWriter();
-  await writer.push(message);
+  await writer.push(newMessage);
   console.log("Pushed message");
-}
+};
     </pre>
   </aside>
 
@@ -770,12 +767,16 @@ async function reader(message) {
       Storing and receiving JSON data is easy with serialization and deserialization.
     </p>
     <pre class="highlight">
-navigator.nfc.watch((message) => {
+const reader = new NFCReader();
+
+reader.addEventListener("reading", message => {
   for (let record of message.records) {
     let article =/[aeio]/.test(record.data.title) ? "an" : "a";
     console.log(`${record.data.name} is ${article} ${record.data.title}`);
   }
-}, { url: document.baseURI, recordType: "json" });
+});
+
+reader.watch({url: document.baseURI, recordType: "json"});
 
 const writer = new NFCWriter();
 writer.push({
@@ -807,16 +808,18 @@ writer.push({
       property to <code>false</code> and set up a watch before the push.
     </p>
     <pre class="highlight">
-navigator.nfc.watch((message) => {
+const reader = new NFCReader();
+reader.onreading = message => {
   for (let record of message.records) {
     console.log("Record type:  " + record.recordType);
     console.log("MIME type:    " + record.mediaType);
     console.log("=== data ===\n" + record.data);
   }
-});
+};
+reader.watch();
 
 const writer = new NFCWriter();
-writer.push("Pushing data is fun!", { target: "tag", ignoreRead: false });
+writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </pre>
   </aside>
 
@@ -905,13 +908,14 @@ writer.push({ records: [
         In general, pushing data to another Web NFC capable device requires that
         on the initiating device the user would first have to navigate to a web
         site. The user would then touch the device against another Web NFC
-        equipped device, and data transfer would occur. On the receiving device
-        the UA will dispatch the content to an application registered
+        equipped device, and data transfer would occur.
+      </p>
+      <p>
+        On the receiving device the UA will dispatch the content to an application registered
         and eligible to handle the content, and if that application is a browser
         which has a web page open and in focus that uses the Web NFC API and has
         set up a <a>NFC watch</a> to listen to <a>Web NFC content</a>, then the
-        content is delivered to the web page through the parameters of an
-        <a>MessageCallback</a>.
+        content is delivered to the web page through the <a>NFCReadingEvent</a>.
       </p>
     </section>
     <section> <h3>Handover to another wireless connection type</h3>
@@ -1410,30 +1414,9 @@ writer.push({ records: [
   </section>
 </section> <!-- Data types and content -->
 
-<!-- - - - - - - - - - - Extended interface Navigator - - - - - - - - - - - -->
-<section> <h2>Extensions to the <strong>Navigator</strong> interface</h2>
-  <p>
-    The HTML document defines a
-    <a href="http://www.whatwg.org/specs/web-apps/current-work/#dom-navigator">
-    <dfn>Navigator</dfn></a> interface [HTML] which this specification
-    extends.
-  </p>
-  <pre class="idl">
-    partial interface Navigator {
-      [SecureContext, SameObject] readonly attribute NFC nfc;
-    };
-  </pre>
-  <!-- - - - - - - - - - - - nfc attribute  - - - - - - - - - - - -->
-  <section> <h3>The <strong>nfc</strong> attribute</h3>
-  <p>
-    On getting the <dfn data-dfn-for="Navigator">nfc</dfn> attribute, the UA MUST return the <a>NFC</a>
-    object, which provides NFC related functionality.
-  </p>
-  </section> <!-- nfc attribute -->
-</section> <!-- Navigator -->
 
-<section> <h2>The <strong>NFC</strong> interface</h2>
-  The <dfn>NFC</dfn> object provides a way for the <a>browsing context</a> to
+<section> <h2>The NFCReader and NFCWriter objects</h2>
+  The objects provides a way for the <a>browsing context</a> to
   use NFC functionality.
   It allows for pushing <a>Web NFC message</a>s to <a>NFC tag</a>s
   or <a>NFC peer</a>s within range, and to set up and abort <a>NFC watch</a>es
@@ -1447,24 +1430,44 @@ writer.push({ records: [
       Promise&lt;void&gt; push(NFCMessageSource message, optional NFCPushOptions options);
     };
 
-    [SecureContext]
-    interface NFC {
-      Promise&lt;void&gt; watch(MessageCallback callback, optional NFCWatchOptions options);
+    [Constructor(), SecureContext, Exposed=Window]
+    interface NFCReader : EventTarget {
+      Promise&lt;void&gt; watch(optional NFCWatchOptions options);
+      attribute EventHandler onreading;
     };
 
-    callback MessageCallback = void (NFCMessage message);
+    [Constructor(DOMString type, NFCReadingEventInit nfcReadingEventInitDict), SecureContext, Exposed=Window]
+    interface NFCReadingEvent : Event {
+      readonly attribute NFCMessage message;
+    };
+
+    dictionary NFCReadingEventInit : EventInit {
+      required NFCMessage message;
+    };
+
   </pre>
-  <p>
-    The <dfn>NFCWriter</dfn> is an object used for writing data to NFC devices
-    such as tags.
-  </p>
   <p>
     The <dfn>NFCMessageSource</dfn> is a union type representing argument types
     accepted by the <code><a href="#dom-nfcwriter-push">push()</a></code> method.
   </p>
   <p>
-    The <dfn>MessageCallback</dfn> is a callback function that must be
-    provided to <code><a href="#dom-nfc-watch">watch()</a></code> metod.
+    The <dfn>NFCReadingEvent</dfn> is the event being dispatch on new NFC readings,
+    with the <a>NFCMessage</a> object as the <dfn>NFCReadingEvent.message</dfn>
+    attribute. <dfn>NFCReadingEventInit</dfn> is used in order to initialize a new
+    event with a the <a>NFCMessage</a> data via the <dfn>NFCReadingEventInit.message</dfn>
+    member.
+  </p>
+  <p>
+    The <dfn>NFCWriter</dfn> is an object used for writing data to NFC devices
+    such as tags.
+  </p>
+  <p>
+    The <dfn>NFCReader</dfn> is an object used for reading data when a device,
+    such as a tag, is within the magnetic induction field.
+  </p>
+  <p>
+    The <dfn>NFCReader.onreading</dfn> is an EventHandler which is called to notify
+    that new reading is available.
   </p>
   <section><h3>NFC state associated with the settings object</h3>
   <p>
@@ -1506,9 +1509,6 @@ writer.push({ records: [
   <section> <h3>Handling NFC adapters</h3>
     Implementations MAY use multiple <a>NFC adapter</a>s
     according to the algorithmic steps described in this specification.
-
-    The <a>NFC</a> object represents all NFC hardware devices that can read and
-    write <a>NFC content</a>.
   </section>
 
   <section><h3>Handling Window visibility and focus</h3>
@@ -1748,7 +1748,7 @@ writer.push({ records: [
     <h2>The <dfn>NFCWatchMode</dfn> enum</h2>
     <p>
       This enum defines the set of known values denoting whether
-      <code><a href="#dom-nfc-watch">watch()</a></code> operation should
+      <code><a href="#dom-nfcreader-watch">watch()</a></code> operation should
       <a>dispatch NFC content</a> for <a>Web NFC content</a> or any
       <a>NFC content</a>
     </p>
@@ -2485,7 +2485,7 @@ writer.push({ records: [
   <section> <h3>Watching for content</h3>
     <p>
       In order to receive <a>NFC content</a>, the client needs to call the
-      <a>NFC.watch</a>() to opt into content of interest.
+      <a>NFCReader.watch</a>() to opt into content of interest.
     </p>
 
     <section> <h3>Match patterns</h3>
@@ -2633,7 +2633,7 @@ writer.push({ records: [
       </p>
       <p>
         An <dfn>NFC watch</dfn> is referring to a tuple of a <code><a>Promise</a></code>,
-        a <code><a>NFCWatchOptions</a></code> and a <code><a>MessageCallback</a></code>.
+        and a <code><a>NFCWatchOptions</a></code> dictionary.
       </p>
       <p>
         The section <a href="#steps-receiving">
@@ -2645,7 +2645,7 @@ writer.push({ records: [
         same <a>origin</a> create filters which are in OR relationship.
       </p>
       <p>
-        When the <code><dfn>NFC.watch</dfn></code> method is invoked, the UA
+        When the <code><dfn>NFCReader.watch</dfn></code> method is invoked, the UA
         MUST run the following
         <dfn id="steps-watch">NFC watch algorithm</dfn>:
         <ol>
@@ -2653,10 +2653,10 @@ writer.push({ records: [
             Let <var>p</var> be a new <a><code>Promise</code></a> object.
           </li>
           <li>
-            Let <var>callback</var> be the first argument.
+            Let <var>reader_instance</var> be the <a>NFCReader</a> instance.
           </li>
           <li>
-            Let <var>options</var> be the second argument.
+            Let <var>options</var> be the first argument.
           </li>
           <li>
             Let <var>signal</var> be the <var>options</var>’ dictionary member of the same
@@ -2672,7 +2672,7 @@ writer.push({ records: [
             <var>p</var> with <code>"NotSupportedError"</code> and return <var>p</var>.
           </li>
           <li>
-            Add <var>p</var>, <var>options</var>, and <var>callback</var>
+            Add <var>p</var>, <var>options</var>, and <var>reader_instance</var>
             together as an <a>NFC watch</a> to the <a>incumbent NFC watch list</a>.
           </li>
           <li>
@@ -2970,9 +2970,12 @@ writer.push({ records: [
         the <a>incumbent NFC watch list</a>, run the following sub-steps:
         <ol>
           <li>
+            Let <var>reader_instance</var> be the instance of the <a>NFCReader</a>
+            the <var>watch</var> was registered on.
+          </li>
+          <li>
             Let <var>options</var> be the <code><a>NFCWatchOptions</a></code>
-            saved with <var>watch</var>, and let <var>callback</var> be the
-            registered callback function.
+            saved with <var>watch</var>.
           </li>
           <li>
             If <var>options</var>.mode is <code>"web-nfc-only"</code> and
@@ -3003,17 +3006,16 @@ writer.push({ records: [
             an element of <var>message</var>, skip to the next <a>NFC watch</a>.
           </li>
           <li>
-            <a>Queue a task</a> using the <dfn>Web NFC task source</dfn>
-            to invoke the <code>MessageCallback</code> <var>callback</var>
-            with <var>message</var> as its argument.
+            <a>Fire an event</a> named "reading" at <var>reader_instance</var>
+            using <a>NFCReadingEvent</a> with its <code>message</code> attribute
+            initialized to <var>message</var>.
           </li>
         </ol>
       </li>
     </ol>
     </section>
   </section> <!-- receiving content -->
-</section> <!-- NFC interface -->
-
+</section>
 
 <!-- - - - - - - - - - - - - - -  Changes - - - - - - - - - - - - - - - - - -->
 <section class="appendix" id="Changes"><h2>Changes</h2>
@@ -3031,10 +3033,11 @@ writer.push({ records: [
     <li>Defined <code><a>NFCMessage</a></code> as a dictionary.</li>
     <li>Improved definitions for URL and match pattern.</a>
     <li>Added section for handling visibility and focus.</li>
-    <li>Added internal slots to <code><a>NFC</a></code>.</li>
+    <li>Added internal slots to <code>NFC</code>.</li>
     <li>Changed push policy for background pages.</li>
     <li>Changed receive policy for background pages.</li>
     <li>Updated security policies and related algorithmic steps.</li>
+    <li>Moved to contructor objects</li>
   </ul>
 </section>
 
@@ -3083,7 +3086,7 @@ writer.push({ records: [
       </li>
       <li>
         <dfn data-cite="!URL#path-absolute-url-string">path-absolute-URL string</dfn>
-      </li>    
+      </li>
     </ul>
   </li>
   <li>[[!INFRA]] defines the following terms:
@@ -3108,6 +3111,13 @@ writer.push({ records: [
       </li>
       <li>
         <dfn data-cite="!INFRA#list-append" data-lt="list-append">append</dfn>
+      </li>
+    </ul>
+  </li>
+  <li>[[!DOM]] defines the following terms:
+    <ul>
+      <li>
+        <dfn data-cite="!DOM#concept-event-fire">fire an event</dfn>
       </li>
     </ul>
   </li>
