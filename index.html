@@ -1690,7 +1690,6 @@ writer.push({ records: [
           NFCRecordType recordType;
           USVString mediaType = "";
           NFCAccept accept = "web-nfc-only";
-          AbortSignal? signal;
         };
       </pre>
       <p>
@@ -1720,11 +1719,6 @@ writer.push({ records: [
         <code><a>NFCAccept</a></code> value telling whether only
         <a>Web NFC content</a> or any <a>NFC content</a> will be watched.
       </p>
-      <p>
-        The <dfn>NFCReaderOptions.signal</dfn> property allows to abort
-        the watch.
-      </p>
-
       <pre
         title="Filter accepting only JSON content from https://www.w3.org"
         class="example highlight">
@@ -1801,10 +1795,6 @@ writer.push({ records: [
             <li>
               Otherwise, if <var>key</var> equals <code>"accept"</code>, set
               <var>reader</var>.[[\Accept]] to <var>value</var>.
-            </li>
-            <li>
-              Otherwise, if <var>key</var> equals <code>"signal"</code>, set
-              <var>reader</var>.[[\Signal]] to <var>value</var>.
             </li>
           </ul>
         </li>
@@ -2698,14 +2688,6 @@ writer.push({ records: [
             Let <var>reader_instance</var> be the <a>NFCReader</a> instance.
           </li>
           <li>
-            Let <var>signal</var> be  <var>reader_instance.[[\Signal]]</var> 
-            if present, or null otherwise.
-          </li>
-          <li>
-            If <var>signal</var>’s aborted flag is set, then reject <var>p</var>
-            with an <code>"AbortError"</code> DOMException and return <var>p</var>.
-          </li>
-          <li>
             If there is no support for the functionality of receiving data from
             an <a>NFC peer</a> or <a>NFC tag</a> in proximity range, reject
             <var>p</var> with <code>"NotSupportedError"</code> and return <var>p</var>.
@@ -2713,24 +2695,6 @@ writer.push({ records: [
           <li>
             Add <var>p</var> and <var>reader_instance</var>
             together as an <a>NFC watch</a> to the <a>incumbent NFC watch list</a>.
-          </li>
-          <li>
-            If <var>signal</var> is not null, then
-            <a href="https://dom.spec.whatwg.org/#abortsignal-add">
-              add the following abort steps</a> to <var>signal</var>:
-              <ol>
-                <li>
-                  Remove the <a>NFC watch</a> from the <a>incumbent NFC watch list</a>.
-                </li>
-                <li>
-                  If the <a>incumbent NFC watch list</a> <a>is empty</a>, then make a request
-                  to stop listening to <a>NDEF message</a>s on all <a>NFC adapter</a>s.
-                </li>
-                <li>
-                  Reject <var>p</var> with an <code>"AbortError"</code> DOMException
-                  and abort these steps.
-                </li>
-              </ol>
           </li>
           <li>
             Run the following steps <a>in parallel</a>:
