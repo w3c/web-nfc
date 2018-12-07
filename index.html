@@ -730,7 +730,7 @@ reader.watch();
        class="example">
     <p>
       Filtering of relevant data sources can be done by the use of
-      the <a>NFCWatchOptions</a>. Below we accept URL with <code>
+      the <a>NFCReaderOptions</a>. Below we accept URL with <code>
       "/mypath/mygame/"</code> in its path from <code>"mygame.com"</code>
       domain and its subdomains. When we read the data, we immediately update
       the game progress by issueing a push with a custom NDEF data layout.
@@ -1430,10 +1430,11 @@ writer.push({ records: [
       Promise&lt;void&gt; push(NFCMessageSource message, optional NFCPushOptions options);
     };
 
-    [Constructor(), SecureContext, Exposed=Window]
+    [Constructor(optional NFCReaderOptions options), SecureContext, Exposed=Window]
     interface NFCReader : EventTarget {
-      Promise&lt;void&gt; watch(optional NFCWatchOptions options);
       attribute EventHandler onreading;
+
+      Promise&lt;void&gt; watch();
     };
 
     [Constructor(DOMString type, NFCReadingEventInit nfcReadingEventInitDict), SecureContext, Exposed=Window]
@@ -1678,28 +1679,28 @@ writer.push({ records: [
     </dl>
   </section> <!-- NFCPushTarget enum -->
 
-  <section> <h3>The <dfn>NFCWatchOptions</dfn> dictionary</h3>
+  <section> <h3>The <dfn>NFCReaderOptions</dfn> dictionary</h3>
       <p>
         To describe which messages an application is interested in, the
-        <a>NFCWatchOptions</a> dictionary is used:
+        <a>NFCReaderOptions</a> dictionary is used:
       </p>
       <pre class="idl">
-        dictionary NFCWatchOptions {
+        dictionary NFCReaderOptions {
           USVString url = "";
           NFCRecordType recordType;
           USVString mediaType = "";
-          NFCWatchMode mode = "web-nfc-only";
+          NFCAccept accept = "web-nfc-only";
           AbortSignal? signal;
         };
       </pre>
       <p>
-        The <dfn>NFCWatchOptions.url</dfn> property
+        The <dfn>NFCReaderOptions.url</dfn> property
         denotes the <a>URL pattern</a> which is used for matching the
         <a>Web NFC Id</a> of <a>Web NFC message</a>s which are being read.
         The default value <code>""</code> means that no matching happens.
       </p>
       <p>
-        The <dfn>NFCWatchOptions.recordType</dfn> property
+        The <dfn>NFCReaderOptions.recordType</dfn> property
         denotes the enum value which is used for matching the
         <code>
         <a href="#idl-def-nfcrecordtype">recordType</a></code> property of each
@@ -1708,19 +1709,19 @@ writer.push({ records: [
         <a href="#steps-watch">NFC watch algorithm</a>.
       </p>
       <p>
-        The <dfn>NFCWatchOptions.mediaType</dfn> property
+        The <dfn>NFCReaderOptions.mediaType</dfn> property
         denotes the <a>match pattern</a> which is used for matching the
         <code><a href="#dom-nfcrecord-mediatype">mediaType</a></code> property of each
         <code><a>NFCRecord</a></code> object in a <a>Web NFC message</a>.
         The default value <code>""</code> means that no matching happens.
       </p>
       <p>
-        The <dfn>NFCWatchOptions.mode</dfn> property denotes the
-        <code><a>NFCWatchMode</a></code> value telling whether only
+        The <dfn>NFCReaderOptions.accept</dfn> property denotes the
+        <code><a>NFCAccept</a></code> value telling whether only
         <a>Web NFC content</a> or any <a>NFC content</a> will be watched.
       </p>
       <p>
-        The <dfn>NFCWatchOptions.signal</dfn> property allows to abort
+        The <dfn>NFCReaderOptions.signal</dfn> property allows to abort
         the watch.
       </p>
 
@@ -1742,10 +1743,10 @@ writer.push({ records: [
           mediaType: "application/octet-stream"
         }
       </pre>
-    </section> <!-- NFCWatchOptions -->
+    </section> <!-- NFCReaderOptions -->
 
-  <section data-dfn-for="NFCWatchMode">
-    <h2>The <dfn>NFCWatchMode</dfn> enum</h2>
+  <section data-dfn-for="NFCAccept">
+    <h2>The <dfn>NFCAccept</dfn> enum</h2>
     <p>
       This enum defines the set of known values denoting whether
       <code><a href="#dom-nfcreader-watch">watch()</a></code> operation should
@@ -1753,7 +1754,7 @@ writer.push({ records: [
       <a>NFC content</a>
     </p>
     <pre class="idl">
-      enum NFCWatchMode {
+      enum NFCAccept {
         "web-nfc-only",
         "any"
       };
@@ -1771,7 +1772,48 @@ writer.push({ records: [
         are dispatched.
       </dd>
     </dl>
-  </section> <!-- NFCWatchMode enum -->
+  </section> <!-- NFCAccept enum -->
+
+  <section><h3>Constructing an <a>NFCReader</a> object</h3>
+    <p>
+      <ol>
+        <li>
+          Let <var>reader</var> be a new <a><code>NFCReader</code></a> object.
+        </li>
+        <li>
+          Let <var>options</var> be first argument to constructor.
+        </li>
+        <li>
+          <a>For each</a> <var>key</var> → <var>value</var> of <var>options</var>:
+          <ul>
+            <li>
+              If <var>key</var> equals <code>"url"</code>, set
+              <var>reader</var>.[[\Url]] to <var>value</var>.
+            </li>
+            <li>
+              Otherwise, if <var>key</var> equals <code>"recordType"</code>, set
+              <var>reader</var>.[[\RecordType]] to <var>value</var>.
+            </li>
+            <li>
+              Otherwise, if <var>key</var> equals <code>"mediaType"</code>, set
+              <var>reader</var>.[[\MediaType]] to <var>value</var>.
+            </li>
+            <li>
+              Otherwise, if <var>key</var> equals <code>"accept"</code>, set
+              <var>reader</var>.[[\Accept]] to <var>value</var>.
+            </li>
+            <li>
+              Otherwise, if <var>key</var> equals <code>"signal"</code>, set
+              <var>reader</var>.[[\Signal]] to <var>value</var>.
+            </li>
+          </ul>
+        </li>
+        <li>
+          Return <var>reader</var>.
+        </li>
+      </ol>
+    </p>
+  </section>
 
   <section><h3><dfn>Writing or pushing content</dfn></h3>
     <p>
@@ -2632,8 +2674,8 @@ writer.push({ records: [
         <a>URL pattern</a>s used in <a>NFC watch</a>es.
       </p>
       <p>
-        An <dfn>NFC watch</dfn> is referring to a tuple of a <code><a>Promise</a></code>,
-        and a <code><a>NFCWatchOptions</a></code> dictionary.
+        An <dfn>NFC watch</dfn> refers to a tuple of a <code><a>Promise</a></code>,
+        and an <code><a>NFCReader</a></code> instance.
       </p>
       <p>
         The section <a href="#steps-receiving">
@@ -2656,11 +2698,8 @@ writer.push({ records: [
             Let <var>reader_instance</var> be the <a>NFCReader</a> instance.
           </li>
           <li>
-            Let <var>options</var> be the first argument.
-          </li>
-          <li>
-            Let <var>signal</var> be the <var>options</var>’ dictionary member of the same
-            name if present, or null otherwise.
+            Let <var>signal</var> be  <var>reader_instance.[[\Signal]]</var> 
+            if present, or null otherwise.
           </li>
           <li>
             If <var>signal</var>’s aborted flag is set, then reject <var>p</var>
@@ -2672,7 +2711,7 @@ writer.push({ records: [
             <var>p</var> with <code>"NotSupportedError"</code> and return <var>p</var>.
           </li>
           <li>
-            Add <var>p</var>, <var>options</var>, and <var>reader_instance</var>
+            Add <var>p</var> and <var>reader_instance</var>
             together as an <a>NFC watch</a> to the <a>incumbent NFC watch list</a>.
           </li>
           <li>
@@ -2710,7 +2749,7 @@ writer.push({ records: [
                 <code>"NotSupportedError"</code> and return <var>p</var>.
               </li>
               <li>
-                If the <var>options</var>.url is not an empty <code>String</code>
+                If the <var>reader_instance</var>.[[\Url]] is not an empty <code>String</code>
                 and it is not a <a>valid URL pattern</a>, throw <code>"SyntaxError"</code>
                 exception and return <var>p</var>.
               </li>
@@ -2755,7 +2794,7 @@ writer.push({ records: [
              In this step UAs are advised to notify users about
              that reading <a>NFC content</a> may indirectly reveal the physical
              location of the user. In addition, if <code>"any"</code>
-             <code><a>NFCWatchMode</a></code> is used, then also include in this
+             <code><a>NFCAccept</a></code> is used, then also include in this
              information that the <a>origin</a> is requesting to read not only
              <a>NFC content</a> meant for web pages, but any <a>NFC content</a>.
             </p>
@@ -2974,39 +3013,36 @@ writer.push({ records: [
             the <var>watch</var> was registered on.
           </li>
           <li>
-            Let <var>options</var> be the <code><a>NFCWatchOptions</a></code>
-            saved with <var>watch</var>.
-          </li>
-          <li>
-            If <var>options</var>.mode is <code>"web-nfc-only"</code> and
+            If <var>reader_instance</var>.[[\Accept]] is <code>"web-nfc-only"</code> and
             <var>message</var>.url is <var>null</var>, skip to the next
             <a>NFC watch</a>.
           </li>
           <li>
-            Otherwise, if <var>options</var>.mode is <code>"any"</code>,
-            set <var>options</var>.url to <code>""</code>.
+            Otherwise, if <var>reader_instance</var>.[[\Accept]] is <code>"any"</code>,
+            set <var>reader_instance</var>.[[\Url]] to <code>""</code>.
           </li>
           <li>
-            If the <a>URL pattern</a> <var>options</var>.url is not
+            If the <a>URL pattern</a> <var>reader_instance</var>.[[\Url]] is not
             an empty <code>String</code> invoke
             <a href="#dfn-match-web-nfc-id-with-url-pattern">URL pattern match</a>
-            algorithm, providing <var>options</var>.url as a <a>URL pattern</a> and
+            algorithm, providing <var>reader_instance</var>.[[\Url]] as a
+            <a>URL pattern</a> and
             <var>message</var>.url as a <code><a>Web NFC Id</a></code>. If
             <a href="#dfn-match-web-nfc-id-with-url-pattern">URL pattern match</a>
             algorithm returns <code>false</code>, skip to the next <a>NFC watch</a>.
           </li>
           <li>
-            If <var>options</var>.recordType is <a href=#dfn-not-present>present</a> and
-            it is not equal to any <var>record</var>.recordType where <var>record</var>
+            If <var>reader_instance</var>.[[\RecordType]] is <a href=#dfn-not-present>present</a> and
+            it is not equal to any <var>record</var>.[[\RecordType]] where <var>record</var>
             is an element of <var>message</var>, skip to the next <a>NFC watch</a>.
           </li>
           <li>
-            If <var>options</var>.mediaType is not <code>""</code> and it is not
-            equal to any <var>record</var>.mediaType where <var>record</var> is
+            If <var>reader_instance</var>.[[\MediaType]] is not <code>""</code> and
+            it is not equal to any <var>record</var>.mediaType where <var>record</var> is
             an element of <var>message</var>, skip to the next <a>NFC watch</a>.
           </li>
           <li>
-            <a>Fire an event</a> named "reading" at <var>reader_instance</var>
+            <a>Fire an event</a> named <code>"reading"</code> at <var>reader_instance</var>
             using <a>NFCReadingEvent</a> with its <code>message</code> attribute
             initialized to <var>message</var>.
           </li>
@@ -3111,6 +3147,9 @@ writer.push({ records: [
       </li>
       <li>
         <dfn data-cite="!INFRA#list-append" data-lt="list-append">append</dfn>
+      </li>
+      <li>
+        <dfn data-cite="!INFRA#list-contain" data-lt="list-contain">contains</dfn>
       </li>
     </ul>
   </li>
