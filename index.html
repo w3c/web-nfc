@@ -184,8 +184,8 @@
     <a href="https://html.spec.whatwg.org/multipage/#global-object">
     <dfn>global object</dfn></a>,
 
-    <a href="https://html.spec.whatwg.org/multipage/#incumbent-settings-object">
-    <dfn>incumbent settings object</dfn></a>,
+    <a href="https://html.spec.whatwg.org/multipage/#current-settings-object">
+    <dfn>current settings object</dfn></a>,
 
     <a href="https://html.spec.whatwg.org/multipage/#document">
     <dfn>Document</dfn></a>,
@@ -217,8 +217,14 @@
     <a href="https://html.spec.whatwg.org/multipage/#the-iframe-element">
     <dfn>iframe</dfn></a>.
 
-    <a href="https://html.spec.whatwg.org/multipage/#settings-object">
-    <dfn>settings object</dfn></a>.
+    <a href="https://html.spec.whatwg.org/multipage/#relevant-settings-object">
+    <dfn>relevant settings object</dfn></a>.
+
+    <a href="https://html.spec.whatwg.org/multipage/#active-document">
+    <dfn>active document</dfn></a>.
+
+    <a href="https://html.spec.whatwg.org/multipage/#environment-settings-object">
+    <dfn>environment settings object</dfn></a>.
   </p>
   <p>
     A <a>browsing context</a> refers to the environment in which
@@ -1109,7 +1115,7 @@ writer.push({ records: [
       </li>
       <li>
         When pushing <a>Web NFC content</a>, the <a>serialized origin</a> and
-        the <a>URL path</a> of the <a>incumbent settings object</a> when
+        the <a>URL path</a> of the <a>current settings object</a> when
         requesting the operation must be recorded in each sent <a>NDEF
         message</a>'s <a>Web NFC record</a>.  For details see the <a>Writing
         or pushing content</a> section.
@@ -1123,7 +1129,7 @@ writer.push({ records: [
         Pushing <a>Web NFC content</a> to an <a>NFC tag</a> does not need to
         <a>obtain permission</a>, if the <a>Web NFC message origin</a> of the
         <a>Web NFC message</a> on that <a>NFC tag</a> is equal to the
-        <a>serialized origin</a> of the <a>incumbent settings object</a>.
+        <a>serialized origin</a> of the <a>current settings object</a>.
         Otherwise the UA must <a>obtain permission</a> for pushing
         <a>NFC content</a> which overwrites existing information.
         See also the <a>Writing or pushing content</a> section.
@@ -1472,9 +1478,9 @@ writer.push({ records: [
   </p>
   <section><h3>NFC state associated with the settings object</h3>
   <p>
-    The <a>settings object</a> of a <a>browsing context</a> which supports
-    NFC has an associated <dfn>NFC state</dfn> record with the following
-    <a>internal slots</a>:
+    The <a>relevant settings object</a> of the <a>active document</a> of a
+    <a>browsing context</a> which supports NFC has an associated
+    <dfn>NFC state</dfn> record with the following <a>internal slots</a>:
   </p>
   <table class="simple">
     <thead>
@@ -1536,19 +1542,19 @@ writer.push({ records: [
     </p>
     <p>
       To <dfn id="suspend-nfc">suspend NFC</dfn>, set the [[\Suspended]] internal slot of the
-      <a>incumbent settings object</a>'s associated <a>NFC state</a> to <code>true</code>.
+      <a>current settings object</a>'s associated <a>NFC state</a> to <code>true</code>.
     </p>
     <p>
       To <dfn id="resume-nfc">resume NFC</dfn>, set the [[\Suspended]] internal slot of the
-      <a>incumbent settings object</a>'s associated <a>NFC state</a> to <code>false</code>.
+      <a>current settings object</a>'s associated <a>NFC state</a> to <code>false</code>.
     </p>
     <p>
       <dfn id="nfc-is-suspended">NFC is suspended</dfn> if the [[\Suspended]] internal slot of the
-      <a>incumbent settings object</a>'s associated <a>NFC state</a> is <code>true</code>.
+      <a>current settings object</a>'s associated <a>NFC state</a> is <code>true</code>.
     </p>
     <p>
-      The <dfn>incumbent NFC watch list</dfn> is the value of the [[\WatchList]] internal slot
-      of the <a>incumbent settings object</a>'s associated <a>NFC state</a>.
+      The <dfn>current NFC watch list</dfn> is the value of the [[\WatchList]] internal slot
+      of the <a>current settings object</a>'s associated <a>NFC state</a>.
 
     </p>
     <p>
@@ -1569,14 +1575,14 @@ writer.push({ records: [
 
   <section><h3>Releasing NFC</h3>
   <p>
-    To <dfn>release NFC</dfn> on a <a>settings object</a>, perform the following steps:
+    To <dfn>release NFC</dfn> on an <a>environment settings object</a>, perform the following steps:
   </p>
   <ol id="steps-nfc-release">
     <li>
       <a>Suspend NFC</a>.
     </li>
     <li>
-      For each pending <a>NFCWriter.push</a> associated with the <a>settings object</a>:
+      For each pending <a>NFCWriter.push</a> associated with the <a>current settings object</a>:
       <ol>
         <li>
           Stop the instance's <var>timer</var> if it is active.
@@ -1595,7 +1601,7 @@ writer.push({ records: [
       Stop the <a>dispatch NFC content</a> steps.
     </li>
     <li>
-      Clear the <a>incumbent NFC watch list</a>.
+      Clear the <a>current NFC watch list</a>.
     </li>
     <li>
       Release the NFC resources associated with <var>nfc</var> on the
@@ -1603,7 +1609,7 @@ writer.push({ records: [
     </li>
   </ol>
   <p>
-    The UA must <a>release NFC</a> given the document's <a>settings object</a> as
+    The UA must <a>release NFC</a> given the document's <a>relevant settings object</a> as
     additional <a href="https://html.spec.whatwg.org/#unloading-document-cleanup-steps">
     unloading document cleanup steps</a>.
   </p>
@@ -1990,7 +1996,7 @@ writer.push({ records: [
                             If the <a>Web NFC message origin</a> of the read
                             <a>NFC content</a> is <code>null</code>, or it is
                             different than the <a>serialized origin</a> of the
-                            <a>incumbent settings object</a>, and the
+                            <a>current settings object</a>, and the
                             <a>obtain push permission</a> steps return
                             <code>false</code>, then reject <var>p</var> with
                             <code>"SecurityError"</code> and abort these steps.
@@ -2694,7 +2700,7 @@ writer.push({ records: [
           </li>
           <li>
             Add <var>p</var> and <var>reader_instance</var>
-            together as an <a>NFC watch</a> to the <a>incumbent NFC watch list</a>.
+            together as an <a>NFC watch</a> to the <a>current NFC watch list</a>.
           </li>
           <li>
             Run the following steps <a>in parallel</a>:
@@ -2775,7 +2781,7 @@ writer.push({ records: [
   <section id="steps-receiving">
   <h3>Receiving and parsing content</h3>
   <p>
-    If there are any <a>NFC watch</a>es set up in the <a>incumbent NFC watch
+    If there are any <a>NFC watch</a>es set up in the <a>current NFC watch
     list</a> then UAs MUST listen to <a>NDEF message</a>s, according to step 7
     of the <a href="#steps-watch">NFC watch algorithm</a>.
   </p>
@@ -2970,7 +2976,7 @@ writer.push({ records: [
       <li>
         For each <a>NFC watch</a> <var>watch</var> that has
         been registered using the <code>watch()</code> method in
-        the <a>incumbent NFC watch list</a>, run the following sub-steps:
+        the <a>current NFC watch list</a>, run the following sub-steps:
         <ol>
           <li>
             Let <var>reader_instance</var> be the instance of the <a>NFCReader</a>
