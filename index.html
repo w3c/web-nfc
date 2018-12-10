@@ -1575,14 +1575,14 @@ writer.push({ records: [
 
   <section><h3>Releasing NFC</h3>
   <p>
-    To <dfn>release NFC</dfn> on an <a>environment settings object</a>, perform the following steps:
+    To <dfn>release NFC</dfn> on an <a>environment settings object</a> <var>settings</var>, perform the following steps:
   </p>
   <ol id="steps-nfc-release">
     <li>
       <a>Suspend NFC</a>.
     </li>
     <li>
-      For each pending <a>NFCWriter.push</a> associated with the <a>current settings object</a>:
+      For each pending <a>NFCWriter.push</a> associated with <var>settings</var>:
       <ol>
         <li>
           Stop the instance's <var>timer</var> if it is active.
