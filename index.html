@@ -440,12 +440,6 @@
     data, and possible actions).
   </p>
   <p>
-    An <strong><a>NFC watch</a></strong> is a mechanism used to watch for
-    available <a>Web NFC message</a>s fulfilling certain criteria.
-    It is defined in more detail in <a href="#dfn-nfc-watch">The watch()
-    method</a> section.
-  </p>
-  <p>
     A <dfn>Web NFC message</dfn> consists of a sequence of <a>NDEF record</a>s,
     one of which is a <a>Web NFC record</a>.
   </p>
@@ -460,7 +454,7 @@
     specifically the <a>Web NFC message origin</a> optionally
     followed by a <a>path-absolute-URL string</a>, stored in the <a>Web NFC Record</a>.
     This enables matching <a>Web NFC content</a> with <a>URL pattern</a>s
-    specified by <a>NFC watch</a>es.
+    specified by <a>NFCReader</a>es.
   </p>
   <p>
     A <dfn>Web NFC record</dfn> is an <a>NDEF record</a> of <a>external type</a> type,
@@ -728,7 +722,7 @@ reader.onreading = message => {
   }
 };
 
-reader.watch();
+reader.start();
     </pre>
   </aside>
 
@@ -746,8 +740,8 @@ reader.watch();
       whichever one is tapped first.
     </p>
     <pre class="highlight">
-const reader = new NFCReader();
-reader.watch({url: "https://mygame.com/mypath/mygame"});
+const reader = new NFCReader({url: "https://mygame.com/mypath/mygame"});
+reader.start();
 reader.onreading = async message => {
   console.log(`Source:     ${ message.url }`);
   console.log(`Game state: ${ JSON.stringify(message.records) }`);
@@ -773,7 +767,7 @@ reader.onreading = async message => {
       Storing and receiving JSON data is easy with serialization and deserialization.
     </p>
     <pre class="highlight">
-const reader = new NFCReader();
+const reader = new NFCReader({url: document.baseURI, recordType: "json"});
 
 reader.addEventListener("reading", message => {
   for (let record of message.records) {
@@ -782,7 +776,7 @@ reader.addEventListener("reading", message => {
   }
 });
 
-reader.watch({url: document.baseURI, recordType: "json"});
+reader.start();
 
 const writer = new NFCWriter();
 writer.push({
@@ -811,7 +805,7 @@ writer.push({
     <p>
       Pushing data to a tag requires tapping it. If existing data should be
       read during the same tap, we need to set the <code>ignoreRead</code>
-      property to <code>false</code> and set up a watch before the push.
+      property to <code>false</code> for the <a>NFCWriter</a>.
     </p>
     <pre class="highlight">
 const reader = new NFCReader();
@@ -822,7 +816,7 @@ reader.onreading = message => {
     console.log("=== data ===\n" + record.data);
   }
 };
-reader.watch();
+reader.start();
 
 const writer = new NFCWriter();
 writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
@@ -917,11 +911,10 @@ writer.push({ records: [
         equipped device, and data transfer would occur.
       </p>
       <p>
-        On the receiving device the UA will dispatch the content to an application registered
-        and eligible to handle the content, and if that application is a browser
-        which has a web page open and in focus that uses the Web NFC API and has
-        set up a <a>NFC watch</a> to listen to <a>Web NFC content</a>, then the
-        content is delivered to the web page through the <a>NFCReadingEvent</a>.
+        On the receiving device the UA will dispatch the content to an application
+        registered and eligible to handle the content, and if that application is
+        a browser which has a web page open and in focus with active <a>NFCReader</a>,
+        then the content is delivered to the page through the <a>NFCReadingEvent</a>.
       </p>
     </section>
     <section> <h3>Handover to another wireless connection type</h3>
@@ -1121,7 +1114,7 @@ writer.push({ records: [
         or pushing content</a> section.
       </li>
       <li>
-        When setting up <a>NFC watch</a>es, when pushing <a>NFC content</a>,
+        When listening for and pushing <a>NFC content</a>,
         the UA may warn the user that the given <a>origin</a> may be able to
         infer physical location.
       </li>
@@ -1425,8 +1418,8 @@ writer.push({ records: [
   The objects provides a way for the <a>browsing context</a> to
   use NFC functionality.
   It allows for pushing <a>Web NFC message</a>s to <a>NFC tag</a>s
-  or <a>NFC peer</a>s within range, and to set up and abort <a>NFC watch</a>es
-  to handle incoming <a>Web NFC message</a>s either from an <a>NFC tag</a> or an
+  or <a>NFC peer</a>s within range, and to act on incoming
+  <a>Web NFC message</a>s either from an <a>NFC tag</a> or an
   <a>NFC peer</a>.
   <pre class="idl">
     typedef (DOMString or ArrayBuffer or NFCMessage) NFCMessageSource;
@@ -1440,7 +1433,8 @@ writer.push({ records: [
     interface NFCReader : EventTarget {
       attribute EventHandler onreading;
 
-      Promise&lt;void&gt; watch();
+      Promise&lt;void&gt; start();
+      void stop();
     };
 
     [Constructor(DOMString type, NFCReadingEventInit nfcReadingEventInitDict), SecureContext, Exposed=Window]
@@ -1499,9 +1493,9 @@ writer.push({ records: [
       </td>
      </tr>
      <tr>
-      <td>[[\WatchList]]</td>
+      <td>[[\ActivatedReaderList]]</td>
       <td>
-        A <a>set</a> of <a>NFC watch</a>es initially set to the empty <a>set</a>.
+        A <a>set</a> of <a>NFCReader</a> instances initially set to the empty <a>set</a>.
       </td>
      </tr>
     </tbody>
@@ -1532,8 +1526,9 @@ writer.push({ records: [
     <p>
       The term <dfn id="nfc-suspended">suspended</dfn> in this specification
       refers to NFC operations being suspended, i.e. no <a>NFC content</a> is
-      pushed, and no received <a>NFC content</a> is presented via watches while
-      suspended.
+      pushed by <a>NFCWriter</a>s, and no received <a>NFC content</a> is
+      presented to any <a>NFCReader</a> while suspended.
+
       However, platform level timers for the
       <code><a>NFCWriter.push</a>()</code> method continue running,
       and if they expire, the event should be recorded and handled
@@ -1553,7 +1548,7 @@ writer.push({ records: [
       <a>current settings object</a>'s associated <a>NFC state</a> is <code>true</code>.
     </p>
     <p>
-      The <dfn>current NFC watch list</dfn> is the value of the [[\WatchList]] internal slot
+      The <dfn>activated reader objects</dfn> is the value of the [[\ActivatedReaderList]] internal slot
       of the <a>current settings object</a>'s associated <a>NFC state</a>.
 
     </p>
@@ -1582,14 +1577,14 @@ writer.push({ records: [
       <a>Suspend NFC</a>.
     </li>
     <li>
-      For each pending <a>NFCWriter.push</a> associated with <var>settings</var>:
+      <a>For each</a> pending <a>NFCWriter.push</a> associated with <var>settings</var>:
       <ol>
         <li>
           Stop the instance's <var>timer</var> if it is active.
         </li>
         <li>
           If the instance has already initiated NFC data transfer,
-          continue.
+          <a>continue</a>.
         </li>
         <li>
           Reject <var>p</var> with an <code>"AbortError"</code> DOMException
@@ -1601,7 +1596,7 @@ writer.push({ records: [
       Stop the <a>dispatch NFC content</a> steps.
     </li>
     <li>
-      Clear the <a>current NFC watch list</a>.
+      Clear the <a>activated reader objects</a>.
     </li>
     <li>
       Release the NFC resources associated with <var>nfc</var> on the
@@ -1711,7 +1706,7 @@ writer.push({ records: [
         <a href="#idl-def-nfcrecordtype">recordType</a></code> property of each
         <code><a>NFCRecord</a></code> object in a <a>Web NFC message</a>.
         If the dictionary member is <a>not present</a>, then it will be ignored by the
-        <a href="#steps-watch">NFC watch algorithm</a>.
+        <a href="#steps-listen">NFC listen algorithm</a>.
       </p>
       <p>
         The <dfn>NFCReaderOptions.mediaType</dfn> property
@@ -1723,7 +1718,7 @@ writer.push({ records: [
       <p>
         The <dfn>NFCReaderOptions.accept</dfn> property denotes the
         <code><a>NFCAccept</a></code> value telling whether only
-        <a>Web NFC content</a> or any <a>NFC content</a> will be watched.
+        <a>Web NFC content</a> or any <a>NFC content</a> will be accepted.
       </p>
       <pre
         title="Filter accepting only JSON content from https://www.w3.org"
@@ -1748,10 +1743,9 @@ writer.push({ records: [
   <section data-dfn-for="NFCAccept">
     <h2>The <dfn>NFCAccept</dfn> enum</h2>
     <p>
-      This enum defines the set of known values denoting whether
-      <code><a href="#dom-nfcreader-watch">watch()</a></code> operation should
-      <a>dispatch NFC content</a> for <a>Web NFC content</a> or any
-      <a>NFC content</a>
+      This enum defines the set of known values denoting whether an
+      <code><a>NFCReader</a></code> should <a>dispatch NFC content</a>
+      for <a>Web NFC content</a> or any <a>NFC content</a>
     </p>
     <pre class="idl">
       enum NFCAccept {
@@ -2478,7 +2472,6 @@ writer.push({ records: [
           <li>
             Set <var>ndef.PAYLOAD</var> to the <a>URL path</a> of the
             <a>browsing context</a>, encoded as UTF-16.
-            This is going to be used by <a>NFC watch</a> filters.
             <p class="note">
               In future versions a list of "allowed-origins" may be
               supported.
@@ -2520,10 +2513,22 @@ writer.push({ records: [
 
   </section> <!-- Writing or pushing content -->
 
-  <section> <h3>Watching for content</h3>
+  <section> <h3>Listening for content</h3>
     <p>
-      In order to receive <a>NFC content</a>, the client needs to call the
-      <a>NFCReader.watch</a>() to opt into content of interest.
+      In order to receive <a>NFC content</a>, the client needs to attach an
+      attach an event listener for the <code>"reading"</code> event on an
+      <a>NFCReader</a> instance and then activate it by calling
+      <a>NFCReader.start()</a>.
+    </p>
+    <p>
+      Each <a>NFCReader</a> can filter the <a>NFC content</a> based on
+      data type, and the <a>URL path</a> of the
+      <a>browsing context</a> which has been saved to the <a>Web NFC record</a>
+      of the <a>NFC content</a>.
+    </p>
+    <p>
+      The latter is matched against the <a>URL pattern</a>s associated with
+      the <a>activated reader objects</a>.
     </p>
 
     <section> <h3>Match patterns</h3>
@@ -2660,32 +2665,20 @@ writer.push({ records: [
         </ol>
     </section>
 
-    <section> <h3>The <strong>watch()</strong> method</h3>
-      <p>
-        This method enables listening to incoming <a>NDEF message</a>s.
-        The <a>NFC content</a> to which clients listen can be filtered based on
-        its data type, and based on the <a>URL path</a> of the
-        <a>browsing context</a> which has been saved to the <a>Web NFC record</a>
-        of the <a>NFC content</a>. The latter is matched against
-        <a>URL pattern</a>s used in <a>NFC watch</a>es.
-      </p>
-      <p>
-        An <dfn>NFC watch</dfn> refers to a tuple of a <code><a>Promise</a></code>,
-        and an <code><a>NFCReader</a></code> instance.
-      </p>
+    <section> <h3>The <strong>start()</strong> method</h3>
       <p>
         The section <a href="#steps-receiving">
-        Receiving and parsing content</a> uses <a>NFC watch</a>es to match
+        Receiving and parsing content</a> uses <a>NFCReader</a> instances to match
         incoming <a>NFC content</a>.
       </p>
       <p>
-        Multiple consecutive calls to the <code>watch()</code> method from the
+        Multiple consecutive calls to the <code>start()</code> method from the
         same <a>origin</a> create filters which are in OR relationship.
       </p>
       <p>
-        When the <code><dfn>NFCReader.watch</dfn></code> method is invoked, the UA
+        When the <code><dfn>NFCReader.start</dfn></code> method is invoked, the UA
         MUST run the following
-        <dfn id="steps-watch">NFC watch algorithm</dfn>:
+        <dfn id="steps-listen">NFC listen algorithm</dfn>:
         <ol>
           <li>
             Let <var>p</var> be a new <a><code>Promise</code></a> object.
@@ -2699,19 +2692,18 @@ writer.push({ records: [
             <var>p</var> with <code>"NotSupportedError"</code> and return <var>p</var>.
           </li>
           <li>
-            Add <var>p</var> and <var>reader_instance</var>
-            together as an <a>NFC watch</a> to the <a>current NFC watch list</a>.
+            Add <var>reader_instance</var> to the <a>activated reader objects</a>.
           </li>
           <li>
             Run the following steps <a>in parallel</a>:
             <ol>
               <li>
-                If the <a>obtain watch permission</a> steps return
+                If the <a>obtain reading permission</a> steps return
                 <code>false</code>, then reject <var>p</var> with
                 <code>"SecurityError"</code> and return <var>p</var>.
               </li>
               <li>
-                If this is the first watch being set up, then make a request to
+                If this is the first listener being set up, then make a request to
                 all <a>NFC adapter</a>s to listen to <a>NDEF message</a>s.
               </li>
               <li>
@@ -2728,16 +2720,16 @@ writer.push({ records: [
               </li>
               <li>
                 If the <a>browsing context</a> loses focus (e.g. the user navigated
-                to another page), then the registered watches still SHOULD continue
-                to exist, but SHOULD become paused, i.e. the UA SHOULD NOT check
-                and use them until the focus is regained.
+                to another page), then the registered <a>activated reader objects</a>
+                still SHOULD continue to exist, but SHOULD become paused, i.e. the UA
+                SHOULD NOT check and use them until the focus is regained.
               </li>
             </ol>
           </li>
         </ol>
       </p>
       <p>
-        To <dfn>obtain watch permission</dfn>, run these steps:
+        To <dfn>obtain reading permission</dfn>, run these steps:
         <ol>
           <li>
             If there is a <a>prearranged trust relationship</a>,
@@ -2745,7 +2737,7 @@ writer.push({ records: [
           </li>
           <li>
             Otherwise, if the user has earlier denied permission for the calling
-            <a>origin</a> for all future calls of <code>watch()</code> as well,
+            <a>origin</a> for all future calls of <code>start()</code> as well,
             then return <code>false</code>.
           </li>
           <li>
@@ -2774,16 +2766,32 @@ writer.push({ records: [
           </li>
         </ol>
       </p>
-    </section> <!-- watch() method -->
+    </section>
+
+    <section> <h3>The <strong>stop()</strong> method</h3>
+      <p>
+        When the <code><dfn>NFCReader.stop</dfn></code> method is invoked, the UA
+        MUST run the following algorithm:
+        <ol>
+          <li>
+            Remove the <a>NFCReader</a> instance from the <a>activated reader objects</a>.
+          </li>
+          <li>
+            If the <a>activated reader objects</a> <a>is empty</a>, then make a request
+            to stop listening to <a>NDEF message</a>s on all <a>NFC adapter</a>s.
+          </li>
+        </ol>
+      </p>
+    </section>
 
   </section>
 
   <section id="steps-receiving">
   <h3>Receiving and parsing content</h3>
   <p>
-    If there are any <a>NFC watch</a>es set up in the <a>current NFC watch
-    list</a> then UAs MUST listen to <a>NDEF message</a>s, according to step 7
-    of the <a href="#steps-watch">NFC watch algorithm</a>.
+    If there are any <a>NFCReader</a> instances in <a>activated reader objects</a>
+    then UAs MUST listen to <a>NDEF message</a>s, according to step 7
+    of the <a href="#steps-listen">NFC listen algorithm</a>.
   </p>
   <section><h3>The NDEF parsing algorithm</h3>
     When the <a>UA</a> is to <dfn>receive an NDEF message</dfn> it MUST run the
@@ -2806,7 +2814,7 @@ writer.push({ records: [
         which has been received.
       </li>
       <li>
-        For each <a>NDEF record</a> which is part of <var>input</var>, run the
+        <a>For each</a> <a>NDEF record</a> which is part of <var>input</var>, run the
         following sub-steps for <dfn>parsing NDEF record</dfn>:
         <ol>
           <li>
@@ -2974,18 +2982,12 @@ writer.push({ records: [
     </p>
     <ol>
       <li>
-        For each <a>NFC watch</a> <var>watch</var> that has
-        been registered using the <code>watch()</code> method in
-        the <a>current NFC watch list</a>, run the following sub-steps:
+        <a>For each</a> <a>NFCReader</a> instance <var>reader_instance</var> in
+        the <a>activated reader objects</a>, run the following sub-steps:
         <ol>
           <li>
-            Let <var>reader_instance</var> be the instance of the <a>NFCReader</a>
-            the <var>watch</var> was registered on.
-          </li>
-          <li>
             If <var>reader_instance</var>.[[\Accept]] is <code>"web-nfc-only"</code> and
-            <var>message</var>.url is <var>null</var>, skip to the next
-            <a>NFC watch</a>.
+            <var>message</var>.url is <var>null</var>, <a>continue</a>.
           </li>
           <li>
             Otherwise, if <var>reader_instance</var>.[[\Accept]] is <code>"any"</code>,
@@ -2999,17 +3001,17 @@ writer.push({ records: [
             <a>URL pattern</a> and
             <var>message</var>.url as a <code><a>Web NFC Id</a></code>. If
             <a href="#dfn-match-web-nfc-id-with-url-pattern">URL pattern match</a>
-            algorithm returns <code>false</code>, skip to the next <a>NFC watch</a>.
+            algorithm returns <code>false</code>, <a>continue</a>.
           </li>
           <li>
             If <var>reader_instance</var>.[[\RecordType]] is <a href=#dfn-not-present>present</a> and
             it is not equal to any <var>record</var>.[[\RecordType]] where <var>record</var>
-            is an element of <var>message</var>, skip to the next <a>NFC watch</a>.
+            is an element of <var>message</var>, <a>continue</a>.
           </li>
           <li>
             If <var>reader_instance</var>.[[\MediaType]] is not <code>""</code> and
             it is not equal to any <var>record</var>.mediaType where <var>record</var> is
-            an element of <var>message</var>, skip to the next <a>NFC watch</a>.
+            an element of <var>message</var>, <a>continue</a>.
           </li>
           <li>
             <a>Fire an event</a> named <code>"reading"</code> at <var>reader_instance</var>
@@ -3108,6 +3110,9 @@ writer.push({ records: [
       </li>
       <li>
         <dfn data-cite="!INFRA#list-iterate">for each</dfn>
+      </li>
+      <li>
+        <dfn data-cite="!INFRA#iteration-continue">continue</dfn>
       </li>
       <li>
         <dfn data-cite="!INFRA#list-is-empty">is empty</dfn>
