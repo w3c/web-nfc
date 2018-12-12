@@ -247,6 +247,8 @@
     [[!RFC5234]].
   </p>
   <p>
+    <a href="http://heycam.github.io/webidl/#dfn-create-exception">
+      <code><dfn>creating</dfn></code></a>,
     <a href="http://heycam.github.io/webidl/#idl-DOMString">
       <code><dfn>DOMString</dfn></code></a>,
     <a href="http://heycam.github.io/webidl/#idl-ArrayBuffer">
@@ -1432,18 +1434,28 @@ writer.push({ records: [
     [Constructor(optional NFCReaderOptions options), SecureContext, Exposed=Window]
     interface NFCReader : EventTarget {
       attribute EventHandler onreading;
+      attribute EventHandler onerror;
 
-      Promise&lt;void&gt; start();
+      void start();
       void stop();
     };
 
-    [Constructor(DOMString type, NFCReadingEventInit nfcReadingEventInitDict), SecureContext, Exposed=Window]
+    [Constructor(DOMString type, NFCReadingEventInit readingEventInitDict), SecureContext, Exposed=Window]
     interface NFCReadingEvent : Event {
       readonly attribute NFCMessage message;
     };
 
     dictionary NFCReadingEventInit : EventInit {
       required NFCMessage message;
+    };
+
+    [Constructor(DOMString type, NFCErrorEventInit errorEventInitDict), SecureContext, Exposed=Window]
+    interface NFCErrorEvent : Event {
+      readonly attribute DOMException error;
+    };
+
+    dictionary NFCErrorEventInit : EventInit {
+      required DOMException error;
     };
 
   </pre>
@@ -1459,6 +1471,13 @@ writer.push({ records: [
     member.
   </p>
   <p>
+    The <dfn>NFCErrorEvent</dfn> is the event being dispatch on errors,
+    with the <a>DOMException</a> object as the <dfn>NFCErrorEvent.error</dfn>
+    attribute. <dfn>NFCErrorEventInit</dfn> is used in order to initialize a new
+    event with a the <a>DOMException</a> data via the <dfn>NFCErrorEventInit.error</dfn>
+    member.
+  </p>
+  <p>
     The <dfn>NFCWriter</dfn> is an object used for writing data to NFC devices
     such as tags.
   </p>
@@ -1469,6 +1488,10 @@ writer.push({ records: [
   <p>
     The <dfn>NFCReader.onreading</dfn> is an EventHandler which is called to notify
     that new reading is available.
+  </p>
+  <p>
+    The <dfn>NFCReader.onerror</dfn> is an EventHandler which is called to notify
+    that an error happened.
   </p>
   <section><h3>NFC state associated with the settings object</h3>
   <p>
@@ -2681,42 +2704,88 @@ writer.push({ records: [
         <dfn id="steps-listen">NFC listen algorithm</dfn>:
         <ol>
           <li>
-            Let <var>p</var> be a new <a><code>Promise</code></a> object.
-          </li>
-          <li>
             Let <var>reader_instance</var> be the <a>NFCReader</a> instance.
           </li>
           <li>
             If there is no support for the functionality of receiving data from
-            an <a>NFC peer</a> or <a>NFC tag</a> in proximity range, reject
-            <var>p</var> with <code>"NotSupportedError"</code> and return <var>p</var>.
-          </li>
-          <li>
-            Add <var>reader_instance</var> to the <a>activated reader objects</a>.
+            an <a>NFC peer</a> or <a>NFC tag</a> in proximity range, then
+            <ol>
+              <li>
+                Let <var>e</var> be the result of <a>creating</a> a
+                <code>"NotSupportedError"</code> DOMException.
+              </li>
+              <li>
+                <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
+                using <a>NFCErrorEvent</a> with its <code>error</code> attribute
+                initialized to <var>e</var>.
+              </li>
+              <li>
+                Return.
+              </li>
+            </ol>
           </li>
           <li>
             Run the following steps <a>in parallel</a>:
             <ol>
               <li>
                 If the <a>obtain reading permission</a> steps return
-                <code>false</code>, then reject <var>p</var> with
-                <code>"SecurityError"</code> and return <var>p</var>.
+                <code>false</code>, then
+                <ol>
+                  <li>
+                    Let <var>e</var> be the result of <a>creating</a> a
+                    <code>"SecurityError"</code> DOMException.
+                  </li>
+                  <li>
+                    <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
+                    using <a>NFCErrorEvent</a> with its <code>error</code> attribute
+                    initialized to <var>e</var>.
+                  </li>
+                  <li>
+                    Return.
+                  </li>
+                </ol>
               </li>
               <li>
                 If this is the first listener being set up, then make a request to
                 all <a>NFC adapter</a>s to listen to <a>NDEF message</a>s.
               </li>
               <li>
-                If the request fails, reject <var>p</var> with
-                <code>"NotSupportedError"</code> and return <var>p</var>.
+                If the request fails, then
+                <ol>
+                  <li>
+                    Let <var>e</var> be the result of <a>creating</a> a
+                    <code>"NotSupportedError"</code> DOMException.
+                  </li>
+                  <li>
+                    <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
+                    using <a>NFCErrorEvent</a> with its <code>error</code> attribute
+                    initialized to <var>e</var>.
+                  </li>
+                  <li>
+                    Return.
+                  </li>
+                </ol>
               </li>
               <li>
                 If the <var>reader_instance</var>.[[\Url]] is not an empty <code>String</code>
-                and it is not a <a>valid URL pattern</a>, throw <code>"SyntaxError"</code>
-                exception and return <var>p</var>.
+                and it is not a <a>valid URL pattern</a>, then
+                <ol>
+                  <li>
+                    Let <var>e</var> be the result of <a>creating</a> a
+                    <code>"SyntaxError"</code> DOMException.
+                  </li>
+                  <li>
+                    <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
+                    using <a>NFCErrorEvent</a> with its <code>error</code> attribute
+                    initialized to <var>e</var>.
+                  </li>
+                  <li>
+                    Return.
+                  </li>
+                </ol>
               </li>
               <li>
-                Resolve <var>p</var>.
+                Add <var>reader_instance</var> to the <a>activated reader objects</a>.
               </li>
               <li>
                 If the <a>browsing context</a> loses focus (e.g. the user navigated
@@ -3141,7 +3210,7 @@ writer.push({ records: [
 <section> <h2>Acknowledgements</h2>
   <p>
     The editors would like to thank Jeffrey Yasskin, Anne van Kesteren,
-    Anssi Kostiainen, Domenic Denicola, Jonas Sicking,
+    Anssi Kostiainen, Domenic Denicola, Daniel Ehrenberg, Jonas Sicking,
     Don Coleman, Salvatore Iovene and Rijubrata Bhaumik for their
     contributions to this document.
 
