@@ -1855,8 +1855,18 @@ writer.push({ records: [
             Let <var>options</var> be the second argument.
           </li>
           <li>
-            Let <var>signal</var> be the <var>options</var>’ dictionary member of the same
-            name if present, or null otherwise.
+            Let <var>signal</var> be the <var>options</var>’ dictionary member
+            of the same name if present, or null otherwise.
+          </li>
+          <li>
+            If there is no underlying <a>NFC Adapter</a>, or if a connection cannot
+            be established, then reject <var>p</var> with an <code>"NotReadableError"</code>
+            DOMException and return <var>p</var>.
+          </li>
+          <li>
+            If pushing data is not supported by the underlying <a>NFC Adapter</a>, then reject
+            <var>p</var> with an <code>"NotSupportedError"</code> DOMException and
+            return <var>p</var>.
           </li>
           <li>
             If <var>signal</var>’s aborted flag is set, then reject <var>p</var>
@@ -2707,12 +2717,12 @@ writer.push({ records: [
             Let <var>reader_instance</var> be the <a>NFCReader</a> instance.
           </li>
           <li>
-            If there is no support for the functionality of receiving data from
-            an <a>NFC peer</a> or <a>NFC tag</a> in proximity range, then
+            If there is no underlying <a>NFC Adapter</a>, or if a connection cannot
+            be established, then
             <ol>
               <li>
                 Let <var>e</var> be the result of <a>creating</a> a
-                <code>"NotSupportedError"</code> DOMException.
+                <code>"NotReadableError"</code> DOMException.
               </li>
               <li>
                 <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
@@ -2733,7 +2743,7 @@ writer.push({ records: [
                 <ol>
                   <li>
                     Let <var>e</var> be the result of <a>creating</a> a
-                    <code>"SecurityError"</code> DOMException.
+                    <code>"NotAllowedError"</code> DOMException.
                   </li>
                   <li>
                     <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
