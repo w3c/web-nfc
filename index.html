@@ -166,6 +166,7 @@
     <dfn data-cite="!URL#concept-url-host">URL host</dfn>,
     <dfn data-cite="!URL#concept-url-path">URL path</dfn>,
     <dfn data-cite="!URL#concept-url">URL record</dfn>,
+    <dfn data-cite="!URL#valid-url-string">valid URL string</dfn>,
     <dfn data-cite="!URL#absolute-url-string">absolute-URL string</dfn>,
     <dfn data-cite="!URL#path-absolute-url-string">path-absolute-URL string</dfn> and
     <dfn data-cite="!URL#concept-basic-url-parser">basic URL parser</dfn> are defined in [[!URL]].
@@ -192,7 +193,8 @@
     <dfn data-cite="!HTML#eventhandler">EventHandler</dfn>,
     <dfn data-cite="!HTML#focus">focus</dfn>,
     <dfn data-cite="!HTML#handler-onblur">lose focus</dfn>,
-    <dfn data-cite="!HTML#unloading-document-cleanup-steps">unloading document cleanup steps</dfn>.
+    <dfn data-cite="!HTML#unloading-document-cleanup-steps">unloading document cleanup steps</dfn>,
+    <dfn data-cite="!HTML#utf-16-encoding">UTF-16 encoding</dfn>.
   </p>
   <p>
     A <a>browsing context</a> refers to the environment in which
@@ -272,8 +274,9 @@
     are defined in [[!DOM]].
   </p>
   <p>
-    The algorithms <dfn data-cite="!ENCODING#utf-8-encode">utf-8 encode</dfn>, and
-    <dfn data-cite="!ENCODING#utf-8-decode">utf-8 decode</dfn> are defined in [[!ENCODING]].
+    <dfn data-cite="!ENCODING#utf-8">UTF-8 encoding</dfn>,
+    <dfn data-cite="!ENCODING#encode">encode</dfn>, and
+    <dfn data-cite="!ENCODING#decode">decode</dfn> are defined in [[!ENCODING]].
   </p>
   <p>
     <dfn>IANA media type</dfn>s (formerly known as MIME types) are defined in
@@ -2299,8 +2302,8 @@ writer.push({ records: [
                   <li>
                     If <var>record</var>.mediaType contains the parameter
                     "charset=UTF-8" (e.g. "text/plain; charset=UTF-8;"),
-                    then set bit 7 (MSB) to 0 (UTF-8 encoding),
-                    otherwise to 1 (UTF-16 encoding).
+                    then set bit 7 (MSB) to 0 (<a>UTF-8 encoding</a>),
+                    otherwise to 1 (<a>UTF-16 encoding</a>).
                   </li>
                   <li>Set bit 6 to 0.</li>
                   <li>
@@ -2316,8 +2319,9 @@ writer.push({ records: [
               <li>
                 Set the consecutive payload octets to
                 <var>record</var>.data in the encoding set by the
-                MSB bit of the first payload octet (by default UTF-16,
-                or UTF-8 on special request).
+                MSB bit of the first payload octet (by default
+                <a href="#dfn-utf-16-encoding">UTF-16</a>,
+                or <a href="#dfn-utf-8-encoding">UTF-8</a> on special request).
               </li>
             </ol>
           </li>
@@ -2339,7 +2343,7 @@ writer.push({ records: [
             and abort these steps.
           </li>
           <li>
-            If the <var>record</var>.data is not a valid <a>URL</a>, throw a
+            If the <var>record</var>.data is not a <a>valid URL string</a>, throw a
             <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
             and abort these steps.
           </li>
@@ -2360,7 +2364,7 @@ writer.push({ records: [
             [[NFC-STANDARDS]], NFC Forum URI Record Type Definition
             specification: set the first octet according to the
             applicable scheme abbreviation, and set the rest of the
-            payload bytes to <var>record</var>.data in UTF-8 encoding.
+            payload bytes to <var>record</var>.data in <a>UTF-8 encoding</a>.
           </li>
           <li>
             Return <var>ndef</var>.
@@ -2463,7 +2467,7 @@ writer.push({ records: [
 
       <section><h3>Creating a Web NFC record</h3>
       <p>
-        To <dfn>create a <a>Web NFC record</a></dfn> given <var>url</var>,
+        To <dfn>create a <a>Web NFC record</a></dfn> given <a>URL path</a> <var>urlPath</var>,
         run these steps:
         <ol>
           <li>
@@ -2479,12 +2483,12 @@ writer.push({ records: [
           </li>
           <li>
             Let <var>payload</var> be the result of invoking
-            <a>create a Web NFC Id</a> given <var>url</var>.
+            <a>create a Web NFC Id</a> given <var>urlPath</var>.
             If this throws an exception, re-throw it.
           </li>
           <li>
-            Set <var>ndef.PAYLOAD</var> to the <a>URL path</a> of the
-            <a>browsing context</a>, encoded as UTF-16.
+            Set <var>ndef.PAYLOAD</var> to the <a>URL path</a> of the current
+            <a>browsing context</a>, <a href="#dfn-encode">encoded</a> as <a>UTF-16 encoding</a>.
             <p class="note">
               In future versions a list of "allowed-origins" may be
               supported.
@@ -2502,23 +2506,20 @@ writer.push({ records: [
 
       <section><h3>Creating a Web NFC Id</h3>
       <p>
-        To <dfn>create a <a>Web NFC Id</a></dfn> given <var>url</var>,
+        To <dfn>create a <a>Web NFC Id</a></dfn> given <a>URL path</a> <var>urlPath</var>,
         run these steps:
         <ol>
           <li>
-            Let <var>id</var> be the <a>serialized origin</a> of the
-            <a>browsing context</a>, appended with <var>url</var>.
+            Let <var>id</var> be the <a>serialized origin</a> of the current
+            <a>browsing context</a>, append <var>urlPath</var> to <var>id</var>.
           </li>
           <li>
-            If <var>id</var> is a not a valid <a>URL</a>, throw a
+            If <var>id</var> is not a <a>valid URL string</a>, throw a
             <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
             and abort these steps.
-            <p class="note">
-              This means <var>url</var> should be a valid <a>URL path</a>.
-            </p>
           </li>
           <li>
-            Return <var>id</var>, encoded in UTF-16.
+            Return <var>id</var>, <a href="#dfn-encode">encoded</a> in <a>UTF-16 encoding</a>.
           </li>
         </ol>
       </p>
@@ -2916,8 +2917,8 @@ writer.push({ records: [
               </li>
               <li>
                 Set <var>record</var>.data to the <a>string</a> created from the
-                consecutive <var>ndef.PAYLOAD</var> octets, converted to UTF-16
-                encoding.
+                consecutive <var>ndef.PAYLOAD</var> octets, converted to
+                <a>UTF-16 encoding</a>.
               </li>
             </ol>
           </li> <!-- reading NDEF Text record -->
@@ -2945,8 +2946,9 @@ writer.push({ records: [
                 Section 3.2.2.
               </li>
               <li>
-                Set <var>record</var>.data to the UTF-16 <a>string</a> converted from
-                the octets of <var>ndef.PAYLOAD</var> except the first octet.
+                Set <var>record</var>.data to the <a href="#dfn-utf-16-encoding">UTF-16</a>
+                <a>string</a> converted from the octets of
+                <var>ndef.PAYLOAD</var> except the first octet.
               </li>
             </ol>
           </li> <!-- parsing NDEF URL record -->
@@ -2973,7 +2975,7 @@ writer.push({ records: [
                   </li>
                   <li>
                     Let <var>payload</var> be <var>ndef.PAYLOAD</var> converted
-                    to UTF-16, and set <var>record</var>.data to the result of
+                    to <a>UTF-16 encoding</a>, and set <var>record</var>.data to the result of
                     <a data-lt="JSON.parse">parsing</a> <var>payload</var>.
                     If <a data-lt="JSON.parse">parsing</a> throws an error,
                     skip to the next <a>NDEF record</a>.
@@ -2999,8 +3001,9 @@ writer.push({ records: [
           <li>
             If <var>ndef.TNF</var> is 4 (<a>external type</a>), and
             <var>ndef.TYPE</var> is <code>urn:nfc:ext:w3.org:webnfc</code>,
-            then set <var>message</var>.url to the value decoded from
-            <var>ndef.PAYLOAD</var> in UTF-16.
+            then set <var>message</var>.url to the value
+            <a href="#dfn-decode">decoded</a> from
+            <var>ndef.PAYLOAD</var> in <a>UTF-16 encoding</a>.
           </li> <!-- parsing Web NFC record -->
           <li>
             Otherwise, if <var>ndef.TNF</var> is 4 (<a>external type</a>),
