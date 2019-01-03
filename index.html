@@ -166,7 +166,7 @@
     <dfn data-cite="!URL#concept-url-host">URL host</dfn>,
     <dfn data-cite="!URL#concept-url-path">URL path</dfn>,
     <dfn data-cite="!URL#concept-url">URL record</dfn>,
-    <dfn data-cite="!URL#valid-url-string">valid URL string</dfn>,
+    <dfn data-cite="!URL#parse-a-url">parse a URL</dfn>,
     <dfn data-cite="!URL#absolute-url-string">absolute-URL string</dfn>,
     <dfn data-cite="!URL#path-absolute-url-string">path-absolute-URL string</dfn> and
     <dfn data-cite="!URL#concept-basic-url-parser">basic URL parser</dfn> are defined in [[!URL]].
@@ -2343,7 +2343,11 @@ writer.push({ records: [
             and abort these steps.
           </li>
           <li>
-            If the <var>record</var>.data is not a <a>valid URL string</a>, throw a
+            Let <var>urlRecord</var> be the result of
+            <a href="dfn-parse-a-url">parsing</a> <var>record</var>.data.
+          </li>
+          <li>
+            If <var>urlRecord</var> is failure, throw a
             <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
             and abort these steps.
           </li>
@@ -2511,10 +2515,17 @@ writer.push({ records: [
         <ol>
           <li>
             Let <var>id</var> be the <a>serialized origin</a> of the current
-            <a>browsing context</a>, append <var>urlPath</var> to <var>id</var>.
+            <a>browsing context</a>.
           </li>
           <li>
-            If <var>id</var> is not a <a>valid URL string</a>, throw a
+            Append <var>urlPath</var> to <var>id</var>.
+          </li>
+          <li>
+            Let <var>urlRecord</var> be the result of
+            <a href="dfn-parse-a-url">parsing</a> <var>id</var>.
+          </li>
+          <li>
+            If <var>urlRecord</var> is failure, throw a
             <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
             and abort these steps.
           </li>
