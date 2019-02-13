@@ -1686,7 +1686,8 @@ writer.push({ records: [
     </dl>
   </section> <!-- NFCPushTarget enum -->
 
-  <section> <h3>The <dfn>NFCReaderOptions</dfn> dictionary</h3>
+  <section>
+    <h3>The <dfn>NFCReaderOptions</dfn> dictionary</h3>
       <p>
         To describe which messages an application is interested in, the
         <a>NFCReaderOptions</a> dictionary is used:
@@ -1696,7 +1697,6 @@ writer.push({ records: [
           USVString url = "";
           NFCRecordType recordType;
           USVString mediaType = "";
-          NFCAccept accept = "web-nfc-only";
         };
       </pre>
       <p>
@@ -1721,11 +1721,6 @@ writer.push({ records: [
         <code><a>NFCRecord</a></code> object in a <a>Web NFC message</a>.
         The default value <code>""</code> means that no matching happens.
       </p>
-      <p>
-        The <dfn>NFCReaderOptions.accept</dfn> property denotes the
-        <code><a>NFCAccept</a></code> value telling whether only
-        <a>Web NFC content</a> or any <a>NFC content</a> will be accepted.
-      </p>
       <pre
         title="Filter accepting only JSON content from https://www.w3.org"
         class="example highlight">
@@ -1744,35 +1739,7 @@ writer.push({ records: [
           mediaType: "application/octet-stream"
         }
       </pre>
-    </section> <!-- NFCReaderOptions -->
-
-  <section data-dfn-for="NFCAccept">
-    <h2>The <dfn>NFCAccept</dfn> enum</h2>
-    <p>
-      This enum defines the set of known values denoting whether an
-      <code><a>NFCReader</a></code> should <a>dispatch NFC content</a>
-      for <a>Web NFC content</a> or any <a>NFC content</a>.
-    </p>
-    <pre class="idl">
-      enum NFCAccept {
-        "web-nfc-only",
-        "any"
-      };
-    </pre>
-    <dl>
-      <dt><dfn>web-nfc-only</dfn></dt>
-      <dd>
-        The <code>"web-nfc-only"</code> value means that only those
-        <a>NDEF message</a>s are dispatched which contain a
-        <a>Web NFC record</a>, i.e. which are meant for web pages.
-      </dd>
-      <dt><dfn>any</dfn></dt>
-      <dd>
-        The <code>"any"</code> value means that all <a>NDEF message</a>s
-        are dispatched.
-      </dd>
-    </dl>
-  </section> <!-- NFCAccept enum -->
+  </section> <!-- NFCReaderOptions -->
 
   <section><h3>Constructing an <a>NFCReader</a> object</h3>
     <p>
@@ -1797,10 +1764,6 @@ writer.push({ records: [
             <li>
               Otherwise, if <var>key</var> equals <code>"mediaType"</code>, set
               <var>reader</var>.[[\MediaType]] to <var>value</var>.
-            </li>
-            <li>
-              Otherwise, if <var>key</var> equals <code>"accept"</code>, set
-              <var>reader</var>.[[\Accept]] to <var>value</var>.
             </li>
           </ul>
         </li>
@@ -2553,6 +2516,11 @@ writer.push({ records: [
       of the <a>NFC content</a>.
     </p>
     <p>
+      If you filter by <a>URL path</a>, that means it will be matched against
+      the <a>Web NFC record</a>, thus the presence of such is required.
+      If you don't filter by <a>URL path</a>, then all NFC devices are accepted.
+    </p>
+    <p>
       The latter is matched against the <a>URL pattern</a>s associated with
       the <a>activated reader objects</a>.
     </p>
@@ -2828,10 +2796,7 @@ writer.push({ records: [
             <p class="note">
              In this step UAs are advised to notify users about
              that reading <a>NFC content</a> may indirectly reveal the physical
-             location of the user. In addition, if <code>"any"</code>
-             <code><a>NFCAccept</a></code> is used, then also include in this
-             information that the <a>origin</a> is requesting to read not only
-             <a>NFC content</a> meant for web pages, but any <a>NFC content</a>.
+             location of the user.
             </p>
           </li>
           <li>
@@ -3060,14 +3025,6 @@ writer.push({ records: [
         <a>For each</a> <a>NFCReader</a> instance <var>reader_instance</var> in
         the <a>activated reader objects</a>, run the following sub-steps:
         <ol>
-          <li>
-            If <var>reader_instance</var>.[[\Accept]] is <code>"web-nfc-only"</code> and
-            <var>message</var>.url is <code>null</code>, <a>continue</a>.
-          </li>
-          <li>
-            Otherwise, if <var>reader_instance</var>.[[\Accept]] is <code>"any"</code>,
-            set <var>reader_instance</var>.[[\Url]] to <code>""</code>.
-          </li>
           <li>
             If the <a>URL pattern</a> <var>reader_instance</var>.[[\Url]] is not
             an empty <code>String</code> invoke
