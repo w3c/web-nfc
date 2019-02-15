@@ -644,7 +644,7 @@ writer.push(
 
   <aside title="Push a URL to either a tag or peer" class="example">
     <p>
-      In order to push an NDEF record of URL type, simply use NFCMessage.
+      In order to push an NDEF record of URL type, simply use NDEFMessage.
     </p>
     <pre class="highlight">
 const writer = new NFCWriter();
@@ -1148,80 +1148,80 @@ writer.push({ records: [
 
 <!-- - - - - - - - - - - - - Data representation - - - - - - - - - - - - - -->
 <section> <h2>Data Representation</h2>
-  <section> <h3>The <dfn>NFCMessage</dfn> dictionary</h3>
+  <section> <h3>The <dfn>NDEFMessage</dfn> dictionary</h3>
     <p>
       The content of any <a>Web NFC message</a> is exposed by the
-      <a>NFCMessage</a> dictionary:
+      <a>NDEFMessage</a> dictionary:
     </p>
     <pre class="idl">
-      dictionary NFCMessage {
-        sequence&lt;NFCRecord&gt; records;
+      dictionary NDEFMessage {
+        sequence&lt;NDEFRecord&gt; records;
         USVString url;
       };
     </pre>
     <p>
-      The <dfn>NFCMessage.url</dfn>
+      The <dfn>NDEFMessage.url</dfn>
       property represents the <a>Web NFC Id</a> of a received
       <a>Web NFC message</a>. When used in the <code><a>NFCWriter.push()</a></code>
       method, it represents a <a>URL path</a> used for constructing the
       <a>Web NFC Id</a> of the pushed <a>Web NFC content</a>.
     </p>
     <p>
-      The <dfn>NFCMessage.records</dfn>
+      The <dfn>NDEFMessage.records</dfn>
       property represents a <a>list</a> of <a>NDEF message</a>s defining the
       <a>Web NFC message</a>.
     </p>
   </section>
 
-  <section> <h3>The <dfn>NFCRecord</dfn> dictionary</h3>
+  <section> <h3>The <dfn>NDEFRecord</dfn> dictionary</h3>
     <p>
       The content of any <a>NDEF record</a> is exposed by the
-      <a>NFCRecord</a> dictionary:
+      <a>NDEFRecord</a> dictionary:
     </p>
     <pre class="idl">
-      typedef (DOMString or unrestricted double or ArrayBuffer or Dictionary) NFCRecordData;
+      typedef (DOMString or unrestricted double or ArrayBuffer or Dictionary) NDEFRecordData;
 
-      dictionary NFCRecord {
-        NFCRecordType recordType;
+      dictionary NDEFRecord {
+        NDEFRecordType recordType;
         USVString mediaType;
-        NFCRecordData data;
+        NDEFRecordData data;
       };
     </pre>
     <p>
-      The <dfn>NFCRecordData</dfn> is a union type representing data types allowed
-      for <a>NFCRecord.data</a> property.
+      The <dfn>NDEFRecordData</dfn> is a union type representing data types allowed
+      for <a>NDEFRecord.data</a> property.
     </p>
     <p>
-      The <dfn>NFCRecord.mediaType</dfn>
+      The <dfn>NDEFRecord.mediaType</dfn>
       property represents the <a>IANA media type</a> of the <a>NDEF record</a>
       payload.
     </p>
     <p>
-      The <dfn>NFCRecord.data</dfn> property represents the
+      The <dfn>NDEFRecord.data</dfn> property represents the
       payload data of the <a>NDEF record</a> with an appropriate [[!ECMAScript]]
       type, which depends on the <a>IANA media type</a>.
     </p>
     <p>
-      The <dfn>NFCRecord.recordType</dfn> property represents the
+      The <dfn>NDEFRecord.recordType</dfn> property represents the
       <a>NDEF record</a> types.
-      The mapping from data types of an <code><a>NFCRecord</a></code> to and
+      The mapping from data types of an <code><a>NDEFRecord</a></code> to and
       from <a>NDEF record</a> types is presented in the algorithmic steps which
       handle the data and described in the
     <a href="#steps-receiving">Receiving and parsing content</a>
     and <a>Writing or pushing content</a> sections.
     </p>
-  </section> <!-- NFCRecord dictionary -->
+  </section> <!-- NDEFRecord dictionary -->
 
-  <section data-dfn-for="NFCRecordType">
-    <h2>The <dfn>NFCRecordType</dfn> enum</h2>
+  <section data-dfn-for="NDEFRecordType">
+    <h2>The <dfn>NDEFRecordType</dfn> enum</h2>
       <p>
-        This enum defines the set of known types for a <a>NFCRecord</a>. The
+        This enum defines the set of known types for a <a>NDEFRecord</a>. The
         <a href="#data-mapping">data mapping</a> section describes how
-        <a>NFCRecordType</a> is mapped to <a>NDEF record</a> types.
+        <a>NDEFRecordType</a> is mapped to <a>NDEF record</a> types.
       </p>
 
       <pre class="idl">
-        enum NFCRecordType {
+        enum NDEFRecordType {
           "empty",
           "text",
           "url",
@@ -1232,26 +1232,26 @@ writer.push({ records: [
       <dl>
         <dt><dfn>empty</dfn></dt>
         <dd>
-          The enum value representing <a href="#dfn-empty">empty</a> <a>NFCRecord</a>.
+          The enum value representing <a href="#dfn-empty">empty</a> <a>NDEFRecord</a>.
         </dd>
         <dt><dfn>text</dfn></dt>
         <dd>
-          The enum value representing <a>NFCRecord</a> of a <a href="#dfn-text">text</a> type.
+          The enum value representing <a>NDEFRecord</a> of a <a href="#dfn-text">text</a> type.
         </dd>
         <dt><dfn>url</dfn></dt>
         <dd>
-          The enum value representing <a>NFCRecord</a> of a <a href="#dfn-url">url</a> type.
+          The enum value representing <a>NDEFRecord</a> of a <a href="#dfn-url">url</a> type.
         </dd>
         <dt><dfn>json</dfn></dt>
         <dd>
-          The enum value representing <a>NFCRecord</a> of a <a href="#dfn-json">json</a> type.
+          The enum value representing <a>NDEFRecord</a> of a <a href="#dfn-json">json</a> type.
         </dd>
         <dt><dfn>opaque</dfn></dt>
         <dd>
-          The enum value representing <a>NFCRecord</a> of an <a href="#dfn-opaque">opaque</a> type.
+          The enum value representing <a>NDEFRecord</a> of an <a href="#dfn-opaque">opaque</a> type.
         </dd>
       </dl>
-  </section> <!-- NFCRecordType enum -->
+  </section> <!-- NDEFRecordType enum -->
 
   <section><h3>Data mapping</h3>
   <p>
@@ -1262,15 +1262,15 @@ writer.push({ records: [
     </pre>
   </p>
   <p>
-    The mapping from data types of an <code><a>NFCRecord</a></code> to
+    The mapping from data types of an <code><a>NDEFRecord</a></code> to
     <a>NDEF record</a> types, as used in the <a>Writing or pushing content</a>
     section is as follows:
   </p>
   <table class="simple">
     <tr>
-      <th>NFCRecord recordType</th>
-      <th>NFCRecord mediaType</th>
-      <th>NFCRecord data</th>
+      <th>NDEFRecord recordType</th>
+      <th>NDEFRecord mediaType</th>
+      <th>NDEFRecord data</th>
       <th>NDEF record type</th>
     </tr>
     <tr>
@@ -1315,7 +1315,7 @@ writer.push({ records: [
     </tr>
   </table>
   <p>
-    The mapping from <a>NDEF record</a> types to <code><a>NFCRecord</a></code>,
+    The mapping from <a>NDEF record</a> types to <code><a>NDEFRecord</a></code>,
     as used for incoming <a>NDEF message</a>s described in the
     <a href="#steps-receiving">Receiving and parsing content</a> section, is as
     follows:
@@ -1323,9 +1323,9 @@ writer.push({ records: [
   <table class="simple">
     <tr>
       <th>NDEF record type</th>
-      <th>NFCRecord recordType</th>
-      <th>NFCRecord mediaType</th>
-      <th>NFCRecord data</th>
+      <th>NDEFRecord recordType</th>
+      <th>NDEFRecord mediaType</th>
+      <th>NDEFRecord data</th>
     </tr>
     <tr>
       <td>Empty (<a>TNF</a>=0) record</td>
@@ -1405,11 +1405,11 @@ writer.push({ records: [
   <a>Web NFC message</a>s either from an <a>NFC tag</a> or an
   <a>NFC peer</a>.
   <pre class="idl">
-    typedef (DOMString or ArrayBuffer or NFCMessage) NFCMessageSource;
+    typedef (DOMString or ArrayBuffer or NDEFMessage) NDEFMessageSource;
 
     [Constructor(), SecureContext, Exposed=Window]
     interface NFCWriter {
-      Promise&lt;void&gt; push(NFCMessageSource message, optional NFCPushOptions options);
+      Promise&lt;void&gt; push(NDEFMessageSource message, optional NFCPushOptions options);
     };
 
     [Constructor(optional NFCReaderOptions options), SecureContext, Exposed=Window]
@@ -1423,11 +1423,11 @@ writer.push({ records: [
 
     [Constructor(DOMString type, NFCReadingEventInit readingEventInitDict), SecureContext, Exposed=Window]
     interface NFCReadingEvent : Event {
-      readonly attribute NFCMessage message;
+      readonly attribute NDEFMessage message;
     };
 
     dictionary NFCReadingEventInit : EventInit {
-      required NFCMessage message;
+      required NDEFMessage message;
     };
 
     [Constructor(DOMString type, NFCErrorEventInit errorEventInitDict), SecureContext, Exposed=Window]
@@ -1441,14 +1441,14 @@ writer.push({ records: [
 
   </pre>
   <p>
-    The <dfn>NFCMessageSource</dfn> is a union type representing argument types
+    The <dfn>NDEFMessageSource</dfn> is a union type representing argument types
     accepted by the <a href="#dom-nfcwriter-push"><code>push()</code></a> method.
   </p>
   <p>
     The <dfn>NFCReadingEvent</dfn> is the event being dispatch on new NFC readings,
-    with the <a>NFCMessage</a> object as the <dfn>NFCReadingEvent.message</dfn>
+    with the <a>NDEFMessage</a> object as the <dfn>NFCReadingEvent.message</dfn>
     attribute. <dfn>NFCReadingEventInit</dfn> is used in order to initialize a new
-    event with a the <a>NFCMessage</a> data via the <dfn>NFCReadingEventInit.message</dfn>
+    event with a the <a>NDEFMessage</a> data via the <dfn>NFCReadingEventInit.message</dfn>
     member.
   </p>
   <p>
@@ -1736,7 +1736,7 @@ writer.push({ records: [
       <pre class="idl">
         dictionary NFCReaderOptions {
           USVString url = "";
-          NFCRecordType recordType;
+          NDEFRecordType recordType;
           USVString mediaType = "";
           NDEFCompatibility compatibility = "nfc-forum";
         };
@@ -1751,16 +1751,16 @@ writer.push({ records: [
         The <dfn>NFCReaderOptions.recordType</dfn> property
         denotes the enum value which is used for matching the
         <code>
-        <a href="#idl-def-nfcrecordtype">recordType</a></code> property of each
-        <code><a>NFCRecord</a></code> object in a <a>Web NFC message</a>.
+        <a href="#idl-def-ndefrecordtype">recordType</a></code> property of each
+        <code><a>NDEFRecord</a></code> object in a <a>Web NFC message</a>.
         If the dictionary member is <a>not present</a>, then it will be ignored by the
         <a href="#steps-listen">NFC listen algorithm</a>.
       </p>
       <p>
         The <dfn>NFCReaderOptions.mediaType</dfn> property
         denotes the <a>match pattern</a> which is used for matching the
-        <code><a href="#dom-nfcrecord-mediatype">mediaType</a></code> property of each
-        <code><a>NFCRecord</a></code> object in a <a>Web NFC message</a>.
+        <code><a href="#dom-ndefrecord-mediatype">mediaType</a></code> property of each
+        <code><a>NDEFRecord</a></code> object in a <a>Web NFC message</a>.
         The default value <code>""</code> means that no matching happens.
       </p>
       <p>
@@ -1914,12 +1914,12 @@ writer.push({ records: [
               </li>
               <li>
                 If the <var>message</var> parameter is not of type defined by
-                the <code>NFCMessageSource</code> union, reject <var>p</var>
+                the <code>NDEFMessageSource</code> union, reject <var>p</var>
                 with <code>"<a>TypeError</a>"</code>, and abort these steps.
               </li>
               <li>
                 If the <var>message</var> parameter is of
-                <code>NFCMessage</code> type, and <var>message</var>.records
+                <code>NDEFMessage</code> type, and <var>message</var>.records
                 <a>is empty</a>, reject <var>p</var> with
                 <code>"<a>TypeError</a>"</code> and abort these steps.
               </li>
@@ -2132,7 +2132,7 @@ writer.push({ records: [
             to be created by the UA as a result of these steps.
           </li>
           <li>
-            <a>For each</a> <a>NFCRecord</a> <var>record</var> in the <a>list</a>
+            <a>For each</a> <a>NDEFRecord</a> <var>record</var> in the <a>list</a>
             <var>message</var>.records, run the following steps, or make sure
             that the underlying platform provides equivalent values to
             <var>ndef</var>:
@@ -2906,7 +2906,7 @@ writer.push({ records: [
         <code>"universal</code>.
       </li>
       <li>
-        Let <var>message</var> be a new <code>NFCMessage</code> object, with
+        Let <var>message</var> be a new <code>NDEFMessage</code> object, with
         <var>message</var>.url set to <code>null</code> and
         <var>message</var>.records set to the empty <a>list</a>.
       </li>
@@ -2924,7 +2924,7 @@ writer.push({ records: [
             the [[!NFC-STANDARDS]].
           </li>
           <li>
-            Let <var>record</var> be a new <code><a>NFCRecord</a></code> object.
+            Let <var>record</var> be a new <code><a>NDEFRecord</a></code> object.
           </li>
           <li>
             If <var>ndef.TNF</var> is 0 (empty), then set
@@ -3082,7 +3082,7 @@ writer.push({ records: [
     <section><h3>Dispatching NFC content</h3>
     <p>
       To <dfn>dispatch NFC content</dfn> given a <var>message</var> of type
-      <code><a>NFCMessage</a></code> and <var>compatibility</var> of type
+      <code><a>NDEFMessage</a></code> and <var>compatibility</var> of type
       <code><a>NDEFCompatibility</a></code>, run these steps:
     </p>
     <ol>
