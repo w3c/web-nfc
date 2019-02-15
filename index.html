@@ -1614,6 +1614,46 @@ writer.push({ records: [
   </p>
   </section> <!-- release NFC -->
 
+  <section data-dfn-for="NDEFCompatibility">
+      <h3>The <dfn>NDEFCompatibility</dfn> enum</h3>
+        <p>
+          To describe what NDEF compatible devices are accepted as
+          vendor specific tags exist that support NDEF but which
+          are not universally supported by all NFC readers, or by
+          the NFC standard.
+        </p>
+        <pre class="idl">
+          enum NDEFCompatibility {
+            "nfc-forum",
+            "vendor",
+            "any"
+          };
+        </pre>
+        <p>
+          <dl>
+            <dt><dfn>nfc-forum</dfn></dt>
+            <dd>
+              The enum value representing all active and passive NFC
+              devices, supported by the NFC standard.
+            </dd>
+          </dl>
+          <dl>
+            <dt><dfn>vendor</dfn></dt>
+            <dd>
+              The enum value representing vendor specific NFC tags
+              (passive device) that require specific reader chips.
+            </dd>
+          </dl>
+          <dl>
+            <dt><dfn>any</dfn></dt>
+            <dd>
+              The enum value representing all NDEF compatible devices
+              that the reader chip can read.
+            </dd>
+          </dl>
+        </p>
+  </section>
+
   <section> <h3>The <dfn>NFCPushOptions</dfn> dictionary</h3>
     <pre class="idl">
       dictionary NFCPushOptions {
@@ -1621,6 +1661,7 @@ writer.push({ records: [
         unrestricted double timeout = Infinity;
         boolean ignoreRead = true;
         AbortSignal? signal;
+        NDEFCompatibility compatibility = "nfc-forum";
       };
     </pre>
     <p>
@@ -1648,6 +1689,10 @@ writer.push({ records: [
     <p>
       The <dfn>NFCPushOptions.signal</dfn> property allows to abort
       the <a href="#dom-nfcwriter-push"><code>push()</code></a> operation.
+    </p>
+    <p>
+      The <dfn>NFCPushOptions.compatibility</dfn> property denotes
+      the accepted kind of NFC devices.
     </p>
   </section>
 
@@ -1697,6 +1742,7 @@ writer.push({ records: [
           USVString url = "";
           NFCRecordType recordType;
           USVString mediaType = "";
+          NDEFCompatibility compatibility = "nfc-forum";
         };
       </pre>
       <p>
@@ -1720,6 +1766,10 @@ writer.push({ records: [
         <code><a href="#dom-nfcrecord-mediatype">mediaType</a></code> property of each
         <code><a>NFCRecord</a></code> object in a <a>Web NFC message</a>.
         The default value <code>""</code> means that no matching happens.
+      </p>
+      <p>
+        The <dfn>NFCReaderOptions.compatibility</dfn> property denotes
+        the accepted kind of NFC devices.
       </p>
       <pre
         title="Filter accepting only JSON content from https://www.w3.org"
@@ -1764,6 +1814,10 @@ writer.push({ records: [
             <li>
               Otherwise, if <var>key</var> equals <code>"mediaType"</code>, set
               <var>reader</var>.[[\MediaType]] to <var>value</var>.
+            </li>
+            <li>
+              Otherwise, if <var>key</var> equals <code>"compatibility"</code>, set
+              <var>reader</var>.[[\Compatibility]] to <var>value</var>.
             </li>
           </ul>
         </li>
@@ -1860,6 +1914,9 @@ writer.push({ records: [
                 Let <var>timeout</var> be <var>options</var>.timeout.
               </li>
               <li>
+                Let <var>compatibility</var> be <var>options</var>.compatibility.
+              </li>
+              <li>
                 If the <var>message</var> parameter is not of type defined by
                 the <code>NFCMessageSource</code> union, reject <var>p</var>
                 with <code>"<a>TypeError</a>"</code>, and abort these steps.
@@ -1940,6 +1997,11 @@ writer.push({ records: [
                     If an <a>NFC device</a> <var>device</var> comes within
                     communication range, verify the following conditions:
                     <ul>
+                      <li>
+                        if <var>device</var> is is not officially supported
+                        by the NFC Forum, <var>compatibility</var> is
+                        <code>"vendor"</code> or <code>"any"</code>.
+                      </li>
                       <li>
                         if <var>device</var> is an <a>NFC tag</a>, <var>target</var>
                         is <code>"tag"</code> or <code>"any"</code>.
@@ -2843,6 +2905,11 @@ writer.push({ records: [
         If <a>NFC is suspended</a>, abort these steps.
       </li>
       <li>
+        Let <var>compatibility</var> be <code>"vendor"</code> if the read NDEF
+        compatible device is not officially supported by the NFC Forum, or else
+        <code>"universal</code>.
+      </li>
+      <li>
         Let <var>message</var> be a new <code>NFCMessage</code> object, with
         <var>message</var>.url set to <code>null</code> and
         <var>message</var>.records set to the empty <a>list</a>.
@@ -3010,7 +3077,8 @@ writer.push({ records: [
       <li>
         If <a href="#nfc-is-suspended">NFC is not suspended</a> and
         <var>message</var>.records <a>is not empty</a>, run the
-        <a>dispatch NFC content</a> steps given <var>message</var>.
+        <a>dispatch NFC content</a> steps given <var>message</var>
+        and <var>compatibility</var>.
       </li>
     </ol>
     </section>
@@ -3018,7 +3086,8 @@ writer.push({ records: [
     <section><h3>Dispatching NFC content</h3>
     <p>
       To <dfn>dispatch NFC content</dfn> given a <var>message</var> of type
-      <code><a>NFCMessage</a></code> run these steps:
+      <code><a>NFCMessage</a></code> and <var>compatibility</var> of type
+      <code><a>NDEFCompatibility</a></code>, run these steps:
     </p>
     <ol>
       <li>
@@ -3044,6 +3113,10 @@ writer.push({ records: [
             If <var>reader_instance</var>.[[\MediaType]] is not <code>""</code> and
             it is not equal to any <var>record</var>.mediaType where <var>record</var> is
             an element of <var>message</var>, <a>continue</a>.
+          </li>
+          <li>
+            If <var>reader_instance</var>.[[\Compatibility]] is not <code>"any"</code>, and
+            not equal to <var>compatibility</var>, <a>continue</a>.
           </li>
           <li>
             <a>Fire an event</a> named <code>"reading"</code> at <var>reader_instance</var>
