@@ -200,8 +200,13 @@
     <code><a>Window</a></code> objects.
   </p>
   <p>
-    The term <dfn data-cite="!MIMESNIFF#valid-mime-type">valid MIME type string</dfn>
-    is defined in [[!MIMESNIFF]].
+    The term 
+    <dfn data-cite="!MIMESNIFF#mime-type">MIME type</dfn>, 
+    <dfn data-cite="!MIMESNIFF#parsing-a-mime-type">Parsing a MIME type</dfn>,
+    <dfn data-cite="!MIMESNIFF#serializing-a-mime-type">Serializing a MIME type</dfn>,
+    <dfn data-cite="!MIMESNIFF#valid-mime-type">valid MIME type string</dfn> and
+    <dfn data-cite="!MIMESNIFF#json-mime-type">JSON MIME type</dfn>
+    are defined in [[!MIMESNIFF]].
   <p>
     The term <dfn data-cite="!WEBAPPSEC#secure-context">secure context</dfn>
     is defined in [[!WEBAPPSEC]].
@@ -253,6 +258,7 @@
   <p>
     <dfn data-cite="!INFRA#string">string</dfn>,
     <dfn data-cite="!INFRA#ordered-set">set</dfn>,
+    <dfn data-cite="!INFRA#map-exists">exists</dfn>,
     <dfn data-cite="!INFRA#list">list</dfn>,
     <dfn data-cite="!INFRA#list-iterate">for each</dfn>,
     <dfn data-cite="!INFRA#iteration-continue">continue</dfn>,
@@ -273,10 +279,6 @@
     <dfn data-cite="!ENCODING#utf-8">UTF-8 encoding</dfn>,
     <dfn data-cite="!ENCODING#encode">encode</dfn>, and
     <dfn data-cite="!ENCODING#decode">decode</dfn> are defined in [[!ENCODING]].
-  </p>
-  <p>
-    <dfn>IANA media type</dfn>s (formerly known as MIME types) are defined in
-    <a href="http://tools.ietf.org/html/rfc2046">RFC2046</a>.
   </p>
 
   <section> <h3>Security related terms</h3>
@@ -393,7 +395,7 @@
       </tr>
       <tr>
         <td>2</td>
-        <td><a>IANA media type</a></td>
+        <td><a>MIME type</a></td>
       </tr>
       <tr>
         <td>3</td>
@@ -810,7 +812,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <p>
       In order to write a non-UTF-16 string, the data mush be written
       as an <a>ArrayBuffer</a> and the charset must be set as part
-      of the <a>IANA media type</a>.
+      of the <a>MIME type</a>.
     </p>
     <pre class="highlight">
 const encoder = new TextEncoder([utfLabel = "utf-8"]);
@@ -983,7 +985,7 @@ writer.push({ records: [
       <ul>
         <li>
           Expose data types already known to web browsers as
-          <a>IANA media type</a>s.
+          <a>MIME type</a>s.
         </li>
         <li>Use the web security model.</li>
         <li>
@@ -1193,13 +1195,13 @@ writer.push({ records: [
     </p>
     <p>
       The <dfn>NDEFRecord.mediaType</dfn>
-      property represents the <a>IANA media type</a> of the <a>NDEF record</a>
+      property represents the <a>MIME type</a> of the <a>NDEF record</a>
       payload.
     </p>
     <p>
       The <dfn>NDEFRecord.data</dfn> property represents the
       payload data of the <a>NDEF record</a> with an appropriate [[!ECMAScript]]
-      type, which depends on the <a>IANA media type</a>.
+      type, which depends on the <a>MIME type</a>.
     </p>
     <p>
       The <dfn>NDEFRecord.recordType</dfn> property represents the
@@ -1255,13 +1257,6 @@ writer.push({ records: [
 
   <section><h3>Data mapping</h3>
   <p>
-    A <dfn>JSON compatible <a>IANA media type</a></dfn> is defined by the
-    following ABNF:
-    <pre>
-      <code>"application/"</code> (<code>"json"</code> / &lt;VCHAR except '/' and "*"&gt; <code>"+json"</code>)
-    </pre>
-  </p>
-  <p>
     The mapping from data types of an <code><a>NDEFRecord</a></code> to
     <a>NDEF record</a> types, as used in the <a>Writing or pushing content</a>
     section is as follows:
@@ -1293,18 +1288,18 @@ writer.push({ records: [
     </tr>
     <tr>
       <td><dfn>"json"</dfn></td>
-      <td><a>JSON compatible IANA media type</a></td>
+      <td><a>JSON MIME type</a></td>
       <td>
         <code>null</code> or <code>DOMString</code> or <code>Number</code> or
         <code>Dictionary</code>
       </td>
       <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) record with
-        <a>IANA media type</a> specified in the <code>type</code> attribute.
+        <a>MIME type</a> specified in the <code>type</code> attribute.
       </td>
     </tr>
     <tr>
       <td rowspan="2"><dfn>"opaque"</dfn></td>
-      <td><a>IANA media type</a></td>
+      <td><a>MIME type</a></td>
       <td><code>ArrayBuffer</code></td>
       <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) record</td>
     </tr>
@@ -1360,10 +1355,10 @@ writer.push({ records: [
     </tr>
     <tr>
       <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) record with
-        <a>JSON compatible IANA media type</a>
+        <a>JSON MIME type</a>
       </td>
       <td>"json"</td>
-      <td>The <a>IANA media type</a> used in the NDEF record</td>
+      <td>The <a>MIME type</a> used in the NDEF record</td>
       <td>
         <code>null</code> or <code>DOMString</code> or <code>Number</code> or
         <code>Dictionary</code>
@@ -1372,7 +1367,7 @@ writer.push({ records: [
     <tr>
       <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) record</td>
       <td>"opaque"</td>
-      <td>The <a>IANA media type</a> used in the NDEF record</td>
+      <td>The <a>MIME type</a> used in the NDEF record</td>
       <td><code>ArrayBuffer</code></td>
     </tr>
     <tr>
@@ -1773,7 +1768,7 @@ writer.push({ records: [
         const options = {
           url: "https://www.w3.org/*",  // any path from the domain is accepted
           recordType: "json",
-          mediaType: "application/*+json"  // any JSON-based IANA media type
+          mediaType: "application/*+json"  // any JSON-based MIME type
         }
       </pre>
       <pre
@@ -2253,7 +2248,7 @@ writer.push({ records: [
           This is useful when clients specifically want to write an
           NDEF <a href="#dfn-well-known-type">Well Known Type</a> Text
           record. Other options would be to use the value <code>"opaque"</code>
-          with an explicit <a>IANA media type</a> text type, which allows for
+          with an explicit <a>MIME type</a> text type, which allows for
           better differentiation, e.g. when using <code>"text/xml"</code>, or
           <code>"text/vcard"</code>.
         </p>
@@ -2264,29 +2259,23 @@ writer.push({ records: [
             <code><a>DOMException</a></code> and abort these steps.
           </li>
           <li>
-            If <var>record</var>.mediaType is an empty <a>string</a>, then
-            set <var>record</var>.mediaType to <code>"text/plain"</code>.
+            Let <var>MIME type</var> be the <a data-lt="MIME type">MIME type record</a>
+            returned by running <a>parsing a MIME type</a> with
+            <var>record</var>.mediaType as input.
+            In case of failure, set <var>record</var>.mediaType to
+            <code>"text/plain"</code>.
           </li>
           <li>
-            Otherwise, if <var>record</var>.mediaType is not an empty <a>string</a>
-            that doesn't start with <code>"text/"</code>, then throw a
+            If <var>MIME type</var>.type is not <code>"text"</code>, then throw a
             <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
             and abort these steps.
-
-            In addition, UAs MAY check that
-            <var>record</var>.mediaType is an IANA registered media type
-            for <a href="http://www.iana.org/assignments/media-types/media-types.xhtml#text">
-            text</a>.
-            If not, then the UA MAY throw a <code>"<a>SyntaxError</a>"</code>
-            <code><a>DOMException</a></code> and abort these steps.
           </li>
           <li>
             Let <var>language</var> be <code>"en"</code>.
 
-            If <var>record</var>.mediaType includes a <code>lang=</code>
-            parameter, detailing the language encoding (e.g.
-            "text/plain; lang=fr"), then set <var>language</var> to
-            the language code extracted from <var>record</var>.mediaType.
+            If <var>MIME type</var>.parameters[<code>"lang"</code>] <a>exists</a>,
+            then set <var>language</var> to
+            <var>MIME type</var>.parameters[<code>"lang"</code>].
 
             If <var>language</var> is not one of the language codes listed
             in the <a href="http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry">
@@ -2296,7 +2285,7 @@ writer.push({ records: [
 
             <p class="note">
               Note that <code>lang=</code> is not standard parameter
-              to <a>IANA media type</a>s, but it is used in this specification
+              to <a>MIME type</a>s, but it is used in this specification
               in order to maintain compatibility with [[NFC-STANDARDS]].
             </p>
           </li>
@@ -2321,8 +2310,11 @@ writer.push({ records: [
                 The first octet is a status byte containing bit flags.
                 <ol>
                   <li>
-                    If <var>record</var>.mediaType contains the parameter
-                    "charset=UTF-8" (e.g. "text/plain; charset=UTF-8;"),
+                    If <var>MIME type</var>.parameters[<code>"charset"</code>]
+                    <a>exists</a>, set <var>charset</var> to the value.
+                  </li>
+                  <li>
+                    If <var>charset</var> is equal to "UTF-8",
                     then set bit 7 (MSB) to 0 (<a>UTF-8 encoding</a>),
                     otherwise to 1 (<a>UTF-16 encoding</a>).
                   </li>
@@ -2409,16 +2401,16 @@ writer.push({ records: [
             <code><a>DOMException</a></code> and abort these steps.
           </li>
           <li>
-            If <var>record</var>.mediaType is an empty <a>string</a>, then set
-            <var>record</var>.mediaType to <code>"application/json"</code>.
+            Let <var>MIME type</var> be the <a data-lt="MIME type">MIME type record</a>
+            returned by running <a>parsing a MIME type</a> with
+            <var>record</var>.mediaType as input.
+            In case of failure, set <var>record</var>.mediaType to
+            <code>"application/json"</code>.
           </li>
           <li>
-            Otherwise, if <var>record</var>.mediaType is not an empty <a>string</a>
-            that doesn't match <code>"application/json"</code>, or any other
-            <a>IANA media type</a> for JSON
-            (starting with <code>"application/"</code> and ending with <code>
-            "+json"</code>), throw a <code>"<a>SyntaxError</a>"</code>
-            <code><a>DOMException</a></code> and abort these steps.
+            If <var>MIME type</var> is not a <a>JSON MIME type</a>, then throw a
+            <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
+            and abort these steps.
           </li>
           <li>
             Let <var>data</var> be the result of
@@ -2434,7 +2426,9 @@ writer.push({ records: [
             Set the <var>ndef.TNF</var> field to 2 (Media Type).
           </li>
           <li>
-            Set the <var>ndef.TYPE</var> field to <var>record</var>.mediaType.
+            Set the <var>ndef.TYPE</var> field to the result of
+            <a>serializing a MIME type</a> with <var>MIME type</var> as
+            the input.
           </li>
           <li>
             Set the <var>ndef.PAYLOAD</var> field to <var>data</var>
@@ -2458,13 +2452,14 @@ writer.push({ records: [
             <code><a>DOMException</a></code> and abort these steps.
           </li>
           <li>
-            If <var>record</var>.mediaType is an empty <a>string</a>, set
-            <var>record</var>.mediaType to
+            Let <var>MIME type</var> be the <a data-lt="MIME type">MIME type record</a>
+            returned by running <a>parsing a MIME type</a> with
+            <var>record</var>.mediaType as input.
+            In case of failure, set <var>record</var>.mediaType to
             <code>"application/octet-stream"</code>.
           </li>
           <li>
-            Otherwise, if <var>record</var>.mediaType is not an empty <a>string</a>,
-            the UA MAY check if <var>record</var>.mediaType is
+            Optionally, the UA MAY check if <var>MIME type</var> is
             a valid IANA registered type. If not, then the UA MAY throw a
             <code>"<a>SyntaxError</a>"</code>
             <code><a>DOMException</a></code> and abort these steps.
@@ -2477,7 +2472,9 @@ writer.push({ records: [
             Set the <var>ndef.TNF</var> field to 2 (Media Type).
           </li>
           <li>
-            Set the <var>ndef.TYPE</var> field to <var>record</var>.mediaType.
+            Set the <var>ndef.TYPE</var> field to the result of
+            <a>serializing a MIME type</a> with <var>MIME type</var> as
+            the input.
           </li>
           <li>
             Set the <var>ndef.PAYLOAD</var> field to <var>record</var>.data
@@ -2593,7 +2590,7 @@ writer.push({ records: [
         </pre>
         A <a>match pattern</a> is a
         <a href="http://pubs.opengroup.org/onlinepubs/007904875/utilities/xcu_chap02.html#tag_02_13_03">
-        glob</a> used for matching <a>IANA media type</a>s,
+        glob</a> used for matching <a>MIME type</a>s,
         for instance the pattern <code>'application/*+json'</code> matches
         <code>'application/calendar+json'</code>, but does not match
         <code>'application/json'</code>. The pattern
