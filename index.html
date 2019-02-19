@@ -200,8 +200,8 @@
     <code><a>Window</a></code> objects.
   </p>
   <p>
-    The term 
-    <dfn data-cite="!MIMESNIFF#mime-type">MIME type</dfn>, 
+    The term
+    <dfn data-cite="!MIMESNIFF#mime-type">MIME type</dfn>,
     <dfn data-cite="!MIMESNIFF#parsing-a-mime-type">Parsing a MIME type</dfn>,
     <dfn data-cite="!MIMESNIFF#serializing-a-mime-type">Serializing a MIME type</dfn>,
     <dfn data-cite="!MIMESNIFF#valid-mime-type">valid MIME type string</dfn> and
@@ -264,8 +264,10 @@
     <dfn data-cite="!INFRA#iteration-continue">continue</dfn>,
     <dfn data-cite="!INFRA#list-is-empty">is empty</dfn>,
     <dfn data-cite="!INFRA#list-is-not-empty">is not empty</dfn>,
-    <dfn data-cite="!INFRA#list-append" data-lt="list-append">append</dfn>, and
-    <dfn data-cite="!INFRA#list-contain" data-lt="list-contain">contains</dfn>
+    <dfn data-cite="!INFRA#list-append" data-lt="list-append">append</dfn>,
+    <dfn data-cite="!INFRA#list-contain" data-lt="list-contain">contains</dfn>,
+    <dfn data-cite="!INFRA#parse-json-from-bytes">parse JSON from bytes</dfn> and
+    <dfn data-cite="!INFRA#serialize-json-to-bytes">serialize JSON to bytes</dfn>,
     are defined in [[!INFRA]].
   </p>
   <p>
@@ -2413,10 +2415,8 @@ writer.push({ records: [
             and abort these steps.
           </li>
           <li>
-            Let <var>data</var> be the result of
-            <a data-lt="JSON.stringify">serializing</a> <var>record</var>.data
-            and if that throws an error, throw a <code>"<a>SyntaxError</a>"</code>
-            <code><a>DOMException</a></code> and abort these steps.
+            Let <var>data</var> be the result of executing
+            <a>serialize JSON to bytes</a> on <var>record</var>.data.
           </li>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
@@ -3002,28 +3002,38 @@ writer.push({ records: [
             the <var>record</var> object properties:
             <ol>
               <li>
-                If <var>ndef.TYPE</var> matches the <a>match pattern</a>
-                <code>"application/*json"</code>, then
+                Let <var>MIME type</var> be the <a data-lt="MIME type">MIME type record</a>
+                returned by running <a>parsing a MIME type</a> with
+                <var>ndef.TYPE</var> as input.
+              </li>
+              <li>
+                If <var>MIME type</var> is a <a>JSON MIME type</a>, then
                 <ol>
-                  <li>Set <var>record</var>.recordType to <code>"json"</code>.</li>
                   <li>
-                    Set <var>record</var>.mediaType to <var>ndef.TYPE</var>.
+                    Set <var>record</var>.recordType to <code>"json"</code>.
                   </li>
                   <li>
-                    Let <var>payload</var> be <var>ndef.PAYLOAD</var> converted
-                    to <a>UTF-16 encoding</a>, and set <var>record</var>.data to the result of
-                    <a data-lt="JSON.parse">parsing</a> <var>payload</var>.
-                    If <a data-lt="JSON.parse">parsing</a> throws an error,
-                    skip to the next <a>NDEF record</a>.
+                    Set <var>record</var>.mediaType to the result of
+                    <a>serializing a MIME type</a> with <var>MIME type</var> as
+                    the input.
+                  </li>
+                  <li>
+                    Set <var>record</var>.data to the result of executing
+                    <a>parse JSON from bytes</a> on <var>ndef.PAYLOAD</var>.
+                    If an error is thrown, skip to the next <a>NDEF record</a>.
                   </li>
                 </ol>
               </li>
               <li>
                 Otherwise,
                 <ol>
-                  <li>Set <var>record</var>.recordType to <code>"opaque"</code>.</li>
                   <li>
-                    Set <var>record</var>.mediaType to <var>ndef.TYPE</var>.
+                    Set <var>record</var>.recordType to <code>"opaque"</code>.
+                  </li>
+                  <li>
+                    Set <var>record</var>.mediaType to the result of
+                    <a>serializing a MIME type</a> with <var>MIME type</var> as
+                    the input.
                   </li>
                   <li>
                     Set <var>record</var>.data to a new <code>ArrayBuffer</code>
