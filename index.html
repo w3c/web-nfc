@@ -189,8 +189,7 @@
     <dfn data-cite="!HTML#eventhandler">EventHandler</dfn>,
     <dfn data-cite="!HTML#focus">focus</dfn>,
     <dfn data-cite="!HTML#handler-onblur">lose focus</dfn>,
-    <dfn data-cite="!HTML#unloading-document-cleanup-steps">unloading document cleanup steps</dfn>,
-    <dfn data-cite="!HTML#utf-16-encoding">UTF-16 encoding</dfn>.
+    <dfn data-cite="!HTML#unloading-document-cleanup-steps">unloading document cleanup steps</dfn>.
   </p>
   <p>
     A <a>browsing context</a> refers to the environment in which
@@ -258,8 +257,10 @@
   </p>
   <p>
     <dfn data-cite="!INFRA#ascii-decode">ASCII decode</dfn>,
+    <dfn data-cite="!INFRA#ascii-lowercase">ASCII lowercase</dfn>,
     <dfn data-cite="!INFRA#string">string</dfn>,
     <dfn data-cite="!INFRA#byte">byte</dfn>,
+    <dfn data-cite="!INFRA#byte-sequence">byte sequence</dfn>,
     <dfn data-cite="!INFRA#ordered-set">set</dfn>,
     <dfn data-cite="!INFRA#map-exists">exists</dfn>,
     <dfn data-cite="!INFRA#list">list</dfn>,
@@ -282,6 +283,7 @@
   </p>
   <p>
     <dfn data-cite="!ENCODING#utf-8">UTF-8 encoding</dfn>,
+    <dfn data-cite="!ENCODING#utf-8-decode">UTF-8 decode</dfn>,
     <dfn data-cite="!ENCODING#encode">encode</dfn>, and
     <dfn data-cite="!ENCODING#decode">decode</dfn> are defined in [[!ENCODING]].
   </p>
@@ -812,28 +814,6 @@ const writer = new NFCWriter();
 writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </pre>
   </aside>
-
-  <aside title="Write Chinese text as UTF-8" class="example">
-    <p>
-      In order to write a non-UTF-16 string, the data mush be written
-      as an <a>ArrayBuffer</a> and the charset must be set as part
-      of the <a>MIME type</a>.
-    </p>
-    <pre class="highlight">
-const encoder = new TextEncoder([utfLabel = "utf-8"]);
-const utf8Text = encoder.encode("电脑坏了。");
-const writer = new NFCWriter();
-
-writer.push({ records: [
-  {
-    recordType: "opaque",
-    mediaType: "text/plain; lang=zh; charset=UTF-8;",
-    data: utf8Text.buffer
-  }
-]});
-    </pre>
-  </aside>
-
   </section> <!-- Usage examples -->
 
   <section class="informative"> <h3>Use Cases</h3>
@@ -2314,16 +2294,21 @@ writer.push({ records: [
                 <ol>
                   <li>
                     If <var>MIME type</var>.parameters[<code>"charset"</code>]
-                    <a>exists</a>, set <var>charset</var> to the value.
+                    <a>exists</a>, set <var>charset</var> to be the
+                    result of running <a>ASCII lowercase</a> on the value.
                   </li>
                   <li>
-                    If <var>charset</var> is equal to "UTF-8",
-                    then set bit 7 (MSB) to 0 (<a>UTF-8 encoding</a>),
-                    otherwise to 1 (<a>UTF-16 encoding</a>).
+                    If <var>charset</var> is not equal to <code>"utf-8"</code>,
+                    <a>throw</a> a <code><a>TypeError</a></code>.
                   </li>
-                  <li>Set bit 6 to 0.</li>
                   <li>
-                    Set bits 5 to 0 to the length of the
+                    Set bit 7 (MSB) to 8 (<a>UTF-8 encoding</a>).
+                  </li>
+                  <li>
+                    Set bit 6 to the value 0.
+                  </li>
+                  <li>
+                    Set bit 5 to bit 0 to the length of the
                     <var>language</var> <a>string</a>.
                   </li>
                 </ol>
@@ -2335,9 +2320,7 @@ writer.push({ records: [
               <li>
                 Set the consecutive payload <a>bytes</a> to
                 <var>record</var>.data in the encoding set by the
-                MSB bit of the first payload <a>byte</a> (by default
-                <a href="#dfn-utf-16-encoding">UTF-16</a>,
-                or <a href="#dfn-utf-8-encoding">UTF-8</a> on special request).
+                MSB bit of the first payload <a>byte</a>.
               </li>
             </ol>
           </li>
@@ -2514,7 +2497,7 @@ writer.push({ records: [
           </li>
           <li>
             Set <var>ndef.PAYLOAD</var> to the <a>URL path</a> of the current
-            <a>browsing context</a>, <a href="#dfn-encode">encoded</a> as <a>UTF-16 encoding</a>.
+            <a>browsing context</a>.
             <p class="note">
               In future versions a list of "allowed-origins" may be
               supported.
@@ -2552,7 +2535,7 @@ writer.push({ records: [
             and abort these steps.
           </li>
           <li>
-            Return <var>id</var>, <a href="#dfn-encode">encoded</a> in <a>UTF-16 encoding</a>.
+            Return <var>id</var>.
           </li>
         </ol>
       </p>
@@ -2695,7 +2678,7 @@ writer.push({ records: [
           </li>
           <li>
             Let <var>subdomain pattern</var> be the result of prepending <code>"."</code>
-            to <code>pattern</code>'s <a href="#dfn-url-host">host</a>.
+            to <var>pattern</var>'s <a href="#dfn-url-host">host</a>.
           </li>
           <li>
             If <var>id</var>'s <a href="#dfn-url-host">host</a> does not end with
@@ -2941,14 +2924,25 @@ writer.push({ records: [
             <var>record</var> object properties:
             <ol>
               <li>
+                Let <var>header</var> be the first <a>byte</a> of <var>ndef.PAYLOAD</var>.
+              </li>
+              <li>
+                Let <var>charset</var> be <code>"utf-8"</code> if bit 7 (MSB) of
+                <var>header</var> is equal to the value 0, or else <code>"utf-16be"</code>.
+              </li>
+              <li>
+                Let <var>offset</var> be the value given by bit 5 to bit 0 of the
+                <var>header</var>.
+              </li>
+              <li>
                 Let <var>MIME type</var> be a <a data-lt="MIME type">MIME type record</a>
                 with type <code>"text"</code>, subtype <code>"plain"</code> and parameters
                 equal to an empty ordered map.
               </li>
               <li>
                 Let <var>MIME type</var>.parameters[<code>"lang"</code>] be the
-                result of invoking <a>ASCII decode</a> on the consecutive
-                <var>offset</var> number of <a>bytes</a>.
+                result of running <a>ASCII decode</a> on second <a>byte</a> to the
+                <var>offset</var> + 1 byte, inclusive.
               </li>
               <li>
                 Set <var>record</var>.recordType to <code>"text"</code>.
@@ -2959,16 +2953,40 @@ writer.push({ records: [
                 the input.
               </li>
               <li>
-                Read the first <a>byte</a> of <var>ndef.PAYLOAD</var>.
-                Let <var>offset</var> be the value given by bits 5 to 0 of the
-                first payload <a>byte</a>.
+                Let <var>buffer</var> be the <a>byte sequence</a> of <var>
+                ndef.PAYLOAD</var> from position <var>offset</var> + 1 to the end.
               </li>
               <li>
-                Set <var>record</var>.data to the <a>string</a> created from the
-                consecutive <var>ndef.PAYLOAD</var> <a>bytes</a>, converted to
-                <a>UTF-16 encoding</a>.
+                If <var>charset</var> is equal to <code>"utf-8"</code>,
+                set <var>record</var>.data to the result of running
+                <a>UTF-8 decode</a> on <var>buffer</var>.
+              </li>
+              <li>
+                Otherwise, set <var>record</var>.data to the result of running
+                <a>decode</a> on <var>buffer</var> with <var>encoding</var> set
+                to <code>"utf-16be"</code>.
               </li>
             </ol>
+            <p class="note">
+              Using the encoder from [[!ENCODING]], it is only possible
+              to encode as UTF-8, unless you do the encoding manually
+              and use the <code>"opaque"</code>
+              <a href="#the-ndefrecordtype-enum">recordType</a>, which
+              allows you to write any opaque data.
+              <br><br>
+              When you write a <a>string</a> to the <code>"text"</code>
+              <a href="#the-ndefrecordtype-enum">recordType</a>, it will
+              be written as UTF-8.
+              External applications have the ability to additionally encode
+              this field as UTF-16BE, but that is transparent from the use
+              of the <a>NFCReader</a> which will always return the data
+              as a <a>string</a>.
+              <br><br>
+              As external applications may have encoded the <code>"opaque"</code>
+              <a href="#the-ndefrecordtype-enum">recordType</a> using a different
+              encoding, which can be decoded using [[!ENCODING]] if you know
+              the encoding.
+            </p>
           </li> <!-- reading NDEF Text record -->
           <li>
             If <var>ndef.TNF</var> is 1 (<a>well-known type</a>), and
@@ -2994,9 +3012,12 @@ writer.push({ records: [
                 Section 3.2.2.
               </li>
               <li>
-                Set <var>record</var>.data to the <a href="#dfn-utf-16-encoding">UTF-16</a>
-                <a>string</a> converted from the <a>bytes</a> of
-                <var>ndef.PAYLOAD</var> except the first <a>byte</a>.
+                Let <var>buffer</var> be the <a>byte sequence</a> of <var>
+                ndef.PAYLOAD</var> from the second <a>byte</a> to the end.
+              </li>
+              <li>
+                Concat <var>record</var>.data with the result of running
+                <a>UTF-8 decode</a> on <var>buffer</var>.
               </li>
             </ol>
           </li> <!-- parsing NDEF URL record -->
@@ -3059,9 +3080,7 @@ writer.push({ records: [
           <li>
             If <var>ndef.TNF</var> is 4 (<a>external type</a>), and
             <var>ndef.TYPE</var> is <code>urn:nfc:ext:w3.org:webnfc</code>,
-            then set <var>message</var>.url to the value
-            <a href="#dfn-decode">decoded</a> from
-            <var>ndef.PAYLOAD</var> in <a>UTF-16 encoding</a>.
+            then set <var>message</var>.url to the <var>ndef.PAYLOAD</var>.
           </li> <!-- parsing Web NFC record -->
           <li>
             Otherwise, if <var>ndef.TNF</var> is 4 (<a>external type</a>),
@@ -3149,17 +3168,18 @@ writer.push({ records: [
   <!-- All the Web IDL will magically appear here -->
 </section>
 
-<!-- - - - - - - - - - - - - - - Acknowledgements - - - - - - - - - - - - - -->
-<section> <h2>Acknowledgements</h2>
+<!-- - - - - - - - - - - - - - - Acknowledgments - - - - - - - - - - - - - -->
+<section> <h2>Acknowledgments</h2>
   <p>
     The editors would like to thank Jeffrey Yasskin, Anne van Kesteren,
     Anssi Kostiainen, Domenic Denicola, Daniel Ehrenberg, Jonas Sicking,
     Don Coleman, Salvatore Iovene and Rijubrata Bhaumik for their
     contributions to this document.
-
-    Special thanks goes to the former editors Luc Yriarte and Samuel Ortiz
-    for their initial work on exposing NFC to the Web Platform, and for
-    their supports for our new approach.
+  </p>
+  <p>
+    Also thanks to Luc Yriarte and Samuel Ortiz for their initial work
+    on exposing NFC to the web platform, and for their supports for the
+    new approach.
   </p>
 </section>
 
