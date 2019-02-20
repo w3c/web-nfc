@@ -228,6 +228,7 @@
     [[!RFC5234]].
   </p>
   <p>
+    <dfn data-cite="!WEBIDL#dfn-throw"><code>throw</code></dfn>,
     <dfn data-cite="!WEBIDL#dfn-create-exception"><code>creating</code></dfn>,
     <dfn data-cite="!WEBIDL#idl-DOMString"><code>DOMString</code></dfn>,
     <dfn data-cite="!WEBIDL#idl-dictionary"><code>Dictionary</code></dfn>,
@@ -258,6 +259,7 @@
   <p>
     <dfn data-cite="!INFRA#ascii-decode">ASCII decode</dfn>,
     <dfn data-cite="!INFRA#string">string</dfn>,
+    <dfn data-cite="!INFRA#byte">byte</dfn>,
     <dfn data-cite="!INFRA#ordered-set">set</dfn>,
     <dfn data-cite="!INFRA#map-exists">exists</dfn>,
     <dfn data-cite="!INFRA#list">list</dfn>,
@@ -470,7 +472,7 @@
   <p class="note">
     As part of the <a>NDEF record</a>, an <dfn>NDEF Id</dfn> field may be
     present for application specific usages. According to the
-    [[NFC-STANDARDS]] it contains a URL with the maximum length of 256 octets.
+    [[NFC-STANDARDS]] it contains a URL with the maximum length of 256 bytes.
     This URL is used for identifying the <a>NDEF record</a> payload in an
     application specific way.
     This version of the specification does not use <a>NDEF Id</a> for
@@ -1586,8 +1588,8 @@ writer.push({ records: [
           <a>continue</a>.
         </li>
         <li>
-          Reject <var>p</var> with an <code>"<a>AbortError</a>"</code>
-          <code><a>DOMException</a></code> and abort these steps.
+          Reject <var>p</var> with an <code><a>AbortError</a></code>
+          and abort these steps.
         </li>
       </ol>
     </li>
@@ -1854,18 +1856,16 @@ writer.push({ records: [
           </li>
           <li>
             If there is no underlying <a>NFC Adapter</a>, or if a connection cannot
-            be established, then reject <var>p</var> with a <code>"<a>NotReadableError</a>"</code>
-            <code><a>DOMException</a></code> and return <var>p</var>.
+            be established, then reject <var>p</var> with a <code><a>NotReadableError</a></code>
+            and return <var>p</var>.
           </li>
           <li>
             If pushing data is not supported by the underlying <a>NFC Adapter</a>, then reject
-            <var>p</var> with a <code>"<a>NotSupportedError</a>"</code>
-            <code><a>DOMException</a></code> and return <var>p</var>.
+            <var>p</var> with a <code><a>NotSupportedError</a></code> and return <var>p</var>.
           </li>
           <li>
             If <var>signal</var>’s <a>aborted flag</a> is set, then reject <var>p</var>
-            with an <code>"<a>AbortError</a>"</code>
-            <code><a>DOMException</a></code> and return <var>p</var>.
+            with an <code><a>AbortError</a></code> and return <var>p</var>.
           </li>
           <li>
             If <var>signal</var> is not <code>null</code>, then
@@ -1877,12 +1877,11 @@ writer.push({ records: [
                 <li>
                   If the instance has already initiated NFC data transfer,
                   reject <var>p</var> with
-                  <code>"<a>NoModificationAllowedError</a>"</code>
-                  <code><a>DOMException</a></code> and abort these steps.
+                  <code><a>NoModificationAllowedError</a></code> and abort these steps.
                 </li>
                 <li>
-                  Reject <var>p</var> with an <code>"<a>AbortError</a>"</code>
-                  <code><a>DOMException</a></code> and abort these steps.
+                  Reject <var>p</var> with an <code><a>AbortError</a></code>
+                  and abort these steps.
                 </li>
               </ol>
           </li>
@@ -1891,8 +1890,7 @@ writer.push({ records: [
             <ol>
               <li>
                 An implementation MAY reject <var>p</var> with
-                <code>"<a>NotSupportedError</a>"</code> <code><a>DOMException</a></code>
-                and abort these steps.
+                <code><a>NotSupportedError</a></code> and abort these steps.
                 <div class="note">
                   The UA might terminate message push at this point. The reasons
                   for terminations are implementation details. For example, the user
@@ -1928,8 +1926,8 @@ writer.push({ records: [
               </li>
               <li>
                 If <var>timeout</var> value is not supported by the UA, reject
-                <var>p</var> with <code>"<a>NotSupportedError</a>"</code>
-                <code><a>DOMException</a></code> and abort these steps.
+                <var>p</var> with <code><a>NotSupportedError</a></code>
+                and abort these steps.
               </li>
               <li>
                 Let <var>output</var> be the notation for the <a>NDEF message</a>
@@ -1950,7 +1948,7 @@ writer.push({ records: [
                   If there are any existing instance of this algorithm running whose
                   <var>target</var> is equal to <var>slot</var>, abort that
                   instance of this algorithm by rejecting its <var>p</var>
-                  with <code>"<a>AbortError</a>"</code> <code><a>DOMException</a></code>.
+                  with <code><a>AbortError</a></code>.
                   <p class="note">
                     In other words, the current invocation of
                     <a href="#dom-nfcwriter-push"><code>push()</code></a>
@@ -2030,7 +2028,7 @@ writer.push({ records: [
                             <a>current settings object</a>, and the
                             <a>obtain push permission</a> steps return
                             <code>false</code>, then reject <var>p</var> with
-                            <code>"SecurityError"</code> <code><a>DOMException</a></code>
+                            <code>SecurityError</code>
                             and abort these steps.
                           </li>
                         </ul>
@@ -2043,7 +2041,7 @@ writer.push({ records: [
                       </li>
                       <li>
                         If the transfer fails, reject <var>p</var> with
-                        <code>"<a>NetworkError</a>"</code> <code><a>DOMException</a></code>
+                        <code><a>NetworkError</a></code>
                         and abort these
                         steps.
                         <p class="note">
@@ -2103,7 +2101,7 @@ writer.push({ records: [
                 <a>Web NFC permission name</a>.
                 If that is granted, return <code>true</code>.
                 <p class="issue">
-                  The<a>request permission</a> steps are not yet clearly defined.
+                  The <a>request permission</a> steps are not yet clearly defined.
                   At this point the UA asks the user about the policy to be used
                   with the <a>Web NFC permission name</a> for the given
                   <a>origin</a> and <a>global object</a>, if the user grants permission,
@@ -2258,19 +2256,21 @@ writer.push({ records: [
         <ol>
           <li>
             If the type of a <var>record</var>.data is not a <code>String</code>
-            or a <code>UnrestrictedDouble</code>, throw a <code>"<a>TypeError</a>"</code>
-            <code><a>DOMException</a></code> and abort these steps.
+            or a <code>UnrestrictedDouble</code>, <a>throw</a> a <code><a>TypeError</a></code>
+            and abort these steps.
           </li>
           <li>
             Let <var>MIME type</var> be the <a data-lt="MIME type">MIME type record</a>
-            returned by running <a>parsing a MIME type</a> with
-            <var>record</var>.mediaType as input.
-            In case of failure, set <var>record</var>.mediaType to
+            returned by running <a>parsing a MIME type</a> on
+            <var>record</var>.mediaType.
+          </li>
+          <li>
+            If <var>MIME type</var> is failure, set <var>record</var>.mediaType to
             <code>"text/plain"</code>.
           </li>
           <li>
-            If <var>MIME type</var>.type is not <code>"text"</code>, then throw a
-            <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
+            If <var>MIME type</var>.type is not <code>"text"</code>, then <a>throw</a> a
+            <code><a>SyntaxError</a></code>
             and abort these steps.
           </li>
           <li>
@@ -2283,8 +2283,8 @@ writer.push({ records: [
             If <var>language</var> is not one of the language codes listed
             in the <a href="http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry">
             IANA language registry</a>
-            (or [[ISO-639.2]]), then UAs MAY throw a <code>"<a>SyntaxError</a>"</code>
-            <code><a>DOMException</a></code> and abort these steps.
+            (or [[ISO-639.2]]), then UAs MAY throw a <code><a>SyntaxError</a></code>
+            and abort these steps.
 
             <p class="note">
               Note that <code>lang=</code> is not standard parameter
@@ -2310,7 +2310,7 @@ writer.push({ records: [
             Definition specification:
             <ol>
               <li>
-                The first octet is a status byte containing bit flags.
+                The first <a>byte</a> is a status byte containing bit flags.
                 <ol>
                   <li>
                     If <var>MIME type</var>.parameters[<code>"charset"</code>]
@@ -2329,13 +2329,13 @@ writer.push({ records: [
                 </ol>
               </li>
               <li>
-                Set the consecutive octets of <var>ndef.PAYLOAD</var>
+                Set the consecutive <a>bytes</a> of <var>ndef.PAYLOAD</var>
                 to the value of <var>language</var> encoded as US-ASCII.
               </li>
               <li>
-                Set the consecutive payload octets to
+                Set the consecutive payload <a>bytes</a> to
                 <var>record</var>.data in the encoding set by the
-                MSB bit of the first payload octet (by default
+                MSB bit of the first payload <a>byte</a> (by default
                 <a href="#dfn-utf-16-encoding">UTF-16</a>,
                 or <a href="#dfn-utf-8-encoding">UTF-8</a> on special request).
               </li>
@@ -2354,8 +2354,8 @@ writer.push({ records: [
         steps:
         <ol>
           <li>
-            If the type of a <var>record</var>.data is not a <code>String</code>,
-            throw a <code>"<a>TypeError</a>"</code> <code><a>DOMException</a></code>
+            If <var>record</var>.data is not a <a>string</a>,
+            <a>throw</a> a <code><a>TypeError</a></code>
             and abort these steps.
           </li>
           <li>
@@ -2363,8 +2363,8 @@ writer.push({ records: [
             <a href="dfn-parse-a-url">parsing</a> <var>record</var>.data.
           </li>
           <li>
-            If <var>urlRecord</var> is failure, throw a
-            <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
+            If <var>urlRecord</var> is failure, <a>throw</a> a
+            <code><a>SyntaxError</a></code>
             and abort these steps.
           </li>
           <li>
@@ -2382,9 +2382,9 @@ writer.push({ records: [
             Set the <var>ndef.PAYLOAD</var> field to
             <var>record</var>.data encoded according to the
             [[NFC-STANDARDS]], NFC Forum URI Record Type Definition
-            specification: set the first octet according to the
+            specification: set the first <a>byte</a> according to the
             applicable scheme abbreviation, and set the rest of the
-            payload bytes to <var>record</var>.data in <a>UTF-8 encoding</a>.
+            payload <a>bytes</a> to <var>record</var>.data in <a>UTF-8 encoding</a>.
           </li>
           <li>
             Return <var>ndef</var>.
@@ -2400,19 +2400,21 @@ writer.push({ records: [
         <ol>
           <li>
             If the type of a <var>record</var>.data is not an <code>Object</code>,
-            throw a <code>"<a>TypeError</a>"</code>
-            <code><a>DOMException</a></code> and abort these steps.
+            <a>throw</a> a <code><a>TypeError</a></code>
+            and abort these steps.
           </li>
           <li>
             Let <var>MIME type</var> be the <a data-lt="MIME type">MIME type record</a>
-            returned by running <a>parsing a MIME type</a> with
-            <var>record</var>.mediaType as input.
-            In case of failure, set <var>record</var>.mediaType to
+            returned by running <a>parsing a MIME type</a> on
+            <var>record</var>.mediaType.
+          </li>
+          <li>
+            If <var>MIME type</var> is failure, set <var>record</var>.mediaType to
             <code>"application/json"</code>.
           </li>
           <li>
-            If <var>MIME type</var> is not a <a>JSON MIME type</a>, then throw a
-            <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
+            If <var>MIME type</var> is not a <a>JSON MIME type</a>, then <a>throw</a> a
+            <code><a>SyntaxError</a></code>
             and abort these steps.
           </li>
           <li>
@@ -2424,7 +2426,7 @@ writer.push({ records: [
             be created by the UA.
           </li>
           <li>
-            Set the <var>ndef.TNF</var> field to 2 (Media Type).
+            Set the <var>ndef.TNF</var> field to 2 (<a>MIME type</a>).
           </li>
           <li>
             Set the <var>ndef.TYPE</var> field to the result of
@@ -2433,7 +2435,7 @@ writer.push({ records: [
           </li>
           <li>
             Set the <var>ndef.PAYLOAD</var> field to <var>data</var>
-            according to the [[!NFC-STANDARDS]], i.e. as an opaque octet stream.
+            according to the [[!NFC-STANDARDS]], i.e. as an opaque byte sequence.
           </li>
           <li>
             Return <var>ndef</var>.
@@ -2449,28 +2451,29 @@ writer.push({ records: [
         <ol>
           <li>
             If the type of a <var>record</var>.data is not an
-            <code>ArrayBuffer</code>, throw a <code>"<a>TypeError</a>"</code>
-            <code><a>DOMException</a></code> and abort these steps.
+            <code>ArrayBuffer</code>, <a>throw</a> a <code><a>TypeError</a></code>
+            and abort these steps.
           </li>
           <li>
             Let <var>MIME type</var> be the <a data-lt="MIME type">MIME type record</a>
-            returned by running <a>parsing a MIME type</a> with
-            <var>record</var>.mediaType as input.
-            In case of failure, set <var>record</var>.mediaType to
+            returned by running <a>parsing a MIME type</a> on
+            <var>record</var>.mediaType.
+          </li>
+          <li>
+            If <var>MIME type</var> is failure, set <var>record</var>.mediaType to
             <code>"application/octet-stream"</code>.
           </li>
           <li>
             Optionally, the UA MAY check if <var>MIME type</var> is
             a valid IANA registered type. If not, then the UA MAY throw a
-            <code>"<a>SyntaxError</a>"</code>
-            <code><a>DOMException</a></code> and abort these steps.
+            <code><a>SyntaxError</a></code> and abort these steps.
           </li>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
             be created by the UA.
           </li>
           <li>
-            Set the <var>ndef.TNF</var> field to 2 (Media Type).
+            Set the <var>ndef.TNF</var> field to 2 (<a>MIME type</a>).
           </li>
           <li>
             Set the <var>ndef.TYPE</var> field to the result of
@@ -2479,7 +2482,7 @@ writer.push({ records: [
           </li>
           <li>
             Set the <var>ndef.PAYLOAD</var> field to <var>record</var>.data
-            according to the [[!NFC-STANDARDS]], i.e. as an opaque octet stream.
+            according to the [[!NFC-STANDARDS]], i.e. as an opaque byte sequence
           </li>
           <li>
             Return <var>ndef</var>.
@@ -2507,7 +2510,7 @@ writer.push({ records: [
           <li>
             Let <var>payload</var> be the result of invoking
             <a>create a Web NFC Id</a> given <var>urlPath</var>.
-            If this throws an exception, re-throw it.
+            If this throws an exception, re-<a>throw</a> it.
           </li>
           <li>
             Set <var>ndef.PAYLOAD</var> to the <a>URL path</a> of the current
@@ -2544,8 +2547,8 @@ writer.push({ records: [
             <a href="dfn-parse-a-url">parsing</a> <var>id</var>.
           </li>
           <li>
-            If <var>urlRecord</var> is failure, throw a
-            <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
+            If <var>urlRecord</var> is failure, <a>throw</a> a
+            <code><a>SyntaxError</a></code>
             and abort these steps.
           </li>
           <li>
@@ -2625,8 +2628,8 @@ writer.push({ records: [
             <td><a href="#dfn-url-host">host</a></td>
             <td>
               exact match or ends with (<a>URL pattern</a>'s
-              <a href="#dfn-url-host">host</a> <code>String</code> prepended
-              with <code>"."</code>) <code>String</code>
+              <a href="#dfn-url-host">host</a> prepended
+              with <code>"."</code>).
             </td>
           </tr>
           <tr>
@@ -2634,7 +2637,7 @@ writer.push({ records: [
             <td>
               If <a>URL pattern</a>'s path is <code>"/*"</code>, match any
               <a>Web NFC Id</a> path. Otherwise, begins with <a>URL pattern</a>'s
-              <a href="#dfn-url-path">path</a> <code>String</code>
+              <a href="#dfn-url-path">path</a>.
             </td>
           </tr>
         </table>
@@ -2662,55 +2665,55 @@ writer.push({ records: [
         these steps:
         <ol>
           <li>
-            Let <var>id</var> be a <code><a>Web NFC Id</a></code> passed to this algorithm.
+            Let <var>raw id</var> be a <code><a>Web NFC Id</a></code> passed to this algorithm.
           </li>
           <li>
-            Let <var>pattern</var> be a <a>URL pattern</a> passed to this algorithm.
+            Let <var>raw pattern</var> be a <a>URL pattern</a> passed to this algorithm.
           </li>
           <li>
-            If <var>id</var> and <var>pattern</var> are empty <code>String</code>s,
-            return <code>true</code> and abort these steps.
+            If <var>raw id</var> and <var>raw pattern</var> are empty <a>string</a>s,
+            return <code>true</code>.
           </li>
           <li>
-            Let <code>id_url</code> be the result of invoking the
-            <a>basic URL parser</a> algorithm with <var>id</var> as an input.
-            If the <a>basic URL parser</a> algorithm returns
-            <code>failure</code>, return <code>false</code> and abort these steps.
+            Let <var>id</var> be the result of running the
+            <a>basic URL parser</a> on <var>raw id</var>.
           </li>
           <li>
-            Let <code>pattern_url</code> be the result of invoking the
-            <a>basic URL parser</a> algorithm with <var>pattern</var> as an input.
-            If the <a>basic URL parser</a> algorithm returns
-            <code>failure</code>, return <code>false</code> and abort these steps.
+            If <var>id</var> is failure, return <code>false</code>.
           </li>
           <li>
-            If <code>id_url</code>'s <a href="#dfn-url-scheme">scheme</a> <code>String</code>
-            does not match <code>pattern_url</code>'s <a href="#dfn-url-scheme">scheme</a>
-            <code>String</code>, return <code>false</code> and abort these steps.
+            Let <var>pattern</var> be the result of running the
+            <a>basic URL parser</a> on <var>raw pattern</var>.
           </li>
           <li>
-            Let <code>subdomain_pattern</code> be the result of prepending <code>"."</code>
-            <code>String</code> to <code>pattern_url</code>'s <a href="#dfn-url-host">host</a>
-            <code>String</code>.
+            If <var>pattern</var> is failure, return <code>false</code>.
           </li>
           <li>
-            If <code>id_url</code>'s <a href="#dfn-url-host">host</a> <code>String</code>
-            does not end with <code>subdomain_pattern</code> <code>String</code> and
-            <code>id_url</code>'s <a href="#dfn-url-host">host</a> <code>String</code> is
-            not equal to <code>pattern_url</code>'s <a href="#dfn-url-host">host</a> <code>String</code>,
-            return <code>false</code> and abort these steps.
+            If <var>id</var>'s <a href="#dfn-url-scheme">scheme</a>
+            does not match <code>pattern</code>'s <a href="#dfn-url-scheme">scheme</a>,
+            return <code>false</code>.
           </li>
           <li>
-            If <code>pattern_url</code>'s <a href="#dfn-url-path">path</a> <code>String</code>
-            equal to <code>"/*"</code>, return <code>true</code> and abort these steps.
+            Let <var>subdomain pattern</var> be the result of prepending <code>"."</code>
+            to <code>pattern</code>'s <a href="#dfn-url-host">host</a>.
           </li>
           <li>
-            If <code>id_url</code>'s <a href="#dfn-url-path">path</a> <code>String</code>
-            begins with <code>pattern_url</code>'s <a href="#dfn-url-path">path</a>
-            <code>String</code>, return true and abort these steps.
+            If <var>id</var>'s <a href="#dfn-url-host">host</a> does not end with
+            <var>subdomain pattern</var> and <var>id</var>'s
+            <a href="#dfn-url-host">host</a> is not equal to <var>pattern</var>'s
+            <a href="#dfn-url-host">host</a>, return <code>false</code>.
           </li>
           <li>
-            Otherwise, return false.
+            If <var>pattern</var>'s <a href="#dfn-url-path">path</a> is equal to
+            <code>"/*"</code>, return <code>true</code>.
+          </li>
+          <li>
+            If <var>id</var>'s <a href="#dfn-url-path">path</a> begins with
+            <var>pattern</var>'s <a href="#dfn-url-path">path</a>,
+            return <code>true</code>.
+          </li>
+          <li>
+            Otherwise, return <code>false</code>.
           </li>
         </ol>
     </section>
@@ -2739,7 +2742,7 @@ writer.push({ records: [
             <ol>
               <li>
                 Let <var>e</var> be the result of <a>creating</a> a
-                <code>"<a>NotReadableError</a>"</code> <code><a>DOMException</a></code>.
+                <code><a>NotReadableError</a></code>.
               </li>
               <li>
                 <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
@@ -2760,7 +2763,7 @@ writer.push({ records: [
                 <ol>
                   <li>
                     Let <var>e</var> be the result of <a>creating</a> a
-                    <code>"NotAllowedError"</code> <code><a>DOMException</a></code>.
+                    <code>NotAllowedError</code>.
                   </li>
                   <li>
                     <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
@@ -2781,7 +2784,7 @@ writer.push({ records: [
                 <ol>
                   <li>
                     Let <var>e</var> be the result of <a>creating</a> a
-                    <code>"<a>NotSupportedError</a>"</code> <code><a>DOMException</a></code>.
+                    <code><a>NotSupportedError</a></code>.
                   </li>
                   <li>
                     <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
@@ -2794,12 +2797,12 @@ writer.push({ records: [
                 </ol>
               </li>
               <li>
-                If the <var>reader_instance</var>.[[\Url]] is not an empty <code>String</code>
+                If the <var>reader_instance</var>.[[\Url]] is not an empty <a>string</a>
                 and it is not a <a>valid URL pattern</a>, then
                 <ol>
                   <li>
                     Let <var>e</var> be the result of <a>creating</a> a
-                    <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>.
+                    <code><a>SyntaxError</a></code>.
                   </li>
                   <li>
                     <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
@@ -2945,7 +2948,7 @@ writer.push({ records: [
               <li>
                 Let <var>MIME type</var>.parameters[<code>"lang"</code>] be the
                 result of invoking <a>ASCII decode</a> on the consecutive
-                <var>offset</var> number of octets.
+                <var>offset</var> number of <a>bytes</a>.
               </li>
               <li>
                 Set <var>record</var>.recordType to <code>"text"</code>.
@@ -2956,13 +2959,13 @@ writer.push({ records: [
                 the input.
               </li>
               <li>
-                Read the first octet of <var>ndef.PAYLOAD</var>.
+                Read the first <a>byte</a> of <var>ndef.PAYLOAD</var>.
                 Let <var>offset</var> be the value given by bits 5 to 0 of the
-                first payload octet.
+                first payload <a>byte</a>.
               </li>
               <li>
                 Set <var>record</var>.data to the <a>string</a> created from the
-                consecutive <var>ndef.PAYLOAD</var> octets, converted to
+                consecutive <var>ndef.PAYLOAD</var> <a>bytes</a>, converted to
                 <a>UTF-16 encoding</a>.
               </li>
             </ol>
@@ -2980,7 +2983,7 @@ writer.push({ records: [
                 Set <var>record</var>.mediaType to <code>"text/plain"</code>.
               </li>
               <li>
-                Let <var>scheme</var> be the value of the first octet of
+                Let <var>scheme</var> be the value of the first <a>byte</a> of
                 <var>ndef.PAYLOAD</var>.
               </li>
               <li>
@@ -2992,8 +2995,8 @@ writer.push({ records: [
               </li>
               <li>
                 Set <var>record</var>.data to the <a href="#dfn-utf-16-encoding">UTF-16</a>
-                <a>string</a> converted from the octets of
-                <var>ndef.PAYLOAD</var> except the first octet.
+                <a>string</a> converted from the <a>bytes</a> of
+                <var>ndef.PAYLOAD</var> except the first <a>byte</a>.
               </li>
             </ol>
           </li> <!-- parsing NDEF URL record -->
@@ -3005,15 +3008,15 @@ writer.push({ records: [
             <var>ndef.PAYLOAD</var>.
           </li> <!-- parsing NDEF Absolute URI record -->
           <li>
-            If <var>ndef.TNF</var> is 2 (Media Type), then run
+            If <var>ndef.TNF</var> is 2 (<a>MIME type</a>), then run
             the following sub-steps for <dfn>parsing NDEF Media record</dfn>, or
             make sure that the underlying platform provides equivalent values to
             the <var>record</var> object properties:
             <ol>
               <li>
                 Let <var>MIME type</var> be the <a data-lt="MIME type">MIME type record</a>
-                returned by running <a>parsing a MIME type</a> with
-                <var>ndef.TYPE</var> as input.
+                returned by running <a>parsing a MIME type</a> on
+                <var>ndef.TYPE</var>.
               </li>
               <li>
                 If <var>MIME type</var> is a <a>JSON MIME type</a>, then
@@ -3046,7 +3049,7 @@ writer.push({ records: [
                   </li>
                   <li>
                     Set <var>record</var>.data to a new <code>ArrayBuffer</code>
-                    object constructed from the octets of
+                    object constructed from the <a>byte</a> sequence of
                     <var>ndef.PAYLOAD</var>.
                   </li>
                 </ol>
@@ -3074,7 +3077,7 @@ writer.push({ records: [
               </li>
               <li>
                 Set <var>record</var>.data to a new <code>ArrayBuffer</code>
-                object constructed from the octets of <var>ndef.PAYLOAD</var>.
+                object constructed from the <a>bytes</a> of <var>ndef.PAYLOAD</var>.
               </li>
             </ol>
           </li> <!-- parsing NDEF External/Unknown record -->
@@ -3107,14 +3110,14 @@ writer.push({ records: [
         the <a>activated reader objects</a>, run the following sub-steps:
         <ol>
           <li>
-            If the <a>URL pattern</a> <var>reader_instance</var>.[[\Url]] is not
-            an empty <code>String</code> invoke
-            <a href="#dfn-match-web-nfc-id-with-url-pattern">URL pattern match</a>
-            algorithm, providing <var>reader_instance</var>.[[\Url]] as a
+            Let <var>match</var> be the result of running
+            <a href="#dfn-match-web-nfc-id-with-url-pattern">URL pattern match</a>,
+            with <var>reader_instance</var>.[[\Url]] as the
             <a>URL pattern</a> and
-            <var>message</var>.url as a <code><a>Web NFC Id</a></code>. If
-            <a href="#dfn-match-web-nfc-id-with-url-pattern">URL pattern match</a>
-            algorithm returns <code>false</code>, <a>continue</a>.
+            <var>message</var>.url as the <code><a>Web NFC Id</a></code>.
+          </li>
+          <li>
+            If <var>match</var> is <code>false</code>, <a>continue</a>.
           </li>
           <li>
             If <var>reader_instance</var>.[[\RecordType]] is <a href=#dfn-not-present>present</a> and
