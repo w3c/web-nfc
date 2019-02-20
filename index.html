@@ -256,6 +256,7 @@
     are defined in [[!ECMASCRIPT]].
   </p>
   <p>
+    <dfn data-cite="!INFRA#ascii-decode">ASCII decode</dfn>,
     <dfn data-cite="!INFRA#string">string</dfn>,
     <dfn data-cite="!INFRA#ordered-set">set</dfn>,
     <dfn data-cite="!INFRA#map-exists">exists</dfn>,
@@ -2936,20 +2937,28 @@ writer.push({ records: [
             underlying platform provides equivalent values to the
             <var>record</var> object properties:
             <ol>
-              <li>Set <var>record</var>.recordType to <code>"text"</code>.</li>
               <li>
-                Set <var>record</var>.mediaType to <code>"text/plain"</code>.
+                Let <var>MIME type</var> be a <a data-lt="MIME type">MIME type record</a>
+                with type <code>"text"</code>, subtype <code>"plain"</code> and parameters
+                equal to an empty ordered map.
+              </li>
+              <li>
+                Let <var>MIME type</var>.parameters[<code>"lang"</code>] be the
+                result of invoking <a>ASCII decode</a> on the consecutive
+                <var>offset</var> number of octets.
+              </li>
+              <li>
+                Set <var>record</var>.recordType to <code>"text"</code>.
+              </li>
+              <li>
+                Set <var>record</var>.mediaType to the result of
+                <a>serializing a MIME type</a> with <var>MIME type</var> as
+                the input.
               </li>
               <li>
                 Read the first octet of <var>ndef.PAYLOAD</var>.
                 Let <var>offset</var> be the value given by bits 5 to 0 of the
                 first payload octet.
-              </li>
-              <li>
-                Let <var>language</var> be the <a>string</a> defined by the consecutive
-                <var>offset</var> number of octets, converted from US-ASCII
-                encoding. Append <code>";lang="</code> and then the value of
-                <var>language</var> to <var>record</var>.mediaType.
               </li>
               <li>
                 Set <var>record</var>.data to the <a>string</a> created from the
