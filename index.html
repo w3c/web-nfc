@@ -116,9 +116,9 @@
     devices at close proximity, usually less than a few centimeters.
     NFC is an international standard (ISO/IEC 18092) defining an interface and
     protocol for simple wireless interconnection of closely coupled devices
-    operating at 13.56 MHz
-    (see <a href="https://www.nfc-forum.org/specs/spec_list/">
-    https://www.nfc-forum.org/specs/spec_list/</a>).
+    operating at 13.56 MHz.
+
+    The hardware standard is deined in [[NFC-STANDARDS]].
   </p>
   <p>
     This document defines an API to enable selected use-cases based on
@@ -2267,12 +2267,6 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             then set <var>language</var> to
             <var>MIME type</var>.parameters[<code>"lang"</code>].
 
-            If <var>language</var> is not one of the language codes listed
-            in the <a href="http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry">
-            IANA language registry</a>
-            (or [[ISO-639.2]]), then UAs MAY throw a <code>"<a>SyntaxError</a>"</code>
-            <code><a>DOMException</a></code> and abort these steps.
-
             <p class="note">
               Note that <code>lang=</code> is not standard parameter
               to <a>MIME type</a>s, but it is used in this specification
@@ -2452,12 +2446,6 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           <li>
             If <var>MIME type</var> is failure, set <var>record</var>.mediaType to
             <code>"application/octet-stream"</code>.
-          </li>
-          <li>
-            Optionally, the UA MAY check if <var>MIME type</var> is
-            a valid IANA registered type. If not, then the UA MAY throw a
-            <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
-            and abort these steps.
           </li>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
