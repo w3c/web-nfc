@@ -1887,13 +1887,13 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 </div>
               </li>
               <li>
-                Let <var>target</var> be <var>options</var>.target.
+                Let <var>target</var> be <var>options</var>'s target.
               </li>
               <li>
-                Let <var>timeout</var> be <var>options</var>.timeout.
+                Let <var>timeout</var> be <var>options</var>'s timeout.
               </li>
               <li>
-                Let <var>compatibility</var> be <var>options</var>.compatibility.
+                Let <var>compatibility</var> be <var>options</var>'s compatibility.
               </li>
               <li>
                 If the <var>message</var> parameter is not of type defined by
@@ -1902,7 +1902,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               </li>
               <li>
                 If the <var>message</var> parameter is of
-                <code>NDEFMessage</code> type, and <var>message</var>.records
+                <code>NDEFMessage</code> type, and <var>message</var>'s records
                 <a>is empty</a>, reject <var>p</var> with
                 <code>"<a>TypeError</a>"</code> and abort these steps.
               </li>
@@ -2005,7 +2005,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                         <ul>
                           <li>Read the tag.</li>
                           <li>
-                            If <var>options</var>.ignoreRead is not equal to
+                            If <var>options</var>'s ignoreRead is not equal to
                             <code>true</code>, run the
                             <a href="#steps-receiving">receiving steps</a>.
                           </li>
@@ -2118,27 +2118,27 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             <a>For each</a> <a>NDEFRecord</a> <var>record</var> in the <a>list</a>
-            <var>message</var>.records, run the following steps, or make sure
+            <var>message</var>'s records, run the following steps, or make sure
             that the underlying platform provides equivalent values to
             <var>ndef</var>:
             <ol>
               <li>
-                If <var>record</var>.recordType is <code>undefined</code>, then:
+                If <var>record</var>'s recordType is <code>undefined</code>, then:
                 <ol> <!-- guess type and mediaType from data -->
                   <li>
-                    If the type of <var>record</var>.data is an
-                    <code>ArrayBuffer</code>, then set <var>record</var>.recordType
+                    If the type of <var>record</var>'s data is an
+                    <code>ArrayBuffer</code>, then set <var>record</var>'s recordType
                     to <code>"opaque"</code>.
                   </li>
                   <li>
-                    Otherwise, if the type of <var>record</var>.data is an
-                    <code>Object</code>, then set <var>record</var>.recordType
+                    Otherwise, if the type of <var>record</var>'s data is an
+                    <code>Object</code>, then set <var>record</var>'s recordType
                     to <code>"json"</code>.
                   </li>
                   <li>
-                    Otherwise, if the type of <var>record</var>.data is
+                    Otherwise, if the type of <var>record</var>'s data is
                     <code>UnrestrictedDouble</code> or <code>String</code>, then
-                    set <var>record</var>.recordType to <code>"text"</code>.
+                    set <var>record</var>'s recordType to <code>"text"</code>.
                   </li>
                   <li>
                     Otherwise reject <var>promise</var> with
@@ -2147,35 +2147,35 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 </ol>
               </li>
               <li>
-                If <var>record</var>.recordType is <code>"empty"</code>, then
+                If <var>record</var>'s recordType is <code>"empty"</code>, then
                 Let <var>ndef</var> be the result of passing <var>record</var>
                 to <a>map empty record to NDEF</a>.
                 If this throws an exception, reject <var>promise</var> with
                 that exception and abort these steps.
               </li>
               <li>
-                Otherwise, if <var>record</var>.recordType is <code>"text"</code>,
+                Otherwise, if <var>record</var>'s recordType is <code>"text"</code>,
                 then let <var>ndef</var> be the result of passing
                 <var>record</var> to <a>map text to NDEF</a>.
                 If this throws an exception, reject
                 <var>promise</var> with that exception and abort these steps.
               </li>
               <li>
-                Otherwise, if <var>record</var>.recordType is <code>"url"</code>,
+                Otherwise, if <var>record</'s recordType is <code>"url"</code>,
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map a URL to NDEF</a>.
                 If this throws an exception, reject <var>promise</var> with that
                 exception and abort these steps.
               </li>
               <li>
-                Otherwise, if <var>record</var>.recordType is <code>"json"</code>,
+                Otherwise, if <var>record</var>'s recordType is <code>"json"</code>,
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map a JSON object to NDEF</a>.
                 If this throws an exception, reject <var>promise</var> with that
                 exception and abort these steps.
               </li>
               <li>
-                Otherwise, if <var>record</var>.recordType is <code>"opaque"</code>,
+                Otherwise, if <var>record</var>'s recordType is <code>"opaque"</code>,
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map binary data to NDEF</a>.
                 If this throws an exception, reject <var>promise</var> with that
@@ -2188,7 +2188,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li> <!-- converting message -->
           <li>
             Let <var>webnfc</var> be the result of invoking
-            <a>create a Web NFC record</a> given <var>message</var>.url.
+            <a>create a Web NFC record</a> given <var>message</var>'s url.
             If this throws an exception, reject <var>promise</var> with that
             exception and abort these steps.
           </li>
@@ -2212,16 +2212,13 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             be created by the UA.
           </li>
           <li>Set the
-            <var>ndef.TNF</var> field to 0 (empty).
+            <var>ndef</var>'s TNF field to 0 (empty).
           </li>
           <li>Set
-            <var>ndef.TYPE_LENGTH</var>,
-            <var>ndef.ID_LENGTH</var> and
-            <var>ndef.PAYLOAD_LENGTH</var> fields to 0,
+            <var>ndef</var>'s TYPE_LENGTH,
+            ID_LENGTH and PAYLOAD_LENGTH fields to 0,
             and omit the associated fields from the <a>NDEF record</a>:
-            <var>ndef.TYPE</var>,
-            <var>ndef.ID</var>,
-            <var>ndef.PAYLOAD</var>.
+            TYPE, ID, and PAYLOAD.
           </li>
           <li>
             Return <var>ndef</var>.
@@ -2244,30 +2241,30 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         </p>
         <ol>
           <li>
-            If the type of a <var>record</var>.data is not a <code>String</code>
+            If the type of a <var>record</var>'s data is not a <code>String</code>
             or a <code>UnrestrictedDouble</code>, <a>throw</a> a <code><a>TypeError</a></code>
             and abort these steps.
           </li>
           <li>
             Let <var>MIME type</var> be the <a data-lt="MIME type">MIME type record</a>
             returned by running <a>parsing a MIME type</a> on
-            <var>record</var>.mediaType.
+            <var>record</var>'s mediaType.
           </li>
           <li>
-            If <var>MIME type</var> is failure, set <var>record</var>.mediaType to
+            If <var>MIME type</var> is failure, set <var>record</var>'s mediaType to
             <code>"text/plain"</code>.
           </li>
           <li>
-            If <var>MIME type</var>.type is not <code>"text"</code>, then <a>throw</a> a
+            If <var>MIME type</var>'s type is not <code>"text"</code>, then <a>throw</a> a
             <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
             and abort these steps.
           </li>
           <li>
             Let <var>language</var> be <code>"en"</code>.
 
-            If <var>MIME type</var>.parameters[<code>"lang"</code>] <a>exists</a>,
+            If <var>MIME type</var>'s parameters[<code>"lang"</code>] <a>exists</a>,
             then set <var>language</var> to
-            <var>MIME type</var>.parameters[<code>"lang"</code>].
+            <var>MIME type</var>'s parameters[<code>"lang"</code>].
 
             <p class="note">
               Note that <code>lang=</code> is not standard parameter
@@ -2280,24 +2277,24 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             be created by the UA.
           </li>
           <li>
-            Set the <var>ndef.TNF</var> field to 1 (<a>well-known type</a>).
+            Set the <var>ndef</var>'s TNF field to 1 (<a>well-known type</a>).
           </li>
           <li>
-            Set the <var>ndef.TYPE</var> field to <code>"T"</code>
+            Set the <var>ndef</var>'s TYPE field to <code>"T"</code>
             (value 0x54 following NFC binary encoding).
           </li>
           <li>
-            Set the <var>ndef.PAYLOAD</var> field to
-            <var>record</var>.data encoded according to the
+            Set the <var>ndef</var>'s PAYLOAD field to
+            <var>record</var>'s data encoded according to the
             [[!NFC-STANDARDS]], NFC Forum Text Record Type
             Definition specification:
             <ol>
               <li>
                 To set the first <a>byte</a> of the <a>byte sequence</a>
-                of <var>ndef.PAYLOAD</var>, perform the following steps:
+                of <var>ndef</var>'s PAYLOAD field, perform the following steps:
                 <ol>
                   <li>
-                    If <var>MIME type</var>.parameters[<code>"charset"</code>]
+                    If <var>MIME type</var>'s parameters[<code>"charset"</code>]
                     <a>exists</a>, set <var>charset</var> to be the
                     result of running <a>ASCII lowercase</a> on the value.
                   </li>
@@ -2323,13 +2320,13 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               </li>
               <li>
                 Set position 1 to <var>offset</var> + 1, inclusive, of the <a>byte sequence</a>
-                of <var>ndef.PAYLOAD</var> to the result of running <a>ASCII encode</a>
+                of <var>ndef</var>'s PAYLOAD field to the result of running <a>ASCII encode</a>
                 on <var>language</var>.
               </li>
               <li>
                 Set position from <var>offset</var> + 1 to end, of the <a>byte sequence</a>
-                of <var>ndef.PAYLOAD</var> to the result of running <a>UTF-8 encode</a>
-                on <var>record</var>.data.
+                of <var>ndef</var>'s PAYLOAD field to the result of running <a>UTF-8 encode</a>
+                on <var>record</var>'s data.
               </li>
             </ol>
           </li>
@@ -2346,13 +2343,13 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         steps:
         <ol>
           <li>
-            If <var>record</var>.data is not a <a>string</a>,
+            If <var>record</var>'s data is not a <a>string</a>,
             <a>throw</a> a <code><a>TypeError</a></code>
             and abort these steps.
           </li>
           <li>
             Let <var>urlRecord</var> be the result of
-            <a href="dfn-parse-a-url">parsing</a> <var>record</var>.data.
+            <a href="dfn-parse-a-url">parsing</a> <var>record</var>'s data.
           </li>
           <li>
             If <var>urlRecord</var> is failure, <a>throw</a> a
@@ -2364,19 +2361,19 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             be created by the UA.
           </li>
           <li>
-            Set the <var>ndef.TNF</var> field to 1 (<a>well-known type</a>).
+            Set the <var>ndef</var>'s TNF field to 1 (<a>well-known type</a>).
           </li>
           <li>
-            Set the <var>ndef.TYPE</var> field to "U" (0x55
+            Set the <var>ndef</var>'s TYPE field to "U" (0x55
             following NFC binary encoding).
           </li>
           <li>
-            Set the <var>ndef.PAYLOAD</var> field to
-            <var>record</var>.data encoded according to the
+            Set the <var>ndef</var>'s PAYLOAD field to
+            <var>record</var>'s data encoded according to the
             [[NFC-STANDARDS]], NFC Forum URI Record Type Definition
             specification: set the first <a>byte</a> according to the
             applicable scheme abbreviation, and set the rest of the
-            payload <a>bytes</a> to <var>record</var>.data in <a>UTF-8 encoding</a>.
+            payload <a>bytes</a> to <var>record</var>'s data in <a>UTF-8 encoding</a>.
           </li>
           <li>
             Return <var>ndef</var>.
@@ -2391,17 +2388,17 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         run these steps:
         <ol>
           <li>
-            If the type of a <var>record</var>.data is not an <code>Object</code>,
+            If the type of a <var>record</var>'s data is not an <code>Object</code>,
             <a>throw</a> a <code><a>TypeError</a></code>
             and abort these steps.
           </li>
           <li>
             Let <var>MIME type</var> be the <a data-lt="MIME type">MIME type record</a>
             returned by running <a>parsing a MIME type</a> on
-            <var>record</var>.mediaType.
+            <var>record</var>'s mediaType.
           </li>
           <li>
-            If <var>MIME type</var> is failure, set <var>record</var>.mediaType to
+            If <var>MIME type</var> is failure, set <var>record</var>'s mediaType to
             <code>"application/json"</code>.
           </li>
           <li>
@@ -2411,22 +2408,22 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             Let <var>data</var> be the result of executing
-            <a>serialize JSON to bytes</a> on <var>record</var>.data.
+            <a>serialize JSON to bytes</a> on <var>record</var>'s data.
           </li>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
             be created by the UA.
           </li>
           <li>
-            Set the <var>ndef.TNF</var> field to 2 (<a>MIME type</a>).
+            Set the <var>ndef</var>'s TNF field to 2 (<a>MIME type</a>).
           </li>
           <li>
-            Set the <var>ndef.TYPE</var> field to the result of
+            Set the <var>ndef</var>'s TYPE field to the result of
             <a>serializing a MIME type</a> with <var>MIME type</var> as
             the input.
           </li>
           <li>
-            Set the <var>ndef.PAYLOAD</var> field to <var>data</var>
+            Set the <var>ndef</var>'s PAYLOAD field to <var>data</var>
             according to the [[!NFC-STANDARDS]], i.e. as an opaque byte sequence.
           </li>
           <li>
@@ -2442,17 +2439,17 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         run these steps:
         <ol>
           <li>
-            If the type of a <var>record</var>.data is not an
+            If the type of a <var>record</var>'s data is not an
             <code>ArrayBuffer</code>, <a>throw</a> a <code><a>TypeError</a></code>
             and abort these steps.
           </li>
           <li>
             Let <var>MIME type</var> be the <a data-lt="MIME type">MIME type record</a>
             returned by running <a>parsing a MIME type</a> on
-            <var>record</var>.mediaType.
+            <var>record</var>'s mediaType.
           </li>
           <li>
-            If <var>MIME type</var> is failure, set <var>record</var>.mediaType to
+            If <var>MIME type</var> is failure, set <var>record</var>'s mediaType to
             <code>"application/octet-stream"</code>.
           </li>
           <li>
@@ -2460,15 +2457,15 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             be created by the UA.
           </li>
           <li>
-            Set the <var>ndef.TNF</var> field to 2 (<a>MIME type</a>).
+            Set the <var>ndef</var>'s TNF field to 2 (<a>MIME type</a>).
           </li>
           <li>
-            Set the <var>ndef.TYPE</var> field to the result of
+            Set the <var>ndef</var>'s TYPE field to the result of
             <a>serializing a MIME type</a> with <var>MIME type</var> as
             the input.
           </li>
           <li>
-            Set the <var>ndef.PAYLOAD</var> field to <var>record</var>.data
+            Set the <var>ndef</var>'s PAYLOAD field to <var>record</var>'s data
             according to the [[!NFC-STANDARDS]], i.e. as an opaque byte sequence
           </li>
           <li>
@@ -2488,14 +2485,14 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             be created by the UA.
           </li>
           <li>
-            Set <var>ndef.TNF</var> to 4 (<a>external type</a>).
+            Set <var>ndef</var>'s TNF to 4 (<a>external type</a>).
           </li>
           <li>
-            Set <var>ndef.TYPE</var> to
+            Set <var>ndef</var>'s TYPE to
             <code>"urn:nfc:ext:w3.org:webnfc"</code>.
           </li>
           <li>
-            Set <var>ndef.PAYLOAD</var> to the result of invoking
+            Set <var>ndef</var>'s PAYLOAD to the result of invoking
             <a>create a Web NFC Id</a> given <var>urlPath</var>.
             If this throws an exception, re-<a>throw</a> it.
           </li>
@@ -2884,8 +2881,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </li>
       <li>
         Let <var>message</var> be a new <code>NDEFMessage</code> object, with
-        <var>message</var>.url set to <code>null</code> and
-        <var>message</var>.records set to the empty <a>list</a>.
+        <var>message</var>'s url set to <code>null</code> and
+        <var>message</var>'s records set to the empty <a>list</a>.
       </li>
       <li>
         Let <var>input</var> be the notation for the <a>NDEF message</a>
@@ -2904,20 +2901,20 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             Let <var>record</var> be a new <code><a>NDEFRecord</a></code> object.
           </li>
           <li>
-            If <var>ndef.TNF</var> is 0 (empty), then set
-            <var>record</var>.recordType to <code>"empty"</code> and set
-            <var>record</var>.mediaType to <code>""</code>.
+            If <var>ndef</var>'s TNF field is 0 (empty), then set
+            <var>record</var>'s recordType to <code>"empty"</code> and set
+            <var>record</var>'s mediaType to <code>""</code>.
           </li>
           <li>
-            If <var>ndef.TNF</var> is 1 (<a>well-known type</a>), and
-            <var>ndef.TYPE</var> is <code>"T"</code> (value 0x54 following NFC
+            If <var>ndef</var>'s TNF field is 1 (<a>well-known type</a>), and
+            <var>ndef</var>'s TYPE field is <code>"T"</code> (value 0x54 following NFC
             binary encoding), then run the following sub-steps for
             <dfn>parsing NDEF Text record</dfn>, or ensure that the
             underlying platform provides equivalent values to the
             <var>record</var> object properties:
             <ol>
               <li>
-                Let <var>header</var> be the first <a>byte</a> of <var>ndef.PAYLOAD</var>.
+                Let <var>header</var> be the first <a>byte</a> of <var>ndef</var>'s PAYLOAD field.
               </li>
               <li>
                 Let <var>charset</var> be <code>"utf-8"</code> if bit 7 (most significant bit) of
@@ -2933,29 +2930,29 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 equal to an empty ordered map.
               </li>
               <li>
-                Let <var>MIME type</var>.parameters[<code>"lang"</code>] be the
+                Let <var>MIME type</var>'s parameters[<code>"lang"</code>] be the
                 result of running <a>ASCII decode</a> on second <a>byte</a> to the
                 <var>offset</var> + 1 byte, inclusive.
               </li>
               <li>
-                Set <var>record</var>.recordType to <code>"text"</code>.
+                Set <var>record</var>'s recordType to <code>"text"</code>.
               </li>
               <li>
-                Set <var>record</var>.mediaType to the result of
+                Set <var>record</var>'s mediaType to the result of
                 <a>serializing a MIME type</a> with <var>MIME type</var> as
                 the input.
               </li>
               <li>
                 Let <var>buffer</var> be the <a>byte sequence</a> of <var>
-                ndef.PAYLOAD</var> from position <var>offset</var> + 1 to the end.
+                ndef</var>'s PAYLOAD field, from position <var>offset</var> + 1 to the end.
               </li>
               <li>
                 If <var>charset</var> is equal to <code>"utf-8"</code>,
-                set <var>record</var>.data to the result of running
+                set <var>record</var>'s data to the result of running
                 <a>UTF-8 decode</a> on <var>buffer</var>.
               </li>
               <li>
-                Otherwise, set <var>record</var>.data to the result of running
+                Otherwise, set <var>record</var>'s data to the result of running
                 <a>decode</a> on <var>buffer</var> with <var>encoding</var> set
                 to <code>"utf-16be"</code>.
               </li>
@@ -2982,23 +2979,23 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             </p>
           </li> <!-- reading NDEF Text record -->
           <li>
-            If <var>ndef.TNF</var> is 1 (<a>well-known type</a>), and
-            <var>ndef.TYPE</var> is <code>"U"</code> (value 0x55 in NFC binary
+            If <var>ndef</var>'s TNF field is 1 (<a>well-known type</a>), and
+            <var>ndef</var>'s TYPE field is <code>"U"</code> (value 0x55 in NFC binary
             encoding), then run the following sub-steps for
             <dfn>parsing NDEF URL record</dfn>, or make sure that the
             underlying platform provides equivalent values to the
             <var>record</var> object properties:
             <ol>
-              <li>Set <var>record</var>.recordType to <code>"url"</code>.</li>
+              <li>Set <var>record</var>'s recordType to <code>"url"</code>.</li>
               <li>
-                Set <var>record</var>.mediaType to <code>"text/plain"</code>.
+                Set <var>record</var>'s mediaType to <code>"text/plain"</code>.
               </li>
               <li>
                 Let <var>scheme</var> be the value of the first <a>byte</a> of
-                <var>ndef.PAYLOAD</var>.
+                <var>ndef</var>'s PAYLOAD field.
               </li>
               <li>
-                If <var>scheme</var> is not 0, then set <var>record</var>.data
+                If <var>scheme</var> is not 0, then set <var>record</var>'s data
                 to the <a>string</a> obtained from mapping the value of
                 <var>scheme</var> to the URL scheme as specified in the
                 [[!NFC-STANDARDS]] URI Record Type Definition specification,
@@ -3006,23 +3003,23 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               </li>
               <li>
                 Let <var>buffer</var> be the <a>byte sequence</a> of <var>
-                ndef.PAYLOAD</var> from the second <a>byte</a> to the end.
+                ndef</var>'s PAYLOAD field from the second <a>byte</a> to the end.
               </li>
               <li>
-                Concat <var>record</var>.data with the result of running
+                Concat <var>record</var>'s data with the result of running
                 <a>UTF-8 decode</a> on <var>buffer</var>.
               </li>
             </ol>
           </li> <!-- parsing NDEF URL record -->
           <li>
-            If <var>ndef.TNF</var> is 3 (<a>absolute-URL string</a>), then
-            set <var>record</var>.recordType to <code>"url"</code>,
-            set <var>record</var>.mediaType to <code>"text/plain"</code> and
-            set <var>record</var>.data to the <a>string</a> converted from
-            <var>ndef.PAYLOAD</var>.
+            If <var>ndef</var>'s TNF field is 3 (<a>absolute-URL string</a>), then
+            set <var>record</var>'s recordType to <code>"url"</code>,
+            set <var>record</var>'s mediaType to <code>"text/plain"</code> and
+            set <var>record</var>'s data to the <a>string</a> converted from
+            <var>ndef</var>'s PAYLOAD field.
           </li> <!-- parsing NDEF Absolute URI record -->
           <li>
-            If <var>ndef.TNF</var> is 2 (<a>MIME type</a>), then run
+            If <var>ndef</var>'s TFN field is 2 (<a>MIME type</a>), then run
             the following sub-steps for <dfn>parsing NDEF Media record</dfn>, or
             make sure that the underlying platform provides equivalent values to
             the <var>record</var> object properties:
@@ -3030,22 +3027,22 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               <li>
                 Let <var>MIME type</var> be the <a data-lt="MIME type">MIME type record</a>
                 returned by running <a>parsing a MIME type</a> on
-                <var>ndef.TYPE</var>.
+                <var>ndef</var>'s TYPE field.
               </li>
               <li>
                 If <var>MIME type</var> is a <a>JSON MIME type</a>, then
                 <ol>
                   <li>
-                    Set <var>record</var>.recordType to <code>"json"</code>.
+                    Set <var>record</var>'s recordType to <code>"json"</code>.
                   </li>
                   <li>
-                    Set <var>record</var>.mediaType to the result of
+                    Set <var>record</var>'s mediaType to the result of
                     <a>serializing a MIME type</a> with <var>MIME type</var> as
                     the input.
                   </li>
                   <li>
-                    Set <var>record</var>.data to the result of executing
-                    <a>parse JSON from bytes</a> on <var>ndef.PAYLOAD</var>.
+                    Set <var>record</var>'s data to the result of executing
+                    <a>parse JSON from bytes</a> on <var>ndef</var>'s PAYLOAD field.
                     If an error is thrown, skip to the next <a>NDEF record</a>.
                   </li>
                 </ol>
@@ -3054,42 +3051,42 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 Otherwise,
                 <ol>
                   <li>
-                    Set <var>record</var>.recordType to <code>"opaque"</code>.
+                    Set <var>record</var>'s recordType to <code>"opaque"</code>.
                   </li>
                   <li>
-                    Set <var>record</var>.mediaType to the result of
+                    Set <var>record</var>'s mediaType to the result of
                     <a>serializing a MIME type</a> with <var>MIME type</var> as
                     the input.
                   </li>
                   <li>
-                    Set <var>record</var>.data to a new <code>ArrayBuffer</code>
+                    Set <var>record</var>'s data to a new <code>ArrayBuffer</code>
                     object constructed from the <a>byte</a> sequence of
-                    <var>ndef.PAYLOAD</var>.
+                    <var>ndef</var>'s PAYLOAD field.
                   </li>
                 </ol>
               </li>
             </ol>
           </li> <!-- parsing NDEF Media record -->
           <li>
-            If <var>ndef.TNF</var> is 4 (<a>external type</a>), and
-            <var>ndef.TYPE</var> is <code>urn:nfc:ext:w3.org:webnfc</code>,
-            then set <var>message</var>.url to the <var>ndef.PAYLOAD</var>.
+            If <var>ndef</var>'s TNF field is 4 (<a>external type</a>), and
+            <var>ndef</var>'s TYPE field is <code>urn:nfc:ext:w3.org:webnfc</code>,
+            then set <var>message</var>'s url to the <var>ndef</var>'s PAYLOAD field.
           </li> <!-- parsing Web NFC record -->
           <li>
-            Otherwise, if <var>ndef.TNF</var> is 4 (<a>external type</a>),
+            Otherwise, if <var>ndef</var>'s TNF field is 4 (<a>external type</a>),
             or 5 (unknown) then run the following sub-steps,
             or make sure that the underlying platform provides equivalent values
             to the <var>record</var> object properties:
             <ol>
-              <li>Set <var>record</var>.recordType to <code>"opaque"</code>.</li>
+              <li>Set <var>record</var>'s recordType to <code>"opaque"</code>.</li>
               <li>
-                If <var>ndef.TYPE</var> is defined, then set
-                <var>record</var>.mediaType to that <a>string</a> value, otherwise to
+                If <var>ndef</var>'s TYPE field is defined, then set
+                <var>record</var>'s mediaType to that <a>string</a> value, otherwise to
                 <code>"application/octet-stream"</code>.
               </li>
               <li>
-                Set <var>record</var>.data to a new <code>ArrayBuffer</code>
-                object constructed from the <a>bytes</a> of <var>ndef.PAYLOAD</var>.
+                Set <var>record</var>'s data to a new <code>ArrayBuffer</code>
+                object constructed from the <a>bytes</a> of <var>ndef</var>'s PAYLOAD field.
               </li>
             </ol>
           </li> <!-- parsing NDEF External/Unknown record -->
@@ -3097,13 +3094,13 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             Otherwise, skip to the next <a>NDEF record</a> in <var>input</var>.
           </li>
           <li>
-            <a>Append</a> <var>record</var> to <var>message</var>.records.
+            <a>Append</a> <var>record</var> to <var>message</var>'s records.
           </li>
         </ol>
       </li>
       <li>
         If <a href="#nfc-is-suspended">NFC is not suspended</a> and
-        <var>message</var>.records <a>is not empty</a>, run the
+        <var>message</var>'s records <a>is not empty</a>, run the
         <a>dispatch NFC content</a> steps given <var>message</var>
         and <var>compatibility</var>.
       </li>
@@ -3126,7 +3123,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             <a href="#dfn-match-web-nfc-id-with-url-pattern">URL pattern match</a>,
             with <var>reader_instance</var>.[[\Url]] as the
             <a>URL pattern</a> and
-            <var>message</var>.url as the <code><a>Web NFC Id</a></code>.
+            <var>message</var>'s url as the <code><a>Web NFC Id</a></code>.
           </li>
           <li>
             If <var>match</var> is <code>false</code>, <a>continue</a>.
@@ -3138,7 +3135,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             If <var>reader_instance</var>.[[\MediaType]] is not <code>""</code> and
-            it is not equal to any <var>record</var>.mediaType where <var>record</var> is
+            it is not equal to any <var>record</var>'s mediaType where <var>record</var> is
             an element of <var>message</var>, <a>continue</a>.
           </li>
           <li>
