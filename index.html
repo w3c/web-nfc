@@ -235,12 +235,12 @@
     <dfn data-cite="!WEBIDL#common-BufferSource"><code>BufferSource</code></dfn>,
     <dfn data-cite="!WEBIDL#idl-any"><code>any</code></dfn>,
     <dfn data-cite="!WEBIDL#dfn-present">not present</dfn>,
+    <dfn data-cite="!WEBIDL#exceptiondef-typeerror"><code>TypeError</code></dfn>,
     <dfn data-cite="!WEBIDL#idl-DOMException"><code>DOMException</code></dfn>,
     <dfn data-cite="!WEBIDL#aborterror"><code>AbortError</code></dfn>,
     <dfn data-cite="!WEBIDL#syntaxerror"><code>SyntaxError</code></dfn>,
     <dfn data-cite="!WEBIDL#notsupportederror"><code>NotSupportedError</code></dfn>,
     <dfn data-cite="!WEBIDL#networkerror"><code>NetworkError</code></dfn>,
-    <dfn data-cite="!WEBIDL#exceptiondef-typeerror"><code>TypeError</code></dfn>,
     <dfn data-cite="!WEBIDL#notreadableerror"><code>NotReadableError</code></dfn>,
     <dfn data-cite="!WEBIDL#timeouterror"><code>TimeoutError</code></dfn>,
     <dfn data-cite="!WEBIDL#nomodificationallowederror"><code>NoModificationAllowedError</code></dfn>, and
@@ -1568,7 +1568,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           <a>continue</a>.
         </li>
         <li>
-          Reject <var>p</var> with an <code><a>AbortError</a></code>
+          Reject <var>p</var> with an <code>"<a>AbortError</a>"</code> <code><a>DOMException</a></code>
           and abort these steps.
         </li>
       </ol>
@@ -1836,16 +1836,19 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             If there is no underlying <a>NFC Adapter</a>, or if a connection cannot
-            be established, then reject <var>p</var> with a <code><a>NotReadableError</a></code>
+            be established, then reject <var>p</var> with a
+            <code>"<a>NotReadableError</a>"</code> <code><a>DOMException</a></code>
             and return <var>p</var>.
           </li>
           <li>
             If pushing data is not supported by the underlying <a>NFC Adapter</a>, then reject
-            <var>p</var> with a <code><a>NotSupportedError</a></code> and return <var>p</var>.
+            <var>p</var> with a <code>"<a>NotSupportedError</a>"</code>
+            <code><a>DOMException</a></code>and return <var>p</var>.
           </li>
           <li>
             If <var>signal</var>’s <a>aborted flag</a> is set, then reject <var>p</var>
-            with an <code><a>AbortError</a></code> and return <var>p</var>.
+            with an <code>"<a>AbortError</a>"</code> <code><a>DOMException</a></code>
+            and return <var>p</var>.
           </li>
           <li>
             If <var>signal</var> is not <code>null</code>, then
@@ -1857,11 +1860,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 <li>
                   If the instance has already initiated NFC data transfer,
                   reject <var>p</var> with
-                  <code><a>NoModificationAllowedError</a></code> and abort these steps.
+                  <code>"<a>NoModificationAllowedError</a>"</code>
+                  <code><a>DOMException</a></code> and abort these steps.
                 </li>
                 <li>
-                  Reject <var>p</var> with an <code><a>AbortError</a></code>
-                  and abort these steps.
+                  Reject <var>p</var> with an <code>"<a>AbortError</a>"</code>
+                  <code><a>DOMException</a></code> and abort these steps.
                 </li>
               </ol>
           </li>
@@ -1870,7 +1874,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             <ol>
               <li>
                 An implementation MAY reject <var>p</var> with
-                <code><a>NotSupportedError</a></code> and abort these steps.
+                <code>"<a>NotSupportedError</a>"</code> <code><a>DOMException</a></code>
+                and abort these steps.
                 <div class="note">
                   The UA might terminate message push at this point. The reasons
                   for terminations are implementation details. For example, the user
@@ -1906,8 +1911,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               </li>
               <li>
                 If <var>timeout</var> value is not supported by the UA, reject
-                <var>p</var> with <code><a>NotSupportedError</a></code>
-                and abort these steps.
+                <var>p</var> with <code>"<a>NotSupportedError</a>"</code>
+                <code><a>DOMException</a></code> and abort these steps.
               </li>
               <li>
                 Let <var>output</var> be the notation for the <a>NDEF message</a>
@@ -1928,7 +1933,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                   If there are any existing instance of this algorithm running whose
                   <var>target</var> is equal to <var>slot</var>, abort that
                   instance of this algorithm by rejecting its <var>p</var>
-                  with <code><a>AbortError</a></code>.
+                  with <code>"<a>AbortError</a>"</code> <code><a>DOMException</a></code>.
                   <p class="note">
                     In other words, the current invocation of
                     <a href="#dom-nfcwriter-push"><code>push()</code></a>
@@ -1963,7 +1968,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                   </li>
                   <li>
                     If <var>timer</var> expires, reject <var>p</var> with
-                    <code>"<a>TimeoutError</a>"</code> and abort these steps.
+                    <code>"<a>TimeoutError</a>"</code> <code><a>DOMException</a></code>
+                    and abort these steps.
                   </li>
                   <li>
                     If an <a>NFC device</a> <var>device</var> comes within
@@ -2008,7 +2014,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                             <a>current settings object</a>, and the
                             <a>obtain push permission</a> steps return
                             <code>false</code>, then reject <var>p</var> with
-                            <code>SecurityError</code>
+                            <code>"<a>SecurityError</a>"</code>
+                            <code><a>DOMException</a></code>
                             and abort these steps.
                           </li>
                         </ul>
@@ -2021,7 +2028,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                       </li>
                       <li>
                         If the transfer fails, reject <var>p</var> with
-                        <code><a>NetworkError</a></code>
+                        <code>"<a>NetworkError</a>"</code> <code><a>DOMException</a></code>
                         and abort these
                         steps.
                         <p class="note">
@@ -2250,7 +2257,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             If <var>MIME type</var>.type is not <code>"text"</code>, then <a>throw</a> a
-            <code><a>SyntaxError</a></code>
+            <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
             and abort these steps.
           </li>
           <li>
@@ -2263,8 +2270,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             If <var>language</var> is not one of the language codes listed
             in the <a href="http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry">
             IANA language registry</a>
-            (or [[ISO-639.2]]), then UAs MAY throw a <code><a>SyntaxError</a></code>
-            and abort these steps.
+            (or [[ISO-639.2]]), then UAs MAY throw a <code>"<a>SyntaxError</a>"</code>
+            <code><a>DOMException</a></code> and abort these steps.
 
             <p class="note">
               Note that <code>lang=</code> is not standard parameter
@@ -2347,7 +2354,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             If <var>urlRecord</var> is failure, <a>throw</a> a
-            <code><a>SyntaxError</a></code>
+            <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
             and abort these steps.
           </li>
           <li>
@@ -2397,7 +2404,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             If <var>MIME type</var> is not a <a>JSON MIME type</a>, then <a>throw</a> a
-            <code><a>SyntaxError</a></code>
+            <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
             and abort these steps.
           </li>
           <li>
@@ -2449,7 +2456,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           <li>
             Optionally, the UA MAY check if <var>MIME type</var> is
             a valid IANA registered type. If not, then the UA MAY throw a
-            <code><a>SyntaxError</a></code> and abort these steps.
+            <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
+            and abort these steps.
           </li>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
@@ -2531,7 +2539,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             If <var>urlRecord</var> is failure, <a>throw</a> a
-            <code><a>SyntaxError</a></code>
+            <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>
             and abort these steps.
           </li>
           <li>
@@ -2725,7 +2733,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             <ol>
               <li>
                 Let <var>e</var> be the result of <a>creating</a> a
-                <code><a>NotReadableError</a></code>.
+                <code>"<a>NotReadableError</a>"</code> <code><a>DOMException</a></code>.
               </li>
               <li>
                 <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
@@ -2767,7 +2775,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 <ol>
                   <li>
                     Let <var>e</var> be the result of <a>creating</a> a
-                    <code><a>NotSupportedError</a></code>.
+                    <code>"<a>NotSupportedError</a>"</code> <code><a>DOMException</a></code>.
                   </li>
                   <li>
                     <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
@@ -2785,7 +2793,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 <ol>
                   <li>
                     Let <var>e</var> be the result of <a>creating</a> a
-                    <code><a>SyntaxError</a></code>.
+                    <code>"<a>SyntaxError</a>"</code> <code><a>DOMException</a></code>.
                   </li>
                   <li>
                     <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
