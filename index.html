@@ -257,6 +257,7 @@
   </p>
   <p>
     <dfn data-cite="!INFRA#ascii-decode">ASCII decode</dfn>,
+    <dfn data-cite="!INFRA#ascii-encode">ASCII encode</dfn>,
     <dfn data-cite="!INFRA#ascii-lowercase">ASCII lowercase</dfn>,
     <dfn data-cite="!INFRA#string">string</dfn>,
     <dfn data-cite="!INFRA#byte">byte</dfn>,
@@ -284,6 +285,7 @@
   <p>
     <dfn data-cite="!ENCODING#utf-8">UTF-8 encoding</dfn>,
     <dfn data-cite="!ENCODING#utf-8-decode">UTF-8 decode</dfn>,
+    <dfn data-cite="!ENCODING#utf-8-encode">UTF-8 encode</dfn>,
     <dfn data-cite="!ENCODING#encode">encode</dfn>, and
     <dfn data-cite="!ENCODING#decode">decode</dfn> are defined in [[!ENCODING]].
   </p>
@@ -2291,7 +2293,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             Definition specification:
             <ol>
               <li>
-                The first <a>byte</a> is a status byte containing bit flags.
+                To set the first <a>byte</a> of the <a>byte sequence</a>
+                of <var>ndef.PAYLOAD</var>, perform the following steps:
                 <ol>
                   <li>
                     If <var>MIME type</var>.parameters[<code>"charset"</code>]
@@ -2303,25 +2306,30 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                     <a>throw</a> a <code><a>TypeError</a></code>.
                   </li>
                   <li>
-                    Set bit 7 (MSB) to 8 (<a>UTF-8 encoding</a>).
+                    Set bit 7 (most significant bit) to the value 0
+                    (meaning <a>UTF-8 encoding</a>).
                   </li>
                   <li>
-                    Set bit 6 to the value 0.
+                    Set bit 6 to the value 0 (reserved).
                   </li>
                   <li>
-                    Set bit 5 to bit 0 to the length of the
+                    Let <var>offset</var> be the length of the
                     <var>language</var> <a>string</a>.
+                  </li>
+                  <li>
+                    Set bit 5 to bit 0 to <var>offset</var>.
                   </li>
                 </ol>
               </li>
               <li>
-                Set the consecutive <a>bytes</a> of <var>ndef.PAYLOAD</var>
-                to the value of <var>language</var> encoded as US-ASCII.
+                Set position 1 to <var>offset</var> + 1, inclusive, of the <a>byte sequence</a>
+                of <var>ndef.PAYLOAD</var> to the result of running <a>ASCII encode</a>
+                on <var>language</var>.
               </li>
               <li>
-                Set the consecutive payload <a>bytes</a> to
-                <var>record</var>.data in the encoding set by the
-                MSB bit of the first payload <a>byte</a>.
+                Set position from <var>offset</var> + 1 to end, of the <a>byte sequence</a>
+                of <var>ndef.PAYLOAD</var> to the result of running <a>UTF-8 encode</a>
+                on <var>record</var>.data.
               </li>
             </ol>
           </li>
@@ -2923,7 +2931,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 Let <var>header</var> be the first <a>byte</a> of <var>ndef.PAYLOAD</var>.
               </li>
               <li>
-                Let <var>charset</var> be <code>"utf-8"</code> if bit 7 (MSB) of
+                Let <var>charset</var> be <code>"utf-8"</code> if bit 7 (most significant bit) of
                 <var>header</var> is equal to the value 0, or else <code>"utf-16be"</code>.
               </li>
               <li>
