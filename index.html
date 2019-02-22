@@ -2495,20 +2495,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             <code>"urn:nfc:ext:w3.org:webnfc"</code>.
           </li>
           <li>
-            Let <var>payload</var> be the result of invoking
+            Set <var>ndef.PAYLOAD</var> to the result of invoking
             <a>create a Web NFC Id</a> given <var>urlPath</var>.
             If this throws an exception, re-<a>throw</a> it.
-          </li>
-          <li>
-            Set <var>ndef.PAYLOAD</var> to the <a>URL path</a> of the current
-            <a>browsing context</a>.
-            <p class="note">
-              In future versions a list of "allowed-origins" may be
-              supported.
-              It is still up for discussions due to security issues. See the
-              <a href="http://w3c.github.io/web-nfc/security-privacy.html#security-and-privacy-context-of-nfc">
-              Security and Privacy</a> document.
-            </p>
           </li>
           <li>
             Return <var>ndef</var>.
