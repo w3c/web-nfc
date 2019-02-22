@@ -1280,7 +1280,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <code>null</code> or <code>DOMString</code> or <code>Number</code> or
         <code>Dictionary</code>
       </td>
-      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) record with
+      <td><a>MIME type</a> (<a>TNF</a>=2) record with
         <a>MIME type</a> specified in the <code>type</code> attribute.
       </td>
     </tr>
@@ -1288,7 +1288,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <td rowspan="2"><dfn>"opaque"</dfn></td>
       <td><a>MIME type</a></td>
       <td><code>ArrayBuffer</code></td>
-      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) record</td>
+      <td><a>MIME type</a> (<a>TNF</a>=2) record</td>
     </tr>
     <tr>
       <td><code>""</code> (<i>empty</i>)</td>
@@ -1341,7 +1341,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <td><code>DOMString</code></td>
     </tr>
     <tr>
-      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) record with
+      <td><a>MIME type</a> (<a>TNF</a>=2) record with
         <a>JSON MIME type</a>
       </td>
       <td>"json"</td>
@@ -1352,7 +1352,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </td>
     </tr>
     <tr>
-      <td>Media Type as defined in [[RFC2046]] (<a>TNF</a>=2) record</td>
+      <td><a>MIME type</a> (<a>TNF</a>=2) record</td>
       <td>"opaque"</td>
       <td>The <a>MIME type</a> used in the NDEF record</td>
       <td><code>ArrayBuffer</code></td>
@@ -1898,17 +1898,17 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               <li>
                 If the <var>message</var> parameter is not of type defined by
                 the <code>NDEFMessageSource</code> union, reject <var>p</var>
-                with <code>"<a>TypeError</a>"</code>, and abort these steps.
+                with <code><a>TypeError</a></code>, and abort these steps.
               </li>
               <li>
                 If the <var>message</var> parameter is of
                 <code>NDEFMessage</code> type, and <var>message</var>'s records
                 <a>is empty</a>, reject <var>p</var> with
-                <code>"<a>TypeError</a>"</code> and abort these steps.
+                <code><a>TypeError</a></code> and abort these steps.
               </li>
               <li>
                 If <var>timeout</var> value is NaN or negative, reject
-                <var>p</var> with <code>"<a>TypeError</a>"</code> and abort
+                <var>p</var> with <code><a>TypeError</a></code> and abort
                 these steps.
               </li>
               <li>
@@ -2142,7 +2142,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                   </li>
                   <li>
                     Otherwise reject <var>promise</var> with
-                    <code>"<a>TypeError</a>"</code> and abort these steps.
+                    <code><a>TypeError</a></code> and abort these steps.
                   </li>
                 </ol>
               </li>
@@ -2877,7 +2877,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <li>
         Let <var>compatibility</var> be <code>"vendor"</code> if the read NDEF
         compatible device is not officially supported by the NFC Forum, or else
-        <code>"universal</code>.
+        <code>"universal"</code>.
       </li>
       <li>
         Let <var>message</var> be a new <code>NDEFMessage</code> object, with
