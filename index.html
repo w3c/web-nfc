@@ -2368,12 +2368,30 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             following NFC binary encoding).
           </li>
           <li>
-            Set the <var>ndef</var>'s PAYLOAD field to
-            <var>record</var>'s data encoded according to the
-            [[NFC-STANDARDS]], NFC Forum URI Record Type Definition
-            specification: set the first <a>byte</a> according to the
-            applicable scheme abbreviation, and set the rest of the
-            payload <a>bytes</a> to <var>record</var>'s data in <a>UTF-8 encoding</a>.
+            Match the URI prefixes as defined in [[!NFC-STANDARDS]]
+            URI Record Type Definition specification, Section 3.2.2, against
+            the <var>urlRecord</var>.
+          </li>
+          <li>
+            Let <var>prefix</var> be the matched prefix or else the
+            <a href="#dfn-empty">empty</a> <a>string</a>.
+          </li>
+          <li>
+            Let <var>prefix code</var> be the corresponding prefix number,
+            or else 0.
+          </li>
+          <li>
+            Let <var>shortened url</var> be <var>urlRecord</var> with
+            <var>prefix</var> removed from the start of the <a>string</a>.
+          </li>
+          <li>
+            Set the first <a>byte</a> of <var>ndef</var>'s PAYLOAD field to
+            the <var>prefix code</var>.
+          </li>
+          <li>
+            Set position 1 to end, of the <a>byte sequence</a> of <var>ndef</var>'s
+            PAYLOAD field to the result of running <a>UTF-8 encode</a> on
+            <var>shortened url</var>.
           </li>
           <li>
             Return <var>ndef</var>.
@@ -2991,13 +3009,13 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 Set <var>record</var>'s mediaType to <code>"text/plain"</code>.
               </li>
               <li>
-                Let <var>scheme</var> be the value of the first <a>byte</a> of
+                Let <var>prefix code</var> be the value of the first <a>byte</a> of
                 <var>ndef</var>'s PAYLOAD field.
               </li>
               <li>
-                If <var>scheme</var> is not 0, then set <var>record</var>'s data
-                to the <a>string</a> obtained from mapping the value of
-                <var>scheme</var> to the URL scheme as specified in the
+                If <var>prefix code</var> is not 0, then set <var>record</var>'s data
+                to the prefix <a>string</a> obtained from mapping the value of
+                <var>prefix code</var> to the URL prefix as specified in the
                 [[!NFC-STANDARDS]] URI Record Type Definition specification,
                 Section 3.2.2.
               </li>
