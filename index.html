@@ -680,7 +680,8 @@ const writer = new NFCWriter();
 const reader = new NFCReader();
 
 reader.onreading = event => {
-  if (event.message.records[0].recordType == 'empty') {
+  const message = event.message;
+  if (message.records[0].recordType == 'empty') {
     writer.push({
       url: "/custom/path",
       records: [{ recordType: "text", data: 'Hello World' }]
@@ -688,9 +689,9 @@ reader.onreading = event => {
     return;
   }
 
-  console.log(`Read message written by ${event.message.url}`);
+  console.log(`Read message written by ${message.url}`);
 
-  for (let record of event.message.records) {
+  for (let record of message.records) {
     switch (record.recordType) {
       case "text":
         console.log(`Text: ${record.data}`);
