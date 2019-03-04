@@ -679,8 +679,8 @@ writer.push({
 const writer = new NFCWriter();
 const reader = new NFCReader();
 
-reader.onreading = message => {
-  if (message.records[0].recordType == 'empty') {
+reader.onreading = event => {
+  if (event.message.records[0].recordType == 'empty') {
     writer.push({
       url: "/custom/path",
       records: [{ recordType: "text", data: 'Hello World' }]
@@ -688,9 +688,9 @@ reader.onreading = message => {
     return;
   }
 
-  console.log(`Read message written by ${message.url}`);
+  console.log(`Read message written by ${event.message.url}`);
 
-  for (let record of message.records) {
+  for (let record of event.message.records) {
     switch (record.recordType) {
       case "text":
         console.log(`Text: ${record.data}`);
@@ -736,9 +736,9 @@ reader.start();
     <pre class="highlight">
 const reader = new NFCReader({url: "https://mygame.com/mypath/mygame"});
 reader.start();
-reader.onreading = async message => {
-  console.log(`Source:     ${ message.url }`);
-  console.log(`Game state: ${ JSON.stringify(message.records) }`);
+reader.onreading = async event => {
+  console.log(`Source:     ${ event.message.url }`);
+  console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
 
   const newMessage = {
     url: "/mypath/mygame/update",
@@ -763,8 +763,8 @@ reader.onreading = async message => {
     <pre class="highlight">
 const reader = new NFCReader({url: document.baseURI, recordType: "json"});
 
-reader.addEventListener("reading", message => {
-  for (let record of message.records) {
+reader.addEventListener("reading", event => {
+  for (let record of event.message.records) {
     let article =/[aeio]/.test(record.data.title) ? "an" : "a";
     console.log(`${record.data.name} is ${article} ${record.data.title}`);
   }
@@ -803,8 +803,8 @@ writer.push({
     </p>
     <pre class="highlight">
 const reader = new NFCReader();
-reader.onreading = message => {
-  for (let record of message.records) {
+reader.onreading = event => {
+  for (let record of event.message.records) {
     console.log("Record type:  " + record.recordType);
     console.log("MIME type:    " + record.mediaType);
     console.log("=== data ===\n" + record.data);
