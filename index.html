@@ -259,6 +259,7 @@
     <dfn data-cite="!INFRA#ascii-decode">ASCII decode</dfn>,
     <dfn data-cite="!INFRA#ascii-encode">ASCII encode</dfn>,
     <dfn data-cite="!INFRA#ascii-lowercase">ASCII lowercase</dfn>,
+    <dfn data-cite="!INFRA#ascii-hex-digit">ASCII hex digit</dfn>,
     <dfn data-cite="!INFRA#string">string</dfn>,
     <dfn data-cite="!INFRA#byte">byte</dfn>,
     <dfn data-cite="!INFRA#byte-sequence">byte sequence</dfn>,
@@ -1145,10 +1146,21 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </p>
     <pre class="idl">
       dictionary NDEFMessage {
+        DOMString? serialNumber;
         sequence&lt;NDEFRecord&gt; records;
         USVString url;
       };
     </pre>
+    <p>
+      The <dfn>NDEFMessage.serialNumber</dfn>
+      property represents a serial number used for
+      anti-collision and identification, or <code>null</code> in case none is available.
+    </p>
+    <p class="note">
+      Though most tags will have a stable unique identifier (UID), not all
+      have one and some tags even create a random number on each read.
+      The serial number usually consists of 4 or 7 numbers, separated by <code>:</code>.
+    </p>
     <p>
       The <dfn>NDEFMessage.url</dfn>
       property represents the <a>Web NFC Id</a> of a received
@@ -2882,8 +2894,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     then UAs MUST listen to <a>NDEF message</a>s, according to step 7
     of the <a href="#steps-listen">NFC listen algorithm</a>.
   </p>
-  <section><h3>The NDEF parsing algorithm</h3>
-    When the <a>UA</a> is to <dfn>receive an NDEF message</dfn> it MUST run the
+  <section><h3>The NFC reading algorithm</h3>
+    When the <a>UA</a> is to <dfn>receive NFC content</dfn> it MUST run the
     following algorithm:
     <p class="note">
        The UA SHOULD represent an unformatted <a>NFC tag</a> as an
@@ -2902,6 +2914,15 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         Let <var>message</var> be a new <code>NDEFMessage</code> object, with
         <var>message</var>'s url set to <code>null</code> and
         <var>message</var>'s records set to the empty <a>list</a>.
+      </li>
+      <li>
+        Let <var>serialNumber</var> be the device identifier as a series of
+        numbers, or <code>null</code> if unavailable.
+      </li>
+      <li>
+        Set <var>message</var>'s serialNumber to the <a>string</a> of
+        U+003A (:) concatenating each number represented as
+        <a>ASCII hex digit</a>, in the same order.
       </li>
       <li>
         Let <var>input</var> be the notation for the <a>NDEF message</a>
