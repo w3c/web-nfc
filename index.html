@@ -1440,14 +1440,14 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     accepted by the <a href="#dom-nfcwriter-push"><code>push()</code></a> method.
   </p>
   <p>
-    The <dfn>NFCReadingEvent</dfn> is the event being dispatch on new NFC readings,
+    The <dfn>NFCReadingEvent</dfn> is the event being dispatched on new NFC readings,
     with the <a>NDEFMessage</a> object as the <dfn>NFCReadingEvent.message</dfn>
     attribute. <dfn>NFCReadingEventInit</dfn> is used in order to initialize a new
     event with a the <a>NDEFMessage</a> data via the <dfn>NFCReadingEventInit.message</dfn>
     member.
   </p>
   <p>
-    The <dfn>NFCErrorEvent</dfn> is the event being dispatch on errors,
+    The <dfn>NFCErrorEvent</dfn> is the event being dispatched on errors,
     with the <code><a>DOMException</a></code> object as the <dfn>NFCErrorEvent.error</dfn>
     attribute. <dfn>NFCErrorEventInit</dfn> is used in order to initialize a new
     event with a <code><a>DOMException</a></code> data via the <dfn>NFCErrorEventInit.error</dfn>
@@ -1991,7 +1991,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                     communication range, verify the following conditions:
                     <ul>
                       <li>
-                        if <var>device</var> is is not officially supported
+                        if <var>device</var> is not officially supported
                         by the NFC Forum, <var>compatibility</var> is
                         <code>"vendor"</code> or <code>"any"</code>.
                       </li>
@@ -2568,7 +2568,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
   <section> <h3>Listening for content</h3>
     <p>
       In order to receive <a>NFC content</a>, the client needs to attach an
-      attach an event listener for the <code>"reading"</code> event on an
+      event listener for the <code>"reading"</code> event on an
       <a>NFCReader</a> instance and then activate it by calling
       <a>NFCReader.start()</a>.
     </p>
@@ -2891,7 +2891,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
   <h3>Receiving and parsing content</h3>
   <p>
     If there are any <a>NFCReader</a> instances in <a>activated reader objects</a>
-    then UAs MUST listen to <a>NDEF message</a>s, according to step 7
+    then UAs MUST listen to <a>NDEF message</a>s, according to step 3
     of the <a href="#steps-listen">NFC listen algorithm</a>.
   </p>
   <section><h3>The NFC reading algorithm</h3>
