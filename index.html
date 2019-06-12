@@ -1146,21 +1146,10 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </p>
     <pre class="idl">
       dictionary NDEFMessage {
-        DOMString? serialNumber;
-        sequence&lt;NDEFRecord&gt; records;
         USVString url;
+        sequence&lt;NDEFRecord&gt; records;
       };
     </pre>
-    <p>
-      The <dfn>NDEFMessage.serialNumber</dfn>
-      property represents a serial number used for
-      anti-collision and identification, or <code>null</code> in case none is available.
-    </p>
-    <p class="note">
-      Though most tags will have a stable unique identifier (UID), not all
-      have one and some tags even create a random number on each read.
-      The serial number usually consists of 4 or 7 numbers, separated by <code>:</code>.
-    </p>
     <p>
       The <dfn>NDEFMessage.url</dfn>
       property represents the <a>Web NFC Id</a> of a received
@@ -1418,10 +1407,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
 
     [Constructor(DOMString type, NFCReadingEventInit readingEventInitDict), SecureContext, Exposed=Window]
     interface NFCReadingEvent : Event {
+      readonly attribute DOMString serialNumber;
       readonly attribute NDEFMessage message;
     };
 
     dictionary NFCReadingEventInit : EventInit {
+      DOMString? serialNumber = "";
       required NDEFMessage message;
     };
 
@@ -1440,11 +1431,19 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     accepted by the <a href="#dom-nfcwriter-push"><code>push()</code></a> method.
   </p>
   <p>
-    The <dfn>NFCReadingEvent</dfn> is the event being dispatched on new NFC readings,
-    with the <a>NDEFMessage</a> object as the <dfn>NFCReadingEvent.message</dfn>
-    attribute. <dfn>NFCReadingEventInit</dfn> is used in order to initialize a new
-    event with a the <a>NDEFMessage</a> data via the <dfn>NFCReadingEventInit.message</dfn>
-    member.
+    The <dfn>NFCReadingEvent</dfn> is the event being dispatched on new NFC readings.
+    The <dfn>NFCReadingEvent.serialNumber</dfn> property represents the serial number of
+    the device used for anti-collision and identification, or empty string in case none
+    is available. The <dfn>NFCReadingEvent.message</dfn> is a <a>NDEFMessage</a> object.
+    <dfn>NFCReadingEventInit</dfn> is used to initialize a new event with a serial number
+    and the <a>NDEFMessage</a> data via the <dfn>NFCReadingEventInit.message</dfn> member.
+    If <dfn>NFCReadingEventInit.serialNumber</dfn> is <a>not present</a> or is <dfn>null</dfn>,
+    empty string will be used to init the event.
+  </p>
+  <p class="note">
+    Though most tags will have a stable unique identifier (UID), not all
+    have one and some tags even create a random number on each read.
+    The serial number usually consists of 4 or 7 numbers, separated by <code>:</code>.
   </p>
   <p>
     The <dfn>NFCErrorEvent</dfn> is the event being dispatched on errors,
@@ -2920,8 +2919,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         numbers, or <code>null</code> if unavailable.
       </li>
       <li>
-        Set <var>message</var>'s serialNumber to the <a>string</a> of
-        U+003A (:) concatenating each number represented as
+        If <var>serialNumber</var> is not <code>null</code>, set it to the
+        <a>string</a> of U+003A (:) concatenating each number represented as
         <a>ASCII hex digit</a>, in the same order.
       </li>
       <li>
@@ -3141,8 +3140,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <li>
         If <a href="#nfc-is-suspended">NFC is not suspended</a> and
         <var>message</var>'s records <a>is not empty</a>, run the
-        <a>dispatch NFC content</a> steps given <var>message</var>
-        and <var>compatibility</var>.
+        <a>dispatch NFC content</a> steps with given <var>serialNumber</var>,
+        <var>message</var> and <var>compatibility</var>.
       </li>
     </ol>
     </section>
@@ -3184,7 +3183,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             <a>Fire an event</a> named <code>"reading"</code> at <var>reader_instance</var>
-            using <a>NFCReadingEvent</a> with its <code>message</code> attribute
+            using <a>NFCReadingEvent</a> with its <code>serialNumber</code> attribute
+            initialized to <var>serialNumber</var> and <code>message</code> attribute
             initialized to <var>message</var>.
           </li>
         </ol>
