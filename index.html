@@ -1408,7 +1408,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     [Constructor(DOMString type, NFCReadingEventInit readingEventInitDict), SecureContext, Exposed=Window]
     interface NFCReadingEvent : Event {
       readonly attribute DOMString serialNumber;
-      readonly attribute NDEFMessage message;
+      readonly attribute object message;  // NDEFMessage
     };
 
     dictionary NFCReadingEventInit : EventInit {
@@ -3207,10 +3207,10 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     contributions to this document.
   </p>
   <p>
-    Also thanks to Luc Yriarte and Samuel Ortiz for their initial work
-    on exposing NFC to the web platform, and for their supports for the
-    new approach.
-  </p>
+    Special thanks to Luc Yriarte and Samuel Ortiz for their initial
+    <a href="https://github.com/w3c/nfc">work</a>
+    on exposing NFC to the web platform, and for their support for the current
+    approach.
 </section>
 
 </body>
