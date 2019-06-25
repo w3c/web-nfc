@@ -244,7 +244,7 @@
     <dfn data-cite="!WEBIDL#notreadableerror"><code>NotReadableError</code></dfn>,
     <dfn data-cite="!WEBIDL#timeouterror"><code>TimeoutError</code></dfn>,
     <dfn data-cite="!WEBIDL#nomodificationallowederror"><code>NoModificationAllowedError</code></dfn>, and
-    <dfn data-cite="!WEBIDL#securityerror"><code>SecurityError</code></dfn>,
+    <dfn data-cite="!WEBIDL#notallowederror"><code>NotAllowedError</code></dfn>,
     are defined in [[!WEBIDL]].
   </p>
   <p>
@@ -2031,7 +2031,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                             <a>current settings object</a>, and the
                             <a>obtain push permission</a> steps return
                             <code>false</code>, then reject <var>p</var> with
-                            <code>"<a>SecurityError</a>"</code>
+                            <code>"<a>NotAllowedError</a>"</code>
                             <code><a>DOMException</a></code>
                             and abort these steps.
                           </li>
