@@ -698,17 +698,17 @@ reader.onreading = event => {
   for (let record of message.records) {
     switch (record.recordType) {
       case "text":
-        console.log(`Text: ${record.data}`);
+        console.log(`Text: ${record.data()}`);
         break;
       case "url":
-        console.log(`URL: ${record.data}`);
+        console.log(`URL: ${record.data()}`);
         break;
       case "json":
-        console.log(`JSON: ${record.data.myProperty.toString()}`);
+        console.log(`JSON: ${record.data().myProperty.toString()}`);
         break;
       case "opaque":
         if (record.mediaType.startsWith('image/') {
-          const blob = new Blob([record.data], {type: record.mediaType});
+          const blob = new Blob([record.data()], {type: record.mediaType});
 
           const img = document.createElement("img");
           img.src = URL.createObjectURL(blob);
@@ -770,8 +770,8 @@ const reader = new NFCReader({url: document.baseURI, recordType: "json"});
 
 reader.addEventListener("reading", event => {
   for (let record of event.message.records) {
-    let article =/[aeio]/.test(record.data.title) ? "an" : "a";
-    console.log(`${record.data.name} is ${article} ${record.data.title}`);
+    let article =/[aeio]/.test(record.data().title) ? "an" : "a";
+    console.log(`${record.data().name} is ${article} ${record.data().title}`);
   }
 });
 
@@ -812,7 +812,7 @@ reader.onreading = event => {
   for (let record of event.message.records) {
     console.log("Record type:  " + record.recordType);
     console.log("MIME type:    " + record.mediaType);
-    console.log("=== data ===\n" + record.data);
+    console.log("=== data ===\n" + record.data());
   }
 };
 reader.start();
@@ -1142,40 +1142,57 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
 
 <!-- - - - - - - - - - - - - Data representation - - - - - - - - - - - - - -->
 <section> <h2>Data Representation</h2>
-  <section> <h3>The <dfn>NDEFMessage</dfn> dictionary</h3>
+  <section> <h3>The <dfn>NDEFMessage</dfn> interface</h3>
     <p>
       The content of any <a>Web NFC message</a> is exposed by the
-      <a>NDEFMessage</a> dictionary:
+      <a>NDEFMessage</a> interface:
     </p>
     <pre class="idl">
-      dictionary NDEFMessage {
+      [Constructor(NDEFMessageInit messageInit), Exposed=Window]
+      interface NDEFMessage {
+        readonly attribute USVString url;
+        readonly attribute FrozenArray&lt;NDEFRecord&gt; records;
+      };
+
+      dictionary NDEFMessageInit {
         USVString url;
-        sequence&lt;NDEFRecord&gt; records;
+        sequence&lt;NDEFRecordInit&gt; records;
       };
     </pre>
     <p>
       The <dfn>NDEFMessage.url</dfn>
       property represents the <a>Web NFC Id</a> of a received
-      <a>Web NFC message</a>. When used in the <code><a>NFCWriter.push()</a></code>
-      method, it represents a <a>URL path</a> used for constructing the
-      <a>Web NFC Id</a> of the pushed <a>Web NFC content</a>.
+      <a>Web NFC message</a>.
     </p>
     <p>
       The <dfn>NDEFMessage.records</dfn>
       property represents a <a>list</a> of <a>NDEF record</a>s defining the
       <a>Web NFC message</a>.
     </p>
+    <p>
+      The <dfn>NDEFMessageInit</dfn> dictionary is used to initialize a
+      <a>Web NFC message</a>. When used in the <code><a>NFCWriter.push()</a></code>
+      method, its <dfn>NDEFMessageInit.url</dfn> member represents a <a>URL path</a>
+      used for constructing the <a>Web NFC Id</a> of the pushed <a>Web NFC content</a>.
+    </p>
   </section>
 
-  <section> <h3>The <dfn>NDEFRecord</dfn> dictionary</h3>
+  <section> <h3>The <dfn>NDEFRecord</dfn> interface</h3>
     <p>
       The content of any <a>NDEF record</a> is exposed by the
-      <a>NDEFRecord</a> dictionary:
+      <a>NDEFRecord</a> interface:
     </p>
     <pre class="idl">
       typedef (DOMString or unrestricted double or ArrayBuffer or Dictionary) NDEFRecordData;
 
-      dictionary NDEFRecord {
+      [Constructor(NDEFRecordInit recordInit), Exposed=Window]
+      interface NDEFRecord {
+        readonly attribute NDEFRecordType recordType;
+        readonly attribute USVString mediaType;
+        NDEFRecordData data();
+      };
+
+      dictionary NDEFRecordInit {
         NDEFRecordType recordType;
         USVString mediaType;
         NDEFRecordData data;
@@ -1183,7 +1200,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </pre>
     <p>
       The <dfn>NDEFRecordData</dfn> is a union type representing data types allowed
-      for <a>NDEFRecord.data</a> property.
+      for <a href="#dom-ndefrecordinit-data">NDEFRecordInit.data</a> property.
     </p>
     <p>
       The <dfn>NDEFRecord.mediaType</dfn>
@@ -1191,18 +1208,23 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       payload.
     </p>
     <p>
-      The <dfn>NDEFRecord.data</dfn> property represents the
+      The <dfn>NDEFRecord.recordType</dfn> property represents the
+      <a>NDEF record</a> types.
+    </p>
+    <p>
+      The <dfn>NDEFRecord.data()</dfn> method returns the
       payload data of the <a>NDEF record</a> with an appropriate [[!ECMAScript]]
       type, which depends on the <a>MIME type</a>.
     </p>
     <p>
-      The <dfn>NDEFRecord.recordType</dfn> property represents the
-      <a>NDEF record</a> types.
-      The mapping from data types of an <code><a>NDEFRecord</a></code> to and
-      from <a>NDEF record</a> types is presented in the algorithmic steps which
-      handle the data and described in the
-    <a href="#steps-receiving">Receiving and parsing content</a>
-    and <a>Writing or pushing content</a> sections.
+      The <dfn>NDEFRecordInit</dfn> dictionary is used to initialize an <a>NDEF record</a>
+      with its type, <a>MIME type</a> and payload data via the members of
+      <dfn>NDEFRecordInit.recordType</dfn>, <dfn>NDEFRecordInit.mediaType</dfn>,
+      and <dfn>NDEFRecordInit.data</dfn>. The mapping from data types of an
+      <a>NDEFRecordInit</a> to <a>NDEF record</a> types is presented
+      in the algorithmic steps which handle the data and described in the
+      <a href="#steps-receiving">Receiving and parsing content</a>
+      and <a>Writing or pushing content</a> sections.
     </p>
   </section> <!-- NDEFRecord dictionary -->
 
@@ -1392,14 +1414,14 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
   <a>Web NFC message</a>s either from an <a>NFC tag</a> or an
   <a>NFC peer</a>.
   <pre class="idl">
-    typedef (DOMString or ArrayBuffer or NDEFMessage) NDEFMessageSource;
+    typedef (DOMString or ArrayBuffer or NDEFMessageInit) NDEFMessageSource;
 
     [Constructor(), SecureContext, Exposed=Window]
     interface NFCWriter {
-      Promise&lt;void&gt; push(NDEFMessageSource message, optional NFCPushOptions options);
+      Promise&lt;void&gt; push(NDEFMessageSource message, optional NFCPushOptions options={});
     };
 
-    [Constructor(optional NFCReaderOptions options), SecureContext, Exposed=Window]
+    [Constructor(optional NFCReaderOptions options={}), SecureContext, Exposed=Window]
     interface NFCReader : EventTarget {
       attribute EventHandler onreading;
       attribute EventHandler onerror;
@@ -1411,12 +1433,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     [Constructor(DOMString type, NFCReadingEventInit readingEventInitDict), SecureContext, Exposed=Window]
     interface NFCReadingEvent : Event {
       readonly attribute DOMString serialNumber;
-      readonly attribute object message;  // NDEFMessage
+      [SameObject] readonly attribute NDEFMessage message;
     };
 
     dictionary NFCReadingEventInit : EventInit {
       DOMString? serialNumber = "";
-      required NDEFMessage message;
+      required NDEFMessageInit message;
     };
 
     [Constructor(DOMString type, NFCErrorEventInit errorEventInitDict), SecureContext, Exposed=Window]
@@ -1437,9 +1459,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     The <dfn>NFCReadingEvent</dfn> is the event being dispatched on new NFC readings.
     The <dfn>NFCReadingEvent.serialNumber</dfn> property represents the serial number of
     the device used for anti-collision and identification, or empty string in case none
-    is available. The <dfn>NFCReadingEvent.message</dfn> is a <a>NDEFMessage</a> object.
+    is available. The <dfn>NFCReadingEvent.message</dfn> is an <a>NDEFMessage</a> object.
     <dfn>NFCReadingEventInit</dfn> is used to initialize a new event with a serial number
-    and the <a>NDEFMessage</a> data via the <dfn>NFCReadingEventInit.message</dfn> member.
+    and the <a>NDEFMessageInit</a> data via the <dfn>NFCReadingEventInit.message</dfn> member.
     If <dfn>NFCReadingEventInit.serialNumber</dfn> is <a>not present</a> or is <dfn>null</dfn>,
     empty string will be used to init the event.
   </p>
@@ -1860,7 +1882,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           <li>
             If pushing data is not supported by the underlying <a>NFC Adapter</a>, then reject
             <var>p</var> with a <code>"<a>NotSupportedError</a>"</code>
-            <code><a>DOMException</a></code>and return <var>p</var>.
+            <code><a>DOMException</a></code> and return <var>p</var>.
           </li>
           <li>
             If <var>signal</var>’s <a>aborted flag</a> is set, then reject <var>p</var>
@@ -1912,12 +1934,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               </li>
               <li>
                 If the <var>message</var> parameter is not of type defined by
-                the <code>NDEFMessageSource</code> union, reject <var>p</var>
+                the <a>NDEFMessageSource</a> union, reject <var>p</var>
                 with <code><a>TypeError</a></code>, and abort these steps.
               </li>
               <li>
                 If the <var>message</var> parameter is of
-                <code>NDEFMessage</code> type, and <var>message</var>'s records
+                <a>NDEFMessageInit</a> type, and <var>message</var>'s records
                 <a>is empty</a>, reject <var>p</var> with
                 <code><a>TypeError</a></code> and abort these steps.
               </li>
@@ -2913,7 +2935,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <code>"nfc-forum"</code>.
       </li>
       <li>
-        Let <var>message</var> be a new <code>NDEFMessage</code> object, with
+        Let <var>message</var> be a new <a>NDEFMessage</a> object, with
         <var>message</var>'s url set to <code>null</code> and
         <var>message</var>'s records set to the empty <a>list</a>.
       </li>
@@ -3152,7 +3174,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <section><h3>Dispatching NFC content</h3>
     <p>
       To <dfn>dispatch NFC content</dfn> given a <var>message</var> of type
-      <code><a>NDEFMessage</a></code> and <var>compatibility</var> of type
+      <a>NDEFMessage</a> and <var>compatibility</var> of type
       <code><a>NDEFCompatibility</a></code>, run these steps:
     </p>
     <ol>
