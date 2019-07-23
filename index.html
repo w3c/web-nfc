@@ -287,6 +287,7 @@
     are defined in [[!DOM]].
   </p>
   <p>
+    <dfn data-cite="!ENCODING#concept-stream-push">push</dfn>,
     <dfn data-cite="!ENCODING#utf-8">UTF-8 encoding</dfn>,
     <dfn data-cite="!ENCODING#utf-8-decode">UTF-8 decode</dfn>,
     <dfn data-cite="!ENCODING#utf-8-encode">UTF-8 encode</dfn>,
@@ -698,17 +699,17 @@ reader.onreading = event => {
   for (let record of message.records) {
     switch (record.recordType) {
       case "text":
-        console.log(`Text: ${record.data()}`);
+        console.log(`Text: ${record.toText()}`);
         break;
       case "url":
-        console.log(`URL: ${record.data()}`);
+        console.log(`URL: ${record.toText()}`);
         break;
       case "json":
-        console.log(`JSON: ${record.data().myProperty.toString()}`);
+        console.log(`JSON: ${record.toJSON().myProperty.toString()}`);
         break;
       case "opaque":
         if (record.mediaType.startsWith('image/') {
-          const blob = new Blob([record.data()], {type: record.mediaType});
+          const blob = new Blob([record.toArrayBuffer()], {type: record.mediaType});
 
           const img = document.createElement("img");
           img.src = URL.createObjectURL(blob);
@@ -770,8 +771,8 @@ const reader = new NFCReader({url: document.baseURI, recordType: "json"});
 
 reader.addEventListener("reading", event => {
   for (let record of event.message.records) {
-    let article =/[aeio]/.test(record.data().title) ? "an" : "a";
-    console.log(`${record.data().name} is ${article} ${record.data().title}`);
+    let article =/[aeio]/.test(record.toJSON().title) ? "an" : "a";
+    console.log(`${record.toJSON().name} is ${article} ${record.toJSON().title}`);
   }
 });
 
@@ -812,7 +813,7 @@ reader.onreading = event => {
   for (let record of event.message.records) {
     console.log("Record type:  " + record.recordType);
     console.log("MIME type:    " + record.mediaType);
-    console.log("=== data ===\n" + record.data());
+    console.log("=== data ===\n" + record.toText());
   }
 };
 reader.start();
@@ -1189,7 +1190,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       interface NDEFRecord {
         readonly attribute NDEFRecordType recordType;
         readonly attribute USVString mediaType;
-        NDEFRecordData data();
+        [NewObject] USVString toText();
+        [NewObject] ArrayBuffer toArrayBuffer();
+        [NewObject] any toJSON();
       };
 
       dictionary NDEFRecordInit {
@@ -1198,6 +1201,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         NDEFRecordData data;
       };
     </pre>
+    <p>
+      <a>NDEFRecord</a> objects have an associated <dfn id="ndefrecord-bytes">bytes</dfn>
+      (a <a>byte sequence</a>) set on creation that represents the payload data of the
+      <a>NDEF record</a>, which is <code>null</code> if there was no data in the
+      <a>NDEF record</a>.
+    </p>
     <p>
       The <dfn>NDEFRecordData</dfn> is a union type representing data types allowed
       for <a href="#dom-ndefrecordinit-data">NDEFRecordInit.data</a> property.
@@ -1212,9 +1221,18 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <a>NDEF record</a> types.
     </p>
     <p>
-      The <dfn>NDEFRecord.data()</dfn> method returns the
-      payload data of the <a>NDEF record</a> with an appropriate [[!ECMAScript]]
-      type, which depends on the <a>MIME type</a>.
+      The <dfn>NDEFRecord.toText()</dfn> method, when invoked, MUST return the
+      result of running <a>convert an NDEFRecord object's bytes</a> with <i>text</i>,
+      unless there's other specific illustration in step 7 of
+      <a href="#the-nfc-reading-algorithm">The NFC reading algorithm</a>.
+    </p>
+    <p>
+      The <dfn>NDEFRecord.toArrayBuffer()</dfn> method, when invoked, MUST return the
+      result of running <a>convert an NDEFRecord object's bytes</a> with <i>arrayBuffer</i>.
+    </p>
+    <p>
+      The <dfn>NDEFRecord.toJSON()</dfn> method, when invoked, MUST return the
+      result of running <a>convert an NDEFRecord object's bytes</a> with <i>JSON</i>.
     </p>
     <p>
       The <dfn>NDEFRecordInit</dfn> dictionary is used to initialize an <a>NDEF record</a>
@@ -1226,6 +1244,52 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <a href="#steps-receiving">Receiving and parsing content</a>
       and <a>Writing or pushing content</a> sections.
     </p>
+    <p>
+      To <dfn>convert an NDEFRecord object's bytes</dfn> to a given <var>type</var>, run these steps:
+    </p>
+    <ol>
+      <li>Let <var>bytes</var> be the <a>NDEFRecord</a> object's associated <a>bytes</a>.
+      </li>
+      <li>Let <var>recordType</var> be the value of <a>NDEFRecord</a> object's recordType attribute.
+      </li>
+      <li>Switch on <var>type</var>:
+        <dl>
+          <dt>text</dt>
+          <ol>
+            <li>
+              If the <var>recordType</var> value is not equal to <code>"empty"</code>, then
+              return the result of running <a>UTF-8 decode</a> on the <var>bytes</var>.
+            </li>
+            <li>
+              Otherwise, return <code>null</code>.
+            </li>
+          </ol>
+          <dt>arrayBuffer</dt>
+          <ol>
+            <li>
+              If the <var>recordType</var> value is equal to <code>"json"</code> or
+              <code>"opaque"</code>, then return an {{ArrayBuffer}} whose contents are the
+              <var>bytes</var>. Exceptions thrown during the creation of the {{ArrayBuffer}}
+              object are re-thrown.
+            </li>
+            <li>
+              Otherwise, return <code>null</code>.
+            </li>
+          </ol>
+          <dt>JSON</dt>
+          <ol>
+            <li>
+              If the <var>recordType</var> value is equal to <code>"json"</code> or
+              <code>"opaque"</code>, then return the result of running <a>parse JSON from bytes</a>
+              on <var>bytes</var>. Re-throw any exceptions thrown by <a>parse JSON from bytes</a>.
+            </li>
+            <li>
+              Otherwise, return <code>null</code>.
+            </li>
+          </ol>
+        </dl>
+      </li>
+    </ol>
   </section> <!-- NDEFRecord dictionary -->
 
   <section data-dfn-for="NDEFRecordType">
@@ -1334,38 +1398,42 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <th>NDEF record type</th>
       <th>NDEFRecord recordType</th>
       <th>NDEFRecord mediaType</th>
-      <th>NDEFRecord data</th>
+      <th>NDEFRecord data getters</th>
     </tr>
     <tr>
       <td>Empty (<a>TNF</a>=0) record</td>
       <td>"empty"</td>
       <td>""</td>
-      <td><code>null</code></td>
+      <td>
+        <a href="#dom-ndefrecord-totext">toText()</a> or
+        <a href="#dom-ndefrecord-tojson">toJSON()</a> or
+        <a href="#dom-ndefrecord-toarraybuffer">toArrayBuffer()</a>
+      </td>
     </tr>
     <tr>
       <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type <i>Text</i></td>
       <td>"text"</td>
       <td>"text/plain"</td>
-      <td><code>DOMString</code></td>
+      <td><a href="#dom-ndefrecord-totext">toText()</a></td>
     </tr>
     <tr>
       <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type <i>URI</i></td>
       <td>"url"</td>
       <td>"text/plain"</td>
-      <td><code>DOMString</code></td>
+      <td><a href="#dom-ndefrecord-totext">toText()</a></td>
     </tr>
     <tr>
       <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type
           <i>Smart Poster</i></td>
       <td>"url"</td>
       <td>"text/plain"</td>
-      <td><code>DOMString</code></td>
+      <td><a href="#dom-ndefrecord-totext">toText()</a></td>
     </tr>
     <tr>
       <td><a>Absolute-URL string</a> (<a>TNF</a>=3) record</td>
       <td>"url"</td>
       <td>"text/plain"</td>
-      <td><code>DOMString</code></td>
+      <td><a href="#dom-ndefrecord-totext">toText()</a></td>
     </tr>
     <tr>
       <td><a>MIME type</a> (<a>TNF</a>=2) record with
@@ -1374,28 +1442,41 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <td>"json"</td>
       <td>The <a>MIME type</a> used in the NDEF record</td>
       <td>
-        <code>null</code> or <code>DOMString</code> or <code>Number</code> or
-        <code>Dictionary</code>
+        <a href="#dom-ndefrecord-totext">toText()</a> or
+        <a href="#dom-ndefrecord-tojson">toJSON()</a> or
+        <a href="#dom-ndefrecord-toarraybuffer">toArrayBuffer()</a>
       </td>
     </tr>
     <tr>
       <td><a>MIME type</a> (<a>TNF</a>=2) record</td>
       <td>"opaque"</td>
       <td>The <a>MIME type</a> used in the NDEF record</td>
-      <td><code>ArrayBuffer</code></td>
+      <td>
+        <a href="#dom-ndefrecord-totext">toText()</a> or
+        <a href="#dom-ndefrecord-tojson">toJSON()</a> or
+        <a href="#dom-ndefrecord-toarraybuffer">toArrayBuffer()</a>
+      </td>
     </tr>
     <tr>
       <td>NFC Forum <a>external type</a> type (<a>TNF</a>=4) record with type other than
         <code>urn:nfc:ext:w3.org:webnfc*</code></td>
       <td>"opaque"</td>
       <td>"application/octet-stream"</td>
-      <td><code>ArrayBuffer</code></td>
+      <td>
+        <a href="#dom-ndefrecord-totext">toText()</a> or
+        <a href="#dom-ndefrecord-tojson">toJSON()</a> or
+        <a href="#dom-ndefrecord-toarraybuffer">toArrayBuffer()</a>
+      </td>
     </tr>
     <tr>
       <td>Any other <a>NDEF record</a> type</td>
       <td>"opaque"</td>
       <td>"application/octet-stream"</td>
-      <td><code>ArrayBuffer</code></td>
+      <td>
+        <a href="#dom-ndefrecord-totext">toText()</a> or
+        <a href="#dom-ndefrecord-tojson">toJSON()</a> or
+        <a href="#dom-ndefrecord-toarraybuffer">toArrayBuffer()</a>
+      </td>
     </tr>
   </table>
   <p>
@@ -2198,7 +2279,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 <var>promise</var> with that exception and abort these steps.
               </li>
               <li>
-                Otherwise, if <var>record</'s recordType is <code>"url"</code>,
+                Otherwise, if <var>record</var>'s recordType is <code>"url"</code>,
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map a URL to NDEF</a>.
                 If this throws an exception, reject <var>promise</var> with that
@@ -3012,11 +3093,11 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               </li>
               <li>
                 If <var>charset</var> is equal to <code>"utf-8"</code>,
-                set <var>record</var>'s data to the result of running
-                <a>UTF-8 decode</a> on <var>buffer</var>.
+                set <var>record</var>'s associated <a>bytes</a> to <var>buffer</var>.
               </li>
               <li>
-                Otherwise, set <var>record</var>'s data to the result of running
+                Otherwise, set the result of invoking <var>record</var>'s
+                <a href="#dom-ndefrecord-totext">toText()</a> method to the result of running
                 <a>decode</a> on <var>buffer</var> with <var>encoding</var> set
                 to <code>"utf-16be"</code>.
               </li>
@@ -3059,8 +3140,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 <var>ndef</var>'s PAYLOAD field.
               </li>
               <li>
-                If <var>prefix code</var> is not 0, then set <var>record</var>'s data
-                to the prefix <a>string</a> obtained from mapping the value of
+                If <var>prefix code</var> is not 0, then set <var>record</var>'s associated
+                <a>bytes</a> to the result of running <a>UTF-8 encode</a> on the
+                prefix <a>string</a> obtained from mapping the value of
                 <var>prefix code</var> to the URL prefix as specified in the
                 [[!NFC-STANDARDS]] URI Record Type Definition specification,
                 Section 3.2.2.
@@ -3070,8 +3152,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 ndef</var>'s PAYLOAD field from the second <a>byte</a> to the end.
               </li>
               <li>
-                Concat <var>record</var>'s data with the result of running
-                <a>UTF-8 decode</a> on <var>buffer</var>.
+                <a>Push</a> <var>buffer</var> to <var>record</var>'s associated <a>bytes</a>.
               </li>
             </ol>
           </li> <!-- parsing NDEF URL record -->
@@ -3079,8 +3160,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             If <var>ndef</var>'s TNF field is 3 (<a>absolute-URL string</a>), then
             set <var>record</var>'s recordType to <code>"url"</code>,
             set <var>record</var>'s mediaType to <code>"text/plain"</code> and
-            set <var>record</var>'s data to the <a>string</a> converted from
-            <var>ndef</var>'s PAYLOAD field.
+            set <var>record</var>'s associated <a>bytes</a> to <var>ndef</var>'s PAYLOAD field.
           </li> <!-- parsing NDEF Absolute URI record -->
           <li>
             If <var>ndef</var>'s TFN field is 2 (<a>MIME type</a>), then run
@@ -3105,9 +3185,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                     the input.
                   </li>
                   <li>
-                    Set <var>record</var>'s data to the result of executing
-                    <a>parse JSON from bytes</a> on <var>ndef</var>'s PAYLOAD field.
-                    If an error is thrown, skip to the next <a>NDEF record</a>.
+                    Set <var>record</var>'s associated <a>bytes</a> to
+                    <var>ndef</var>'s PAYLOAD field.
                   </li>
                 </ol>
               </li>
@@ -3123,8 +3202,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                     the input.
                   </li>
                   <li>
-                    Set <var>record</var>'s data to a new <code>ArrayBuffer</code>
-                    object constructed from the <a>byte</a> sequence of
+                    Set <var>record</var>'s associated <a>bytes</a> to
                     <var>ndef</var>'s PAYLOAD field.
                   </li>
                 </ol>
@@ -3149,8 +3227,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 <code>"application/octet-stream"</code>.
               </li>
               <li>
-                Set <var>record</var>'s data to a new <code>ArrayBuffer</code>
-                object constructed from the <a>bytes</a> of <var>ndef</var>'s PAYLOAD field.
+                Set <var>record</var>'s associated <a>bytes</a> to
+                <var>ndef</var>'s PAYLOAD field.
               </li>
             </ol>
           </li> <!-- parsing NDEF External/Unknown record -->
