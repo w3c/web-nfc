@@ -242,8 +242,7 @@
     <dfn data-cite="!WEBIDL#notsupportederror"><code>NotSupportedError</code></dfn>,
     <dfn data-cite="!WEBIDL#networkerror"><code>NetworkError</code></dfn>,
     <dfn data-cite="!WEBIDL#notreadableerror"><code>NotReadableError</code></dfn>,
-    <dfn data-cite="!WEBIDL#timeouterror"><code>TimeoutError</code></dfn>,
-    <dfn data-cite="!WEBIDL#nomodificationallowederror"><code>NoModificationAllowedError</code></dfn>, and
+    <dfn data-cite="!WEBIDL#timeouterror"><code>TimeoutError</code></dfn>, and
     <dfn data-cite="!WEBIDL#notallowederror"><code>NotAllowedError</code></dfn>,
     are defined in [[!WEBIDL]].
   </p>
@@ -1894,13 +1893,11 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             <a>add the following abort steps</a> to <var>signal</var>:
               <ol>
                 <li>
-                  Stop the instance's <var>timer</var> if it is active.
+                  If the instance has already initiated NFC data transfer,
+                  and it can't be aborted, ignore the abort signal and return.
                 </li>
                 <li>
-                  If the instance has already initiated NFC data transfer,
-                  reject <var>p</var> with
-                  <code>"<a>NoModificationAllowedError</a>"</code>
-                  <code><a>DOMException</a></code> and abort these steps.
+                  Stop the instance's <var>timer</var> if it is active.
                 </li>
                 <li>
                   Reject <var>p</var> with an <code>"<a>AbortError</a>"</code>
