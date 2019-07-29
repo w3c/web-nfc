@@ -1275,8 +1275,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             <li>
               If the <var>recordType</var> value is equal to <code>"json"</code> or
               <code>"opaque"</code>, then return an {{ArrayBuffer}} whose contents are the
-              <var>bytes</var>. Re-throw any exceptions thrown by the creation of the
-              {{ArrayBuffer}} object.
+              <var>bytes</var>. Re-throw any exceptions.
             </li>
             <li>
               Otherwise, return `null`.
@@ -1287,7 +1286,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             <li>
               If the <var>recordType</var> value is equal to <code>"json"</code> or
               <code>"opaque"</code>, then return the result of running <a>parse JSON from bytes</a>
-              on <var>bytes</var>. Re-throw any exceptions thrown by <a>parse JSON from bytes</a>.
+              on <var>bytes</var>. Re-throw any exceptions.
             </li>
             <li>
               Otherwise, return `null`.
