@@ -771,8 +771,8 @@ const reader = new NFCReader({url: document.baseURI, recordType: "json"});
 
 reader.addEventListener("reading", event => {
   for (let record of event.message.records) {
-    let json = record.toJSON();
-    let article =/[aeio]/.test(json.title) ? "an" : "a";
+    const json = record.toJSON();
+    const article =/[aeio]/.test(json.title) ? "an" : "a";
     console.log(`${json.name} is ${article} ${json.title}`);
   }
 });
@@ -1203,9 +1203,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       };
     </pre>
     <p>
-      <a>NDEFRecord</a> objects have an associated <dfn id="ndefrecord-bytes">bytes</dfn>
-      (a <a>byte sequence</a>) set on creation that represents the payload data of the
-      <a>NDEF record</a>, which is `null` if there was no data in the
+      <a>NDEFRecord</a> objects have associated <dfn id="ndefrecord-bytes">bytes</dfn>
+      (a <a>byte sequence</a>), set on creation that represents the payload data of the
+      <a>NDEF record</a>, which is `null` if there were no data in the
       <a>NDEF record</a>.
     </p>
     <p>
@@ -1224,7 +1224,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <p>
       The <dfn data-dfn-for="NDEFRecord">toText()</dfn> method, when invoked, MUST return the
       result of running <a>convert NDEFRecord's bytes</a> with an <a>NDEFRecord</a> object
-      and a `text` type, unless there's other specific illustration in step 7 of
+      and a `text` type, unless there's another specific illustration in step 7 of
       <a href="#the-nfc-reading-algorithm">The NFC reading algorithm</a>.
     </p>
     <p>
@@ -1264,7 +1264,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           <dt>text</dt>
           <ol>
             <li>
-              If the <var>recordType</var> value is not equal to <code>"empty"</code>, then
+              If the <var>recordType</var> value is not equal to "`empty`", then
               return the result of running <a>UTF-8 decode</a> on <var>bytes</var>.
             </li>
             <li>
@@ -1274,8 +1274,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           <dt>arrayBuffer</dt>
           <ol>
             <li>
-              If the <var>recordType</var> value is equal to <code>"json"</code> or
-              <code>"opaque"</code>, then return an {{ArrayBuffer}} whose contents are the
+              If the <var>recordType</var> value is equal to "`json`" or
+              "`opaque`", then return an {{ArrayBuffer}} whose contents are the
               <var>bytes</var>. Re-throw any exceptions.
             </li>
             <li>
@@ -1285,8 +1285,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           <dt>JSON</dt>
           <ol>
             <li>
-              If the <var>recordType</var> value is equal to <code>"json"</code> or
-              <code>"opaque"</code>, then return the result of running <a>parse JSON from bytes</a>
+              If the <var>recordType</var> value is equal to "`json`" or
+              "`opaque`", then return the result of running <a>parse JSON from bytes</a>
               on <var>bytes</var>. Re-throw any exceptions.
             </li>
             <li>
