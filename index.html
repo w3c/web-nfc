@@ -286,12 +286,12 @@
     are defined in [[!DOM]].
   </p>
   <p>
-    <dfn data-cite="!ENCODING#concept-stream-push">push</dfn>,
-    <dfn data-cite="!ENCODING#utf-8">UTF-8 encoding</dfn>,
-    <dfn data-cite="!ENCODING#utf-8-decode">UTF-8 decode</dfn>,
-    <dfn data-cite="!ENCODING#utf-8-encode">UTF-8 encode</dfn>,
-    <dfn data-cite="!ENCODING#encode">encode</dfn>, and
-    <dfn data-cite="!ENCODING#decode">decode</dfn> are defined in [[!ENCODING]].
+    <dfn data-cite="ENCODING#concept-stream-push">push</dfn>,
+    <dfn data-cite="ENCODING#utf-8">UTF-8 encoding</dfn>,
+    <dfn data-cite="ENCODING#utf-8-decode">UTF-8 decode</dfn>,
+    <dfn data-cite="ENCODING#utf-8-encode">UTF-8 encode</dfn>,
+    <dfn data-cite="ENCODING#encode">encode</dfn>, and
+    <dfn data-cite="ENCODING#decode">decode</dfn> are defined in [[!ENCODING]].
   </p>
 
   <section> <h3>Security related terms</h3>
@@ -1178,7 +1178,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </p>
   </section>
 
-  <section> <h3>The <dfn>NDEFRecord</dfn> interface</h3>
+  <section data-dfn-for="NDEFRecord"> <h3>The <dfn>NDEFRecord</dfn> interface</h3>
     <p>
       The content of any <a>NDEF record</a> is exposed by the
       <a>NDEFRecord</a> interface:
@@ -1212,28 +1212,25 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       for <a href="#dom-ndefrecordinit-data">NDEFRecordInit.data</a> property.
     </p>
     <p>
-      The <dfn data-dfn-for="NDEFRecord">mediaType</dfn>
-      property represents the <a>MIME type</a> of the <a>NDEF record</a>
-      payload.
+      The <dfn>mediaType</dfn> property represents the <a>MIME type</a> of
+      the <a>NDEF record</a> payload.
     </p>
     <p>
-      The <dfn data-dfn-for="NDEFRecord">recordType</dfn> property represents the
-      <a>NDEF record</a> types.
+      The <dfn>recordType</dfn> property represents the <a>NDEF record</a> types.
     </p>
     <p>
-      The <dfn data-dfn-for="NDEFRecord">toText()</dfn> method, when invoked, MUST return the
-      result of running <a>convert NDEFRecord's bytes</a> with an <a>NDEFRecord</a> object
-      and a `text` type, unless there's another specific illustration in step 7 of
-      <a href="#the-nfc-reading-algorithm">The NFC reading algorithm</a>.
+      The <dfn>toText()</dfn> method, when invoked, MUST return the result of
+      running <a>convert NDEFRecord's bytes</a> with an <a>NDEFRecord</a> object
+      and a `text` type.
     </p>
     <p>
-      The <dfn data-dfn-for="NDEFRecord">toArrayBuffer()</dfn> method, when invoked, MUST return the
-      result of running <a>convert NDEFRecord's bytes</a> with an <a>NDEFRecord</a> object
+      The <dfn>toArrayBuffer()</dfn> method, when invoked, MUST return the result of
+      running <a>convert NDEFRecord's bytes</a> with an <a>NDEFRecord</a> object
       and an `arrayBuffer` type.
     </p>
     <p>
-      The <dfn data-dfn-for="NDEFRecord">toJSON()</dfn> method, when invoked, MUST return the
-      result of running <a>convert NDEFRecord's bytes</a> with an <a>NDEFRecord</a> object
+      The <dfn>toJSON()</dfn> method, when invoked, MUST return the result of
+      running <a>convert NDEFRecord's bytes</a> with an <a>NDEFRecord</a> object
       and a `JSON` type.
     </p>
     <p>
@@ -1256,18 +1253,45 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </li>
       <li>
         Let <var data-type="NDEFRecordType">recordType</var> be the value of <var>record</var>'s
-        recordType attribute.
+        <a data-link-for="NDEFRecord">recordType</a> attribute.
       </li>
       <li>Switch on <var>type</var>:
         <dl>
           <dt>text</dt>
           <ol>
             <li>
-              If the <var>recordType</var> value is not equal to "`empty`", then
-              return the result of running <a>UTF-8 decode</a> on <var>bytes</var>.
+              If the <var>recordType</var> value is equal to "`empty`", return `null`.
             </li>
             <li>
-              Otherwise, return `null`.
+              If the <var>recordType</var> value is equal to "`text`", then run the following sub-steps:
+              <ol>
+                <li>
+                  Let <var>header</var> be the first <a>byte</a> of <var>bytes</var>.
+                </li>
+                <li>
+                  Let <var>charset</var> be "`utf-8`" if bit 7 (most significant bit) of
+                  <var>header</var> is equal to the value 0, or else "`utf-16be`".
+                </li>
+                <li>
+                  Let <var>offset</var> be the value given by bit 5 to bit 0 of the
+                  <var>header</var>.
+                </li>
+                <li>
+                  Let <var>buffer</var> be the <var>bytes</var>,
+                  from position <var>offset</var> + 1 to the end.
+                </li>
+                <li>
+                  If <var>charset</var> is equal to "`utf-8`", return the result of
+                  running <a>UTF-8 decode</a> on <var>buffer</var>.
+                </li>
+                <li>
+                  Otherwise, return the result of running <a>decode</a> on
+                  <var>buffer</var> with `encoding` set to "`utf-16be`".
+                </li>
+              </ol>
+            </li>
+            <li>
+              Otherwise, return the result of running <a>UTF-8 decode</a> on <var>bytes</var>.
             </li>
           </ol>
           <dt>arrayBuffer</dt>
@@ -1398,7 +1422,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <a href="#steps-receiving">Receiving and parsing content</a> section, is as
     follows:
   </p>
-  <table class="simple">
+  <table class="simple" data-link-for="NDEFRecord">
     <tr>
       <th>NDEF record type</th>
       <th>NDEFRecord recordType</th>
@@ -1409,7 +1433,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <td>Empty (<a>TNF</a>=0) record</td>
       <td>"empty"</td>
       <td>""</td>
-      <td data-link-for="NDEFRecord">
+      <td>
         <a>toText()</a> or
         <a>toJSON()</a> or
         <a>toArrayBuffer()</a>
@@ -1419,26 +1443,26 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type <i>Text</i></td>
       <td>"text"</td>
       <td>"text/plain"</td>
-      <td data-link-for="NDEFRecord"><a>toText()</a></td>
+      <td><a>toText()</a></td>
     </tr>
     <tr>
       <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type <i>URI</i></td>
       <td>"url"</td>
       <td>"text/plain"</td>
-      <td data-link-for="NDEFRecord"><a>toText()</a></td>
+      <td><a>toText()</a></td>
     </tr>
     <tr>
       <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type
           <i>Smart Poster</i></td>
       <td>"url"</td>
       <td>"text/plain"</td>
-      <td data-link-for="NDEFRecord"><a>toText()</a></td>
+      <td><a>toText()</a></td>
     </tr>
     <tr>
       <td><a>Absolute-URL string</a> (<a>TNF</a>=3) record</td>
       <td>"url"</td>
       <td>"text/plain"</td>
-      <td data-link-for="NDEFRecord"><a>toText()</a></td>
+      <td><a>toText()</a></td>
     </tr>
     <tr>
       <td><a>MIME type</a> (<a>TNF</a>=2) record with
@@ -1446,7 +1470,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </td>
       <td>"json"</td>
       <td>The <a>MIME type</a> used in the NDEF record</td>
-      <td data-link-for="NDEFRecord">
+      <td>
         <a>toText()</a> or
         <a>toJSON()</a> or
         <a>toArrayBuffer()</a>
@@ -1456,7 +1480,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <td><a>MIME type</a> (<a>TNF</a>=2) record</td>
       <td>"opaque"</td>
       <td>The <a>MIME type</a> used in the NDEF record</td>
-      <td data-link-for="NDEFRecord">
+      <td>
         <a>toText()</a> or
         <a>toJSON()</a> or
         <a>toArrayBuffer()</a>
@@ -1467,7 +1491,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <code>urn:nfc:ext:w3.org:webnfc*</code></td>
       <td>"opaque"</td>
       <td>"application/octet-stream"</td>
-      <td data-link-for="NDEFRecord">
+      <td>
         <a>toText()</a> or
         <a>toJSON()</a> or
         <a>toArrayBuffer()</a>
@@ -1477,7 +1501,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <td>Any other <a>NDEF record</a> type</td>
       <td>"opaque"</td>
       <td>"application/octet-stream"</td>
-      <td data-link-for="NDEFRecord">
+      <td>
         <a>toText()</a> or
         <a>toJSON()</a> or
         <a>toArrayBuffer()</a>
@@ -3065,10 +3089,6 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 Let <var>header</var> be the first <a>byte</a> of <var>ndef</var>'s PAYLOAD field.
               </li>
               <li>
-                Let <var>charset</var> be <code>"utf-8"</code> if bit 7 (most significant bit) of
-                <var>header</var> is equal to the value 0, or else <code>"utf-16be"</code>.
-              </li>
-              <li>
                 Let <var>offset</var> be the value given by bit 5 to bit 0 of the
                 <var>header</var>.
               </li>
@@ -3091,18 +3111,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 the input.
               </li>
               <li>
-                Let <var>buffer</var> be the <a>byte sequence</a> of <var>
-                ndef</var>'s PAYLOAD field, from position <var>offset</var> + 1 to the end.
-              </li>
-              <li>
-                If <var>charset</var> is equal to <code>"utf-8"</code>,
-                set <var>record</var>'s associated <a>bytes</a> to <var>buffer</var>.
-              </li>
-              <li>
-                Otherwise, set the result of invoking <var>record</var>'s
-                <a href="#dom-ndefrecord-totext">toText()</a> method to the result of running
-                <a>decode</a> on <var>buffer</var> with <var>encoding</var> set
-                to <code>"utf-16be"</code>.
+                Set <var>record</var>'s associated <a>bytes</a> to the
+                <a>byte sequence</a> of <var>ndef</var>'s PAYLOAD field.
               </li>
             </ol>
             <p class="note">
