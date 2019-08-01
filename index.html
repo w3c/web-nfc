@@ -2588,9 +2588,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         To <dfn>map text to NDEF</dfn> given a <var>record</var>, run these
         steps:
         <p class="note">
-          This is useful when clients specifically want to write an
-          NDEF <a href="#dfn-well-known-type">Well Known Type</a> Text
-          record. Other options would be to use the value <code>"opaque"</code>
+          This is useful when clients specifically want to write text in a
+          <a>well-known type record</a>.
+          Other options would be to use the value <code>"opaque"</code>
           with an explicit <a>MIME type</a> text type, which allows for
           better differentiation, e.g. when using <code>"text/xml"</code>, or
           <code>"text/vcard"</code>.
