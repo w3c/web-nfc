@@ -378,6 +378,11 @@
     The term <dfn>NFC content</dfn> is a synonym for <a>NDEF message</a>,
     which can originate either from an <a>NFC tag</a> or an <a>NFC peer</a>.
   </p>
+</section>
+<section>
+<h3>
+  The NDEF record and fields
+</h3>
   <p>
     An <dfn>NDEF record</dfn> is a part of an <a>NDEF message</a>. Each record
     is a binary structure that contains a data payload, as well as associated
@@ -393,110 +398,120 @@
     </ndef-record>
   </p>
   <p>
-    Only the first three bytes (lines in figure) are mandatory. First the header,
-    followed by the type length and payload length, which may both be zero.
+    Only the first three bytes (lines in figure) are mandatory. First the
+    header byte, followed by the <a>TYPE LENGTH field</a> and <a>PAYLOAD
+    LENGTH field</a>, which may both be zero.
   </p>
   <p>
-    Bit 7 of the header (MB, message begin) indicates whether this is the beginning
-    of a message, the bit 6 (ME, message end) whether it is the end. Bit 5 (CF,
-    chunk flag) whether the payload is chunked across multiple records.
+    The <dfn>MB field</dfn> (bit 7, message begin) indicates whether this is
+    the beginning of a message, the <dfn>ME field</dfn> (bit 6, message end)
+    indicates whether it is the end. The <dfn>CF field</dfn> (bit 5,
+    chunk flag) indicates whether the payload is chunked across multiple records.
   </p>
   <p class="note">
     Web NFC turns all chunked records into logical records.
   </p>
   <p>
-    Bit 4 (SR, short record) indicates whether the record is a short record. A short
+    The <dfn>SR field</dfn> (bit 4, short record) indicates whether the record is a
+    short record. A short
     record is one with a payload length <= 255 bytes. Normal records can have payload
     lengths exceeding 255 bytes up to a maximum of 4 GB. Short records only use one
-    byte to indicate length, whether as normal records use 4 bytes (2^32-1 bytes).
+    byte to indicate length, whether as normal records use 4 bytes (2<sup>32</sup>-1 bytes).
   </p>
   <p>
-    Bit 3 (IL, Id length) indicates whether an ID length is available. This optional
-    identifier is a URL.
+    The <dfn>IL field</dfn> (bit 3, id length) indicates whether an <a>ID LENGTH field</a> is
+    available. This optional identifier is a URL.
   </p>
   <p>
-    Bit 0-2 indicates the format of the type name, <dfn>TNF</dfn> (Type Name Format)
-    and is often exposed by native NFC software stacks. The field can take binary values
-    denoting the following NDEF record payload types:
+    The <dfn>TNF field</dfn> (bit 0-2, type name format) indicates the format of the
+    type name and is often exposed by native NFC software stacks. The field can take
+    binary values denoting the following NDEF record payload types:
     <table class="simple">
       <tr>
-        <th><strong>Value</strong></th>
-        <th><strong>Type Name Format</strong></th>
+        <th><strong>TNF value</strong></th>
+        <th><strong>Description</strong></th>
       </tr>
       <tr>
         <td>0</td>
-        <td>Empty</td>
+        <td><a>Empty record</a></td>
       </tr>
       <tr>
         <td>1</td>
-        <td>NFC Forum <dfn>well-known type</dfn> as defined in [[!NFC-RTD]]
-        </td>
+        <td>NFC Forum <a>well-known type record</a></td>
       </tr>
       <tr>
         <td>2</td>
-        <td><a>MIME type</a></td>
+        <td><a>MIME type record</a></td>
       </tr>
       <tr>
         <td>3</td>
-        <td><a>Absolute-URL string</a></td>
+        <td><a>Absolute-URL record</a></td>
       </tr>
       <tr>
         <td>4</td>
-        <td>NFC Forum <dfn>external type</dfn> as defined in [[!NFC-RTD]]</td>
+        <td>NFC Forum <a>external type record</a></td>
       </tr>
       <tr>
         <td>5</td>
-        <td>Unknown</td>
+        <td><a>Unknown record</a></td>
       </tr>
       <tr>
         <td>6</td>
-        <td>Unchanged</td>
+        <td><a>Unchanged record</a></td>
       </tr>
       <tr>
         <td>7</td>
-        <td>Reserved</td>
+        <td>Reserved for future use</td>
       </tr>
     </table>
   </p>
+  <p>
+    Other fields include <dfn>TYPE LENGTH field</dfn>, <dfn>TYPE field</dfn>,
+    <dfn>ID LENGTH field</dfn>, <dfn>ID field</dfn>, <dfn>PAYLOAD LENGTH field</dfn>
+    and the <dfn>PAYLOAD field</dfn>.
+  </p>
+  </section>
   <section>
+  <h3>
+    Record types
+  </h3>
+    <section>
     <h4>
       Empty NDEF records (TNF 0)
     </h4>
-    TNF 0 (empty) is used for empty records, which have no payload or type
+    The <dfn>empty record</dfn>s, which have no payload or type
+    and are used to indicate empty tags.
+
     <ndef-record
       header="1,1,0,1,0,0 (EMPTY)"
       content="0,0,_,_,_,_"
       short>
     </ndef-record>
-  </section>
-  <section>
+    </section>
+    <section>
     <h4>
        Well-known records (TNF 1)
     </h4>
     <p>
-      The NFC Forum has standardized a small set of useful data types for
-      use in NDEF records, for instance text, URL, and binary data such as
-      media. In addition, there are record types designed for more complex
-      interactions, such as smart poster, and handover records.
+      The NFC Forum has standardized a small set of useful RTD (Record Type
+      Definition) types for use in the NFC Forum <dfn>well-known type record</dfn>s,
+      for instance text, URL, and binary data such as media. In addition, there
+      are record types designed for more complex interactions, such as smart
+      poster (containing optional embedded records for url, text, signature and
+      actions), and handover records. Most of these are defined in [[!NFC-RTD]].
     </p>
     <p>
-      NFC Forum well-known type includes record types text, url, smart poster
-      (containing optional embedded records for url, text, signature and
-      actions).
-    </p>
-    <p>
-      For well-known RTD, the type is stored in the TYPE field and is “T”
+      For well-known records, the RTD type is stored in the <a>TYPE field</a> and is “T”
       0x54 for text, “U” (0x55) for url and “Sp” (0x53, 0x70) for smart poster.
     </p>
     <p>
-      Other known RTD values supported by the platform and not Web NFC are
+      Other known RTD types supported by the platform and not Web NFC are
       “ac” (0x61, 0x63) for alternative carrier, “Hc” (0x48, 0x63) for
       handover carrier, “Hr” (0x48, 0x72) for handover request, and “Hs”
       (0x48, 0x73) for handover select.
     </p>
     <p>
-      An <dfn>NFC handover</dfn> defines NFC Forum
-      <a href="#dfn-well-known-type">Well Known Types</a> and the
+      An <dfn>NFC handover</dfn> defines RTD and the
       corresponding message structure that allows negotiation and activation of
       an alternative communication carrier, such as Bluetooth or WiFi.
       The negotiated communication carrier would then be used (separately) to
@@ -523,13 +538,14 @@
         </ndef-record>
       </ndef-record>
     </p>
-  </section>
-  <section>
+    </section>
+    <section>
     <h4>
-        MIME type records (TNF 2)
+      MIME type records (TNF 2)
     </h4>
     <p>
-      MIME type records are records that store opaque data with associated MIME type.
+      The <dfn>MIME type record</dfn>s are records that store `opaque`
+      data with associated <a>MIME type</a>.
       <ndef-record
         header="*,*,*,*,*,2 (MIME)"
         content="*,*,*,SERIALIZED MIME TYPE,*,MIME TYPE PAYLOAD"
@@ -539,14 +555,14 @@
     <p class=note>
       Web NFC has special handling for working with JSON MIME type data.
     </p>
-  </section>
-  <section>
+    </section>
+    <section>
     <h4>
-        Absolute URL string records (TNF 3)
+      Absolute-URL records (TNF 3)
     </h4>
     <p>
-      In an absolute URL string record the TYPE field contains the url
-      value, and not the payload.
+      In <dfn>absolute-URL record</dfn>s the <a>TYPE field</a> contains the
+      <a>absolute-URL string</a>, and not the payload.
     </p>
     <p class=note>
       NOTE: Some platforms, like Windows Phone have stored additional data
@@ -562,17 +578,17 @@
         short>
       </ndef-record>
     </p>
-  </section>
-  <section>
+    </section>
+    <section>
     <h4>
       External type records (TNF 4)
     </h4>
     <p>
-      External types are for client specified data and must have a type
-      name following the NFC RTD standard.
+      The NFC Forum <dfn>external type record</dfn>s are for client specified
+      data and must have a type name following the [[NFC-RTD]] standard.
     </p>
     <p class=note>
-      Web NFC defined a special external type record that is not accessible
+      Web NFC defines a special <a>external type record</a> that is not accessible
       to client applications.
     </p>
     <p>
@@ -582,8 +598,8 @@
         short>
       </ndef-record>
     </p>
-  </section>
-  <section>
+    </section>
+    <section>
     <h4>
       Special Web NFC records (TNF 4)
     </h4>
@@ -605,7 +621,7 @@
       specified by <a>NFCReader</a>s.
     </p>
     <p>
-      A <dfn>Web NFC record</dfn> is an <a>NDEF record</a> of <a>external type</a> type,
+      A <dfn>Web NFC record</dfn> is an <a>external type record</a>,
       specific to Web NFC. It indicates that the containing <a>NDEF message</a>
       is targeted for <a>browsing context</a>s using this API
       and contains information useful for handling the <a>NDEF message</a> with
@@ -613,8 +629,8 @@
       The format of a <a>Web NFC record</a> is as follows:
       <ul>
         <li>
-          Uses NFC Forum <a>external type</a> record (<a>TNF</a>=4) with the
-          TYPE field set to <code>urn:nfc:ext:w3.org:webnfc</code>.
+          Uses NFC Forum <a>external type record</a> with the
+          <a>TYPE field</a> set to <code>urn:nfc:ext:w3.org:webnfc</code>.
         </li>
         <li>
           The payload contains the <a>Web NFC Id</a> of the
@@ -638,14 +654,14 @@
       <a>NDEF record</a> level payload identification, since <a>NDEF message</a>
       level identification is used.
     </p>
-  </section>
-  <section>
+    </section>
+    <section>
     <h4>
       Unknown type records (TNF 5)
     </h4>
     <p>
-      Unknown type records are records that store opaque data without
-      associated MIME type.
+      The <dfn>unknown record</dfn>s are records that store
+      `opaque` data without associated <a>MIME type</a>.
     </p>
     <p>
       <ndef-record
@@ -660,8 +676,8 @@
       Unchanged type records (TNF 6)
     </h4>
     <p>
-      Unchanged type records are chunked records and must be used for any,
-      but the first record.
+      The <dfn>unchanged record</dfn>s are record chunks of
+      a chunked data set, and is used for any, but the first record.
     </p>
     <p>
       First record:
@@ -689,6 +705,7 @@
       Any implementation of Web NFC MUST transparently expose chunked records
       as single logical records.
     </p>
+    </section>
   </section>
 </section> <!-- Terminology -->
 
@@ -1571,19 +1588,19 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <td><dfn>"empty"</dfn></td>
       <td><i>not used</i></td>
       <td><i>not used</i></td>
-      <td>Empty (<a>TNF</a>=0) record</td>
+      <td><a>Empty record</a></td>
     </tr>
     <tr>
       <td><dfn>"text"</dfn></td>
       <td><i>not used</i></td>
       <td><code>DOMString</code></td>
-      <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type <i>Text</i></td>
+      <td>NFC Forum <a>well-known type record</a> with type <i>Text</i></td>
     </tr>
     <tr>
       <td><dfn>"url"</dfn></td>
       <td><i>not used</i></td>
       <td><code>DOMString</code></td>
-      <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type <i>URI</i></td>
+      <td>NFC Forum <a>well-known type record</a> with type <i>URI</i></td>
     </tr>
     <tr>
       <td><dfn>"json"</dfn></td>
@@ -1592,7 +1609,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         `null` or <code>DOMString</code> or <code>Number</code> or
         <code>Dictionary</code>
       </td>
-      <td><a>MIME type</a> (<a>TNF</a>=2) record with
+      <td><a>MIME type record</a> with
         <a>MIME type</a> specified in the <code>type</code> attribute.
       </td>
     </tr>
@@ -1600,12 +1617,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <td rowspan="2"><dfn>"opaque"</dfn></td>
       <td><a>MIME type</a></td>
       <td><code>ArrayBuffer</code></td>
-      <td><a>MIME type</a> (<a>TNF</a>=2) record</td>
+      <td><a>MIME type record</a></td>
     </tr>
     <tr>
       <td><code>""</code> (<i>empty</i>)</td>
       <td><code>ArrayBuffer</code> or typed array</td>
-      <td>NFC Forum <a>external type</a> (<a>TNF</a>=4) record</td>
+      <td>NFC Forum <a>external type record</a></td>
     </tr>
   </table>
   <p>
@@ -1622,7 +1639,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <th>NDEFRecord data getters</th>
     </tr>
     <tr>
-      <td>Empty (<a>TNF</a>=0) record</td>
+      <td><a>Empty record</a></td>
       <td>"empty"</td>
       <td>""</td>
       <td>
@@ -1632,32 +1649,32 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </td>
     </tr>
     <tr>
-      <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type <i>Text</i></td>
+      <td>NFC Forum <a>well-known type record</a> with type <i>Text</i></td>
       <td>"text"</td>
       <td>"text/plain"</td>
       <td><a>toText()</a></td>
     </tr>
     <tr>
-      <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type <i>URI</i></td>
+      <td>NFC Forum <a>well-known type record</a> with type <i>URI</i></td>
       <td>"url"</td>
       <td>"text/plain"</td>
       <td><a>toText()</a></td>
     </tr>
     <tr>
-      <td>NFC Forum <a>well-known type</a> (<a>TNF</a>=1) record with type
+      <td>NFC Forum <a>well-known type record</a>  with type
           <i>Smart Poster</i></td>
       <td>"url"</td>
       <td>"text/plain"</td>
       <td><a>toText()</a></td>
     </tr>
     <tr>
-      <td><a>Absolute-URL string</a> (<a>TNF</a>=3) record</td>
+      <td><a>Absolute-URL record</a></td>
       <td>"url"</td>
       <td>"text/plain"</td>
       <td><a>toText()</a></td>
     </tr>
     <tr>
-      <td><a>MIME type</a> (<a>TNF</a>=2) record with
+      <td><a>MIME type record</a> with
         <a>JSON MIME type</a>
       </td>
       <td>"json"</td>
@@ -1669,7 +1686,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </td>
     </tr>
     <tr>
-      <td><a>MIME type</a> (<a>TNF</a>=2) record</td>
+      <td><a>MIME type record</a></td>
       <td>"opaque"</td>
       <td>The <a>MIME type</a> used in the NDEF record</td>
       <td>
@@ -1679,7 +1696,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </td>
     </tr>
     <tr>
-      <td>NFC Forum <a>external type</a> type (<a>TNF</a>=4) record with type other than
+      <td>NFC Forum <a>external type record</a> with type other than
         <code>urn:nfc:ext:w3.org:webnfc*</code></td>
       <td>"opaque"</td>
       <td>"application/octet-stream"</td>
@@ -2549,13 +2566,15 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             be created by the UA.
           </li>
           <li>Set the
-            <var>ndef</var>'s TNF field to 0 (empty).
+            <var>ndef</var>'s <a>TNF field</a> to 0 (<a>empty field record</a>).
+          </li>
+          <li>Set the
+            <var>ndef</var>'s <a>IL field</a> to 0.
           </li>
           <li>Set
-            <var>ndef</var>'s TYPE_LENGTH,
-            ID_LENGTH and PAYLOAD_LENGTH fields to 0,
-            and omit the associated fields from the <a>NDEF record</a>:
-            TYPE, ID, and PAYLOAD.
+            <var>ndef</var>'s <a>TYPE LENGTH field</a>,
+            and <a>PAYLOAD LENGTH field</a> to 0,
+            and omit <a>TYPE field</a> and <a>PAYLOAD field</a>.
           </li>
           <li>
             Return <var>ndef</var>.
@@ -2614,21 +2633,21 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             be created by the UA.
           </li>
           <li>
-            Set the <var>ndef</var>'s TNF field to 1 (<a>well-known type</a>).
+            Set the <var>ndef</var>'s <a>TNF field</a> to 1 (<a>well-known type record</a>).
           </li>
           <li>
-            Set the <var>ndef</var>'s TYPE field to <code>"T"</code>
+            Set the <var>ndef</var>'s <a>TYPE field</a> to <code>"T"</code>
             (value 0x54 following NFC binary encoding).
           </li>
           <li>
-            Set the <var>ndef</var>'s PAYLOAD field to
+            Set the <var>ndef</var>'s <a>PAYLOAD field</a> to
             <var>record</var>'s data encoded according to the
             [[!NFC-STANDARDS]], NFC Forum Text Record Type
             Definition specification:
             <ol>
               <li>
                 To set the first <a>byte</a> of the <a>byte sequence</a>
-                of <var>ndef</var>'s PAYLOAD field, perform the following steps:
+                of <var>ndef</var>'s <a>PAYLOAD field</a>, perform the following steps:
                 <ol>
                   <li>
                     If <var>MIME type</var>'s parameters[<code>"charset"</code>]
@@ -2657,12 +2676,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               </li>
               <li>
                 Set position 1 to <var>offset</var> + 1, inclusive, of the <a>byte sequence</a>
-                of <var>ndef</var>'s PAYLOAD field to the result of running <a>ASCII encode</a>
+                of <var>ndef</var>'s <a>PAYLOAD field</a> to the result of running <a>ASCII encode</a>
                 on <var>language</var>.
               </li>
               <li>
                 Set position from <var>offset</var> + 1 to end, of the <a>byte sequence</a>
-                of <var>ndef</var>'s PAYLOAD field to the result of running <a>UTF-8 encode</a>
+                of <var>ndef</var>'s <a>PAYLOAD field</a> to the result of running <a>UTF-8 encode</a>
                 on <var>record</var>'s data.
               </li>
             </ol>
@@ -2698,10 +2717,10 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             be created by the UA.
           </li>
           <li>
-            Set the <var>ndef</var>'s TNF field to 1 (<a>well-known type</a>).
+            Set the <var>ndef</var>'s <a>TNF field</a> to 1 (<a>well-known type record</a>).
           </li>
           <li>
-            Set the <var>ndef</var>'s TYPE field to "U" (0x55
+            Set the <var>ndef</var>'s <a>TYPE field</a> to "U" (0x55
             following NFC binary encoding).
           </li>
           <li>
@@ -2722,12 +2741,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             <var>prefix</var> removed from the start of the <a>string</a>.
           </li>
           <li>
-            Set the first <a>byte</a> of <var>ndef</var>'s PAYLOAD field to
+            Set the first <a>byte</a> of <var>ndef</var>'s <a>PAYLOAD field</a> to
             the <var>prefix code</var>.
           </li>
           <li>
             Set position 1 to end, of the <a>byte sequence</a> of <var>ndef</var>'s
-            PAYLOAD field to the result of running <a>UTF-8 encode</a> on
+            <a>PAYLOAD field</a> to the result of running <a>UTF-8 encode</a> on
             <var>shortened url</var>.
           </li>
           <li>
@@ -2770,15 +2789,15 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             be created by the UA.
           </li>
           <li>
-            Set the <var>ndef</var>'s TNF field to 2 (<a>MIME type</a>).
+            Set the <var>ndef</var>'s <a>TNF field</a> to 2 (<a>MIME type</a>).
           </li>
           <li>
-            Set the <var>ndef</var>'s TYPE field to the result of
+            Set the <var>ndef</var>'s <a>TYPE field</a> to the result of
             <a>serializing a MIME type</a> with <var>MIME type</var> as
             the input.
           </li>
           <li>
-            Set the <var>ndef</var>'s PAYLOAD field to <var>data</var>
+            Set the <var>ndef</var>'s <a>PAYLOAD field</a> to <var>data</var>
             according to the [[!NFC-STANDARDS]], i.e. as an opaque byte sequence.
           </li>
           <li>
@@ -2812,15 +2831,15 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             be created by the UA.
           </li>
           <li>
-            Set the <var>ndef</var>'s TNF field to 2 (<a>MIME type</a>).
+            Set the <var>ndef</var>'s <a>TNF field</a> to 2 (<a>MIME type</a>).
           </li>
           <li>
-            Set the <var>ndef</var>'s TYPE field to the result of
+            Set the <var>ndef</var>'s <a>TYPE field</a> to the result of
             <a>serializing a MIME type</a> with <var>MIME type</var> as
             the input.
           </li>
           <li>
-            Set the <var>ndef</var>'s PAYLOAD field to <var>record</var>'s data
+            Set the <var>ndef</var>'s <a>PAYLOAD field</a> to <var>record</var>'s data
             according to the [[!NFC-STANDARDS]], i.e. as an opaque byte sequence
           </li>
           <li>
@@ -2840,7 +2859,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             be created by the UA.
           </li>
           <li>
-            Set <var>ndef</var>'s TNF to 4 (<a>external type</a>).
+            Set <var>ndef</var>'s TNF to 4 (<a>external type record</a>).
           </li>
           <li>
             Set <var>ndef</var>'s TYPE to
@@ -3258,27 +3277,26 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <ol>
           <li>
             Let <var>ndef</var> be the notation for the current
-            <a>NDEF record</a>. The fields of <var>ndef</var> are described by
-            the [[!NFC-STANDARDS]].
+            <a>NDEF record</a>.
           </li>
           <li>
             Let <var>record</var> be a new <code><a>NDEFRecord</a></code> object.
           </li>
           <li>
-            If <var>ndef</var>'s TNF field is 0 (empty), then set
+            If <var>ndef</var>'s <a>TNF field</a> is 0 (empty), then set
             <var>record</var>'s recordType to <code>"empty"</code> and set
             <var>record</var>'s mediaType to <code>""</code>.
           </li>
           <li>
-            If <var>ndef</var>'s TNF field is 1 (<a>well-known type</a>), and
-            <var>ndef</var>'s TYPE field is <code>"T"</code> (value 0x54 following NFC
+            If <var>ndef</var>'s <a>TNF field</a> is 1 (<a>well-known type record</a>), and
+            <var>ndef</var>'s <a>TYPE field</a> is <code>"T"</code> (value 0x54 following NFC
             binary encoding), then run the following sub-steps for
             <dfn>parsing NDEF Text record</dfn>, or ensure that the
             underlying platform provides equivalent values to the
             <var>record</var> object properties:
             <ol>
               <li>
-                Let <var>header</var> be the first <a>byte</a> of <var>ndef</var>'s PAYLOAD field.
+                Let <var>header</var> be the first <a>byte</a> of <var>ndef</var>'s <a>PAYLOAD field</a>.
               </li>
               <li>
                 Let <var>offset</var> be the value given by bit 5 to bit 0 of the
@@ -3304,7 +3322,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               </li>
               <li>
                 Set <var>record</var>'s associated <a>bytes</a> to the
-                <a>byte sequence</a> of <var>ndef</var>'s PAYLOAD field.
+                <a>byte sequence</a> of <var>ndef</var>'s <a>PAYLOAD field</a>.
               </li>
             </ol>
             <p class="note">
@@ -3329,8 +3347,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             </p>
           </li> <!-- reading NDEF Text record -->
           <li>
-            If <var>ndef</var>'s TNF field is 1 (<a>well-known type</a>), and
-            <var>ndef</var>'s TYPE field is <code>"U"</code> (value 0x55 in NFC binary
+            If <var>ndef</var>'s <a>TNF field</a> is 1 (<a>well-known type record</a>), and
+            <var>ndef</var>'s <a>TYPE field</a> is <code>"U"</code> (value 0x55 in NFC binary
             encoding), then run the following sub-steps for
             <dfn>parsing NDEF URL record</dfn>, or make sure that the
             underlying platform provides equivalent values to the
@@ -3342,7 +3360,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               </li>
               <li>
                 Let <var>prefix code</var> be the value of the first <a>byte</a> of
-                <var>ndef</var>'s PAYLOAD field.
+                <var>ndef</var>'s <a>PAYLOAD field</a>.
               </li>
               <li>
                 If <var>prefix code</var> is not 0, then set <var>record</var>'s associated
@@ -3354,7 +3372,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               </li>
               <li>
                 Let <var>buffer</var> be the <a>byte sequence</a> of <var>
-                ndef</var>'s PAYLOAD field from the second <a>byte</a> to the end.
+                ndef</var>'s <a>PAYLOAD field</a> from the second <a>byte</a> to the end.
               </li>
               <li>
                 <a>Push</a> <var>buffer</var> to <var>record</var>'s associated <a>bytes</a>.
@@ -3362,13 +3380,13 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             </ol>
           </li> <!-- parsing NDEF URL record -->
           <li>
-            If <var>ndef</var>'s TNF field is 3 (<a>absolute-URL string</a>), then
+            If <var>ndef</var>'s <a>TNF field</a> is 3 (<a>absolute-URL record</a>), then
             set <var>record</var>'s recordType to <code>"url"</code>,
             set <var>record</var>'s mediaType to <code>"text/plain"</code> and
-            set <var>record</var>'s associated <a>bytes</a> to <var>ndef</var>'s PAYLOAD field.
+            set <var>record</var>'s associated <a>bytes</a> to <var>ndef</var>'s <a>PAYLOAD field</a>.
           </li> <!-- parsing NDEF Absolute URI record -->
           <li>
-            If <var>ndef</var>'s TFN field is 2 (<a>MIME type</a>), then run
+            If <var>ndef</var>'s <a>TNF field</a> is 2 (<a>MIME type record</a>), then run
             the following sub-steps for <dfn>parsing NDEF Media record</dfn>, or
             make sure that the underlying platform provides equivalent values to
             the <var>record</var> object properties:
@@ -3376,7 +3394,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               <li>
                 Let <var>MIME type</var> be the <a data-lt="MIME type">MIME type record</a>
                 returned by running <a>parsing a MIME type</a> on
-                <var>ndef</var>'s TYPE field.
+                <var>ndef</var>'s <a>TYPE field</a>.
               </li>
               <li>
                 If <var>MIME type</var> is a <a>JSON MIME type</a>, then
@@ -3391,7 +3409,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                   </li>
                   <li>
                     Set <var>record</var>'s associated <a>bytes</a> to
-                    <var>ndef</var>'s PAYLOAD field.
+                    <var>ndef</var>'s <a>PAYLOAD field</a>.
                   </li>
                 </ol>
               </li>
@@ -3408,32 +3426,32 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                   </li>
                   <li>
                     Set <var>record</var>'s associated <a>bytes</a> to
-                    <var>ndef</var>'s PAYLOAD field.
+                    <var>ndef</var>'s <a>PAYLOAD field</a>.
                   </li>
                 </ol>
               </li>
             </ol>
           </li> <!-- parsing NDEF Media record -->
           <li>
-            If <var>ndef</var>'s TNF field is 4 (<a>external type</a>), and
-            <var>ndef</var>'s TYPE field is <code>urn:nfc:ext:w3.org:webnfc</code>,
-            then set <var>message</var>'s url to the <var>ndef</var>'s PAYLOAD field.
+            If <var>ndef</var>'s <a>TNF field</a> is 4 (<a>external type record</a>), and
+            <var>ndef</var>'s <a>TYPE field</a> is <code>urn:nfc:ext:w3.org:webnfc</code>,
+            then set <var>message</var>'s url to the <var>ndef</var>'s <a>PAYLOAD field</a>.
           </li> <!-- parsing Web NFC record -->
           <li>
-            Otherwise, if <var>ndef</var>'s TNF field is 4 (<a>external type</a>),
+            Otherwise, if <var>ndef</var>'s <a>TNF field</a> is 4 (<a>external type record</a>),
             or 5 (unknown) then run the following sub-steps,
             or make sure that the underlying platform provides equivalent values
             to the <var>record</var> object properties:
             <ol>
               <li>Set <var>record</var>'s recordType to <code>"opaque"</code>.</li>
               <li>
-                If <var>ndef</var>'s TYPE field is defined, then set
+                If <var>ndef</var>'s <a>TYPE field</a> is defined, then set
                 <var>record</var>'s mediaType to that <a>string</a> value, otherwise to
                 <code>"application/octet-stream"</code>.
               </li>
               <li>
                 Set <var>record</var>'s associated <a>bytes</a> to
-                <var>ndef</var>'s PAYLOAD field.
+                <var>ndef</var>'s <a><a>PAYLOAD field</a></a>.
               </li>
             </ol>
           </li> <!-- parsing NDEF External/Unknown record -->
