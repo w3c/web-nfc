@@ -141,12 +141,6 @@
     product: the <dfn>UA</dfn> (user agent) that implements the interfaces it
     contains.
   </p>
-  <p>
-    Implementations that use [[ECMAScript]] to implement the APIs defined in
-    this document MUST implement them in a manner consistent with the
-    [[ECMAScript]] Bindings defined in the Web IDL specification [[WEBIDL]], as
-    this document uses that specification and terminology.
-  </p>
 </section>
 
 <!-- - - - - - - - - - - - - - -  Terminology - - - - - - - - - - - - - - - -->
@@ -469,7 +463,7 @@
       one of which is a <a>Web NFC record</a>.
     </p>
     <p>
-      The <dfn>Web NFC message origin</dfn> is a <a data-lt="serilization of an origin">
+      The <dfn>Web NFC message origin</dfn> is a <a data-lt="serialization of an origin">
       serialized origin</a>
       with <code>"https"</code> scheme, stored in the <a>Web NFC record</a>.
       For <a>NFC content</a> that is not a <a>Web NFC message</a>, it is
@@ -2654,7 +2648,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             Set the <var>ndef</var>'s <a>TYPE field</a> to the result of
-            <a>serializing a MIME type</a> with <var>MIME type</var> as
+            <a>serialize a MIME type</a> with <var>MIME type</var> as
             the input.
           </li>
           <li>
@@ -2695,7 +2689,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             Set the <var>ndef</var>'s <a>TYPE field</a> to the result of
-            <a>serializing a MIME type</a> with <var>MIME type</var> as
+            <a>serialize a MIME type</a> with <var>MIME type</var> as
             the input.
           </li>
           <li>
