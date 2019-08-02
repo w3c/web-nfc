@@ -196,7 +196,7 @@
     identification (RFID) standards, including ISO/IEC 14443 and FeliCa.
     The NFC standards include ISO/IEC 18092[5] and those defined by the NFC
     Forum. See <a href="https://www.nfc-forum.org/specs/spec_list/">
-    https://www.nfc-forum.org/specs/spec_list/</a> for a complete
+    NFC Forum Technical Specifications</a> for a complete
     listing.
   </p>
   <p>
@@ -383,7 +383,7 @@
         short>
         <ndef-record slot="payload"
           header="1,0,0,1,0,3 (WELL KNOWN)"
-          content="TYPE LENGTH (1 byte),*,_,'T' (0x54 following NFC bibary encoding),_,*"
+          content="TYPE LENGTH (1 byte),*,_,'T' (0x54 following NFC binary encoding),_,*"
           short noindices>
         </ndef-record>
         <ndef-record slot="payload"
@@ -465,9 +465,9 @@
     <p>
       The <dfn>Web NFC message origin</dfn> is a <a data-lt="serialization of an origin">
       serialized origin</a>
-      with <code>"https"</code> scheme, stored in the <a>Web NFC record</a>.
+      with "`https`" scheme, stored in the <a>Web NFC record</a>.
       For <a>NFC content</a> that is not a <a>Web NFC message</a>, it is
-      <code>null</code>.
+      `null`.
     </p>
     <p>
       The <dfn id="web-nfc-id">Web NFC Id</dfn> is an <a>absolute-URL string</a>,
@@ -486,7 +486,7 @@
       <ul>
         <li>
           Uses NFC Forum <a>external type record</a> with the
-          <a>TYPE field</a> set to <code>urn:nfc:ext:w3.org:webnfc</code>.
+          <a>TYPE field</a> set to `urn:nfc:ext:w3.org:webnfc`.
         </li>
         <li>
           The payload contains the <a>Web NFC Id</a> of the
@@ -649,8 +649,7 @@
         service. Supports three different communication speeds 106 or 212 or
         424 Kbits/s.
       </li>
-      <li>
-        <b>NFC Forum Type 5</b>: This tag is based on the NFC-V RF
+      <li><b>NFC Forum Type 5</b>: This tag is based on the NFC-V RF
         technology which is based on ISO/IEC 15693 and allows reading and
         writing an NDEF message on a ISO/IEC 15693 RF tag that is accessible by
         long range RFID readers as well. The NFC communication is limited to
@@ -695,11 +694,11 @@
     <pre class="highlight">
 const writer = new NFCWriter();
 writer.push(
-  '{ "prop1": "value1", "prop2": "value2" }'
+  { prop1: "value1", prop2: "value2" }
 ).then(() => {
   console.log("Message pushed.");
-}).catch((error) => {
-  console.log("Push failed :-( try again.");
+}).catch(error => {
+  console.log(`Push failed :-( try again: ${error}.`);
 });
     </pre>
   </aside>
@@ -716,7 +715,7 @@ writer.push(
   "Text meant for peers only", { target: "peer" }
 ).then(() => {
   console.log("Message pushed.");
-}).catch((error) => {
+}).catch(_ => {
   console.log("Push failed :-( try again.");
 });
     </pre>
@@ -732,7 +731,7 @@ writer.push({
   records: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
 }).then(() => {
   console.log("Message pushed.");
-}).catch((error) => {
+}).catch(_ => {
   console.log("Push failed :-( try again.");
 });
     </pre>
@@ -1230,19 +1229,19 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       };
     </pre>
     <p>
-      The <dfn>NDEFMessage.url</dfn>
+      The <dfn data-dfn-for="NDEFMessage">url</dfn>
       property represents the <a>Web NFC Id</a> of a received
       <a>Web NFC message</a>.
     </p>
     <p>
-      The <dfn>NDEFMessage.records</dfn>
+      The <dfn data-dfn-for="NDEFMessage">records</dfn>
       property represents a <a>list</a> of <a>NDEF record</a>s defining the
       <a>Web NFC message</a>.
     </p>
-    <p>
+    <p data-dfn-for="NDEFMessageInit">
       The <dfn>NDEFMessageInit</dfn> dictionary is used to initialize a
       <a>Web NFC message</a>. When used in the <code><a>NFCWriter.push()</a></code>
-      method, its <dfn>NDEFMessageInit.url</dfn> member represents a URL [= url/path =]
+      method, its <dfn>url</dfn> member represents a URL [= url/path =]
       used for constructing the <a>Web NFC Id</a> of the pushed <a>Web NFC content</a>.
     </p>
   </section>
@@ -1259,6 +1258,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       interface NDEFRecord {
         readonly attribute NDEFRecordType recordType;
         readonly attribute USVString mediaType;
+
         USVString toText();
         [NewObject] ArrayBuffer toArrayBuffer();
         [NewObject] object toJSON();
@@ -1267,6 +1267,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       dictionary NDEFRecordInit {
         NDEFRecordType recordType;
         USVString mediaType;
+
         NDEFRecordData data;
       };
     </pre>
@@ -1302,73 +1303,73 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       running <a>convert NDEFRecord's bytes</a> with an <a>NDEFRecord</a> object
       and a `JSON` type.
     </p>
-    <p>
+    <p data-dfn-for="NDEFRecordInit">
       The <dfn>NDEFRecordInit</dfn> dictionary is used to initialize an <a>NDEF record</a>
       with its type, <a>MIME type</a> and payload data via the members of
-      <dfn>NDEFRecordInit.recordType</dfn>, <dfn>NDEFRecordInit.mediaType</dfn>,
-      and <dfn>NDEFRecordInit.data</dfn>. The mapping from data types of an
+      <dfn>recordType</dfn>, <dfn>mediaType</dfn>,
+      and <dfn>data</dfn>. The mapping from data types of an
       <a>NDEFRecordInit</a> to <a>NDEF record</a> types is presented
       in the algorithmic steps which handle the data and described in the
       <a href="#steps-receiving">Receiving and parsing content</a>
       and <a>Writing or pushing content</a> sections.
     </p>
     <p>
-      To <dfn>convert NDEFRecord's bytes</dfn>, pass a <var data-type="NDEFRecord">record</var>
-      and a <var>type</var>, run these steps:
+      To <dfn>convert NDEFRecord's bytes</dfn>, pass a |record:NDEFRecord|
+      and a |type|, run these steps:
     </p>
     <ol>
       <li>
-        Let <var>bytes</var> be the <var>record</var>'s <a>bytes</a>.
+        Let |bytes| be the |record|'s {{bytes}}.
       </li>
       <li>
-        Let <var data-type="NDEFRecordType">recordType</var> be the value of <var>record</var>'s
+        Let |recordType:NDEFRecordType| be the value of |record|'s
         <a data-link-for="NDEFRecord">recordType</a> attribute.
       </li>
-      <li>Switch on <var>type</var>:
+      <li>Switch on |type|:
         <dl>
           <dt>text</dt>
           <ol>
             <li>
-              If the <var>recordType</var> value is equal to "`empty`", return `null`.
+              If the |recordType| value is equal to "`empty`", return `null`.
             </li>
             <li>
-              If the <var>recordType</var> value is equal to "`text`", then run the following sub-steps:
+              If the |recordType| value is equal to "`text`", then run the following sub-steps:
               <ol>
                 <li>
-                  Let <var>header</var> be the first <a>byte</a> of <var>bytes</var>.
+                  Let |header| be the first <a>byte</a> of |bytes|.
                 </li>
                 <li>
-                  Let <var>charset</var> be "`utf-8`" if bit 7 (most significant bit) of
-                  <var>header</var> is equal to the value 0, or else "`utf-16be`".
+                  Let |charset| be "`utf-8`" if bit 7 (most significant bit) of
+                  |header| is equal to the value 0, or else "`utf-16be`".
                 </li>
                 <li>
-                  Let <var>offset</var> be the value given by bit 5 to bit 0 of the
-                  <var>header</var>.
+                  Let |offset| be the value given by bit 5 to bit 0 of the
+                  |header|.
                 </li>
                 <li>
-                  Let <var>buffer</var> be the <var>bytes</var>,
-                  from position <var>offset</var> + 1 to the end.
+                  Let |buffer| be the |bytes|,
+                  from position |offset| + 1 to the end.
                 </li>
                 <li>
-                  If <var>charset</var> is equal to "`utf-8`", return the result of
-                  running <a>UTF-8 decode</a> on <var>buffer</var>.
+                  If |charset| is equal to "`utf-8`", return the result of
+                  running <a>UTF-8 decode</a> on |buffer|.
                 </li>
                 <li>
                   Otherwise, return the result of running <a>decode</a> on
-                  <var>buffer</var> with `encoding` set to "`utf-16be`".
+                  |buffer| with `encoding` set to "`utf-16be`".
                 </li>
               </ol>
             </li>
             <li>
-              Otherwise, return the result of running <a>UTF-8 decode</a> on <var>bytes</var>.
+              Otherwise, return the result of running <a>UTF-8 decode</a> on |bytes|.
             </li>
           </ol>
           <dt>arrayBuffer</dt>
           <ol>
             <li>
-              If the <var>recordType</var> value is equal to "`json`" or
+              If the |recordType| value is equal to "`json`" or
               "`opaque`", then return an {{ArrayBuffer}} whose contents are the
-              <var>bytes</var>. Re-[= exception/throw =] any exceptions.
+              |bytes|. Re-[= exception/throw =] any exceptions.
             </li>
             <li>
               Otherwise, return `null`.
@@ -1377,9 +1378,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           <dt>JSON</dt>
           <ol>
             <li>
-              If the <var>recordType</var> value is equal to "`json`" or
+              If the |recordType| value is equal to "`json`" or
               "`opaque`", then return the result of running <a>parse JSON from bytes</a>
-              on <var>bytes</var>. Re-[= exception/throw =] any exceptions.
+              on |bytes|. Re-[= exception/throw =] any exceptions.
             </li>
             <li>
               Otherwise, return `null`.
@@ -1445,44 +1446,49 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <th>NDEF record type</th>
     </tr>
     <tr>
-      <td><dfn>"empty"</dfn></td>
-      <td><i>not used</i></td>
-      <td><i>not used</i></td>
+      <td><dfn>"`empty`"</dfn></td>
+      <td><i>unused</i></td>
+      <td><i>unused</i></td>
       <td><a>Empty record</a></td>
     </tr>
     <tr>
-      <td><dfn>"text"</dfn></td>
-      <td><i>not used</i></td>
+      <td><dfn>"`text`"</dfn></td>
+      <td><i>unused</i></td>
       <td><code>DOMString</code></td>
-      <td>NFC Forum <a>well-known type record</a> with type <i>Text</i></td>
+      <td><a>Well-known type record</a> with type "`T`"</td>
     </tr>
     <tr>
-      <td><dfn>"url"</dfn></td>
-      <td><i>not used</i></td>
+      <td><dfn>"`url`"</dfn></td>
+      <td><i>unused</i></td>
       <td><code>DOMString</code></td>
-      <td>NFC Forum <a>well-known type record</a> with type <i>URI</i></td>
+      <td><a>Well-known type record</a> with type "`U`"</td>
     </tr>
     <tr>
-      <td><dfn>"json"</dfn></td>
+      <td><dfn>"`json`"</dfn></td>
       <td><a>JSON MIME type</a></td>
       <td>
-        `null` or <code>DOMString</code> or <code>Number</code> or
+        `null` or<br>
+        <code>DOMString</code> or<br>
+        <code>Number</code> or<br>
         <code>Dictionary</code>
       </td>
-      <td><a>MIME type record</a> with
-        <a>MIME type</a> specified in the <code>type</code> attribute.
+      <td><a>MIME type record</a> with type equal to
+        <a>MIME type</a>.
       </td>
     </tr>
     <tr>
-      <td rowspan="2"><dfn>"opaque"</dfn></td>
+      <td rowspan="2"><dfn>"`opaque`"</dfn></td>
       <td><a>MIME type</a></td>
       <td><code>ArrayBuffer</code></td>
       <td><a>MIME type record</a></td>
     </tr>
     <tr>
-      <td><code>""</code> (<i>empty</i>)</td>
-      <td><code>ArrayBuffer</code> or typed array</td>
-      <td>NFC Forum <a>external type record</a></td>
+      <td><i>empty</i></td>
+      <td>
+        <code>ArrayBuffer</code> or<br>
+        typed array
+      </td>
+      <td><a>External type record</a></td>
     </tr>
   </table>
   <p>
@@ -1500,79 +1506,78 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </tr>
     <tr>
       <td><a>Empty record</a></td>
-      <td>"empty"</td>
-      <td>""</td>
+      <td>"`empty`"</td>
+      <td><i>empty</i></td>
       <td>
-        <a>toText()</a> or
-        <a>toJSON()</a> or
+        <a>toText()</a> or<br>
+        <a>toJSON()</a> or<br>
         <a>toArrayBuffer()</a>
       </td>
     </tr>
     <tr>
-      <td>NFC Forum <a>well-known type record</a> with type <i>Text</i></td>
-      <td>"text"</td>
-      <td>"text/plain"</td>
+      <td><a>Well-known type record</a> with type "`T`"</td>
+      <td>"`text`"</td>
+      <td>"`text/plain`"</td>
       <td><a>toText()</a></td>
     </tr>
     <tr>
-      <td>NFC Forum <a>well-known type record</a> with type <i>URI</i></td>
-      <td>"url"</td>
-      <td>"text/plain"</td>
+      <td><a>Well-known type record</a> with type "`U`"</td>
+      <td>"`url`"</td>
+      <td>"`text/plain`"</td>
       <td><a>toText()</a></td>
     </tr>
     <tr>
-      <td>NFC Forum <a>well-known type record</a>  with type
-          <i>Smart Poster</i></td>
-      <td>"url"</td>
-      <td>"text/plain"</td>
+      <td><a>Well-known type record</a> with type "`Sp`"</td>
+      <td>"`url`"</td>
+      <td>"`text/plain`"</td>
       <td><a>toText()</a></td>
     </tr>
     <tr>
       <td><a>Absolute-URL record</a></td>
-      <td>"url"</td>
-      <td>"text/plain"</td>
+      <td>"`url`"</td>
+      <td>"`text/plain`"</td>
       <td><a>toText()</a></td>
     </tr>
     <tr>
       <td><a>MIME type record</a> with
         <a>JSON MIME type</a>
       </td>
-      <td>"json"</td>
+      <td>"`json`"</td>
       <td>The <a>MIME type</a> used in the NDEF record</td>
       <td>
-        <a>toText()</a> or
-        <a>toJSON()</a> or
+        <a>toText()</a> or<br>
+        <a>toJSON()</a> or<br>
         <a>toArrayBuffer()</a>
       </td>
     </tr>
     <tr>
       <td><a>MIME type record</a></td>
-      <td>"opaque"</td>
+      <td>"`opaque`"</td>
       <td>The <a>MIME type</a> used in the NDEF record</td>
       <td>
-        <a>toText()</a> or
-        <a>toJSON()</a> or
+        <a>toText()</a> or<br>
+        <a>toJSON()</a> or<br>
         <a>toArrayBuffer()</a>
       </td>
     </tr>
     <tr>
-      <td>NFC Forum <a>external type record</a> with type other than
-        <code>urn:nfc:ext:w3.org:webnfc*</code></td>
-      <td>"opaque"</td>
-      <td>"application/octet-stream"</td>
+      <td><a>External type record</a> with type other than
+        `urn:nfc:ext:w3.org:webnfc`</td>
+      <td>"`opaque`"</td>
+      <td>"`application/octet-stream`"</td>
       <td>
-        <a>toText()</a> or
-        <a>toJSON()</a> or
+        <a>toText()</a> or<br>
+        <a>toJSON()</a> or<br>
         <a>toArrayBuffer()</a>
       </td>
     </tr>
     <tr>
       <td>Any other <a>NDEF record</a> type</td>
-      <td>"opaque"</td>
-      <td>"application/octet-stream"</td>
+      <td>"`opaque`"</td>
+      <td>"`application/octet-stream`"</td>
       <td>
-        <a>toText()</a> or
-        <a>toJSON()</a> or
+        <a>toText()</a> or<br>
+        <a>toJSON()</a> or<br>
         <a>toArrayBuffer()</a>
       </td>
     </tr>
@@ -1632,29 +1637,34 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
   </pre>
   <p>
     The <dfn>NDEFMessageSource</dfn> is a union type representing argument types
-    accepted by the <a href="#dom-nfcwriter-push"><code>push()</code></a> method.
+    accepted by the <a href="#dom-nfcwriter-push">push()</a> method.
   </p>
-  <p>
+  <p data-dfn-for="NFCReadingEvent">
     The <dfn>NFCReadingEvent</dfn> is the event being dispatched on new NFC readings.
-    The <dfn>NFCReadingEvent.serialNumber</dfn> property represents the serial number of
+    The <dfn>serialNumber</dfn> property represents the serial number of
     the device used for anti-collision and identification, or empty string in case none
-    is available. The <dfn>NFCReadingEvent.message</dfn> is an <a>NDEFMessage</a> object.
+    is available. The <dfn>message</dfn> is an <a>NDEFMessage</a> object.
+  </p>
+  <p data-dfn-for="NFCReadingEventInit">
     <dfn>NFCReadingEventInit</dfn> is used to initialize a new event with a serial number
-    and the <a>NDEFMessageInit</a> data via the <dfn>NFCReadingEventInit.message</dfn> member.
-    If <dfn>NFCReadingEventInit.serialNumber</dfn> is
+    and the <a>NDEFMessageInit</a> data via the <dfn>message</dfn> member.
+    If <dfn>serialNumber</dfn> is
     [= dictionary member/not present =] or is `null`,
     empty string will be used to init the event.
   </p>
   <p class="note">
     Though most tags will have a stable unique identifier (UID), not all
     have one and some tags even create a random number on each read.
-    The serial number usually consists of 4 or 7 numbers, separated by <code>:</code>.
+    The serial number usually consists of 4 or 7 numbers, separated by `:`.
   </p>
-  <p>
+  <p data-dfn-for="NFCErrorEvent">
     The <dfn>NFCErrorEvent</dfn> is the event being dispatched on errors,
-    with the {{DOMException}} object as the <dfn>NFCErrorEvent.error</dfn>
-    attribute. <dfn>NFCErrorEventInit</dfn> is used in order to initialize a new
-    event with a {{DOMException}} data via the <dfn>NFCErrorEventInit.error</dfn>
+    with the {{DOMException}} object as the <dfn>error</dfn>
+    attribute.
+  </p>
+  <p data-dfn-for="NFCErrorEventInit">
+    <dfn>NFCErrorEventInit</dfn> is used in order to initialize a new
+    event with a {{DOMException}} data via the <dfn>error</dfn>
     member.
   </p>
   <p>
@@ -1666,11 +1676,11 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     such as a tag, is within the magnetic induction field.
   </p>
   <p>
-    The <dfn>NFCReader.onreading</dfn> is an {{EventHandler}} which is called to notify
+    The <dfn data-dfn-for="NFCReader">onreading</dfn> is an {{EventHandler}} which is called to notify
     that new reading is available.
   </p>
   <p>
-    The <dfn>NFCReader.onerror</dfn> is an {{EventHandler}} which is called to notify
+    The <dfn data-dfn-for="NFCReader">onerror</dfn> is an {{EventHandler}} which is called to notify
     that an error happened.
   </p>
   <section><h3>NFC state associated with the settings object</h3>
@@ -1694,7 +1704,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <td>
         A boolean flag indicating whether NFC functionality is
         <a href="#nfc-suspended">suspended</a> or not, initially
-        <code>false</code>.
+        `false`.
       </td>
      </tr>
      <tr>
@@ -1719,13 +1729,13 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
 
   <section><h3>Handling Window visibility and focus</h3>
     <p>
-      Each {{Window}} object where <code>NFC</code> is
-      <code>exposed</code> has a separate <code>NFC</code> instance. The
+      Each {{Window}} object where <i>NFC</i> is
+      exposed has a separate <i>NFC</i> instance. The
       <a data-cite="page-visibility#dfn-visibility-states">visibility</a>
       and <a data-cite="html#focused">focus</a> state of the
       {{Window}} object determines the
       <a href="#nfc-suspended">suspended</a> state of the associated
-      <code>NFC</code> instance.
+      <i>NFC</i> instance.
     </p>
     <p>
       The term <dfn id="nfc-suspended">suspended</dfn> in this specification
@@ -1734,22 +1744,22 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       presented to any <a>NFCReader</a> while suspended.
 
       However, platform level timers for the
-      <code><a>NFCWriter.push()</a></code> method continue running,
+      <a>NFCWriter.push()</a> method continue running,
       and if they expire, the event should be recorded and handled
       when execution next resumes, i.e. when the [= Window/focus =]
       event is fired on the {{Window}} object.
     </p>
     <p>
       To <dfn id="suspend-nfc">suspend NFC</dfn>, set the [[\Suspended]] internal slot of the
-      <a>current settings object</a>'s associated <a>NFC state</a> to <code>true</code>.
+      <a>current settings object</a>'s associated <a>NFC state</a> to `true`.
     </p>
     <p>
       To <dfn id="resume-nfc">resume NFC</dfn>, set the [[\Suspended]] internal slot of the
-      <a>current settings object</a>'s associated <a>NFC state</a> to <code>false</code>.
+      <a>current settings object</a>'s associated <a>NFC state</a> to `false`.
     </p>
     <p>
       <dfn id="nfc-is-suspended">NFC is suspended</dfn> if the [[\Suspended]] internal slot of the
-      <a>current settings object</a>'s associated <a>NFC state</a> is <code>true</code>.
+      <a>current settings object</a>'s associated <a>NFC state</a> is `true`.
     </p>
     <p>
       The <dfn>activated reader objects</dfn> is the value of the [[\ActivatedReaderList]] internal slot
@@ -1772,17 +1782,17 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
 
   <section><h3>Releasing NFC</h3>
   <p>
-    To <dfn>release NFC</dfn> on an <a>environment settings object</a> <var>settings</var>, perform the following steps:
+    To <dfn>release NFC</dfn> on an <a>environment settings object</a> |settings|, perform the following steps:
   </p>
   <ol id="steps-nfc-release">
     <li>
       <a>Suspend NFC</a>.
     </li>
     <li>
-      [= list/For each =] pending <code><a>NFCWriter.push()</a></code> associated with <var>settings</var>:
+      [= list/For each =] pending <a>NFCWriter.push()</a> associated with |settings|:
       <ol>
         <li>
-          Stop the instance's <var>timer</var> if it is active.
+          Stop the instance's |timer| if it is active.
         </li>
         <li>
           If the instance has already initiated NFC data transfer,
@@ -1851,7 +1861,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         </p>
   </section>
 
-  <section> <h3>The <dfn>NFCPushOptions</dfn> dictionary</h3>
+  <section data-dfn-for="NFCPushOptions"> <h3>The <dfn>NFCPushOptions</dfn> dictionary</h3>
     <pre class="idl">
       dictionary NFCPushOptions {
         NFCPushTarget target = "any";
@@ -1862,33 +1872,33 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       };
     </pre>
     <p>
-      The <dfn>NFCPushOptions.target</dfn> property
+      The <dfn>target</dfn> property
       denotes the intended target for the pending
-      <a href="#dom-nfcwriter-push"><code>push()</code></a>
+      <a href="#dom-nfcwriter-push">push()</a>
       operation.
     </p>
     <p>
-      The <dfn>NFCPushOptions.timeout</dfn> property
+      The <dfn>timeout</dfn> property
       denotes the timeout for the pending
-      <a href="#dom-nfcwriter-push"><code>push()</code></a>
+      <a href="#dom-nfcwriter-push">push()</a>
       operation expressed in milliseconds. The default value is
-      implementation-dependent. The value <code>Infinity</code> means there is
-      no timeout, i.e. no timer is started. After the <var>timeout</var>
+      implementation-dependent. The value `Infinity` means there is
+      no timeout, i.e. no timer is started. After the |timeout|
       expires, the message set for pushing is cleared, an error is returned,
       and a new <a>Web NFC message</a> can be set for pushing.
     </p>
     <p>
-      When the value of the <dfn>NFCPushOptions.ignoreRead</dfn> property is
-      <code>true</code>, the <a href="#steps-push">push algorithm</a>
+      When the value of the <dfn>ignoreRead</dfn> property is
+      `true`, the <a href="#steps-push">push algorithm</a>
       will skip invoking the <a href="#steps-receiving">
       receiving and parsing steps</a> for an <a>NFC tag</a>.
     </p>
     <p>
-      The <dfn>NFCPushOptions.signal</dfn> property allows to abort
-      the <a href="#dom-nfcwriter-push"><code>push()</code></a> operation.
+      The <dfn>signal</dfn> property allows to abort
+      the <a href="#dom-nfcwriter-push">push()</a> operation.
     </p>
     <p>
-      The <dfn>NFCPushOptions.compatibility</dfn> property denotes
+      The <dfn>compatibility</dfn> property denotes
       the accepted kind of NFC devices.
     </p>
   </section>
@@ -1897,7 +1907,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <h2>The <dfn>NFCPushTarget</dfn> enum</h2>
     <p>
       This enum defines the set of intended target values for the
-      <a href="#dom-nfcwriter-push"><code>push()</code></a> operation.
+      <a href="#dom-nfcwriter-push">push()</a> operation.
     </p>
     <pre class="idl">
       enum NFCPushTarget {
@@ -1910,25 +1920,25 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <dt><dfn>tag</dfn></dt>
       <dd>
         The enum value representing the intended target for the
-        <a href="#dom-nfcwriter-push"><code>push()</code></a> operation to be
+        <a href="#dom-nfcwriter-push">push()</a> operation to be
         a <a>NFC tag</a>.
       </dd>
       <dt><dfn>peer</dfn></dt>
       <dd>
         The enum value representing the intended target for the
-        <a href="#dom-nfcwriter-push"><code>push()</code></a> operation to be
+        <a href="#dom-nfcwriter-push">push()</a> operation to be
         a <a>NFC peer</a>.
       </dd>
       <dt><dfn>any</dfn></dt>
       <dd>
         The enum value representing the intended target for the
-        <a href="#dom-nfcwriter-push"><code>push()</code></a> operation to be
+        <a href="#dom-nfcwriter-push">push()</a> operation to be
         a <a>NFC tag</a> or a <a>NFC peer</a>.
       </dd>
     </dl>
   </section> <!-- NFCPushTarget enum -->
 
-  <section>
+  <section data-dfn-for="NFCReaderOptions">
     <h3>The <dfn>NFCReaderOptions</dfn> dictionary</h3>
       <p>
         To describe which messages an application is interested in, the
@@ -1943,29 +1953,28 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         };
       </pre>
       <p>
-        The <dfn>NFCReaderOptions.url</dfn> property
+        The <dfn>url</dfn> property
         denotes the <a>URL pattern</a> which is used for matching the
         <a>Web NFC Id</a> of <a>Web NFC message</a>s which are being read.
-        The default value <code>""</code> means that no matching happens.
+        The default value `""` means that no matching is performed.
       </p>
       <p>
-        The <dfn>NFCReaderOptions.recordType</dfn> property
+        The <dfn>recordType</dfn> property
         denotes the enum value which is used for matching the
-        <code>
-        <a href="#idl-def-ndefrecordtype">recordType</a></code> property of each
-        <code><a>NDEFRecord</a></code> object in a <a>Web NFC message</a>.
+        <a href="#idl-def-ndefrecordtype">recordType</a> property of each
+        <a>NDEFRecord</a> object in a <a>Web NFC message</a>.
         If the dictionary member is [= dictionary member/not present =],
         then it will be ignored by the <a href="#steps-listen">NFC listen algorithm</a>.
       </p>
       <p>
-        The <dfn>NFCReaderOptions.mediaType</dfn> property
+        The <dfn>mediaType</dfn> property
         denotes the <a>match pattern</a> which is used for matching the
-        <code><a href="#dom-ndefrecord-mediatype">mediaType</a></code> property of each
-        <code><a>NDEFRecord</a></code> object in a <a>Web NFC message</a>.
-        The default value <code>""</code> means that no matching happens.
+        <a href="#dom-ndefrecord-mediatype">mediaType</a> property of each
+        <a>NDEFRecord</a> object in a <a>Web NFC message</a>.
+        The default value `""` means that no matching is performed.
       </p>
       <p>
-        The <dfn>NFCReaderOptions.compatibility</dfn> property denotes
+        The <dfn>compatibility</dfn> property denotes
         the accepted kind of NFC devices.
       </p>
       <pre
@@ -1992,34 +2001,34 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <p>
       <ol>
         <li>
-          Let <var>reader</var> be a new <a><code>NFCReader</code></a> object.
+          Let |reader| be a new <a>NFCReader</a> object.
         </li>
         <li>
-          Let <var>options</var> be first argument to constructor.
+          Let |options| be first argument to constructor.
         </li>
         <li>
-          [= list/For each =] <var>key</var> → <var>value</var> of <var>options</var>:
+          [= list/For each =] |key| → |value| of |options|:
           <ul>
             <li>
-              If <var>key</var> equals <code>"url"</code>, set
-              <var>reader</var>.[[\Url]] to <var>value</var>.
+              If |key| equals "`url`", set
+              |reader|.[[\Url]] to |value|.
             </li>
             <li>
-              Otherwise, if <var>key</var> equals <code>"recordType"</code>, set
-              <var>reader</var>.[[\RecordType]] to <var>value</var>.
+              Otherwise, if |key| equals "`recordType`", set
+              |reader|.[[\RecordType]] to |value|.
             </li>
             <li>
-              Otherwise, if <var>key</var> equals <code>"mediaType"</code>, set
-              <var>reader</var>.[[\MediaType]] to <var>value</var>.
+              Otherwise, if |key| equals "`mediaType`", set
+              |reader|.[[\MediaType]] to |value|.
             </li>
             <li>
-              Otherwise, if <var>key</var> equals <code>"compatibility"</code>, set
-              <var>reader</var>.[[\Compatibility]] to <var>value</var>.
+              Otherwise, if |key| equals "`compatibility`", set
+              |reader|.[[\Compatibility]] to |value|.
             </li>
           </ul>
         </li>
         <li>
-          Return <var>reader</var>.
+          Return |reader|.
         </li>
       </ol>
     </p>
@@ -2039,50 +2048,50 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <section><h3>The <strong>push()</strong> method</h3>
       <p id="steps-push">
         The
-        <code><dfn>NFCWriter.push</dfn></code> method, when invoked, MUST run the
+        <dfn>NFCWriter.push</dfn> method, when invoked, MUST run the
         <dfn>push a message</dfn> algorithm:
         <ol>
           <li>
-            Let <var>p</var> be a new {{Promise}} object.
+            Let |p:Promise| be a new {{Promise}} object.
           </li>
           <li>
-            Let <var>message</var> be the first argument.
+            Let |message:NDEFMessageSource| be the first argument.
           </li>
           <li>
-            Let <var>options</var> be the second argument.
+            Let |options:NFCPushOptions| be the second argument.
           </li>
           <li>
-            Let <var>signal</var> be the <var>options</var>’ dictionary member
+            Let |signal:AbortSignal| be the |options|’ dictionary member
             of the same name if present, or `null` otherwise.
           </li>
           <li>
             If there is no underlying <a>NFC Adapter</a>, or if a connection cannot
-            be established, then reject <var>p</var> with a
+            be established, then reject |p| with a
             {{"NotReadableError"}} {{DOMException}}
-            and return <var>p</var>.
+            and return |p|.
           </li>
           <li>
             If pushing data is not supported by the underlying <a>NFC Adapter</a>, then reject
-            <var>p</var> with a {{"NotSupportedError"}}
-            {{DOMException}} and return <var>p</var>.
+            |p| with a {{"NotSupportedError"}}
+            {{DOMException}} and return |p|.
           </li>
           <li>
-            If <var>signal</var>’s [= AbortSignal/aborted flag =] is set, then reject <var>p</var>
-            with an {{"AbortError"}} {{DOMException}} and return <var>p</var>.
+            If |signal|’s [= AbortSignal/aborted flag =] is set, then reject |p|
+            with an {{"AbortError"}} {{DOMException}} and return |p|.
           </li>
           <li>
-            If <var>signal</var> is not `null`, then
-            <a data-cite="dom#abortsignal-add">add the following abort steps</a> to <var>signal</var>:
+            If |signal| is not `null`, then
+            <a data-cite="dom#abortsignal-add">add the following abort steps</a> to |signal|:
               <ol>
                 <li>
                   If the instance has already initiated NFC data transfer,
                   and it can't be aborted, ignore the abort signal and return.
                 </li>
                 <li>
-                  Stop the instance's <var>timer</var> if it is active.
+                  Stop the instance's |timer| if it is active.
                 </li>
                 <li>
-                  Reject <var>p</var> with an {{"AbortError"}}
+                  Reject |p| with an {{"AbortError"}}
                   {{DOMException}} and abort these steps.
                 </li>
               </ol>
@@ -2091,7 +2100,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             Run the following steps <a>in parallel</a>:
             <ol>
               <li>
-                An implementation MAY reject <var>p</var> with
+                An implementation MAY reject |p| with
                 a {{"NotSupportedError"}} {{DOMException}}
                 and abort these steps.
                 <div class="note">
@@ -2103,60 +2112,60 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 </div>
               </li>
               <li>
-                Let <var>target</var> be <var>options</var>'s target.
+                Let |target:NFCPushTarget| be |options|'s target.
               </li>
               <li>
-                Let <var>timeout</var> be <var>options</var>'s timeout.
+                Let |timeout:number| be |options|'s timeout.
               </li>
               <li>
-                Let <var>compatibility</var> be <var>options</var>'s compatibility.
+                Let |compatibility:NDEFCompatibility| be |options|'s compatibility.
               </li>
               <li>
-                If the <var>message</var> parameter is not of type defined by
-                the <a>NDEFMessageSource</a> union, reject <var>p</var>
+                If the |message:NDEFMessageSource| parameter is not of type defined by
+                the <a>NDEFMessageSource</a> union, reject |p|
                 with a {{"TypeError"}}, and abort these steps.
               </li>
               <li>
-                If the <var>message</var> parameter is of
-                <a>NDEFMessageInit</a> type, and <var>message</var>'s records
-                [= list/is empty =], reject <var>p</var> with
+                If the |message| parameter is of
+                <a>NDEFMessageInit</a> type, and |message|'s records
+                [= list/is empty =], reject |p| with
                 a {{"TypeError"}} and abort these steps.
               </li>
               <li>
-                If <var>timeout</var> value is NaN or negative, reject
-                <var>p</var> with a {{"TypeError"}} and abort
+                If |timeout| value is `NaN` or negative, reject
+                |p| with a {{"TypeError"}} and abort
                 these steps.
               </li>
               <li>
-                If <var>timeout</var> value is not supported by the UA, reject
-                <var>p</var> with a {{"NotSupportedError"}}
+                If |timeout| value is not supported by the UA, reject
+                |p| with a {{"NotSupportedError"}}
                 {{DOMException}} and abort these steps.
               </li>
               <li>
-                Let <var>output</var> be the notation for the <a>NDEF message</a>
+                Let |output| be the notation for the <a>NDEF message</a>
                 to be created by UA, as the result of passing
-                <var>message</var> to <a>create Web NFC message</a>.
-                If this throws an exception, reject <var>p</var> with that
+                |message| to <a>create Web NFC message</a>.
+                If this throws an exception, reject |p| with that
                 exception and abort these steps.
               </li>
               <li>
-                If <var>target</var> is <code>"any"</code>, run the following
-                steps twice, once with <var>slot</var> set to the value
-                <code>"tag"</code>, and once set to the value <code>"peer"</code>;
+                If |target| is "`any`", run the following
+                steps twice, once with |slot| set to the value
+                "`tag`", and once set to the value "`peer`";
                 otherwise run the following step once, with
-                <var>slot</var> set to the value of <var>target</var>.
+                |slot| set to the value of |target|.
               </li>
               <ul>
                 <li>
                   If there are any existing instance of this algorithm running whose
-                  <var>target</var> is equal to <var>slot</var>, abort that
-                  instance of this algorithm by rejecting its <var>p</var>
+                  |target| is equal to |slot|, abort that
+                  instance of this algorithm by rejecting its |p|
                   with {{"AbortError"}} {{DOMException}}.
                   <p class="note">
                     In other words, the current invocation of
-                    <a href="#dom-nfcwriter-push"><code>push()</code></a>
+                    <a href="#dom-nfcwriter-push">push()</a>
                     rejects and replaces existing running invocations handling the
-                    same <var>slot</var>. At any given moment there may be
+                    same |slot|. At any given moment there may be
                     maximum two instances of this algorithm running: one targeting
                     <a>NFC tag</a>s, and another targeting <a>NFC peer</a>s.
                   </p>
@@ -2169,42 +2178,42 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                   </p>
                 </li>
                 <li>
-                  Associate <var>output</var> with <var>slot</var>.
+                  Associate |output| with |slot|.
                 </li>
               </ul>
               <li>
-                If <var>timeout</var> value is not equal to <code>Infinity</code>,
-                start a timer <var>timer</var> with the timeout value set to
-                <var>timeout</var>.
+                If |timeout| value is not equal to `Infinity`,
+                start a timer |timer| with the timeout value set to
+                |timeout|.
               </li>
               <li>
                 Wait until one of the following events happens:
                 <ul>
                   <li>
-                    Promise <var>p</var> is rejected for a reason such as being
+                    Promise |p| is rejected for a reason such as being
                     aborted by the user. In that case, abort these steps.
                   </li>
                   <li>
-                    If <var>timer</var> expires, reject <var>p</var> with
+                    If |timer| expires, reject |p| with
                     {{"TimeoutError"}} {{DOMException}} and abort these steps.
                   </li>
                   <li>
-                    If an <a>NFC device</a> <var>device</var> comes within
+                    If an <a>NFC device</a> |device| comes within
                     communication range, verify the following conditions:
                     <ul>
                       <li>
-                        if <var>device</var> is not officially supported
-                        by the NFC Forum, <var>compatibility</var> is
-                        <code>"vendor"</code> or <code>"any"</code>.
+                        if |device| is not officially supported
+                        by the NFC Forum, |compatibility| is
+                        "`vendor`" or "`any`".
                       </li>
                       <li>
-                        if <var>device</var> is an <a>NFC tag</a>, <var>target</var>
-                        is <code>"tag"</code> or <code>"any"</code>.
+                        if |device| is an <a>NFC tag</a>, |target|
+                        is "`tag`" or "`any`".
                       </li>
                       <li>
-                        if <var>device</var> is an <a>NFC peer</a>,
-                        <var>target</var> is <code>"peer"</code> or
-                        <code>"any"</code>.
+                        if |device| is an <a>NFC peer</a>,
+                        |target| is "`peer`" or
+                        "`any`".
                       </li>
                       <li>
                         <a href="#nfc-is-suspended">NFC is not suspended</a>.
@@ -2213,15 +2222,15 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                     In case of success, run the following sub-steps:
                     <ol>
                       <li>
-                        Stop <var>timer</var> if active.
+                        Stop |timer| if active.
                       </li>
                       <li>
-                        If <var>device</var> is an <a>NFC tag</a>,
+                        If |device| is an <a>NFC tag</a>,
                         <ul>
                           <li>Read the tag.</li>
                           <li>
-                            If <var>options</var>'s ignoreRead is not equal to
-                            <code>true</code>, run the
+                            If |options|'s ignoreRead is not equal to
+                            `true`, run the
                             <a href="#steps-receiving">receiving steps</a>.
                           </li>
                           <li>
@@ -2231,20 +2240,20 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                             serialized origin</a> of the
                             <a>current settings object</a>, and the
                             <a>obtain push permission</a> steps return
-                            <code>false</code>, then reject <var>p</var> with
+                            `false`, then reject |p| with
                             {{"NotAllowedError"}} {{DOMException}}
                             and abort these steps.
                           </li>
                         </ul>
                       </li>
                       <li>
-                        Initiate data transfer to <var>device</var> using
-                        <var>output</var> as buffer, using the <a>NFC adapter</a>
+                        Initiate data transfer to|device| using
+                        |output| as buffer, using the <a>NFC adapter</a>
                         in communication range with (connected to)
-                        <var>device</var>.
+                        |device|.
                       </li>
                       <li>
-                        If the transfer fails, reject <var>p</var> with
+                        If the transfer fails, reject |p| with
                         {{"NetworkError"}} {{DOMException}}
                         and abort these steps.
                         <p class="note">
@@ -2260,9 +2269,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                         </p>
                       </li>
                       <li>
-                        When the transfer has completed, clear <var>output</var>
-                        associated with <var>target</var>, resolve
-                        <var>p</var>.
+                        When the transfer has completed, clear |output|
+                        associated with |target|, resolve
+                        |p|.
                       </li>
                     </ol>
                   </li>
@@ -2271,7 +2280,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             </ol>
             <p class="note">
               If <a>NFC is suspended</a>,
-              continue waiting until <var>timer</var> expires (if set), or
+              continue waiting until |timer| expires (if set), or
               promise is aborted by the user, or until an <a>NFC device</a>
               comes within communication range.
             </p>
@@ -2285,7 +2294,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <ol>
           <li>
             If there is a <a>prearranged trust relationship</a>,
-            return <code>true</code>.
+            return `true`.
           </li>
           <li>
             Run the
@@ -2296,26 +2305,26 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 If it resolved with {{PermissionState["granted"]}}
                 (i.e. an <a>expressed permission</a> has been granted
                 to the <a>origin</a> and <a>global object</a> using
-                the [[[PERMISSIONS]]] API), return <code>true</code>.
+                the [[[PERMISSIONS]]] API), return `true`.
               </li>
               <li>
                 Otherwise, if it resolved with {{PermissionState["prompt"]}}, then optionally
                 <a data-lt="request permission to use">request permission</a>
                 from the user for the <a>Web NFC permission name</a>.
-                If that is granted, return <code>true</code>.
+                If that is granted, return `true`.
                 <p class="issue">
                   The <a data-lt="request permission to use">request permission</a>
                   steps are not yet clearly defined.
                   At this point the UA asks the user about the policy to be used
                   with the <a>Web NFC permission name</a> for the given
                   <a>origin</a> and <a>global object</a>, if the user grants permission,
-                  return <code>true</code>.
+                  return `true`.
                 </p>
               </li>
             </ul>
           </li>
           <li>
-            Return <code>false</code>.
+            Return `false`.
           </li>
         </ol>
       </p>
@@ -2323,74 +2332,74 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
 
       <section><h3>Creating Web NFC message</h3>
         <p>
-          To <dfn>create Web NFC message</dfn> given a <var>message</var> run
+          To <dfn>create Web NFC message</dfn> given a |message| run
           these steps:
         </p>
         <ol id="create-web-nfc-message">
           <li>
-            Let <var>output</var> be the notation for the <a>NDEF message</a>
+            Let |output| be the notation for the <a>NDEF message</a>
             to be created by the UA as a result of these steps.
           </li>
           <li>
-            [= list/For each =] <a>NDEFRecord</a> <var>record</var> in the <a>list</a>
-            <var>message</var>'s records, run the following steps, or make sure
+            [= list/For each =] |record:NDEFRecord| in the <a>list</a>
+            |message|'s records, run the following steps, or make sure
             that the underlying platform provides equivalent values to
-            <var>ndef</var>:
+            |ndef|:
             <ol>
               <li>
-                If <var>record</var>'s recordType is <code>undefined</code>, then:
+                If |record|'s recordType is `undefined`, then:
                 <ol> <!-- guess type and mediaType from data -->
                   <li>
-                    If the type of <var>record</var>'s data is an
-                    <code>ArrayBuffer</code>, then set <var>record</var>'s recordType
-                    to <code>"opaque"</code>.
+                    If the type of |record|'s data is an
+                    {{ArrayBuffer}}, then set |record|'s recordType
+                    to "`opaque`".
                   </li>
                   <li>
                     Otherwise, if the type of <var>record</var>'s data is an
-                    <code>Object</code>, then set <var>record</var>'s recordType
-                    to <code>"json"</code>.
+                    {{object}}, then set |record|'s recordType
+                    to "`json`".
                   </li>
                   <li>
                     Otherwise, if the type of <var>record</var>'s data is
-                    <code>UnrestrictedDouble</code> or <code>String</code>, then
-                    set <var>record</var>'s recordType to <code>"text"</code>.
+                    unrestricted {{double}} or {{DOMString}}, then
+                    set |record|'s recordType to "`text`".
                   </li>
                   <li>
-                    Otherwise reject <var>promise</var> with
+                    Otherwise reject |promise| with
                     a {{"TypeError"}} and abort these steps.
                   </li>
                 </ol>
               </li>
               <li>
-                If <var>record</var>'s recordType is <code>"empty"</code>, then
+                If <var>record</var>'s recordType is "`empty`", then
                 Let <var>ndef</var> be the result of passing <var>record</var>
                 to <a>map empty record to NDEF</a>.
                 If this throws an exception, reject <var>promise</var> with
                 that exception and abort these steps.
               </li>
               <li>
-                Otherwise, if <var>record</var>'s recordType is <code>"text"</code>,
+                Otherwise, if <var>record</var>'s recordType is "`text`",
                 then let <var>ndef</var> be the result of passing
                 <var>record</var> to <a>map text to NDEF</a>.
                 If this throws an exception, reject
                 <var>promise</var> with that exception and abort these steps.
               </li>
               <li>
-                Otherwise, if <var>record</var>'s recordType is <code>"url"</code>,
+                Otherwise, if <var>record</var>'s recordType is "`url`",
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map a URL to NDEF</a>.
                 If this throws an exception, reject <var>promise</var> with that
                 exception and abort these steps.
               </li>
               <li>
-                Otherwise, if <var>record</var>'s recordType is <code>"json"</code>,
+                Otherwise, if <var>record</var>'s recordType is "`json`",
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map a JSON object to NDEF</a>.
                 If this throws an exception, reject <var>promise</var> with that
                 exception and abort these steps.
               </li>
               <li>
-                Otherwise, if <var>record</var>'s recordType is <code>"opaque"</code>,
+                Otherwise, if <var>record</var>'s recordType is "`opaque`",
                 then let <var>ndef</var> the be result of passing
                 <var>record</var> to <a>map binary data to NDEF</a>.
                 If this throws an exception, reject <var>promise</var> with that
@@ -2451,15 +2460,15 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <p class="note">
           This is useful when clients specifically want to write text in a
           <a>well-known type record</a>.
-          Other options would be to use the value <code>"opaque"</code>
+          Other options would be to use the value "`opaque`"
           with an explicit <a>MIME type</a> text type, which allows for
-          better differentiation, e.g. when using <code>"text/xml"</code>, or
-          <code>"text/vcard"</code>.
+          better differentiation, e.g. when using "`text/xml`", or
+          "`text/vcard`".
         </p>
         <ol>
           <li>
-            If the type of a <var>record</var>'s data is not a <code>String</code>
-            or a <code>UnrestrictedDouble</code>, [= exception/throw =] a {{"TypeError"}}
+            If the type of a <var>record</var>'s data is not a {{DOMString}}
+            or a unrestricted {{double}}, [= exception/throw =] a {{"TypeError"}}
             and abort these steps.
           </li>
           <li>
@@ -2469,21 +2478,21 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             If <var>MIME type</var> is failure, set <var>record</var>'s mediaType to
-            <code>"text/plain"</code>.
+            "`text/plain`".
           </li>
           <li>
-            If <var>MIME type</var>'s type is not <code>"text"</code>, then [= exception/throw =] a
+            If <var>MIME type</var>'s type is not "`text`", then [= exception/throw =] a
             {{"SyntaxError"}} {{DOMException}} and abort these steps.
           </li>
           <li>
-            Let <var>language</var> be <code>"en"</code>.
+            Let <var>language</var> be "`en`".
 
-            If <var>MIME type</var>'s parameters[<code>"lang"</code>] [= map/exists =],
+            If <var>MIME type</var>'s parameters["`lang`"] [= map/exists =],
             then set <var>language</var> to
-            <var>MIME type</var>'s parameters[<code>"lang"</code>].
+            <var>MIME type</var>'s parameters["`lang`"].
 
             <p class="note">
-              Note that <code>lang=</code> is not standard parameter
+              The `lang=` paramter is not a standard parameter
               to <a>MIME type</a>s, but it is used in this specification
               in order to maintain compatibility with [[[NFC-STANDARDS]]].
             </p>
@@ -2496,7 +2505,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             Set the <var>ndef</var>'s <a>TNF field</a> to 1 (<a>well-known type record</a>).
           </li>
           <li>
-            Set the <var>ndef</var>'s <a>TYPE field</a> to <code>"T"</code>
+            Set the <var>ndef</var>'s <a>TYPE field</a> to "`T`"
             (value 0x54 following NFC binary encoding).
           </li>
           <li>
@@ -2510,12 +2519,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 of <var>ndef</var>'s <a>PAYLOAD field</a>, perform the following steps:
                 <ol>
                   <li>
-                    If <var>MIME type</var>'s parameters[<code>"charset"</code>]
+                    If <var>MIME type</var>'s parameters["`charset`"]
                     [= map/exists =], set <var>charset</var> to be the
                     result of running <a>ASCII lowercase</a> on the value.
                   </li>
                   <li>
-                    If <var>charset</var> is not equal to <code>"utf-8"</code>,
+                    If <var>charset</var> is not equal to "`utf-8`",
                     [= exception/throw =] a {{"TypeError"}}.
                   </li>
                   <li>
@@ -2608,7 +2617,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             <var>shortened url</var>.
           </li>
           <li>
-            Return <var>ndef</var>.
+            Return |ndef|.
           </li>
         </ol>
       </p>
@@ -2616,20 +2625,20 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
 
       <section><h3>Mapping JSON to NDEF</h3>
       <p>
-        To <dfn>map a JSON object to NDEF</dfn> given a <var>record</var>,
+        To <dfn>map a JSON object to NDEF</dfn> given a |record|,
         run these steps:
         <ol>
           <li>
-            If the type of a <var>record</var>'s data is not an <code>Object</code>,
+            If the type of a |record|'s data is not an {{object}},
             [= exception/throw =] a {{"TypeError"}} and abort these steps.
           </li>
           <li>
-            Let <var>MIME type</var> be the <a data-lt="MIME type">MIME type record</a>
+            Let |MIME type| be the <a data-lt="MIME type">MIME type record</a>
             returned by running <a>parse a MIME type</a> on <var>record</var>'s mediaType.
           </li>
           <li>
             If <var>MIME type</var> is failure, set <var>record</var>'s mediaType to
-            <code>"application/json"</code>.
+            "`application/json`".
           </li>
           <li>
             If <var>MIME type</var> is not a <a>JSON MIME type</a>, then [= exception/throw =] a
@@ -2669,7 +2678,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <ol>
           <li>
             If the type of a <var>record</var>'s data is not an
-            <code>ArrayBuffer</code>, [= exception/throw =] a {{"TypeError"}}
+            {{ArrayBuffer}}, [= exception/throw =] a {{"TypeError"}}
             and abort these steps.
           </li>
           <li>
@@ -2678,7 +2687,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             If <var>MIME type</var> is failure, set <var>record</var>'s mediaType to
-            <code>"application/octet-stream"</code>.
+            "`application/octet-stream`".
           </li>
           <li>
             Let <var>ndef</var> be the notation for the <a>NDEF record</a> to
@@ -2717,7 +2726,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             Set <var>ndef</var>'s TYPE to
-            <code>"urn:nfc:ext:w3.org:webnfc"</code>.
+            "`urn:nfc:ext:w3.org:webnfc`".
           </li>
           <li>
             Set <var>ndef</var>'s PAYLOAD to the result of invoking
@@ -2764,7 +2773,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
   <section> <h3>Listening for content</h3>
     <p>
       In order to receive <a>NFC content</a>, the client needs to attach an
-      event listener for the <code>"reading"</code> event on an
+      event listener for the "`reading`" event on an
       <a>NFCReader</a> instance and then activate it by calling
       <a>NFCReader.start()</a>.
     </p>
@@ -2795,17 +2804,17 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         A <a>match pattern</a> is a
         <a href="http://pubs.opengroup.org/onlinepubs/007904875/utilities/xcu_chap02.html#tag_02_13_03">
         glob</a> used for matching <a>MIME type</a>s,
-        for instance the pattern <code>'application/*+json'</code> matches
-        <code>'application/calendar+json'</code>, but does not match
-        <code>'application/json'</code>. The pattern
-        <code>'*/*json'</code>, on the other hand, matches both.
+        for instance the pattern "`application/*+json`" matches
+        "`application/calendar+json`", but does not match
+        "`application/json`". The pattern
+        "`*/*json`", on the other hand, matches both.
       </p>
     </section>
     <section> <h3>URL patterns</h3>
         A <dfn>URL pattern</dfn> is a <a>URL record</a> that can be used to match
         the <a>Web NFC Id</a> of a <a>Web NFC message</a>.
         A <dfn>valid URL pattern</dfn> is a valid <a>URL record</a> whose
-        [= url/scheme =] component is equal to <code>"https"</code>.
+        [= url/scheme =] component is equal to "`https`".
 
       <p>
         A <a>URL pattern</a>'s [= url/scheme =], [= url/host =]
@@ -2827,13 +2836,13 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             <td>
               exact match or ends with (<a>URL pattern</a>'s
               [= url/host =] prepended
-              with <code>"."</code>).
+              with "`.`").
             </td>
           </tr>
           <tr>
             <td>[= url/path =]</td>
             <td>
-              If <a>URL pattern</a>'s path is <code>"/*"</code>, match any
+              If <a>URL pattern</a>'s path is "`/*`", match any
               <a>Web NFC Id</a> path. Otherwise, begins with <a>URL pattern</a>'s
               [= url/path =].
             </td>
@@ -2842,14 +2851,14 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </p>
 
       <p class="note">
-        For example, <code>'https://mydomain.com/*'</code> will match
-        <code>'https://service.mydomain.com/myapp/'</code> and
+        For example, '`https://mydomain.com/*`' will match
+        '`https://service.mydomain.com/myapp/`' and
         <code>'https://info.mydomain.com/general/'</code>, while
         <code>'https://app.mydomain.com/contacts'</code> will match
         <code>'https://app.mydomain.com/contacts'</code> and
         <code>'https://app.mydomain.com/contacts/all'</code>
 
-        The <code>'*'</code> is a valid character for the URL path component,
+        The '`*`' is a valid character for the URL path component,
         therefore,
         <code>'https://www.mydomain.com/*'</code> pattern will match both
         <code>'https://www.mydomain.com/*'</code> and
@@ -2859,32 +2868,32 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
 
     <section> <h3>URL pattern match algorithm</h3>
         To <dfn>match Web NFC Id with URL pattern</dfn> for a given
-        <code><a>Web NFC Id</a></code> and <code><a>URL pattern</a></code>, run
+        <a>Web NFC Id</a> and <a>URL pattern</a>, run
         these steps:
         <ol>
           <li>
-            Let <var>raw id</var> be a <code><a>Web NFC Id</a></code> passed to this algorithm.
+            Let <var>raw id</var> be a <a>Web NFC Id</a> passed to this algorithm.
           </li>
           <li>
             Let <var>raw pattern</var> be a <a>URL pattern</a> passed to this algorithm.
           </li>
           <li>
             If <var>raw id</var> and <var>raw pattern</var> are empty <a>string</a>s,
-            return <code>true</code>.
+            return `true`.
           </li>
           <li>
             Let <var>id</var> be the result of running the
             <a>basic URL parser</a> on <var>raw id</var>.
           </li>
           <li>
-            If <var>id</var> is failure, return <code>false</code>.
+            If <var>id</var> is failure, return `false`.
           </li>
           <li>
             Let <var>pattern</var> be the result of running the
             <a>basic URL parser</a> on <var>raw pattern</var>.
           </li>
           <li>
-            If <var>pattern</var> is failure, return <code>false</code>.
+            If <var>pattern</var> is failure, return `false`.
           </li>
           <li>
             If <var>id</var>'s [= url/scheme =]
@@ -2892,7 +2901,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             return <code>false</code>.
           </li>
           <li>
-            Let <var>subdomain pattern</var> be the result of prepending <code>"."</code>
+            Let <var>subdomain pattern</var> be the result of prepending "`.`"
             to <var>pattern</var>'s [= url/host =].
           </li>
           <li>
@@ -2908,10 +2917,10 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           <li>
             If <var>id</var>'s [= url/path =] begins with
             <var>pattern</var>'s [= url/path =],
-            return <code>true</code>.
+            return `true`.
           </li>
           <li>
-            Otherwise, return <code>false</code>.
+            Otherwise, return `false`.
           </li>
         </ol>
     </section>
@@ -2923,11 +2932,11 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         incoming <a>NFC content</a>.
       </p>
       <p>
-        Multiple consecutive calls to the <a href="#dom-nfcreader-start"><code>start()</code></a>
+        Multiple consecutive calls to the <a href="#dom-nfcreader-start">start()</a>
         method from the same <a>origin</a> create filters which are in OR relationship.
       </p>
       <p>
-        When the <code><dfn>NFCReader.start</dfn></code> method is invoked, the UA
+        When the <dfn>NFCReader.start</dfn> method is invoked, the UA
         MUST run the following
         <dfn id="steps-listen">NFC listen algorithm</dfn>:
         <ol>
@@ -2939,13 +2948,13 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             be established, then
             <ol>
               <li>
-                Let <var>e</var> be the result of [= exception/create =] a
+                Let |e| be the result of [= exception/create =] a
                 {{"NotReadableError"}} {{DOMException}}.
               </li>
               <li>
-                <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
-                using <a>NFCErrorEvent</a> with its <code>error</code> attribute
-                initialized to <var>e</var>.
+                <a>Fire an event</a> named "`error`" at <var>reader_instance</var>
+                using <a>NFCErrorEvent</a> with its error attribute
+                initialized to |e|.
               </li>
               <li>
                 Return.
@@ -2957,16 +2966,16 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             <ol>
               <li>
                 If the <a>obtain reading permission</a> steps return
-                <code>false</code>, then
+                `false`, then
                 <ol>
                   <li>
                     Let <var>e</var> be the result of [= exception/create =] a
                     {{"NotAllowedError"}} {{DOMException}}.
                   </li>
                   <li>
-                    <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
-                    using <a>NFCErrorEvent</a> with its <code>error</code> attribute
-                    initialized to <var>e</var>.
+                    <a>Fire an event</a> named "`error`" at <var>reader_instance</var>
+                    using <a>NFCErrorEvent</a> with its error attribute
+                    initialized to |e|.
                   </li>
                   <li>
                     Return.
@@ -2985,8 +2994,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                     {{"NotSupportedError"}} {{DOMException}}.
                   </li>
                   <li>
-                    <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
-                    using <a>NFCErrorEvent</a> with its <code>error</code> attribute
+                    <a>Fire an event</a> named "`error`" at <var>reader_instance</var>
+                    using <a>NFCErrorEvent</a> with its error attribute
                     initialized to <var>e</var>.
                   </li>
                   <li>
