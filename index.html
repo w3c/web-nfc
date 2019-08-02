@@ -1434,15 +1434,15 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
 
   <section><h3>Data mapping</h3>
   <p>
-    The mapping from data types of an <a>NDEFRecord</a> to
+    The mapping from data types of an <a>NDEFRecordInit</a> to
     <a>NDEF record</a> types, as used in the <a>Writing or pushing content</a>
     section is as follows:
   </p>
   <table class="simple">
     <tr>
-      <th>NDEFRecord recordType</th>
-      <th>NDEFRecord mediaType</th>
-      <th>NDEFRecord data</th>
+      <th>NDEFRecordInit recordType</th>
+      <th>NDEFRecordInit mediaType</th>
+      <th>NDEFRecordInit data</th>
       <th>NDEF record type</th>
     </tr>
     <tr>
@@ -1469,7 +1469,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <td>
         `null` or<br>
         {{DOMString}} or<br>
-        `Number` or<br>
+        `unrestricted {{double}}` or<br>
         {{object}}
       </td>
       <td><a>MIME type record</a> with type equal to
@@ -2468,7 +2468,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <ol>
           <li>
             If the type of a <var>record</var>'s data is not a {{DOMString}}
-            or a unrestricted {{double}}, [= exception/throw =] a {{"TypeError"}}
+            or an unrestricted {{double}}, [= exception/throw =] a {{"TypeError"}}
             and abort these steps.
           </li>
           <li>
@@ -2573,7 +2573,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             Let <var>urlRecord</var> be the result of
-            <a href="dfn-parse-a-url">parsing</a> <var>record</var>'s data.
+            <a data-lt="url parser">parsing</a> <var>record</var>'s data.
           </li>
           <li>
             If <var>urlRecord</var> is failure, [= exception/throw =] a
@@ -2754,7 +2754,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             Let <var>urlRecord</var> be the result of
-            <a href="dfn-parse-a-url">parsing</a> <var>id</var>.
+            <a data-lt="url parser">parsing</a> <var>id</var>.
           </li>
           <li>
             If <var>urlRecord</var> is failure, [= exception/throw =] a
@@ -2932,7 +2932,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         incoming <a>NFC content</a>.
       </p>
       <p>
-        Multiple consecutive calls to the <a href="#dom-nfcreader-start">start()</a>
+        Multiple consecutive calls to the <a data-link-for="NFCReader">start()</a>
         method from the same <a>origin</a> create filters which are in OR relationship.
       </p>
       <p>
@@ -3046,7 +3046,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           <li>
             Otherwise, if the user has earlier denied permission for the calling
             <a>origin</a> for all future calls of
-            <a href="#dom-nfcreader-start">start()</a>
+            <a data-link-for="NFCReader">start()</a>
             as well, then return `false`.
           </li>
           <li>
