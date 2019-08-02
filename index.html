@@ -469,7 +469,8 @@
       one of which is a <a>Web NFC record</a>.
     </p>
     <p>
-      The <dfn>Web NFC message origin</dfn> is a <a>serialized origin</a>
+      The <dfn>Web NFC message origin</dfn> is a <a data-lt="serilization of an origin">
+      serialized origin</a>
       with <code>"https"</code> scheme, stored in the <a>Web NFC record</a>.
       For <a>NFC content</a> that is not a <a>Web NFC message</a>, it is
       <code>null</code>.
@@ -3200,7 +3201,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               <br><br>
               As external applications may have encoded the <code>"opaque"</code>
               <a href="#the-ndefrecordtype-enum">recordType</a> using a different
-              encoding, which can be decoded using [[ENCODING]] if you know
+              encoding, which can be decoded using [[[ENCODING]]] if you know
               the encoding.
             </p>
           </li> <!-- reading NDEF Text record -->
