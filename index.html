@@ -184,7 +184,7 @@
     <a href="https://www.w3.org/TR/permissions/#dictdef-permissiondescriptor">
     <dfn>Web NFC permission name</dfn></a> is
     <a href="https://github.com/w3c/permissions/issues/47">defined</a> as
-    <code>"nfc"</code>.
+    "`nfc`".
   </p>
   </section>
   <section> <h3>NFC specific terms</h3>
@@ -793,8 +793,8 @@ reader.start();
        class="example">
     <p>
       Filtering of relevant data sources can be done by the use of
-      the <a>NFCReaderOptions</a>. Below we accept URL with <code>
-      "/mypath/mygame/"</code> in its path from <code>"mygame.com"</code>
+      the <a>NFCReaderOptions</a>. Below we accept URL with
+      "`/mypath/mygame/`" in its path from "`mygame.com`"
       domain and its subdomains. When we read the data, we immediately update
       the game progress by issueing a push with a custom NDEF data layout.
     </p>
@@ -868,8 +868,8 @@ writer.push({
   <aside title="Write data to tag and print out existing data" class="example">
     <p>
       Pushing data to a tag requires tapping it. If existing data should be
-      read during the same tap, we need to set the <code>ignoreRead</code>
-      property to <code>false</code> for the <a>NFCWriter</a>.
+      read during the same tap, we need to set the ignoreRead
+      property to `false` for the <a>NFCWriter</a>.
     </p>
     <pre class="highlight">
 const reader = new NFCReader();
@@ -1240,7 +1240,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </p>
     <p data-dfn-for="NDEFMessageInit">
       The <dfn>NDEFMessageInit</dfn> dictionary is used to initialize a
-      <a>Web NFC message</a>. When used in the <code><a>NFCWriter.push()</a></code>
+      <a>Web NFC message</a>. When used in the <a>NFCWriter.push()</a>
       method, its <dfn>url</dfn> member represents a URL [= url/path =]
       used for constructing the <a>Web NFC Id</a> of the pushed <a>Web NFC content</a>.
     </p>
@@ -1434,7 +1434,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
 
   <section><h3>Data mapping</h3>
   <p>
-    The mapping from data types of an <code><a>NDEFRecord</a></code> to
+    The mapping from data types of an <a>NDEFRecord</a> to
     <a>NDEF record</a> types, as used in the <a>Writing or pushing content</a>
     section is as follows:
   </p>
@@ -1454,13 +1454,13 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <tr>
       <td><dfn>"`text`"</dfn></td>
       <td><i>unused</i></td>
-      <td><code>DOMString</code></td>
+      <td>{{DOMString}}</td>
       <td><a>Well-known type record</a> with type "`T`"</td>
     </tr>
     <tr>
       <td><dfn>"`url`"</dfn></td>
       <td><i>unused</i></td>
-      <td><code>DOMString</code></td>
+      <td>{{DOMString}}</td>
       <td><a>Well-known type record</a> with type "`U`"</td>
     </tr>
     <tr>
@@ -1468,9 +1468,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <td><a>JSON MIME type</a></td>
       <td>
         `null` or<br>
-        <code>DOMString</code> or<br>
-        <code>Number</code> or<br>
-        <code>Dictionary</code>
+        {{DOMString}} or<br>
+        `Number` or<br>
+        {{object}}
       </td>
       <td><a>MIME type record</a> with type equal to
         <a>MIME type</a>.
@@ -1479,20 +1479,20 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <tr>
       <td rowspan="2"><dfn>"`opaque`"</dfn></td>
       <td><a>MIME type</a></td>
-      <td><code>ArrayBuffer</code></td>
+      <td>{{ArrayBuffer}}</td>
       <td><a>MIME type record</a></td>
     </tr>
     <tr>
       <td><i>empty</i></td>
       <td>
-        <code>ArrayBuffer</code> or<br>
-        typed array
+        {{ArrayBuffer}} or<br>
+        any <a href="!WEBIDL#dfn-typed-array-type"></a>
       </td>
       <td><a>External type record</a></td>
     </tr>
   </table>
   <p>
-    The mapping from <a>NDEF record</a> types to <code><a>NDEFRecord</a></code>,
+    The mapping from <a>NDEF record</a> types to <a>NDEFRecord</a>,
     as used for incoming <a>NDEF message</a>s described in the
     <a href="#steps-receiving">Receiving and parsing content</a> section, is as
     follows:
@@ -2853,16 +2853,16 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <p class="note">
         For example, '`https://mydomain.com/*`' will match
         '`https://service.mydomain.com/myapp/`' and
-        <code>'https://info.mydomain.com/general/'</code>, while
-        <code>'https://app.mydomain.com/contacts'</code> will match
-        <code>'https://app.mydomain.com/contacts'</code> and
-        <code>'https://app.mydomain.com/contacts/all'</code>
+        '`https://info.mydomain.com/general/`', while
+        '`https://app.mydomain.com/contacts`' will match
+        '`https://app.mydomain.com/contacts`' and
+        '`https://app.mydomain.com/contacts/all`'
 
         The '`*`' is a valid character for the URL path component,
         therefore,
-        <code>'https://www.mydomain.com/*'</code> pattern will match both
-        <code>'https://www.mydomain.com/*'</code> and
-        <code>'https://www.mydomain.com/service'</code> URLs.
+        '`https://www.mydomain.com/*`' pattern will match both
+        '`https://www.mydomain.com/*`' and
+        '`https://www.mydomain.com/service`' URLs.
       </p>
     </section>
 
@@ -2897,8 +2897,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             If <var>id</var>'s [= url/scheme =]
-            does not match <code>pattern</code>'s [= url/scheme =],
-            return <code>false</code>.
+            does not match |pattern|'s [= url/scheme =],
+            return `false`.
           </li>
           <li>
             Let <var>subdomain pattern</var> be the result of prepending "`.`"
@@ -2908,11 +2908,11 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             If <var>id</var>'s [= url/host =] does not end with
             <var>subdomain pattern</var> and <var>id</var>'s
             [= url/host =] is not equal to <var>pattern</var>'s
-            [= url/host =], return <code>false</code>.
+            [= url/host =], return `false`.
           </li>
           <li>
             If <var>pattern</var>'s [= url/path =] is equal to
-            <code>"/*"</code>, return <code>true</code>.
+            "`/*`", return `true`.
           </li>
           <li>
             If <var>id</var>'s [= url/path =] begins with
@@ -2941,7 +2941,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <dfn id="steps-listen">NFC listen algorithm</dfn>:
         <ol>
           <li>
-            Let <var>reader_instance</var> be the <a>NFCReader</a> instance.
+            Let |reader:NFCReader| be the <a>NFCReader</a> instance.
           </li>
           <li>
             If there is no underlying <a>NFC Adapter</a>, or if a connection cannot
@@ -2952,7 +2952,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 {{"NotReadableError"}} {{DOMException}}.
               </li>
               <li>
-                <a>Fire an event</a> named "`error`" at <var>reader_instance</var>
+                <a>Fire an event</a> named "`error`" at |reader|
                 using <a>NFCErrorEvent</a> with its error attribute
                 initialized to |e|.
               </li>
@@ -2969,11 +2969,11 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 `false`, then
                 <ol>
                   <li>
-                    Let <var>e</var> be the result of [= exception/create =] a
+                    Let |e:DOMException| be the result of [= exception/create =] a
                     {{"NotAllowedError"}} {{DOMException}}.
                   </li>
                   <li>
-                    <a>Fire an event</a> named "`error`" at <var>reader_instance</var>
+                    <a>Fire an event</a> named "`error`" at |reader|
                     using <a>NFCErrorEvent</a> with its error attribute
                     initialized to |e|.
                   </li>
@@ -2990,13 +2990,13 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 If the request fails, then
                 <ol>
                   <li>
-                    Let <var>e</var> be the result of [= exception/create =] a
+                    Let |e:DOMException| be the result of [= exception/create =] a
                     {{"NotSupportedError"}} {{DOMException}}.
                   </li>
                   <li>
-                    <a>Fire an event</a> named "`error`" at <var>reader_instance</var>
+                    <a>Fire an event</a> named "`error`" at |reader|
                     using <a>NFCErrorEvent</a> with its error attribute
-                    initialized to <var>e</var>.
+                    initialized to |e|.
                   </li>
                   <li>
                     Return.
@@ -3004,17 +3004,17 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 </ol>
               </li>
               <li>
-                If the <var>reader_instance</var>.[[\Url]] is not an empty <a>string</a>
+                If the |reader|.[[\Url]] is not an empty <a>string</a>
                 and it is not a <a>valid URL pattern</a>, then
                 <ol>
                   <li>
-                    Let <var>e</var> be the result of [= exception/create =] a
+                    Let |e:DOMException| be the result of [= exception/create =] a
                     {{"SyntaxError"}} {{DOMException}}.
                   </li>
                   <li>
-                    <a>Fire an event</a> named <code>"error"</code> at <var>reader_instance</var>
-                    using <a>NFCErrorEvent</a> with its <code>error</code> attribute
-                    initialized to <var>e</var>.
+                    <a>Fire an event</a> named "`error`" at |reader|
+                    using <a>NFCErrorEvent</a> with its error attribute
+                    initialized to |e|.
                   </li>
                   <li>
                     Return.
@@ -3022,7 +3022,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 </ol>
               </li>
               <li>
-                Add <var>reader_instance</var> to the <a>activated reader objects</a>.
+                Add |reader| to the <a>activated reader objects</a>.
               </li>
               <li>
                 If the <a>browsing context</a> loses
@@ -3041,13 +3041,13 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <ol>
           <li>
             If there is a <a>prearranged trust relationship</a>,
-            return <code>true</code>.
+            return `true`.
           </li>
           <li>
             Otherwise, if the user has earlier denied permission for the calling
             <a>origin</a> for all future calls of
-            <a href="#dom-nfcreader-start"><code>start()</code></a>
-            as well, then return <code>false</code>.
+            <a href="#dom-nfcreader-start">start()</a>
+            as well, then return `false`.
           </li>
           <li>
             Otherwise, UAs SHOULD
@@ -3068,7 +3068,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             </p>
           </li>
           <li>
-            Return <code>true</code>.
+            Return `true`.
           </li>
         </ol>
       </p>
@@ -3076,7 +3076,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
 
     <section> <h3>The <strong>stop()</strong> method</h3>
       <p>
-        When the <code><dfn>NFCReader.stop</dfn></code> method is invoked, the UA
+        When the <dfn>NFCReader.stop</dfn> method is invoked, the UA
         MUST run the following algorithm:
         <ol>
           <li>
@@ -3111,9 +3111,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         If <a>NFC is suspended</a>, abort these steps.
       </li>
       <li>
-        Let <var>compatibility</var> be <code>"vendor"</code> if the read NDEF
+        Let |compatibility:NDEFCompatibility| be "`vendor`" if the read NDEF
         compatible device is not officially supported by the NFC Forum, or else
-        <code>"nfc-forum"</code>.
+        "`nfc-forum`".
       </li>
       <li>
         Let <var>message</var> be a new <a>NDEFMessage</a> object, with
@@ -3126,7 +3126,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </li>
       <li>
         If <var>serialNumber</var> is not `null`, set it to the
-        <a>string</a> of U+003A (:) concatenating each number represented as
+        <a>string</a> of U+003A (`:`) concatenating each number represented as
         <a>ASCII hex digit</a>, in the same order.
       </li>
       <li>
@@ -3142,40 +3142,40 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             <a>NDEF record</a>.
           </li>
           <li>
-            Let <var>record</var> be a new <code><a>NDEFRecord</a></code> object.
+            Let <var>record</var> be a new <a>NDEFRecord</a> object.
           </li>
           <li>
-            If <var>ndef</var>'s <a>TNF field</a> is 0 (empty), then set
-            <var>record</var>'s recordType to <code>"empty"</code> and set
-            <var>record</var>'s mediaType to <code>""</code>.
+            If <var>ndef</var>'s <a>TNF field</a> is `0` (<a>empty record</a>), then set
+            <var>record</var>'s recordType to "`empty`" and set
+            <var>record</var>'s mediaType to `""`.
           </li>
           <li>
             If <var>ndef</var>'s <a>TNF field</a> is 1 (<a>well-known type record</a>), and
-            <var>ndef</var>'s <a>TYPE field</a> is <code>"T"</code> (value 0x54 following NFC
+            <var>ndef</var>'s <a>TYPE field</a> is "`T`" (value 0x54 following NFC
             binary encoding), then run the following sub-steps for
             <dfn>parsing NDEF Text record</dfn>, or ensure that the
             underlying platform provides equivalent values to the
             <var>record</var> object properties:
             <ol>
               <li>
-                Let <var>header</var> be the first <a>byte</a> of <var>ndef</var>'s <a>PAYLOAD field</a>.
+                Let |header:byte| be the first <a>byte</a> of <var>ndef</var>'s <a>PAYLOAD field</a>.
               </li>
               <li>
                 Let <var>offset</var> be the value given by bit 5 to bit 0 of the
                 <var>header</var>.
               </li>
               <li>
-                Let <var>MIME type</var> be a <a data-lt="MIME type">MIME type record</a>
-                with type <code>"text"</code>, subtype <code>"plain"</code> and parameters
+                Let |MIME type| be a <a data-lt="MIME type">MIME type record</a>
+                with type "`text`", subtype "`plain`" and parameters
                 equal to an empty ordered map.
               </li>
               <li>
-                Let <var>MIME type</var>'s parameters[<code>"lang"</code>] be the
+                Let <var>MIME type</var>'s parameters["`lang`"] be the
                 result of running <a>ASCII decode</a> on second <a>byte</a> to the
                 <var>offset</var> + 1 byte, inclusive.
               </li>
               <li>
-                Set <var>record</var>'s recordType to <code>"text"</code>.
+                Set <var>record</var>'s recordType to "`text`".
               </li>
               <li>
                 Set <var>record</var>'s mediaType to the result of
@@ -3190,11 +3190,11 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             <p class="note">
               Using the <a data-cite="encoding#encoder">encoder</a>, it is only possible
               to encode as UTF-8, unless you do the encoding manually
-              and use the <code>"opaque"</code>
+              and use the "`opaque`"
               <a href="#the-ndefrecordtype-enum">recordType</a>, which
               allows you to write any opaque data.
               <br><br>
-              When you write a <a>string</a> to the <code>"text"</code>
+              When you write a <a>string</a> to the "`text`"
               <a href="#the-ndefrecordtype-enum">recordType</a>, it will
               be written as UTF-8.
               External applications have the ability to additionally encode
@@ -3202,30 +3202,30 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               of the <a>NFCReader</a> which will always return the data
               as a <a>string</a>.
               <br><br>
-              As external applications may have encoded the <code>"opaque"</code>
+              As external applications may have encoded the "`opaque`"
               <a href="#the-ndefrecordtype-enum">recordType</a> using a different
               encoding, which can be decoded using [[[ENCODING]]] if you know
               the encoding.
             </p>
           </li> <!-- reading NDEF Text record -->
           <li>
-            If <var>ndef</var>'s <a>TNF field</a> is 1 (<a>well-known type record</a>), and
-            <var>ndef</var>'s <a>TYPE field</a> is <code>"U"</code> (value 0x55 in NFC binary
+            If |ndef|'s <a>TNF field</a> is `1` (<a>well-known type record</a>), and
+            <var>ndef</var>'s <a>TYPE field</a> is "`U`" (value 0x55 in NFC binary
             encoding), then run the following sub-steps for
             <dfn>parsing NDEF URL record</dfn>, or make sure that the
             underlying platform provides equivalent values to the
             <var>record</var> object properties:
             <ol>
-              <li>Set <var>record</var>'s recordType to <code>"url"</code>.</li>
+              <li>Set |record|'s recordType to "`url`".</li>
               <li>
-                Set <var>record</var>'s mediaType to <code>"text/plain"</code>.
+                Set |record|'s mediaType to "`text/plain`".
               </li>
               <li>
-                Let <var>prefix code</var> be the value of the first <a>byte</a> of
-                <var>ndef</var>'s <a>PAYLOAD field</a>.
+                Let |prefix code| be the value of the first <a>byte</a> of
+                |ndef|'s <a>PAYLOAD field</a>.
               </li>
               <li>
-                If <var>prefix code</var> is not 0, then set <var>record</var>'s associated
+                If |prefix code| is not `0`, then set |record|'s associated
                 <a>bytes</a> to the result of running <a>UTF-8 encode</a> on the
                 prefix <a>string</a> obtained from mapping the value of
                 <var>prefix code</var> to the URL prefix as specified in the
@@ -3244,8 +3244,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li> <!-- parsing NDEF URL record -->
           <li>
             If <var>ndef</var>'s <a>TNF field</a> is 3 (<a>absolute-URL record</a>), then
-            set <var>record</var>'s recordType to <code>"url"</code>,
-            set <var>record</var>'s mediaType to <code>"text/plain"</code> and
+            set <var>record</var>'s recordType to "`url`",
+            set <var>record</var>'s mediaType to "`text/plain`" and
             set <var>record</var>'s associated <a>bytes</a> to <var>ndef</var>'s <a>PAYLOAD field</a>.
           </li> <!-- parsing NDEF Absolute URI record -->
           <li>
@@ -3263,7 +3263,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 If <var>MIME type</var> is a <a>JSON MIME type</a>, then
                 <ol>
                   <li>
-                    Set <var>record</var>'s recordType to <code>"json"</code>.
+                    Set <var>record</var>'s recordType to "`json`".
                   </li>
                   <li>
                     Set <var>record</var>'s mediaType to the result of
@@ -3280,7 +3280,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 Otherwise,
                 <ol>
                   <li>
-                    Set <var>record</var>'s recordType to <code>"opaque"</code>.
+                    Set <var>record</var>'s recordType to "`opaque`".
                   </li>
                   <li>
                     Set <var>record</var>'s mediaType to the result of
@@ -3297,7 +3297,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li> <!-- parsing NDEF Media record -->
           <li>
             If <var>ndef</var>'s <a>TNF field</a> is 4 (<a>external type record</a>), and
-            <var>ndef</var>'s <a>TYPE field</a> is <code>urn:nfc:ext:w3.org:webnfc</code>,
+            <var>ndef</var>'s <a>TYPE field</a> is "`urn:nfc:ext:w3.org:webnfc`",
             then set <var>message</var>'s url to the <var>ndef</var>'s <a>PAYLOAD field</a>.
           </li> <!-- parsing Web NFC record -->
           <li>
@@ -3306,11 +3306,11 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             or make sure that the underlying platform provides equivalent values
             to the <var>record</var> object properties:
             <ol>
-              <li>Set <var>record</var>'s recordType to <code>"opaque"</code>.</li>
+              <li>Set <var>record</var>'s recordType to "`opaque`".</li>
               <li>
                 If <var>ndef</var>'s <a>TYPE field</a> is defined, then set
                 <var>record</var>'s mediaType to that <a>string</a> value, otherwise to
-                <code>"application/octet-stream"</code>.
+                "`application/octet-stream`".
               </li>
               <li>
                 Set <var>record</var>'s associated <a>bytes</a> to
@@ -3339,41 +3339,41 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <p>
       To <dfn>dispatch NFC content</dfn> given a <var>message</var> of type
       <a>NDEFMessage</a> and <var>compatibility</var> of type
-      <code><a>NDEFCompatibility</a></code>, run these steps:
+      <a>NDEFCompatibility</a>, run these steps:
     </p>
     <ol>
       <li>
-        [= list/For each =] <a>NFCReader</a> instance <var>reader_instance</var> in
+        [= list/For each =] <a>NFCReader</a> instance |reader:NFCReader| in
         the <a>activated reader objects</a>, run the following sub-steps:
         <ol>
           <li>
             Let <var>match</var> be the result of running
             <a href="#dfn-match-web-nfc-id-with-url-pattern">URL pattern match</a>,
-            with <var>reader_instance</var>.[[\Url]] as the
+            with |reader|.[[\Url]] as the
             <a>URL pattern</a> and
-            <var>message</var>'s url as the <code><a>Web NFC Id</a></code>.
+            <var>message</var>'s url as the <a>Web NFC Id</a>.
           </li>
           <li>
-            If <var>match</var> is <code>false</code>, [= iteration/continue =].
+            If <var>match</var> is `false`, [= iteration/continue =].
           </li>
           <li>
-            If <var>reader_instance</var>.[[\RecordType]] is [= dictionary member/present =]
+            If |reader|.[[\RecordType]] is [= dictionary member/present =]
             and it is not equal to any <var>record</var>.[[\RecordType]] where <var>record</var>
             is an element of <var>message</var>, [= iteration/continue =].
           </li>
           <li>
-            If <var>reader_instance</var>.[[\MediaType]] is not <code>""</code> and
+            If |reader|.[[\MediaType]] is not `""` and
             it is not equal to any <var>record</var>'s mediaType where <var>record</var> is
             an element of <var>message</var>, [= iteration/continue =].
           </li>
           <li>
-            If <var>reader_instance</var>.[[\Compatibility]] is not <code>"any"</code>, and
+            If |reader|.[[\Compatibility]] is not "`any`", and
             not equal to <var>compatibility</var>, [= iteration/continue =].
           </li>
           <li>
-            <a>Fire an event</a> named <code>"reading"</code> at <var>reader_instance</var>
-            using <a>NFCReadingEvent</a> with its <code>serialNumber</code> attribute
-            initialized to <var>serialNumber</var> and <code>message</code> attribute
+            <a>Fire an event</a> named "`reading`" at |reader|
+            using <a>NFCReadingEvent</a> with its serialNumber attribute
+            initialized to <var>serialNumber</var> and message attribute
             initialized to <var>message</var>.
           </li>
         </ol>
