@@ -1366,34 +1366,44 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </p>
 
       <pre class="idl">
-        enum NDEFRecordType {
+        enum NDEFKnownRecordType {
           "empty",
           "text",
           "url",
           "json",
           "opaque"
         };
+
+        typedef (NDEFKnownRecordType or DOMString) NDEFRecordType;
       </pre>
-      <dl>
+      <dl data-dfn-for="NDEFKnownRecordType">
         <dt><dfn>empty</dfn></dt>
         <dd>
-          The enum value representing <a href="#dfn-empty">empty</a> <a>NDEFRecord</a>.
+          The value representing <a href="#dfn-empty">empty</a> <a>NDEFRecord</a>.
         </dd>
         <dt><dfn>text</dfn></dt>
         <dd>
-          The enum value representing <a>NDEFRecord</a> of a <a href="#dfn-text">text</a> type.
+          The value representing <a>NDEFRecord</a> of a <a href="#dfn-text">text</a> type.
         </dd>
         <dt><dfn>url</dfn></dt>
         <dd>
-          The enum value representing <a>NDEFRecord</a> of a <a href="#dfn-url">url</a> type.
+          The value representing <a>NDEFRecord</a> of a <a href="#dfn-url">url</a> type.
         </dd>
         <dt><dfn>json</dfn></dt>
         <dd>
-          The enum value representing <a>NDEFRecord</a> of a <a href="#dfn-json">json</a> type.
+          The value representing <a>NDEFRecord</a> of a <a href="#dfn-json">json</a> type.
         </dd>
         <dt><dfn>opaque</dfn></dt>
         <dd>
-          The enum value representing <a>NDEFRecord</a> of an <a href="#dfn-opaque">opaque</a> type.
+          The value representing <a>NDEFRecord</a> of an <a href="#dfn-opaque">opaque</a> type.
+        </dd>
+        <dt><dfn>External type</dfn></dt>
+        <dd>
+          A {{DOMString}} representing a custom type for the <a>external type record</a>.
+          The type must follow the [[NFC-RTD]] and thus, be a URN with the NID of "`nfc`"
+          and the NSS specific part put into the namespace "`ext`", followed by a domain
+          name owned by the issuing organization, a "`:`" and a type,
+          e.g. "`urn:nfc:ext:w3.org:webnfc`".
         </dd>
       </dl>
   </section> <!-- NDEFRecordType enum -->
@@ -1443,13 +1453,14 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </td>
     </tr>
     <tr>
-      <td rowspan="2"><dfn>"`opaque`"</dfn></td>
+      <td><dfn>"`opaque`"</dfn></td>
       <td><a>MIME type</a></td>
       <td>{{ArrayBuffer}}</td>
       <td><a>MIME type record</a></td>
     </tr>
     <tr>
-      <td><i>empty</i></td>
+      <td><a>external type</a></td>
+      <td><i>unused</i></td>
       <td>
         {{ArrayBuffer}} or<br>
         any <a>typed array type</a>
@@ -1529,7 +1540,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <tr>
       <td><a>External type record</a> with type other than
         `urn:nfc:ext:w3.org:webnfc`</td>
-      <td>"`opaque`"</td>
+      <td><a>external type</a></td>
       <td>"`application/octet-stream`"</td>
       <td>
         <a>toText()</a> or<br>
@@ -3195,7 +3206,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 Section 3.2.2.
               </li>
               <li>
-                Let |buffer:bytes| be the <a>byte sequence</a> of 
+                Let |buffer:bytes| be the <a>byte sequence</a> of
                 |ndef|'s <a>PAYLOAD field</a> from the second <a>byte</a> to the end.
               </li>
               <li>
@@ -3264,16 +3275,27 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li> <!-- parsing Web NFC record -->
           <li>
             Otherwise, if |ndef|'s <a>TNF field</a> is `4` (<a>external type record</a>),
-            or 5 (unknown) then run the following sub-steps,
+            then run the following sub-steps,
+            or make sure that the underlying platform provides equivalent values
+            to the |record| object properties:
+            <ol>
+              <li>Set |record|'s recordType to the value of |ndef|'s <a>TYPE field</a>.</li>
+              <li>
+                Set |record|'s mediaType to "`application/octet-stream`".
+              </li>
+              <li>
+                Set |record|'s associated <a>bytes</a> to
+                |ndef|'s <a>PAYLOAD field</a>.
+              </li>
+            </ol>
+          </li> <!-- parsing NDEF External/Unknown record -->
+          <li>
+            Otherwise, if |ndef|'s <a>TNF field</a> is `5` (<a>unknown record</a>)
+            then run the following sub-steps,
             or make sure that the underlying platform provides equivalent values
             to the |record| object properties:
             <ol>
               <li>Set |record|'s recordType to "`opaque`".</li>
-              <li>
-                If |ndef|'s <a>TYPE field</a> is defined, then set
-                |record|'s mediaType to that <a>string</a> value, otherwise to
-                "`application/octet-stream`".
-              </li>
               <li>
                 Set |record|'s associated <a>bytes</a> to
                 |ndef|'s <a>PAYLOAD field</a>.
