@@ -2763,9 +2763,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <p>
         A <dfn>match pattern</dfn> is defined by the following ABNF:
         <pre>
-          match-pattern       = top-level-type-name "/" [ tree "." ] subtype-name [ "+" suffix ] [ ";" parameters ]
-          top-level-type-name = "*" / &lt; VCHAR except "/" and "*" &gt;
-          subtype-name        = "*" / &lt; VCHAR except "+" &gt;
+          match-pattern  = top-level-type "/" [ tree "." ] subtype [ "+" suffix ] [ ";" parameters ]
+          top-level-type = "*" / &lt; VCHAR except "/" and "*" &gt;
+          subtype        = "*" / &lt; VCHAR except "+" &gt;
         </pre>
         A <a>match pattern</a> is a
         <a href="http://pubs.opengroup.org/onlinepubs/007904875/utilities/xcu_chap02.html#tag_02_13_03">
