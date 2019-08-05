@@ -158,7 +158,7 @@
     given functionality.
   </p>
   <p>
-    The term <dfn>ask for forgiveness</dfn> refers to some
+    The term <dfn data-lt="asked for forgiveness">ask for forgiveness</dfn> refers to some
     form of unobtrusive notification that informs the user of an operation
     while it is running.
     UAs SHOULD provide the user with means to ignore similar future
@@ -176,7 +176,7 @@
   <p>
     The term <dfn>obtain permission</dfn> for a certain operation indicates
     that the UA has either obtained <a>expressed permission</a>, or
-    <a href="#dfn-ask-for-forgiveness">asked for forgiveness</a>, or ensured a
+    <a>asked for forgiveness</a>, or ensured a
     <a>prearranged trust relationship</a> exists.
   </p>
   <p>
@@ -474,7 +474,7 @@
       specifically the <a>Web NFC message origin</a> optionally
       followed by a <a>path-absolute-URL string</a>, stored in the <a>Web NFC Record</a>.
       This enables matching <a>Web NFC content</a> with <a>URL pattern</a>s
-      specified by <a>NFCReader</a>s.
+      specified by {{NFCReader}}s.
     </p>
     <p>
       A <dfn>Web NFC record</dfn> is an <a>external type record</a>,
@@ -958,7 +958,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         On the receiving device the UA will dispatch the content to an application
         registered and eligible to handle the content, and if that application is
         a browser which has a web page open and in <a data-cite="html#focused">focus</a>
-        with active <a>NFCReader</a>,
+        with active {{NFCReader}},
         then the content is delivered to the page through the <a>NFCReadingEvent</a>.
       </p>
     </section>
@@ -1171,12 +1171,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         of the <a>current settings object</a>.
         Otherwise the UA must <a>obtain permission</a> for pushing
         <a>NFC content</a> which overwrites existing information.
-        See also the <a>Writing or pushing content</a> section.
+        See also the [[[#writing-or-pushing-content]]] section.
       </li>
       <li>
         Pushing <a>NFC content</a> to an <a>NFC peer</a> does not need to
         <a>obtain permission</a>, but the previous rules apply.
-        See the <a>Writing or pushing content</a> section.
+        See the [[[#writing-or-pushing-content]]] section.
       </li>
       <li>
         Making an <a>NFC tag</a> read-only must <a>obtain permission</a>, or
@@ -1310,8 +1310,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       and <dfn>data</dfn>. The mapping from data types of an
       <a>NDEFRecordInit</a> to <a>NDEF record</a> types is presented
       in the algorithmic steps which handle the data and described in the
-      <a href="#steps-receiving">Receiving and parsing content</a>
-      and <a>Writing or pushing content</a> sections.
+      [[[#steps-receiving]]] and [[[#writing-or-pushing-content]]] sections.
     </p>
     <p>
       To <dfn>convert NDEFRecord's bytes</dfn>, pass a |record:NDEFRecord|
@@ -1395,7 +1394,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <h2>The <dfn>NDEFRecordType</dfn> enum</h2>
       <p>
         This enum defines the set of known types for a <a>NDEFRecord</a>. The
-        <a href="#data-mapping"></a> section describes how
+        [[[#data-mapping]]] section describes how
         <a>NDEFRecordType</a> is mapped to <a>NDEF record</a> types.
       </p>
 
@@ -1432,10 +1431,10 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </dl>
   </section> <!-- NDEFRecordType enum -->
 
-  <section><h3>Data mapping</h3>
+  <section id="data-mapping"><h3>Data mapping</h3>
   <p>
     The mapping from data types of an <a>NDEFRecordInit</a> to
-    <a>NDEF record</a> types, as used in the <a>Writing or pushing content</a>
+    <a>NDEF record</a> types, as used in the [[[#writing-or-pushing-content]]]
     section is as follows:
   </p>
   <table class="simple">
@@ -1486,7 +1485,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <td><i>empty</i></td>
       <td>
         {{ArrayBuffer}} or<br>
-        any <a data-cite="webidl">typed array type</a>
+        any <a>typed array type</a>
       </td>
       <td><a>External type record</a></td>
     </tr>
@@ -1494,7 +1493,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
   <p>
     The mapping from <a>NDEF record</a> types to <a>NDEFRecord</a>,
     as used for incoming <a>NDEF message</a>s described in the
-    <a href="#steps-receiving"></a> section, is as
+    [[[#steps-receiving]]] section, is as
     follows:
   </p>
   <table class="simple" data-link-for="NDEFRecord">
@@ -1710,7 +1709,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
      <tr>
       <td>[[\ActivatedReaderList]]</td>
       <td>
-        A <a>set</a> of <a>NFCReader</a> instances initially set to the empty <a>set</a>.
+        A <a>set</a> of {{NFCReader}} instances initially set to the empty <a>set</a>.
       </td>
      </tr>
     </tbody>
@@ -1741,7 +1740,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       The term <dfn id="nfc-suspended">suspended</dfn> in this specification
       refers to NFC operations being suspended, i.e. no <a>NFC content</a> is
       pushed by <a>NFCWriter</a>s, and no received <a>NFC content</a> is
-      presented to any <a>NFCReader</a> while suspended.
+      presented to any {{NFCReader}} while suspended.
 
       However, platform level timers for the
       <a>NFCWriter.push()</a> method continue running,
@@ -1997,11 +1996,11 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </pre>
   </section> <!-- NFCReaderOptions -->
 
-  <section><h3>Constructing an <a>NFCReader</a> object</h3>
+  <section><h3>Constructing an {{NFCReader}} object</h3>
     <p>
       <ol>
         <li>
-          Let |reader| be a new <a>NFCReader</a> object.
+          Let |reader| be a new {{NFCReader}} object.
         </li>
         <li>
           Let |options| be first argument to constructor.
@@ -2034,7 +2033,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </p>
   </section>
 
-  <section><h3><dfn>Writing or pushing content</dfn></h3>
+  <section id="writing-or-pushing-content">
+    <h3><dfn>Writing or pushing content</dfn></h3>
     <p>
       This section describes how to write an <a>NDEF message</a>
       to an <a>NFC tag</a> or how to push it to an <a>NFC peer</a>
@@ -2123,17 +2123,17 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               <li>
                 If the |message:NDEFMessageSource| parameter is not of type defined by
                 the <a>NDEFMessageSource</a> union, reject |p|
-                with a {{"TypeError"}}, and abort these steps.
+                with a {{TypeError}}, and abort these steps.
               </li>
               <li>
                 If the |message| parameter is of
                 <a>NDEFMessageInit</a> type, and |message|'s records
                 [= list/is empty =], reject |p| with
-                a {{"TypeError"}} and abort these steps.
+                a {{TypeError}} and abort these steps.
               </li>
               <li>
                 If |timeout| value is `NaN` or negative, reject
-                |p| with a {{"TypeError"}} and abort
+                |p| with a {{TypeError}} and abort
                 these steps.
               </li>
               <li>
@@ -2366,7 +2366,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                   </li>
                   <li>
                     Otherwise reject |promise| with
-                    a {{"TypeError"}} and abort these steps.
+                    a {{TypeError}} and abort these steps.
                   </li>
                 </ol>
               </li>
@@ -2468,7 +2468,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <ol>
           <li>
             If the type of a |record|'s data is not a {{DOMString}}
-            or an {{unrestricted double}}, [= exception/throw =] a {{"TypeError"}}
+            or an {{unrestricted double}}, [= exception/throw =] a {{TypeError}}
             and abort these steps.
           </li>
           <li>
@@ -2524,7 +2524,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                   </li>
                   <li>
                     If |charset| is not equal to "`utf-8`",
-                    [= exception/throw =] a {{"TypeError"}}.
+                    [= exception/throw =] a {{TypeError}}.
                   </li>
                   <li>
                     Set bit `7` (<a>MB field</a>) to the value 0
@@ -2567,11 +2567,11 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         steps:
         <ol>
           <li>
-            If |record|'s data is not a <a>string</a>,
-            [= exception/throw =] a {{"TypeError"}} and abort these steps.
+            If |record|'s data is not a {{DOMString}},
+            [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
-            Let |urlRecord:string| be the result of
+            Let |urlRecord:USVString| be the result of
             <a data-lt="url parser">parsing</a> |record|'s data.
           </li>
           <li>
@@ -2629,7 +2629,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <ol>
           <li>
             If the type of a |record|'s data is not an {{object}},
-            [= exception/throw =] a {{"TypeError"}} and abort these steps.
+            [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
             Let |MIME type| be the <a>MIME type</a>
@@ -2677,7 +2677,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <ol>
           <li>
             If the type of a |record|'s data is not an
-            {{ArrayBuffer}}, [= exception/throw =] a {{"TypeError"}}
+            {{ArrayBuffer}}, [= exception/throw =] a {{TypeError}}
             and abort these steps.
           </li>
           <li>
@@ -2773,11 +2773,11 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <p>
       In order to receive <a>NFC content</a>, the client needs to attach an
       event listener for the "`reading`" event on an
-      <a>NFCReader</a> instance and then activate it by calling
+      {{NFCReader}} instance and then activate it by calling
       <a>NFCReader.start()</a>.
     </p>
     <p>
-      Each <a>NFCReader</a> can filter the <a>NFC content</a> based on
+      Each {{NFCReader}} can filter the <a>NFC content</a> based on
       data type, and the URL [= url/path =] of the
       <a>browsing context</a> which has been saved to the <a>Web NFC record</a>
       of the <a>NFC content</a>.
@@ -2926,7 +2926,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
 
     <section> <h3>The <strong>start()</strong> method</h3>
       <p>
-        The section <a href="#steps-receiving"></a> uses <a>NFCReader</a> instances to match
+        The section [[[#steps-receiving]]] uses {{NFCReader}} instances to match
         incoming <a>NFC content</a>.
       </p>
       <p>
@@ -2939,7 +2939,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <dfn id="steps-listen">NFC listen algorithm</dfn>:
         <ol>
           <li>
-            Let |reader:NFCReader| be the <a>NFCReader</a> instance.
+            Let |reader:NFCReader| be the {{NFCReader}} instance.
           </li>
           <li>
             If there is no underlying <a>NFC Adapter</a>, or if a connection cannot
@@ -3077,7 +3077,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         MUST run the following algorithm:
         <ol>
           <li>
-            Remove the <a>NFCReader</a> instance from the <a>activated reader objects</a>.
+            Remove the {{NFCReader}} instance from the <a>activated reader objects</a>.
           </li>
           <li>
             If the <a>activated reader objects</a> [= list/is empty =], then make a request
@@ -3092,7 +3092,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
   <section id="steps-receiving">
   <h3>Receiving and parsing content</h3>
   <p>
-    If there are any <a>NFCReader</a> instances in <a>activated reader objects</a>
+    If there are any {{NFCReader}} instances in <a>activated reader objects</a>
     then UAs MUST listen to <a>NDEF message</a>s, according to step 3
     of the <a href="#steps-listen">NFC listen algorithm</a>.
   </p>
@@ -3194,7 +3194,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               be written as UTF-8.
               External applications have the ability to additionally encode
               this field as UTF-16BE, but that is transparent from the use
-              of the <a>NFCReader</a> which will always return the data
+              of the {{NFCReader}} which will always return the data
               as a <a>string</a>.
               <br><br>
               As external applications may have encoded the "`opaque`"
@@ -3309,7 +3309,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               </li>
               <li>
                 Set |record|'s associated <a>bytes</a> to
-                |ndef|'s <a><a>PAYLOAD field</a></a>.
+                |ndef|'s <a>PAYLOAD field</a>.
               </li>
             </ol>
           </li> <!-- parsing NDEF External/Unknown record -->
@@ -3339,7 +3339,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </p>
     <ol>
       <li>
-        [= list/For each =] <a>NFCReader</a> instance |reader:NFCReader| in
+        [= list/For each =] {{NFCReader}} instance |reader:NFCReader| in
         the <a>activated reader objects</a>, run the following sub-steps:
         <ol>
           <li>
