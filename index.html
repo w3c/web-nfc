@@ -1122,8 +1122,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <a data-lt="serialization of an origin">serialized origin</a>
         and the URL [= url/path =] of the <a>current settings object</a> when
         requesting the operation must be recorded in each sent <a>NDEF
-        message</a>'s <a>Web NFC record</a>.  For details see the <a>Writing
-        or pushing content</a> section.
+        message</a>'s <a>Web NFC record</a>.  For details see the
+        [[[#writing-or-pushing-content]]] section.
       </li>
       <li>
         When listening for and pushing <a>NFC content</a>,
@@ -2952,7 +2952,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 all <a>NFC adapter</a>s to listen to <a>NDEF message</a>s.
               </li>
               <li>
-                If the request fails, then
+                If the request fails, then the UA may run the following sub-steps:
                 <ol>
                   <li>
                     Let |e:DOMException| be the result of [= exception/create =] a
