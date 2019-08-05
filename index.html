@@ -1695,13 +1695,13 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
 
   <section><h3>Handling Window visibility and focus</h3>
     <p>
-      Each {{Window}} object where <i>NFC</i> is
-      exposed has a separate <i>NFC</i> instance. The
+      Each {{Window}} object where the Web NFC API is
+      exposed has separate <a>NFCWriter</a> and <a>NFCReader</a> instances. The
       <a data-cite="page-visibility#dfn-visibility-states">visibility</a>
       and <a data-cite="html#focused">focus</a> state of the
       {{Window}} object determines the
       <a href="#nfc-suspended">suspended</a> state of the associated
-      <i>NFC</i> instance.
+      <a>NFCWriter</a> and <a>NFCReader</a> instances.
     </p>
     <p>
       The term <dfn id="nfc-suspended">suspended</dfn> in this specification
