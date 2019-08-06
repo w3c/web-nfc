@@ -1358,51 +1358,55 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
   </section> <!-- NDEFRecord dictionary -->
 
   <section data-dfn-for="NDEFRecordType">
-    <h2>The <dfn>NDEFRecordType</dfn> type</h2>
+    <h2>The <dfn>NDEFRecordType</dfn> string</h2>
       <p>
-        This value defines the allowed types for a <a>NDEFRecord</a>. The
+        This string defines the allowed types for a <a>NDEFRecord</a>. The
         [[[#data-mapping]]] section describes how
         <a>NDEFRecordType</a> is mapped to <a>NDEF record</a> types.
       </p>
-
       <pre class="idl">
-        enum NDEFKnownRecordType {
-          "empty",
-          "text",
-          "url",
-          "json",
-          "opaque"
-        };
-
-        typedef (NDEFKnownRecordType or DOMString) NDEFRecordType;
+        typedef DOMString NDEFRecordType;
       </pre>
-      <dl data-dfn-for="NDEFKnownRecordType">
-        <dt><dfn>empty</dfn></dt>
+      <p>
+        A set of known standardized values exists, but it is also possible
+        for organizations to create their own custom <dfn>external type</dfn>s,
+        following the following ABNF (specialization of URN) as explained in
+        the [[[NFC-RTD]]]:
+        <pre>
+          namestring = "urn" ":" NID ":" NSS
+          NID        = "nfc"
+          NSS        = "ext:" reg-name ":" type
+          type       = 1*pchar
+        </pre>
+        The `reg-name` value is a [=host/registrable domain=].
+      </p>
+      <dl>
+        <dt>The "<dfn>empty</dfn>" string</dt>
         <dd>
           The value representing <a href="#dfn-empty">empty</a> <a>NDEFRecord</a>.
         </dd>
-        <dt><dfn>text</dfn></dt>
+        <dt>The "<dfn>text</dfn>" string</dt>
         <dd>
           The value representing <a>NDEFRecord</a> of a <a href="#dfn-text">text</a> type.
         </dd>
-        <dt><dfn>url</dfn></dt>
+        <dt>The "<dfn>url</dfn>" string</dt>
         <dd>
           The value representing <a>NDEFRecord</a> of a <a href="#dfn-url">url</a> type.
         </dd>
-        <dt><dfn>json</dfn></dt>
+        <dt>The "<dfn>json</dfn>" string</dt>
         <dd>
           The value representing <a>NDEFRecord</a> of a <a href="#dfn-json">json</a> type.
         </dd>
-        <dt><dfn>opaque</dfn></dt>
+        <dt>The "<dfn>opaque</dfn>" string</dt>
         <dd>
           The value representing <a>NDEFRecord</a> of an <a href="#dfn-opaque">opaque</a> type.
         </dd>
-        <dt><dfn>External type</dfn></dt>
+        <dt>An <a>external type</a></dt>
         <dd>
           A {{DOMString}} representing a custom type for the <a>external type record</a>.
-          The type must follow the [[NFC-RTD]] and thus, be a URN with the NID of "`nfc`"
-          and the NSS specific part put into the namespace "`ext`", followed by a domain
-          name owned by the issuing organization, a "`:`" and a type,
+          The type must follow the [[[NFC-RTD]]] and thus, be a URN with the NID of "`nfc`"
+          and the NSS specific part put into the namespace "`ext`", followed by a registrable
+          domain name owned by the issuing organization, a "`:`" and a type,
           e.g. "`urn:nfc:ext:w3.org:webnfc`".
         </dd>
       </dl>
@@ -3160,23 +3164,21 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 <a>byte sequence</a> of |ndef|'s <a>PAYLOAD field</a>.
               </li>
             </ol>
-            <p class="note">
+            <p class="note" data-link-for="NDEFRecord">
               Using the <a data-cite="encoding#encoder">encoder</a>, it is only possible
               to encode as UTF-8, unless you do the encoding manually
-              and use the "`opaque`"
-              <a href="#the-ndefrecordtype-type">recordType</a>, which
+              and use the "{{opaque}}" {{recordType}}, which
               allows you to write any opaque data.
               <br><br>
-              When you write a <a>string</a> to the "`text`"
-              <a href="#the-ndefrecordtype-type">recordType</a>, it will
-              be written as UTF-8.
+              When you write a <a>string</a> to the "{{text}}"
+              {{recordType}}, it will be written as UTF-8.
               External applications have the ability to additionally encode
               this field as UTF-16BE, but that is transparent from the use
               of the {{NFCReader}} which will always return the data
               as a <a>string</a>.
               <br><br>
-              As external applications may have encoded the "`opaque`"
-              <a href="#the-ndefrecordtype-type">recordType</a> using a different
+              As external applications may have encoded the "{{opaque}}"
+              {{recordType}} using a different
               encoding, which can be decoded using [[[ENCODING]]] if you know
               the encoding.
             </p>
