@@ -416,7 +416,7 @@
     <p>
       <ndef-record
         header="*,*,*,*,*,4 (EXTERNAL)"
-        content="*,*,*,EXTERNAL TYPE (eg. url:nfc:ext:w3.org:webnfc),*,*"
+        content="*,*,*,EXTERNAL TYPE (eg. w3.org:webnfc),*,*"
         short>
       </ndef-record>
     </p>
@@ -453,7 +453,7 @@
       <ul>
         <li>
           Uses NFC Forum <a>external type record</a> with the
-          <a>TYPE field</a> set to `urn:nfc:ext:w3.org:webnfc`.
+          <a>TYPE field</a> set to `w3.org:webnfc`.
         </li>
         <li>
           The payload contains the <a>Web NFC Id</a> of the
@@ -1370,15 +1370,29 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <p>
         A set of known standardized values exists, but it is also possible
         for organizations to create their own custom <dfn>external type</dfn>s,
-        following the following ABNF (specialization of URN) as explained in
-        the [[[NFC-RTD]]]:
-        <pre>
-          namestring = "urn" ":" NID ":" NSS
-          NID        = "nfc"
-          NSS        = "ext:" reg-name ":" type
-          type       = 1*pchar
+        following the ABNF for <a>external type record</a>.
+        <pre class="abnf">
+          ext-type             = reg-name ":" custom-type
+          custom-type          = 1*(ALPHA / DIGIT / other)
+
+          DIGIT                = %x30-39
+          ALPHA                = %x41-5A / %x61-7A   ; A-Z / a-z
+          other                = "(" / ")" / "+" / "," / "-" / ":" / "=" /
+                                 "@" / ";" / "$" / "_" / "!" / "*" / "'" / "."
         </pre>
         The `reg-name` value is a [=host/registrable domain=].
+      </p>
+      <p>
+        And additional ABNF exists for <a>well-known type record</a>s:
+        <pre class="abnf">
+          wkt-type             = (ALPHA / DIGIT) *(ALPHA / DIGIT / other)
+        </pre>
+      </p>
+      <p class=note>
+        The [[[NFC-RTD]]] defines every type in the <a>well-known type record</a>s
+        and <a>external type records</a> in terms of URNs, but only a subset of the
+        URN is actually stored in the <a>NDEF record</a>'s <a>TYPE field</a>, which
+        corresponds to the above two ABNFs.
       </p>
       <dl>
         <dt>The "<dfn>empty</dfn>" string</dt>
@@ -1404,10 +1418,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <dt>An <a>external type</a></dt>
         <dd>
           A {{DOMString}} representing a custom type for the <a>external type record</a>.
-          The type must follow the [[[NFC-RTD]]] and thus, be a URN with the NID of "`nfc`"
-          and the NSS specific part put into the namespace "`ext`", followed by a registrable
+          The type must follow the <a>external type</a> ABNF and thus be a registrable
           domain name owned by the issuing organization, a "`:`" and a type,
-          e.g. "`urn:nfc:ext:w3.org:webnfc`".
+          e.g. "`w3.org:webnfc`".
         </dd>
       </dl>
   </section> <!-- NDEFRecordType enum -->
@@ -1543,7 +1556,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </tr>
     <tr>
       <td><a>External type record</a> with type other than
-        `urn:nfc:ext:w3.org:webnfc`</td>
+        `w3.org:webnfc`</td>
       <td><a>external type</a></td>
       <td>"`application/octet-stream`"</td>
       <td>
@@ -2707,7 +2720,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             Set |ndef|'s TYPE to
-            "`urn:nfc:ext:w3.org:webnfc`".
+            "`w3.org:webnfc`".
           </li>
           <li>
             Set |ndef|'s PAYLOAD to the result of invoking
@@ -2777,7 +2790,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <section> <h3>Match patterns</h3>
       <p>
         A <dfn>match pattern</dfn> is defined by the following ABNF:
-        <pre>
+        <pre class="abnf">
           match-pattern  = top-level-type "/" [ tree "." ] subtype [ "+" suffix ] [ ";" parameters ]
           top-level-type = "*" / &lt; VCHAR except "/" and "*" &gt;
           subtype        = "*" / &lt; VCHAR except "+" &gt;
@@ -3272,7 +3285,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li> <!-- parsing NDEF Media record -->
           <li>
             If |ndef|'s <a>TNF field</a> is `4` (<a>external type record</a>), and
-            |ndef|'s <a>TYPE field</a> is "`urn:nfc:ext:w3.org:webnfc`",
+            |ndef|'s <a>TYPE field</a> is "`w3.org:webnfc`",
             then set |message|'s url to the |ndef|'s <a>PAYLOAD field</a>.
           </li> <!-- parsing Web NFC record -->
           <li>
