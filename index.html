@@ -1358,9 +1358,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
   </section> <!-- NDEFRecord dictionary -->
 
   <section data-dfn-for="NDEFRecordType">
-    <h2>The <dfn>NDEFRecordType</dfn> enum</h2>
+    <h2>The <dfn>NDEFRecordType</dfn> type</h2>
       <p>
-        This enum defines the set of known types for a <a>NDEFRecord</a>. The
+        This value defines the allowed types for a <a>NDEFRecord</a>. The
         [[[#data-mapping]]] section describes how
         <a>NDEFRecordType</a> is mapped to <a>NDEF record</a> types.
       </p>
@@ -3164,11 +3164,11 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               Using the <a data-cite="encoding#encoder">encoder</a>, it is only possible
               to encode as UTF-8, unless you do the encoding manually
               and use the "`opaque`"
-              <a href="#the-ndefrecordtype-enum">recordType</a>, which
+              <a href="#the-ndefrecordtype-type">recordType</a>, which
               allows you to write any opaque data.
               <br><br>
               When you write a <a>string</a> to the "`text`"
-              <a href="#the-ndefrecordtype-enum">recordType</a>, it will
+              <a href="#the-ndefrecordtype-type">recordType</a>, it will
               be written as UTF-8.
               External applications have the ability to additionally encode
               this field as UTF-16BE, but that is transparent from the use
@@ -3176,7 +3176,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               as a <a>string</a>.
               <br><br>
               As external applications may have encoded the "`opaque`"
-              <a href="#the-ndefrecordtype-enum">recordType</a> using a different
+              <a href="#the-ndefrecordtype-type">recordType</a> using a different
               encoding, which can be decoded using [[[ENCODING]]] if you know
               the encoding.
             </p>
