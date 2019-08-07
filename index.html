@@ -1709,8 +1709,30 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         A <a>set</a> of {{NFCReader}} instances initially set to the empty <a>set</a>.
       </td>
      </tr>
+     <tr>
+      <td>[[\PendingPush]]</td>
+      <td>
+        A promise-writer tuple where the promise holds a pending {{Promise}} and
+        writer holds a {{NFCWriter}}. Initially the slot is empty.
+      </td>
+      </tr>
     </tbody>
   </table>
+  <p>
+    The <dfn>activated reader objects</dfn> is the value of the [[\ActivatedReaderList]] internal slot.
+  </p>
+  <p>
+    The <dfn>pending push tuple</dfn> is the value of the [[\PendingPush]] internal slot.
+  </p>
+  <p>
+    <dfn id="nfc-is-suspended">NFC is suspended</dfn> if the [[\Suspended]] internal slot is `true`.
+  </p>
+  <p>
+    To <dfn id="suspend-nfc">suspend NFC</dfn>, set the [[\Suspended]] internal slot to `true`.
+  </p>
+  <p>
+    To <dfn id="resume-nfc">resume NFC</dfn>, set the [[\Suspended]] internal slot to `false`.
+  </p>
   <p class="note">
     Internal slots are used only as a notation in this specification, and
     implementations do not necessarily have to map them to explicit internal
@@ -1746,23 +1768,6 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       event is fired on the {{Window}} object.
     </p>
     <p>
-      To <dfn id="suspend-nfc">suspend NFC</dfn>, set the [[\Suspended]] internal slot of the
-      <a>current settings object</a>'s associated <a>NFC state</a> to `true`.
-    </p>
-    <p>
-      To <dfn id="resume-nfc">resume NFC</dfn>, set the [[\Suspended]] internal slot of the
-      <a>current settings object</a>'s associated <a>NFC state</a> to `false`.
-    </p>
-    <p>
-      <dfn id="nfc-is-suspended">NFC is suspended</dfn> if the [[\Suspended]] internal slot of the
-      <a>current settings object</a>'s associated <a>NFC state</a> is `true`.
-    </p>
-    <p>
-      The <dfn>activated reader objects</dfn> is the value of the [[\ActivatedReaderList]] internal slot
-      of the <a>current settings object</a>'s associated <a>NFC state</a>.
-
-    </p>
-    <p>
       When the {{Window}} object associated with the
       {{Document}} using the Web NFC API becomes
       <a data-cite="page-visibility/#dom-visibilitystate-visible">visible</a>
@@ -1776,29 +1781,54 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </p>
   </section> <!-- visibility & focus: the suspended state -->
 
+  <section><h3>Aborting pending push operation</h3>
+  <p>
+    To attempt to <dfn>abort a pending push operation</dfn> on an
+    <a>environment settings object</a>, perform the following steps:
+    <ol>
+      <li>
+        If there is no <a>pending push tuple</a> |tuple|, abort these steps.
+      </li>
+      <li>
+        Let |writer:NFCWriter| be |tuple|'s writer.
+      </li>
+      <li>
+        Let |p:Promise| be |tuple|'s promise.
+      </li>
+      <li>
+        Stop the |writer|'s |timer| if it is active.
+      </li>
+      <li>
+        If the |writer| has already initiated NFC data transfer,
+        abort these steps.
+      </li>
+      <li>
+        Clear the <a>pending push tuple</a>.
+      </li>
+      <li>
+        Reject |p| with an {{"AbortError"}} {{DOMException}}
+        and abort these steps.
+      </li>
+    </ol>
+    <p class=note>
+      Rejecting |p| will clear the <a>pending push tuple</a> and
+      remove the <a>async write handlers</a> as it is a transformed promise
+      with fulfillment and rejection handlers.
+    </p>
+  </p>
+  </section>
+
   <section><h3>Releasing NFC</h3>
   <p>
-    To <dfn>release NFC</dfn> on an <a>environment settings object</a> |settings|, perform the following steps:
+    To <dfn>release NFC</dfn> on an <a>environment settings object</a>,
+    perform the following steps:
   </p>
   <ol id="steps-nfc-release">
     <li>
       <a>Suspend NFC</a>.
     </li>
     <li>
-      [= list/For each =] pending <a>NFCWriter.push()</a> associated with |settings|:
-      <ol>
-        <li>
-          Stop the instance's |timer| if it is active.
-        </li>
-        <li>
-          If the instance has already initiated NFC data transfer,
-          [= iteration/continue =].
-        </li>
-        <li>
-          Reject |p:Promise| with an {{"AbortError"}} {{DOMException}}
-          and abort these steps.
-        </li>
-      </ol>
+      Attempt to <a>abort a pending push operation</a>.
     </li>
     <li>
       Stop the <a>dispatch NFC content</a> steps.
@@ -2152,31 +2182,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 otherwise run the following step once, with
                 |slot| set to the value of |target|.
               </li>
-              <ul>
-                <li>
-                  If there are any existing instance of this algorithm running whose
-                  |target| is equal to |slot|, abort that
-                  instance of this algorithm by rejecting its |p|
-                  with {{"AbortError"}} {{DOMException}}.
-                  <p class="note">
-                    In other words, the current invocation of
-                    <a href="#dom-nfcwriter-push">push()</a>
-                    rejects and replaces existing running invocations handling the
-                    same |slot|. At any given moment there may be
-                    maximum two instances of this algorithm running: one targeting
-                    <a>NFC tag</a>s, and another targeting <a>NFC peer</a>s.
-                  </p>
-                  <p class="note">
-                    Implementations are expected to clean up state on aborting these
-                    steps, e.g. stop the related timer, clear the related push
-                    message, as well as release any resources bound to NFC
-                    functionality, so that new invocations of this algorithm do not
-                    depend on previous invocations.
-                  </p>
-                </li>
-                <li>
-                  Associate |output| with |slot|.
-                </li>
+              <li>
+                Attempt to <a>abort a pending push operation</a>.
+              </li>
+              <li>
+                Associate |output| with |slot|.
+              </li>
               </ul>
               <li>
                 If |timeout| value is not equal to `Infinity`,
@@ -2184,98 +2195,118 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 |timeout|.
               </li>
               <li>
-                Wait until one of the following events happens:
-                <ul>
+                Add the following <dfn>async write handlers</dfn>:
+                <dl>
+                  <dt>The |timer| expires</dt>
+                  <ol>
+                    <li>
+                      Reject |p| with {{"TimeoutError"}} {{DOMException}}.
+                    </li>
+                  </ol>
+                  <dt>An <a>NFC device</a> |device| comes within
+                    communication range</dt>
+                  <ol>
+                    <li>
+                      Verify the following conditions:
+                      <ul>
+                        <li>
+                          if |device| is not officially supported
+                          by the NFC Forum, |compatibility| is
+                          "`vendor`" or "`any`".
+                        </li>
+                        <li>
+                          if |device| is an <a>NFC tag</a>, |target|
+                          is "`tag`" or "`any`".
+                        </li>
+                        <li>
+                          if |device| is an <a>NFC peer</a>,
+                          |target| is "`peer`" or
+                          "`any`".
+                        </li>
+                        <li>
+                          <a href="#nfc-is-suspended">NFC is not suspended</a>.
+                        </li>
+                      </ul>
+                      In case of success, run the following sub-steps:
+                      <ol>
+                        <li>
+                          Stop |timer| if active.
+                        </li>
+                        <li>
+                          If |device| is an <a>NFC tag</a>,
+                          <ul>
+                            <li>Read the tag.</li>
+                            <li>
+                              If |options|'s ignoreRead is not equal to
+                              `true`, run the
+                              <a href="#steps-receiving">receiving steps</a>.
+                            </li>
+                            <li>
+                              Let |authorHost| be the <a>message author host</a> of the
+                              tag.
+                            </li>
+                            <li>
+                              If |authorHost| is `null`, or different than the
+                              <a data-cite="url#concept-host-serializer">
+                              serialized host</a> of the
+                              <a>current settings object</a>'s origin, and the
+                              <a>obtain push permission</a> steps return
+                              `false`, then reject |p| with
+                              {{"NotAllowedError"}} {{DOMException}}
+                              and abort these steps.
+                            </li>
+                          </ul>
+                        </li>
+                        <li>
+                          Initiate data transfer to |device| using
+                          |output| as buffer, using the <a>NFC adapter</a>
+                          in communication range with (connected to)
+                          |device|.
+                        </li>
+                        <li>
+                          If the transfer fails, reject |p| with
+                          {{"NetworkError"}} {{DOMException}}
+                          and abort these steps.
+                          <p class="note">
+                            Multiple adapters should be used sequentially by users.
+                            There is very small likelihood that a simultaneous tap
+                            will happen on two or multiple different and connected
+                            <a>NFC adapter</a>s.
+                            If it happens, the user will likely need to repeat the
+                            taps until success, preferably one device at a time.
+                            The error here gives an indication that the operation
+                            needs to be repeated. Otherwise the user may think the
+                            operation succeeded on all connected <a>NFC adapter</a>s.
+                          </p>
+                        </li>
+                        <li>
+                          When the transfer has completed, clear |output|
+                          associated with |target|, resolve
+                          |p|.
+                        </li>
+                      </ol>
+                    </li>
+                  </ol>
+                </dl>
+              </li>
+              <li>
+                Let |transformedPromise| be the result of
+                <a data-cite="promises-guide">transforming</a> |p| with a fulfillment
+                and rejection handler that:
+                <ol>
                   <li>
-                    Promise |p| is rejected for a reason such as being
-                    aborted by the user. In that case, abort these steps.
+                    Clears the <a>pending push tuple</a>.
                   </li>
                   <li>
-                    If |timer| expires, reject |p| with
-                    {{"TimeoutError"}} {{DOMException}} and abort these steps.
+                    Removes <a>async write handlers</a>.
                   </li>
-                  <li>
-                    If an <a>NFC device</a> |device| comes within
-                    communication range, verify the following conditions:
-                    <ul>
-                      <li>
-                        if |device| is not officially supported
-                        by the NFC Forum, |compatibility| is
-                        "`vendor`" or "`any`".
-                      </li>
-                      <li>
-                        if |device| is an <a>NFC tag</a>, |target|
-                        is "`tag`" or "`any`".
-                      </li>
-                      <li>
-                        if |device| is an <a>NFC peer</a>,
-                        |target| is "`peer`" or
-                        "`any`".
-                      </li>
-                      <li>
-                        <a href="#nfc-is-suspended">NFC is not suspended</a>.
-                      </li>
-                    </ul>
-                    In case of success, run the following sub-steps:
-                    <ol>
-                      <li>
-                        Stop |timer| if active.
-                      </li>
-                      <li>
-                        If |device| is an <a>NFC tag</a>,
-                        <ul>
-                          <li>Read the tag.</li>
-                          <li>
-                            If |options|'s ignoreRead is not equal to
-                            `true`, run the
-                            <a href="#steps-receiving">receiving steps</a>.
-                          </li>
-                          <li>
-                            Let |authorHost| be the <a>message author host</a> of the 
-                            tag.
-                          </li>
-                          <li>
-                            If |authorHost| is `null`, or different than the
-                            <a data-cite="url#concept-host-serializer">
-                            serialized host</a> of the
-                            <a>current settings object</a>'s origin, and the
-                            <a>obtain push permission</a> steps return
-                            `false`, then reject |p| with
-                            {{"NotAllowedError"}} {{DOMException}}
-                            and abort these steps.
-                          </li>
-                        </ul>
-                      </li>
-                      <li>
-                        Initiate data transfer to |device| using
-                        |output| as buffer, using the <a>NFC adapter</a>
-                        in communication range with (connected to)
-                        |device|.
-                      </li>
-                      <li>
-                        If the transfer fails, reject |p| with
-                        {{"NetworkError"}} {{DOMException}}
-                        and abort these steps.
-                        <p class="note">
-                          Multiple adapters should be used sequentially by users.
-                          There is very small likelihood that a simultaneous tap
-                          will happen on two or multiple different and connected
-                          <a>NFC adapter</a>s.
-                          If it happens, the user will likely need to repeat the
-                          taps until success, preferably one device at a time.
-                          The error here gives an indication that the operation
-                          needs to be repeated. Otherwise the user may think the
-                          operation succeeded on all connected <a>NFC adapter</a>s.
-                        </p>
-                      </li>
-                      <li>
-                        When the transfer has completed, clear |output|
-                        associated with |target|, resolve
-                        |p|.
-                      </li>
-                    </ol>
-                  </li>
-                </ul>
+                </ol>
+              </li>
+              <li>
+                Set <a>pending push tuple</a> to (`this`, |transformedPromise|).
+              </li>
+              <li>
+                Return |transformedPromise|.
               </li>
             </ol>
             <p class="note">
