@@ -213,6 +213,9 @@
     multiple records etc.
   </p>
   <p>
+    A <dfn>Web NFC message</dfn> consists of a sequence of <a>NDEF record</a>s.
+  </p>
+  <p>
     A generic record looks like the following:
     <ndef-record class="ndef"
       header="*,*,*,*,*,*"
@@ -416,66 +419,66 @@
     <p>
       <ndef-record
         header="*,*,*,*,*,4 (EXTERNAL)"
-        content="*,*,*,EXTERNAL TYPE (eg. w3.org:webnfc),*,*"
+        content="*,*,*,EXTERNAL TYPE (eg. w3.org:A),*,*"
         short>
       </ndef-record>
     </p>
     </section>
     <section>
     <h4>
-      Special Web NFC records (TNF 4)
+      Web NFC author records (TNF 4)
     </h4>
     <p>
-      A <dfn>Web NFC message</dfn> consists of a sequence of <a>NDEF record</a>s,
-      one of which is a <a>Web NFC record</a>.
-    </p>
-    <p>
-      The <dfn>Web NFC message origin</dfn> is a <a data-lt="serialization of an origin">
-      serialized origin</a>
-      with "`https`" scheme, stored in the <a>Web NFC record</a>.
-      For <a>NFC content</a> that is not a <a>Web NFC message</a>, it is
-      `null`.
-    </p>
-    <p>
-      The <dfn id="web-nfc-id">Web NFC Id</dfn> is an <a>absolute-URL string</a>,
-      specifically the <a>Web NFC message origin</a> optionally
-      followed by a <a>path-absolute-URL string</a>, stored in the <a>Web NFC Record</a>.
-      This enables matching <a>Web NFC content</a> with <a>URL pattern</a>s
-      specified by {{NFCReader}}s.
-    </p>
-    <p>
-      A <dfn>Web NFC record</dfn> is an <a>external type record</a>,
-      specific to Web NFC. It indicates that the containing <a>NDEF message</a>
-      is targeted for <a>browsing context</a>s using this API
+      When writing data with Web NFC, a special <dfn>author type record</dfn> is written
+      in addition to the other records. This record is specificed by this specification
+      and is specific to Web NFC. The record indicates that the containing
+      <a>NDEF message</a> is targeted for <a>browsing context</a>s using this API
       and contains information useful for handling the <a>NDEF message</a> with
       the algorithms defined in this specification.
-      The format of a <a>Web NFC record</a> is as follows:
+      The format is as follows:
       <ul>
         <li>
-          Uses NFC Forum <a>external type record</a> with the
-          <a>TYPE field</a> set to `w3.org:webnfc`.
+          A short, non-chunked record with <a>IL field</a> set to `0` and
+          thus no <a>ID LENGTH field</a> and <a>ID field</a>.
         </li>
         <li>
-          The payload contains the <a>Web NFC Id</a> of the
+          Uses NFC Forum <a>external type record</a> with the
+          <a>TYPE field</a> set to "`w3.org:A`".
+        </li>
+        <li>
+          The payload contains the <a>message author</a> of the
           <a>Web NFC message</a>.
         </li>
       </ul>
+      <ndef-record
+        header="*,*,0,1,0,4 (EXTERNAL)"
+        content="8,*,_,w3.org:A,_,*"
+        short>
+      </ndef-record>
+    </p>
+    <p>
+      The <dfn>message author host</dfn> is a <a data-cite="url#concept-host-serializer">
+      serialized host</a>.
+    </p>
+    <p>
+      The <dfn>message author</dfn> is a <a>message author host</a>, optionally followed
+      by a <a>path-absolute-URL string</a>.
+      This enables matching <a>Web NFC content</a> with <a>URL pattern</a>s
+      specified by {{NFCReader}}s. For <a>NDEF message</a>s that are not <a>Web NFC
+      message</a>s, the <a>message author</a> is `null`.
     </p>
     <p>
       The term <dfn>Web NFC content</dfn> denotes all <a>Web NFC message</a>s
-      contained within an <a>NDEF message</a>, identified by the <a>Web NFC Id</a>
-      within the <a>NDEF message</a>. This version of the specification
-      supports one <a>Web NFC message</a> per <a>NDEF message</a>.
+      contained within an <a>NDEF message</a>, identified by the <a>message author</a>.
+      This version of the specification supports one <a>author type record</a> per
+      <a>NDEF message</a>.
     </p>
     <p class="note">
-      As part of the <a>NDEF record</a>, an <dfn>NDEF Id</dfn> field may be
-      present for application specific usages. According to the
+      As part of the <a>NDEF record</a>, an <a>ID field</a> may be
+      present in each record for application specific usages. According to the
       [[[NFC-STANDARDS]]] it contains a URL with the maximum length of 256 bytes.
       This URL is used for identifying the <a>NDEF record</a> payload in an
       application specific way.
-      This version of the specification does not use <a>NDEF Id</a> for
-      <a>NDEF record</a> level payload identification, since <a>NDEF message</a>
-      level identification is used.
     </p>
     </section>
     <section>
@@ -512,14 +515,14 @@
       <br>
       Intermediate record:
       <ndef-record
-        header="0,0,1,1,0,TNF 6 (UNCHANGED)"
+        header="0,0,1,1,0,6 (UNCHANGED)"
         content="0,PAYLOAD LENGTH FOR THIS RECORD,_,_,_,*"
         short>
       </ndef-record>
       <br>
       Last record:
       <ndef-record
-        header="0,1,0,1,0,TNF 6 (UNCHANGED)"
+        header="0,1,0,1,0,6 (UNCHANGED)"
         content="0,PAYLOAD LENGTH FOR THIS RECORD,_,_,_,*"
         short>
       </ndef-record>
@@ -895,12 +898,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             Writing to an <a>NFC tag</a> which already contains a
-            <a>Web NFC message</a> with a different <a>Web NFC message origin</a>
+            <a>Web NFC message</a> with a different <a>message author</a>
             (i.e. overwriting a web-specific tag).
           </li>
           <li>
             Writing to an <a>NFC tag</a> which already contains a
-            <a>Web NFC message</a> with the same <a>Web NFC message origin</a>
+            <a>Web NFC message</a> with the same <a>message author</a>
             (i.e. updating own tag).
           </li>
           <li>
@@ -1046,8 +1049,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
   <p>
     The integrity of <a>NFC content</a> SHOULD NOT be trusted when
     used for implementing security policies, for instance the authenticity of
-    <a>origin</a>s saved in the <a>Web NFC Id</a>, unless a
-    <a>prearranged trust relationship</a> exists.
+    <a>message author</a>, unless a <a>prearranged trust relationship</a> exists.
   </p>
   </section>
 
@@ -1119,10 +1121,10 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </li>
       <li>
         When pushing <a>Web NFC content</a>, the
-        <a data-lt="serialization of an origin">serialized origin</a>
+        <a data-cite="dom#concept-host-serializer">serialized host</a>
         and the URL [= url/path =] of the <a>current settings object</a> when
         requesting the operation must be recorded in each sent <a>NDEF
-        message</a>'s <a>Web NFC record</a>.  For details see the
+        message</a>'s <a>author type record</a>.  For details see the
         [[[#writing-or-pushing-content]]] section.
       </li>
       <li>
@@ -1132,10 +1134,10 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </li>
       <li>
         Pushing <a>Web NFC content</a> to an <a>NFC tag</a> does not need to
-        <a>obtain permission</a>, if the <a>Web NFC message origin</a> of the
-        <a>Web NFC message</a> on that <a>NFC tag</a> is equal to the
-        <a data-lt="serialization of an origin">serialized origin</a>
-        of the <a>current settings object</a>.
+        <a>obtain permission</a>, if the <a>message author host</a> of the
+        <a>author type record</a> on that <a>NFC tag</a> is equal to the
+        <a data-cite="dom#concept-host-serializer">serialized host</a>
+        of the <a>current settings object</a>'s origin.
         Otherwise the UA must <a>obtain permission</a> for pushing
         <a>NFC content</a> which overwrites existing information.
         See also the [[[#writing-or-pushing-content]]] section.
@@ -1197,7 +1199,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </pre>
     <p>
       The <dfn data-dfn-for="NDEFMessage">url</dfn>
-      property represents the <a>Web NFC Id</a> of a received
+      property represents the <a>message author</a> of a received
       <a>Web NFC message</a>.
     </p>
     <p>
@@ -1209,7 +1211,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       The <dfn>NDEFMessageInit</dfn> dictionary is used to initialize a
       <a>Web NFC message</a>. When used in the <a>NFCWriter.push()</a>
       method, its <dfn>url</dfn> member represents a URL [= url/path =]
-      used for constructing the <a>Web NFC Id</a> of the pushed <a>Web NFC content</a>.
+      used for constructing the <a>message author</a> of the pushed <a>Web NFC content</a>.
     </p>
   </section>
 
@@ -1577,7 +1579,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </tr>
   </table>
   <p>
-    The <a>Web NFC record</a>s MUST NOT be exposed to client
+    The <a>author type record</a>s MUST NOT be exposed to client
     <a>browsing context</a>s.
   </p>
   </section>
@@ -1949,7 +1951,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <p>
         The <dfn>url</dfn> property
         denotes the <a>URL pattern</a> which is used for matching the
-        <a>Web NFC Id</a> of <a>Web NFC message</a>s which are being read.
+        <a>message author</a> of <a>Web NFC message</a>s which are being read.
         The default value `""` means that no matching is performed.
       </p>
       <p>
@@ -2005,7 +2007,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           <ul>
             <li>
               If |key| equals "`url`", set
-              |reader|.[[\Url]] to |value|.
+              |reader|.[[\Url]] to |value|, prepended with "`https://`".
             </li>
             <li>
               Otherwise, if |key| equals "`recordType`", set
@@ -2229,11 +2231,14 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                             <a href="#steps-receiving">receiving steps</a>.
                           </li>
                           <li>
-                            If the <a>Web NFC message origin</a> of the read
-                            <a>NFC content</a> is `null`, or it is
-                            different than the <a data-lt="serialization of an origin">
-                            serialized origin</a> of the
-                            <a>current settings object</a>, and the
+                            Let |authorHost| be the <a>message author host</a> of the 
+                            tag.
+                          </li>
+                          <li>
+                            If |authorHost| is `null`, or different than the
+                            <a data-cite="url#concept-host-serializer">
+                            serialized host</a> of the
+                            <a>current settings object</a>'s origin, and the
                             <a>obtain push permission</a> steps return
                             `false`, then reject |p| with
                             {{"NotAllowedError"}} {{DOMException}}
@@ -2407,14 +2412,14 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li> <!-- converting message -->
           <li>
             Let |webnfc| be the result of invoking
-            <a>create a Web NFC record</a> given |message|'s url.
+            <a>create an author type record</a> given |message|'s url.
             If this throws an exception, reject |promise| with that
             exception and abort these steps.
           </li>
           <li>
             Add |webnfc| to |output|.
             <p class="note">
-              Implementations may choose the location of the Web NFC record
+              Implementations may choose the location of the author type record
               within the <a>NDEF message</a>.
             </p>
           </li>
@@ -2706,9 +2711,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </p>
       </section>
 
-      <section><h3>Creating a Web NFC record</h3>
+      <section><h3>Creating an author type record</h3>
       <p>
-        To <dfn>create a <a>Web NFC record</a></dfn> given URL [= url/path =] |urlPath:string|,
+        To <dfn>create an <a>author type record</a></dfn> given URL [= url/path =] |urlPath:string|,
         run these steps:
         <ol>
           <li>
@@ -2716,15 +2721,23 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             be created by the UA.
           </li>
           <li>
-            Set |ndef|'s TNF to `4` (<a>external type record</a>).
+            Set |ndef|'s <a>SR field</a> to `1` (short record).
           </li>
           <li>
-            Set |ndef|'s TYPE to
-            "`w3.org:webnfc`".
+            Set |ndef|'s <a>IL field</a> to `0` (no <a>ID LENGTH field</a> and <a>ID field</a>).
+          </li>
+          <li>
+            Set |ndef|'s <a>CF field</a> to `0` (no chunked record).
+          </li>
+          <li>
+            Set |ndef|'s <a>TNF field</a> to `4` (<a>external type record</a>).
+          </li>
+          <li>
+            Set |ndef|'s <a>TYPE field</a> to "`w3.org:A`".
           </li>
           <li>
             Set |ndef|'s PAYLOAD to the result of invoking
-            <a>create a Web NFC Id</a> given |urlPath|.
+            <a>create a message author</a> given |urlPath|.
             If this throws an exception, re-[= exception/throw =] it.
           </li>
           <li>
@@ -2734,28 +2747,31 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </p>
       </section>
 
-      <section><h3>Creating a Web NFC Id</h3>
+      <section><h3>Creating a message author</h3>
       <p>
-        To <dfn>create a <a>Web NFC Id</a></dfn> given URL [= url/path =] |urlPath:string|,
+        To <dfn>create a <a>message author</a></dfn> given URL [= url/path =] |urlPath:string|,
         run these steps:
         <ol>
           <li>
-            Let |id| be the <a data-lt="serialization of an origin">
-            serialized origin</a> of the <a>current settings object</a>.
+            Let |origin| be the <a>current settings object</a>'s origin.
           </li>
           <li>
-            Append |urlPath| to |id|.
+            Let |author| be |origin|'s host,
+            <a data-cite="url#concept-host-serializer">serialized</a>.
+          </li>
+          <li>
+            Append |urlPath| to |author|.
           </li>
           <li>
             Let |urlRecord| be the result of
-            <a data-lt="url parser">parsing</a> |id|.
+            <a data-lt="url parser">parsing</a> |author| with "`https://`" prepended.
           </li>
           <li>
             If |urlRecord| is failure, [= exception/throw =] a
             {{TypeError}} and abort these steps.
           </li>
           <li>
-            Return |id|.
+            Return |author|.
           </li>
         </ol>
       </p>
@@ -2774,12 +2790,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <p>
       Each {{NFCReader}} can filter the <a>NFC content</a> based on
       data type, and the URL [= url/path =] of the
-      <a>browsing context</a> which has been saved to the <a>Web NFC record</a>
+      <a>browsing context</a> which has been saved to the <a>author type record</a>
       of the <a>NFC content</a>.
     </p>
     <p>
       If you filter by URL [= url/path =], that means it will be matched against
-      the <a>Web NFC record</a>, thus the presence of such is required.
+      the <a>author type record</a>, thus the presence of such is required.
       If you don't filter by URL [= url/path =], then all NFC devices are accepted.
     </p>
     <p>
@@ -2806,24 +2822,20 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </section>
     <section> <h3>URL patterns</h3>
         A <dfn>URL pattern</dfn> is a <a>URL record</a> that can be used to match
-        the <a>Web NFC Id</a> of a <a>Web NFC message</a>.
+        the <a>message author</a> of a <a>Web NFC message</a>.
         A <dfn>valid URL pattern</dfn> is a valid <a>URL record</a> whose
         [= url/scheme =] component is equal to "`https`".
 
       <p>
         A <a>URL pattern</a>'s [= url/scheme =], [= url/host =]
         and [= url/path =] components that are used by the
-        <a href="#dfn-match-web-nfc-id-with-url-pattern">URL pattern match algorithm</a>
+        <a href="#dfn-match-message-author-with-url-pattern">URL pattern match algorithm</a>
         have the following matching rules:
 
         <table class="simple">
           <tr>
             <th><strong>URL pattern component</strong></th>
-            <th><strong>Matching rule for Web NFC Id</strong></th>
-          </tr>
-          <tr>
-            <td>[= url/scheme =]</td>
-            <td>exact match</td>
+            <th><strong>Matching rule for message author</strong></th>
           </tr>
           <tr>
             <td>[= url/host =]</td>
@@ -2837,7 +2849,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             <td>[= url/path =]</td>
             <td>
               If <a>URL pattern</a>'s path is "`/*`", match any
-              <a>Web NFC Id</a> path. Otherwise, begins with <a>URL pattern</a>'s
+              <a>message author</a> path. Otherwise, begins with <a>URL pattern</a>'s
               [= url/path =].
             </td>
           </tr>
@@ -2861,26 +2873,26 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </section>
 
     <section> <h3>URL pattern match algorithm</h3>
-        To <dfn>match Web NFC Id with URL pattern</dfn> for a given
-        <a>Web NFC Id</a> and <a>URL pattern</a>, run
+        To <dfn>match message author with URL pattern</dfn> for a given
+        <a>message author</a> and <a>URL pattern</a>, run
         these steps:
         <ol>
           <li>
-            Let |raw id| be a <a>Web NFC Id</a> passed to this algorithm.
+            Let |raw author| be a <a>message author</a> passed to this algorithm.
           </li>
           <li>
             Let |raw pattern| be a <a>URL pattern</a> passed to this algorithm.
           </li>
           <li>
-            If |raw id| and |raw pattern| are empty <a>string</a>s,
+            If |raw author| and |raw pattern| are empty <a>string</a>s,
             return `true`.
           </li>
           <li>
-            Let |id| be the result of running the
-            <a>basic URL parser</a> on |raw id|.
+            Let |author| be the result of running the
+            <a>basic URL parser</a> on |raw author|.
           </li>
           <li>
-            If |id| is failure, return `false`.
+            If |author| is failure, return `false`.
           </li>
           <li>
             Let |pattern| be the result of running the
@@ -2890,17 +2902,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             If |pattern| is failure, return `false`.
           </li>
           <li>
-            If |id|'s [= url/scheme =]
-            does not match |pattern|'s [= url/scheme =],
-            return `false`.
-          </li>
-          <li>
             Let |subdomain pattern| be the result of prepending "`.`"
             to |pattern|'s [= url/host =].
           </li>
           <li>
-            If |id|'s [= url/host =] does not end with
-            |subdomain pattern| and |id|'s
+            If |author|'s [= url/host =] does not end with
+            |subdomain pattern| and |author|'s
             [= url/host =] is not equal to |pattern|'s
             [= url/host =], return `false`.
           </li>
@@ -2909,7 +2916,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             "`/*`", return `true`.
           </li>
           <li>
-            If |id|'s [= url/path =] begins with
+            If |author|'s [= url/path =] begins with
             |pattern|'s [= url/path =],
             return `true`.
           </li>
@@ -3287,7 +3294,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             If |ndef|'s <a>TNF field</a> is `4` (<a>external type record</a>), and
             |ndef|'s <a>TYPE field</a> is "`w3.org:webnfc`",
             then set |message|'s url to the |ndef|'s <a>PAYLOAD field</a>.
-          </li> <!-- parsing Web NFC record -->
+          </li> <!-- parsing author type record -->
           <li>
             Otherwise, if |ndef|'s <a>TNF field</a> is `4` (<a>external type record</a>),
             then run the following sub-steps,
@@ -3348,9 +3355,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <ol>
           <li>
             Let |match:boolean| be the result of running
-            <a href="#dfn-match-web-nfc-id-with-url-pattern">URL pattern match</a>,
+            <a href="#dfn-match-message-author-with-url-pattern">URL pattern match</a>,
             with |reader|.[[\Url]] as the <a>URL pattern</a> and
-            |message|'s url as the <a>Web NFC Id</a>.
+            |message|'s url as the <a>message author</a>.
           </li>
           <li>
             If |match| is `false`, [= iteration/continue =].
