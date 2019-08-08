@@ -348,16 +348,16 @@
       Smart poster embeds additional records inside its payload. Below you
       see an example embedding a text and a url record.
       <ndef-record
-        header="1,1,0,1,0,3 (WELL KNOWN)"
-        content="*,*,_,*,_,*"
+        header="1,1,0,1,0,1 (WELL KNOWN)"
+        content="*,*,_,'Sp' (0x53\, 0x70 following NFC binary encoding),_,*"
         short>
         <ndef-record slot="payload"
-          header="1,0,0,1,0,3 (WELL KNOWN)"
+          header="1,0,0,1,0,1 (WELL KNOWN)"
           content="TYPE LENGTH (1 byte),*,_,'T' (0x54 following NFC binary encoding),_,*"
           short noindices>
         </ndef-record>
         <ndef-record slot="payload"
-          header="0,1,0,1,0,3 (WELL KNOWN)"
+          header="0,1,0,1,0,1 (WELL KNOWN)"
           content="TYPE LENGTH (1 byte),*,_,'U' (0x55 following NFC binary encoding),_,*"
           short noindices>
         </ndef-record>
