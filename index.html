@@ -2497,92 +2497,109 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
-            Let |MIME type| be the <a>MIME type</a>
+            Let |mimeTypeRecord| be the <a>MIME type</a>
             returned by running <a>parse a MIME type</a> on
             |record|'s mediaType.
-          </li>
-          <li>
-            If |MIME type| is failure, set |record|'s mediaType to
-            "`text/plain`".
-          </li>
-          <li>
-            If |MIME type|'s type is not "`text`", then [= exception/throw =] a
-            {{"SyntaxError"}} {{DOMException}} and abort these steps.
-          </li>
-          <li>
-            Let |language:string| be "`en`".
-          <li>
-            If |MIME type|'s parameters["`lang`"] [= map/exists =],
-            then set |language| to|MIME type|'s parameters["`lang`"].
-          </li>
-            <p class="note">
-              The `lang=` paramter is not a standard parameter
-              to <a>MIME type</a>s, but it is used in this specification
-              in order to maintain compatibility with [[[NFC-STANDARDS]]].
-            </p>
-          </li>
-          <li>
-            Let |ndef| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
-          </li>
-          <li>
-            Set the |ndef|'s <a>TNF field</a> to `1` (<a>well-known type record</a>).
-          </li>
-          <li>
-            Set the |ndef|'s <a>TYPE field</a> to "`T`"
-            (value 0x54 following NFC binary encoding).
-          </li>
-          <li>
-            Set the |ndef|'s <a>PAYLOAD field</a> to
-            |record|'s data encoded according to the
-            [[[NFC-STANDARDS]]], NFC Forum Text Record Type
-            Definition specification:
             <ol>
               <li>
-                To set the first <a>byte</a> of the <a>byte sequence</a>
-                of |ndef|'s <a>PAYLOAD field</a>, perform the following steps:
-                <ol>
-                  <li>
-                    If |MIME type|'s parameters["`charset`"]
-                    [= map/exists =], set |charset:string| to be the
-                    result of running <a>ASCII lowercase</a> on the value.
-                  </li>
-                  <li>
-                    If |charset| is not equal to "`utf-8`",
-                    [= exception/throw =] a {{TypeError}}.
-                  </li>
-                  <li>
-                    Set bit `7` (<a>MB field</a>) to the value 0
-                    (meaning <a>UTF-8 encoding</a>).
-                  </li>
-                  <li>
-                    Set bit `6` (<a>ME field</a>) to the value 0 (reserved).
-                  </li>
-                  <li>
-                    Let |offset| be the length of the
-                    |language| <a>string</a>.
-                  </li>
-                  <li>
-                    Set bit `5` to bit `0` to |offset|.
-                  </li>
-                </ol>
+                If |mimeTypeRecord| is failure, let |mimeTypeRecord| be a new
+                <a>MIME type record</a> whose type is "`text`", and subtype is "`plain`".
               </li>
               <li>
-                Set position 1 to |offset| + `1`, inclusive, of the <a>byte sequence</a>
-                of |ndef|'s <a>PAYLOAD field</a> to the result of running <a>ASCII encode</a>
-                on |language|.
-              </li>
-              <li>
-                Set position from |offset| + `1` to end, of the <a>byte sequence</a>
-                of |ndef|'s <a>PAYLOAD field</a> to the result of running <a>UTF-8 encode</a>
-                on |record|'s data.
+                If |mimeTypeRecord|'s type is not "`text`", then [= exception/throw =] a
+                {{"SyntaxError"}} {{DOMException}} and abort these steps.
               </li>
             </ol>
           </li>
           <li>
-            Return |ndef|.
+            Let |language:string| be |mimeTypeRecord|'s parameters["`lang`"] if it
+            [= map/exists =], or "`en`".
+          </li>
+          <li>
+            Let |charset:string| be |mimeTypeRecord|'s parameters["`charset`"] if it
+            [= map/exists =], or "`utf-8`".
+          </li>
+          <li>
+            If |charset| is not equal to "`utf-8`",
+            [= exception/throw =] a {{TypeError}}.
+          </li>
+          <li>
+            Let |header:byte| be a <a>byte</a> constructed the following way:
+            <ol>
+              <li>
+                Set bit `7` to the value `0`
+                (meaning <a>UTF-8 encoding</a>).
+              </li>
+              <li>
+                Set bit `6` to the value `0` (reserved).
+              </li>
+              <li>
+                Let |languageLength:octed| be the length of the
+                |language| <a>string</a>.
+              </li>
+              <li>
+                If |languageLength| cannot be stored in 6 bit (|languageLength| > 63),
+                [= exception/throw =] a {{SyntaxError}}.
+              <li>
+                Set bit `5` to bit `0` to |languageLength|.
+              </li>
+            </ol>
+          </li>
+          <li>
+            Let |data:byte sequence| be an empty [= byte sequence =].
+            <ol>
+              <li>
+                Set the first <a>byte</a> (position 0) of |data| to |header|.
+              </li>
+              <li>
+                Set position 1 (second <a>byte</a>) to position |languageLength|
+                of |data| to |language|.
+              </li>
+              <li>
+                Let |stream:byte stream| be the resulting
+                <a data-cite="encoding#concept-stream">byte stream</a> of
+                running <a>UTF-8 encode</a> on |record|'s data.
+              </li>
+              <li>
+                <a data-cite="encoding#concept-stream-read">Read</a> bytes from |stream| into
+                |data| (from position |languageLength| + 1) until
+                <a data-cite="encoding#concept-stream-read">read</a>
+                returns <a data-cite="encoding#end-of-stream">end-of-stream</a>.
+              </li>
+            </ol>
+          </li>
+          <li>
+            Set |length:unsigned long| to the [=byte sequence/length=]
+            of |data|.
+          </li>
+          <li>
+            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
+            be created by the UA.
+            <ol>
+              <li>
+                Set the |ndefRecord|'s <a>TNF field</a> to `1` (<a>well-known type record</a>).
+              </li>
+              <li>
+                Set the |ndefRecord|'s <a>TYPE field</a> to "`T`"
+                (value 0x54 following NFC binary encoding).
+              </li>
+              <li>
+                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
+              </li>
+              <li>
+                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a> to |data|.
+              </li>
+            </ol>
+          </li>
+          <li>
+            Return |ndefRecord|.
           </li>
         </ol>
+      </p>
+      <p class="note">
+        The `lang=` parameter is a non-standard parameter
+        to <a>MIME type</a>s, but it is used in this specification
+        in order to maintain compatibility with [[[NFC-STANDARDS]]].
       </p>
       </section>
 
@@ -2608,7 +2625,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             of |url|.
           </li>
           <li>
-            Match the URI prefixes as defined in [[[NFC-STANDARDS]]]
+            Match the URI prefixes as defined in [[[NFC-STANDARDS]]],
             URI Record Type Definition specification, Section 3.2.2, against
             the |serializedURL|.
           </li>
@@ -2682,15 +2699,16 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
-            Let |mimeType| be the <a>MIME type</a>
+            Let |mimeTypeRecord| be the <a>MIME type</a>
             returned by running <a>parse a MIME type</a> on |record|'s mediaType.
             <ol>
               <li>
-                If |mimeType| is failure, set |mimeType| to
-                "`application/json`".
+                If |mimeTypeRecord| is failure, let |mimeTypeRecord| be a new
+                <a>MIME type record</a> whose type is "`application`", and subtype is "`json`".
               </li>
               <li>
-                If |mimeType| is not a <a>JSON MIME type</a>, then [= exception/throw =] a
+                If |mimeTypeRecord| is not a <a>JSON MIME type</a>,
+                then [= exception/throw =] a
                 {{"SyntaxError"}} {{DOMException}} and abort these steps.
               </li>
             </ol>
@@ -2723,7 +2741,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               </li>
               <li>
                 Set the |ndefRecord|'s <a>TYPE field</a> to the result of
-                <a>serialize a MIME type</a> with |mimeType| as
+                <a>serialize a MIME type</a> with |mimeTypeRecord| as
                 the input.
               </li>
               <li>
@@ -2775,12 +2793,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             and abort these steps.
           </li>
           <li>
-            Let |mimeType| be the <a>MIME type</a>
+            Let |mimeTypeRecord| be the <a>MIME type</a>
             returned by running <a>parse a MIME type</a> on |record|'s mediaType.
             <ol>
               <li>
-                If |mimeType| is failure, set |mimeType| to
-                "`application/octet-stream`".
+                If |mimeTypeRecord| is failure, let |mimeTypeRecord| be a new
+                <a>MIME type record</a> whose type is "`application`", and subtype is "`octet-stream`".
               </li>
             </ol>
           </li>
@@ -2802,7 +2820,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               </li>
               <li>
                 Set the |ndefRecord|'s <a>TYPE field</a> to the result of
-                <a>serialize a MIME type</a> with |mimeType| as
+                <a>serialize a MIME type</a> with |mimeTypeRecord| as
                 the input.
               </li>
               <li>
