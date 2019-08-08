@@ -2596,52 +2596,77 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
-            Let |urlRecord:USVString| be the result of
+            Let |url:URL| be the result of
             <a data-lt="url parser">parsing</a> |record|'s data.
           </li>
           <li>
-            If |urlRecord| is failure, [= exception/throw =] a
+            If |url| is failure, [= exception/throw =] a
             {{TypeError}} and abort these steps.
           </li>
           <li>
-            Let |ndef| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
-          </li>
-          <li>
-            Set the |ndef|'s <a>TNF field</a> to `1` (<a>well-known type record</a>).
-          </li>
-          <li>
-            Set the |ndef|'s <a>TYPE field</a> to "U" (0x55
-            following NFC binary encoding).
+            Let |serializedURL:string| be <a data-cite="url#concept-url-serializer">serialization</a>
+            of |url|.
           </li>
           <li>
             Match the URI prefixes as defined in [[[NFC-STANDARDS]]]
             URI Record Type Definition specification, Section 3.2.2, against
-            the |urlRecord|.
+            the |serializedURL|.
           </li>
           <li>
-            Let |prefix:string| be the matched prefix or else the
+            Let |prefixString:string| be the matched prefix or else the
             <a href="#dfn-empty">empty</a> <a>string</a>.
           </li>
           <li>
-            Let |prefix code| be the corresponding prefix number,
-            or else 0.
+            Let |prefixByte:byte| be the corresponding prefix number,
+            or else `0`.
           </li>
           <li>
-            Let |shortened url:string| be |urlRecord| with
-            |prefix| removed from the start of the <a>string</a>.
+            Let |shortenedURL:string| be |serializedURL| with
+            |prefixString| removed from the start of the <a>string</a>.
           </li>
           <li>
-            Set the first <a>byte</a> of |ndef|'s <a>PAYLOAD field</a> to
-            the |prefix code|.
+            Let |data:byte sequence| be an empty [= byte sequence =].
+            <ol>
+              <li>
+                Set the first <a>byte</a> of |data| to |prefixByte|.
+              </li>
+              <li>
+                Let |stream:byte stream| be the resulting
+                <a data-cite="encoding#concept-stream">byte stream</a> of
+                running <a>UTF-8 encode</a> on |shortenedURL|.
+              </li>
+              <li>
+                <a data-cite="encoding#concept-stream-read">Read</a> bytes from |stream| into
+                |data| (from position 1) until <a data-cite="encoding#concept-stream-read">read</a>
+                returns <a data-cite="encoding#end-of-stream">end-of-stream</a>.
+              </li>
+            </ol>
           </li>
           <li>
-            Set position 1 to end, of the <a>byte sequence</a> of |ndef|'s
-            <a>PAYLOAD field</a> to the result of running <a>UTF-8 encode</a> on
-            |shortened url|.
+            Set |length:unsigned long| to the [=byte sequence/length=]
+            of |data|.
           </li>
           <li>
-            Return |ndef|.
+            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
+            be created by the UA.
+            <ol>
+              <li>
+                Set the |ndefRecord|'s <a>TNF field</a> to `1` (<a>well-known type record</a>).
+              </li>
+              <li>
+                Set the |ndefRecord|'s <a>TYPE field</a> to "`U`" (0x55
+                following NFC binary encoding).
+              </li>
+              <li>
+                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
+              </li>
+              <li>
+                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a> to |data|.
+              </li>
+            </ol>
+          </li>
+          <li>
+            Return |ndefRecord|.
           </li>
         </ol>
       </p>
@@ -2657,47 +2682,86 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
-            Let |MIME type| be the <a>MIME type</a>
+            Let |mimeType| be the <a>MIME type</a>
             returned by running <a>parse a MIME type</a> on |record|'s mediaType.
+            <ol>
+              <li>
+                If |mimeType| is failure, set |mimeType| to
+                "`application/json`".
+              </li>
+              <li>
+                If |mimeType| is not a <a>JSON MIME type</a>, then [= exception/throw =] a
+                {{"SyntaxError"}} {{DOMException}} and abort these steps.
+              </li>
+            </ol>
           </li>
           <li>
-            If |MIME type| is failure, set |record|'s mediaType to
-            "`application/json`".
+            Let |data:byte sequence| be an empty [= byte sequence =].
+            <ol>
+              <li>
+                Let |stream:byte stream| be the resulting
+                <a data-cite="encoding#concept-stream">byte stream</a> of executing
+                <a>serialize JSON to bytes</a> on |record|'s data.
+              </li>
+              <li>
+                <a data-cite="encoding#concept-stream-read">Read</a> bytes from |stream| into
+                |data| until <a data-cite="encoding#concept-stream-read">read</a> returns
+                <a data-cite="encoding#end-of-stream">end-of-stream</a>.
+              </li>
+            </ol>
           </li>
           <li>
-            If |MIME type| is not a <a>JSON MIME type</a>, then [= exception/throw =] a
-            {{"SyntaxError"}} {{DOMException}} and abort these steps.
+            Set |length:unsigned long| to the [=byte sequence/length=]
+            of |data|.
           </li>
           <li>
-            Let |data:object| be the result of executing
-            <a>serialize JSON to bytes</a> on |record|'s data.
-          </li>
-          <li>
-            Let |ndef| be the notation for the <a>NDEF record</a> to
+            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
             be created by the UA.
+            <ol>
+              <li>
+                Set the |ndefRecord|'s <a>TNF field</a> to `2` (<a>MIME type</a>).
+              </li>
+              <li>
+                Set the |ndefRecord|'s <a>TYPE field</a> to the result of
+                <a>serialize a MIME type</a> with |mimeType| as
+                the input.
+              </li>
+              <li>
+                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
+              </li>
+              <li>
+                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a> to |data|.
+              </li>
+            </ol>
           </li>
           <li>
-            Set the |ndef|'s <a>TNF field</a> to `2` (<a>MIME type</a>).
-          </li>
-          <li>
-            Set the |ndef|'s <a>TYPE field</a> to the result of
-            <a>serialize a MIME type</a> with |MIME type| as
-            the input.
-          </li>
-          <li>
-            Set the |ndef|'s <a>PAYLOAD field</a> to |data|
-            according to the [[[NFC-STANDARDS]]], i.e. as an opaque byte sequence.
-          </li>
-          <li>
-            Return |ndef|.
+            Return |ndefRecord|.
           </li>
         </ol>
       </p>
-      <p class=note>
-        JavaScript Object Notation aka JSON can be any of the following [[[ECMASCRIPT]]]
-        types: object, array, String, Boolean, Number or null, which covers a lot of
-        the [[[WEBIDL]]] types as listed here: [= JSON type =].
-      </p>
+      <aside class=note>
+        <p>
+          JavaScript Object Notation aka JSON can be any of the following [[[ECMASCRIPT]]]
+          types: object, array, String, Boolean, Number or null, which covers a lot of
+          the [[[WEBIDL]]] types as listed here: [= JSON type =].
+        </p>
+        <p>
+          Serializing JSON to bytes can result in 0 bytes in some cases, like serializing
+          the following object, which specifies it own
+          <a data-cite="webidl#idl-tojson-operation">toJSON</a> operation:
+
+          <pre class=highlight>
+            class ZeroByteJSON {
+              toJSON() {
+                return undefined;
+              }
+            }
+          </pre>
+
+          This means that the <a>map JSON to NDEF</a> algorithm might result in a
+          <a>NDEF record</a> with no <a>PAYLOAD field</a>.
+        </p>
+      </aside>
       </section>
 
       <section><h3>Mapping binary data to NDEF</h3>
@@ -2711,31 +2775,46 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             and abort these steps.
           </li>
           <li>
-            Let |MIME type| be the <a>MIME type</a>
+            Let |mimeType| be the <a>MIME type</a>
             returned by running <a>parse a MIME type</a> on |record|'s mediaType.
+            <ol>
+              <li>
+                If |mimeType| is failure, set |mimeType| to
+                "`application/octet-stream`".
+              </li>
+            </ol>
           </li>
           <li>
-            If |MIME type| is failure, set |record|'s mediaType to
-            "`application/octet-stream`".
+            Set |arrayBuffer| to |record|'s data.
           </li>
           <li>
-            Let |ndef| be the notation for the <a>NDEF record</a> to
+            Set |length:unsigned long| to |arrayBuffer|.[[\ArrayBufferByteLength].
+          </li>
+          <li>
+            Set |data:byte sequence| to |arrayBuffer|.[[\ArrayBufferData]].
+          </li>
+          <li>
+            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
             be created by the UA.
+            <ol>
+              <li>
+                Set the |ndefRecord|'s <a>TNF field</a> to `2` (<a>MIME type</a>).
+              </li>
+              <li>
+                Set the |ndefRecord|'s <a>TYPE field</a> to the result of
+                <a>serialize a MIME type</a> with |mimeType| as
+                the input.
+              </li>
+              <li>
+                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
+              </li>
+              <li>
+                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a> to |data|.
+              </li>
+            </ol>
           </li>
           <li>
-            Set the |ndef|'s <a>TNF field</a> to `2` (<a>MIME type</a>).
-          </li>
-          <li>
-            Set the |ndef|'s <a>TYPE field</a> to the result of
-            <a>serialize a MIME type</a> with |MIME type| as
-            the input.
-          </li>
-          <li>
-            Set the |ndef|'s <a>PAYLOAD field</a> to |record|'s data
-            according to the [[[NFC-STANDARDS]]], i.e. as an opaque byte sequence
-          </li>
-          <li>
-            Return |ndef|.
+            Return |ndefRecord|.
           </li>
         </ol>
       </p>
