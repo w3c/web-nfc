@@ -738,7 +738,7 @@ reader.onreading = event => {
         console.log(`URL: ${record.toText()}`);
         break;
       case "json":
-        console.log(`JSON: ${record.toJSON().myProperty.toString()}`);
+        console.log(`JSON: ${record.toJSON().myProperty}`);
         break;
       case "opaque":
         if (record.mediaType.startsWith('image/') {
@@ -1221,7 +1221,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <a>NDEFRecord</a> interface:
     </p>
     <pre class="idl">
-      typedef (DOMString or unrestricted double or ArrayBuffer or object) NDEFRecordData;
+      typedef any NDEFRecordData;
 
       [Constructor(NDEFRecordInit recordInit), Exposed=Window]
       interface NDEFRecord {
@@ -1285,7 +1285,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       To <dfn>convert NDEFRecord's bytes</dfn>, pass a |record:NDEFRecord|
       and a |type|, run these steps:
     </p>
-    <ol>
+    <ol class=algorithm>
       <li>
         Let |bytes| be the |record|'s {{bytes}}.
       </li>
@@ -1462,10 +1462,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <td><dfn>"`json`"</dfn></td>
       <td><a>JSON MIME type</a></td>
       <td>
-        `null` or<br>
-        {{DOMString}} or<br>
-        {{unrestricted double}} or<br>
-        {{object}}
+        [= JSON type =]
       </td>
       <td><a>MIME type record</a> with type equal to
         <a>MIME type</a>.
@@ -1785,7 +1782,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
   <p>
     To attempt to <dfn>abort a pending push operation</dfn> on an
     <a>environment settings object</a>, perform the following steps:
-    <ol>
+    <ol class=algorithm>
       <li>
         If there is no <a>pending push tuple</a> |tuple|, abort these steps.
       </li>
@@ -2025,7 +2022,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
 
   <section><h3>Constructing an {{NFCReader}} object</h3>
     <p>
-      <ol>
+      <ol class=algorithm>
         <li>
           Let |reader| be a new {{NFCReader}} object.
         </li>
@@ -2034,7 +2031,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         </li>
         <li>
           [= list/For each =] |key| → |value| of |options|:
-          <ul>
+          <ol>
             <li>
               If |key| equals "`url`", set
               |reader|.[[\Url]] to |value|, prepended with "`https://`".
@@ -2051,7 +2048,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               Otherwise, if |key| equals "`compatibility`", set
               |reader|.[[\Compatibility]] to |value|.
             </li>
-          </ul>
+          </ol>
         </li>
         <li>
           Return |reader|.
@@ -2077,7 +2074,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         The
         <dfn>NFCWriter.push</dfn> method, when invoked, MUST run the
         <dfn>push a message</dfn> algorithm:
-        <ol>
+        <ol class=algorithm>
           <li>
             Let |p:Promise| be a new {{Promise}} object.
           </li>
@@ -2322,7 +2319,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <section><h3>Obtaining push permission</h3>
       <p>
         To <dfn>obtain push permission</dfn>, run these steps:
-        <ol>
+        <ol class=algorithm>
           <li>
             If there is a <a>prearranged trust relationship</a>,
             return `true`.
@@ -2331,7 +2328,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             Run the
             <a>query a permission</a> steps for the
             <a>Web NFC permission name</a> until completion.
-            <ul>
+            <ol>
               <li>
                 If it resolved with {{PermissionState["granted"]}}
                 (i.e. an <a>expressed permission</a> has been granted
@@ -2352,7 +2349,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                   return `true`.
                 </p>
               </li>
-            </ul>
+            </ol>
           </li>
           <li>
             Return `false`.
@@ -2366,7 +2363,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           To <dfn>create Web NFC message</dfn> given a |message:NDEFMessageSource| run
           these steps:
         </p>
-        <ol id="create-web-nfc-message">
+        <ol class=algorithm id="create-web-nfc-message">
           <li>
             Let |output| be the notation for the <a>NDEF message</a>
             to be created by the UA as a result of these steps.
@@ -2378,77 +2375,75 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             |ndef|:
             <ol>
               <li>
-                If |record|'s recordType is `undefined`, then:
+                If |record|'s recordType is `undefined`:
                 <ol> <!-- guess type and mediaType from data -->
                   <li>
-                    If the type of |record|'s data is an
+                    If |record|'s data is `undefined`, reject |promise|
+                    a {{TypeError}} and abort these steps.
+                  </li>
+                  <li>
+                    Otherwise, if the type of |record|'s data is
+                    {{DOMString}}, then set |record|'s recordType to "`text`".
+                  </li>
+                  <li>
+                    Otherwise, if the type of |record|'s data is an
                     {{ArrayBuffer}}, then set |record|'s recordType
                     to "`opaque`".
                   </li>
                   <li>
-                    Otherwise, if the type of |record|'s data is an
-                    {{object}}, then set |record|'s recordType
-                    to "`json`".
-                  </li>
-                  <li>
-                    Otherwise, if the type of |record|'s data is
-                    {{unrestricted double}} or {{DOMString}}, then
-                    set |record|'s recordType to "`text`".
-                  </li>
-                  <li>
-                    Otherwise reject |promise| with
-                    a {{TypeError}} and abort these steps.
+                    Otherwise, set |record|'s recordType to "`json`".
                   </li>
                 </ol>
               </li>
-              <li>
-                If |record|'s recordType is "`empty`", then
-                Let |ndef| be the result of passing |record|
-                to <a>map empty record to NDEF</a>.
-                If this throws an exception, reject |promise:Promise| with
-                that exception and abort these steps.
-              </li>
-              <li>
-                Otherwise, if |record|'s recordType is "`text`",
-                then let |ndef| be the result of passing
-                |record| to <a>map text to NDEF</a>.
-                If this throws an exception, reject
-                |promise| with that exception and abort these steps.
-              </li>
-              <li>
-                Otherwise, if |record|'s recordType is "`url`",
-                then let |ndef| the be result of passing
-                |record| to <a>map a URL to NDEF</a>.
-                If this throws an exception, reject |promise| with that
-                exception and abort these steps.
-              </li>
-              <li>
-                Otherwise, if |record|'s recordType is "`json`",
-                then let |ndef| the be result of passing
-                |record| to <a>map a JSON object to NDEF</a>.
-                If this throws an exception, reject |promise| with that
-                exception and abort these steps.
-              </li>
-              <li>
-                Otherwise, if |record|'s recordType is "`opaque`",
-                then let |ndef| the be result of passing
-                |record| to <a>map binary data to NDEF</a>.
-                If this throws an exception, reject |promise| with that
-                exception and abort these steps.
-              </li>
-              <li>
-                Add |ndef| to |output|.
-              </li>
-            </ol> <!-- converting each record -->
+              <li>Let |ndef| be the result of passing |record| to the algorithm below
+                switching on |record|'s recordType. If the algorithm throws an exception
+                |e|, reject |promise| with |e| and abort these steps.
+                <dl>
+                  <dt>"`empty`"</dt>
+                  <ul>
+                    <li>
+                      <a>map empty record to NDEF</a>.
+                    </li>
+                  </ul>
+                  <dt>"`text`"</dt>
+                  <ul>
+                    <li>
+                      <a>map text to NDEF</a>.
+                    </li>
+                  </ul>
+                  <dt>"`url`"</dt>
+                  <ul>
+                    <li>
+                      <a>map a URL to NDEF</a>.
+                    </li>
+                  </ul>
+                  <dt>"`json`"</dt>
+                  <ul>
+                    <li>
+                      <a>map JSON to NDEF</a>.
+                    </li>
+                  </ul>
+                  <dt>"`opaque`"</dt>
+                  <ul>
+                    <li>
+                      <a>map binary data to NDEF</a>.
+                    </li>
+                  </ul>
+                </dl>
+                <li>
+                  Add |ndef| to |output|.
+                </li>
+              </li> <!-- converting each record -->
+            </ol>
           </li> <!-- converting message -->
           <li>
-            Let |webnfc| be the result of invoking
+            Let |authorRecord| be the result of invoking
             <a>create an author type record</a> given |message|'s url.
-            If this throws an exception, reject |promise| with that
-            exception and abort these steps.
+            If this throws exception |e|, reject |promise| with |e|
+            and abort these steps.
           </li>
           <li>
-            Add |webnfc| to |output|.
+            Add |authorRecord| to |output|.
             <p class="note">
               Implementations may choose the location of the author type record
               within the <a>NDEF message</a>.
@@ -2461,7 +2456,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <p>
         To <dfn>map empty record to NDEF</dfn> given a |record:NDEFRecordInit|, run
         these steps:
-        <ol>
+        <ol class=algorithm>
           <li>
             Let |ndef| be the notation for the <a>NDEF record</a> to
             be created by the UA.
@@ -2496,11 +2491,10 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           better differentiation, e.g. when using "`text/xml`", or
           "`text/vcard`".
         </p>
-        <ol>
+        <ol class=algorithm>
           <li>
-            If the type of a |record|'s data is not a {{DOMString}}
-            or an {{unrestricted double}}, [= exception/throw =] a {{TypeError}}
-            and abort these steps.
+            If the type of a |record|'s data is not a {{DOMString}},
+            [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
             Let |MIME type| be the <a>MIME type</a>
@@ -2596,7 +2590,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <p>
         To <dfn>map a URL to NDEF</dfn> given a |record:NDEFRecordInit|, run these
         steps:
-        <ol>
+        <ol class=algorithm>
           <li>
             If |record|'s data is not a {{DOMString}},
             [= exception/throw =] a {{TypeError}} and abort these steps.
@@ -2655,11 +2649,11 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
 
       <section><h3>Mapping JSON to NDEF</h3>
       <p>
-        To <dfn>map a JSON object to NDEF</dfn> given a |record:NDEFRecordInit|,
+        To <dfn>map JSON to NDEF</dfn> given a |record:NDEFRecordInit|,
         run these steps:
-        <ol>
+        <ol class=algorithm>
           <li>
-            If the type of a |record|'s data is not an {{object}},
+            If the type of a |record|'s data is not a [= JSON type =],
             [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
@@ -2699,13 +2693,18 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
         </ol>
       </p>
+      <p class=note>
+        JavaScript Object Notation aka JSON can be any of the following [[[ECMASCRIPT]]]
+        types: object, array, String, Boolean, Number or null, which covers a lot of
+        the [[[WEBIDL]]] types as listed here: [= JSON type =].
+      </p>
       </section>
 
       <section><h3>Mapping binary data to NDEF</h3>
       <p>
         To <dfn>map binary data to NDEF</dfn> given a |record:NDEFRecordInit|,
         run these steps:
-        <ol>
+        <ol class=algorithm>
           <li>
             If the type of a |record|'s data is not an
             {{ArrayBuffer}}, [= exception/throw =] a {{TypeError}}
@@ -2782,7 +2781,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <p>
         To <dfn>create a <a>message author</a></dfn> given URL [= url/path =] |urlPath:string|,
         run these steps:
-        <ol>
+        <ol class=algorithm>
           <li>
             Let |origin| be the <a>current settings object</a>'s origin.
           </li>
@@ -2907,7 +2906,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         To <dfn>match message author with URL pattern</dfn> for a given
         <a>message author</a> and <a>URL pattern</a>, run
         these steps:
-        <ol>
+        <ol class=algorithm>
           <li>
             Let |raw author| be a <a>message author</a> passed to this algorithm.
           </li>
@@ -2970,7 +2969,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         When the <dfn>NFCReader.start</dfn> method is invoked, the UA
         MUST run the following
         <dfn id="steps-listen">NFC listen algorithm</dfn>:
-        <ol>
+        <ol class=algorithm>
           <li>
             Let |reader:NFCReader| be the {{NFCReader}} instance.
           </li>
@@ -3108,7 +3107,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <p>
         When the <dfn>NFCReader.stop</dfn> method is invoked, the UA
         MUST run the following algorithm:
-        <ol>
+        <ol class=algorithm>
           <li>
             Remove the {{NFCReader}} instance from the <a>activated reader objects</a>.
           </li>
@@ -3136,7 +3135,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
        The UA SHOULD represent an unformatted <a>NFC tag</a> as an
        <a>NDEF message</a> containing a single empty <a>NDEF record</a>.
     </p>
-    <ol id ="parse-ndef">
+    <ol class=algorithm id="parse-ndef">
       <li>
         If <a>NFC is suspended</a>, abort these steps.
       </li>
@@ -3379,7 +3378,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       of type <a>NDEFMessage</a> and |compatibility:NDEFCompatibility| of type
       <a>NDEFCompatibility</a>, run these steps:
     </p>
-    <ol>
+    <ol class=algorithm>
       <li>
         [= list/For each =] {{NFCReader}} instance |reader:NFCReader| in
         the <a>activated reader objects</a>, run the following sub-steps:
