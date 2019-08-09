@@ -349,16 +349,16 @@
       see an example embedding a text and a url record.
       <ndef-record
         header="1,1,0,1,0,1 (WELL KNOWN)"
-        content="*,*,_,'Sp' (0x53\, 0x70 following NFC binary encoding),_,*"
+        content="*,*,_,'Sp' (0x53 0x70),_,*"
         short>
         <ndef-record slot="payload"
           header="1,0,0,1,0,1 (WELL KNOWN)"
-          content="TYPE LENGTH (1 byte),*,_,'T' (0x54 following NFC binary encoding),_,*"
+          content="TYPE LENGTH (1 byte),*,_,'T' (0x54),_,*"
           short noindices>
         </ndef-record>
         <ndef-record slot="payload"
           header="0,1,0,1,0,1 (WELL KNOWN)"
-          content="TYPE LENGTH (1 byte),*,_,'U' (0x55 following NFC binary encoding),_,*"
+          content="TYPE LENGTH (1 byte),*,_,'U' (0x55),_,*"
           short noindices>
         </ndef-record>
       </ndef-record>
@@ -2615,8 +2615,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 Set the |ndefRecord|'s <a>TNF field</a> to `1` (<a>well-known type record</a>).
               </li>
               <li>
-                Set the |ndefRecord|'s <a>TYPE field</a> to "`T`"
-                (value 0x54 following NFC binary encoding).
+                Set the |ndefRecord|'s <a>TYPE field</a> to "`T`" (`0x54`).
               </li>
               <li>
                 Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
@@ -2706,8 +2705,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 Set the |ndefRecord|'s <a>TNF field</a> to `1` (<a>well-known type record</a>).
               </li>
               <li>
-                Set the |ndefRecord|'s <a>TYPE field</a> to "`U`" (0x55
-                following NFC binary encoding).
+                Set the |ndefRecord|'s <a>TYPE field</a> to "`U`" (`0x55`).
               </li>
               <li>
                 Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
