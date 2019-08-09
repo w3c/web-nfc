@@ -1409,6 +1409,10 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         <dd>
           The value representing <a>NDEFRecord</a> of a <a href="#dfn-url">url</a> type.
         </dd>
+        <dt>The "<dfn>smart-poster</dfn>" string</dt>
+        <dd>
+          The value representing <a>NDEFRecord</a> of a <a href="#dfn-smart-poster">smart-poster</a> type.
+        </dd>
         <dt>The "<dfn>json</dfn>" string</dt>
         <dd>
           The value representing <a>NDEFRecord</a> of a <a href="#dfn-json">json</a> type.
@@ -1422,7 +1426,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           A {{DOMString}} representing a custom type for the <a>external type record</a>.
           The type must follow the <a>external type</a> ABNF and thus be a registrable
           domain name owned by the issuing organization, a "`:`" and a type,
-          e.g. "`w3.org:webnfc`".
+          e.g. "`w3.org:A`".
         </dd>
       </dl>
   </section> <!-- NDEFRecordType enum -->
@@ -1521,9 +1525,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </tr>
     <tr>
       <td><a>Well-known type record</a> with type "`Sp`"</td>
-      <td>"`url`"</td>
-      <td>"`text/plain`"</td>
-      <td><a>toText()</a></td>
+      <td>"`smart-poster`"</td>
+      <td>""</td>
+      <td>
+        toRecord() or<br>
+        <a>toArrayBuffer()</a>
+      </td>
     </tr>
     <tr>
       <td><a>Absolute-URL record</a></td>
@@ -1555,7 +1562,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </tr>
     <tr>
       <td><a>External type record</a> with type other than
-        `w3.org:webnfc`</td>
+        `w3.org:A`</td>
       <td><a>external type</a></td>
       <td>"`application/octet-stream`"</td>
       <td>
@@ -3225,6 +3232,127 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     then UAs MUST listen to <a>NDEF message</a>s, according to step 3
     of the <a href="#steps-listen">NFC listen algorithm</a>.
   </p>
+
+  <section><h3>Parsing NDEF well-known `T` records</h3>
+  <p>
+    To <dfn>parse a NDEF text record</dfn> given a |ndefRecord| into a
+    |record:NDEFRecord|, run these steps:
+    <ol class=algorithm>
+      <li>
+        Let |header:byte| be the first <a>byte</a> of |ndefRecord|'s
+        <a>PAYLOAD field</a>.
+      </li>
+      <li>
+        Let |languageLength:octed| be the value given by bit `5`
+        to bit `0` of the |header|.
+      </li>
+      <li>
+        Let |language:string| be the result of running <a>ASCII decode</a>
+        on second <a>byte</a> to the |languageLength| + `1` byte, inclusive.
+      <li>
+        Let |mimeType| be a <a>MIME type</a>
+        with type "`text`", subtype "`plain`" and parameters
+        equal to an empty ordered map.
+      </li>
+      <li>
+        Set |mimeType|'s parameters["`lang`"] to |language|.
+      </li>
+      <li>
+        Set |record|'s recordType to "`text`".
+      </li>
+      <li>
+        Set |record|'s mediaType to the result of
+        <a>serialize a MIME type</a> with |mimeType| as
+        the input.
+      </li>
+      <li>
+        <!-- FIXME: use internal slot like .[[ArrayBufferData]]-->
+        Set |record|'s associated <a>bytes</a> to the
+        <a>byte sequence</a> of |ndefRecord|'s <a>PAYLOAD field</a>.
+      </li>
+      <li>
+        return |record|.
+      </li>
+    </ol>
+  </p>
+  <p class="note" data-link-for="NDEFRecord">
+    Using the <a data-cite="encoding#encoder">encoder</a>, it is only possible
+    to encode as UTF-8, unless you do the encoding manually
+    and use the "{{opaque}}" {{recordType}}, which
+    allows you to write any opaque data.
+    <br><br>
+    When you write a <a>string</a> to the "{{text}}"
+    {{recordType}}, it will be written as UTF-8.
+    External applications have the ability to additionally encode
+    this field as UTF-16BE, but that is transparent from the use
+    of the {{NFCReader}} which will always return the data
+    as a <a>string</a>.
+    <br><br>
+    As external applications may have encoded the "{{opaque}}"
+    {{recordType}} using a different
+    encoding, which can be decoded using [[[ENCODING]]] if you know
+    the encoding.
+  </p>
+  </section>
+
+  <section><h3>Parsing NDEF well-known `U` records</h3>
+  <p>
+    To <dfn>parse a NDEF URL record</dfn> given a |ndefRecord| into a
+    |record:NDEFRecord|, run these steps:
+    <ol class=algorithm>
+      <li>
+        Set |record|'s recordType to "`url`".
+      </li>
+      <li>
+        Set |record|'s mediaType to "`text/plain`".
+      </li>
+      <li>
+        Let |prefixByte:byte| be the value of the first <a>byte</a> of
+        |ndefRecord|'s <a>PAYLOAD field</a>.
+      </li>
+      <li>
+        If |prefixByte| is not `0`, then match the |prefixByte| against
+        the prefix codes in [[[NFC-STANDARDS]]],
+        URI Record Type Definition specification, Section 3.2.2.
+      </li>
+      <li>
+        Let |prefixString:string| be the matched prefix or else the
+        <a href="#dfn-empty">empty</a> <a>string</a>.
+      </li>
+      <li>
+        Let |buffer:byte sequence| be the <a>byte sequence</a> of
+        |ndefRecords|'s <a>PAYLOAD field</a> from the second <a>byte</a>
+        to the end.
+      </li>
+      <li>
+        <!-- FIXME: use internal slot like .[[ArrayBufferData]]-->
+        <a data-cite="encoding#concept-stream-push">Push</a> |buffer|
+        to |record|'s associated <a>bytes</a>.
+      </li>
+    </ol>
+  </p>
+  </section>
+
+  <section><h3>Parsing NDEF well-known `Sp` records</h3>
+  <p>
+    To <dfn>parse a NDEF smart-poster record</dfn> given a |ndefRecord| into a
+    |record:NDEFRecord|, run these steps:
+    <ol class=algorithm>
+      <li>
+        Set |record|'s recordType to "`smart-poster`".
+      </li>
+      <li>
+        Set |record|'s mediaType to "".
+      </li>
+      <li>
+        <!-- FIXME: use internal slot like .[[ArrayBufferData]]-->
+        Set |record|'s associated <a>bytes</a> to the
+        <a>byte sequence</a> of |ndefRecord|'s <a>PAYLOAD field</a>.
+      </li>
+    </ol>
+  </p>
+  </section>
+
   <section><h3>The NFC reading algorithm</h3>
     When the <a>UA</a> is to <dfn>receive NFC content</dfn> it MUST run the
     following algorithm:
@@ -3261,7 +3389,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       </li>
       <li>
         [= list/For each =] <a>NDEF record</a> which is part of |input|, run the
-        following sub-steps for <dfn>parsing NDEF record</dfn>:
+        following sub-steps:
         <ol>
           <li>
             Let |ndef| be the notation for the current <a>NDEF record</a>.
@@ -3274,96 +3402,33 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             |record|'s recordType to "`empty`" and set |record|'s mediaType to `""`.
           </li>
           <li>
-            If |ndef|'s <a>TNF field</a> is `1` (<a>well-known type record</a>), and
-            |ndef|'s <a>TYPE field</a> is "`T`" (value 0x54 following NFC
-            binary encoding), then run the following sub-steps for
-            <dfn>parsing NDEF Text record</dfn>, or ensure that the
-            underlying platform provides equivalent values to the
-            |record| object properties:
+            If |ndef|'s <a>TNF field</a> is `1` (<a>well-known type record</a>):
             <ol>
               <li>
-                Let |header:byte| be the first <a>byte</a> of |ndef|'s <a>PAYLOAD field</a>.
-              </li>
-              <li>
-                Let |offset| be the value given by bit 5 to bit 0 of the
-                |header|.
-              </li>
-              <li>
-                Let |MIME type| be a <a>MIME type</a>
-                with type "`text`", subtype "`plain`" and parameters
-                equal to an empty ordered map.
-              </li>
-              <li>
-                Let |MIME type|'s parameters["`lang`"] be the
-                result of running <a>ASCII decode</a> on second <a>byte</a> to the
-                |offset| + `1` byte, inclusive.
-              </li>
-              <li>
-                Set |record|'s recordType to "`text`".
-              </li>
-              <li>
-                Set |record|'s mediaType to the result of
-                <a>serialize a MIME type</a> with |MIME type| as
-                the input.
-              </li>
-              <li>
-                Set |record|'s associated <a>bytes</a> to the
-                <a>byte sequence</a> of |ndef|'s <a>PAYLOAD field</a>.
+                Set |record| to the result of the algorithm below switching on |ndef|'s <a>TYPE field</a>:
+                <dl>
+                  <dt>"`T`" (`0x54`)</dt>
+                  <ul>
+                    <li>
+                      running <a>parse a NDEF text record</a> on |ndef|.
+                    </li>
+                  </ul>
+                  <dt>"`U`" (`0x55`)</dt>
+                  <ul>
+                    <li>
+                      running <a>parse a NDEF URL record</a> on |ndef|
+                    </li>
+                  </ul>
+                  <dt>"`Sp`" (`0x53` `0x70`)</dt>
+                  <ul>
+                    <li>
+                      running <a>parse a NDEF smart-poster record</a> on |ndef|
+                    </li>
+                  </ul>
+                </dl>
               </li>
             </ol>
-            <p class="note" data-link-for="NDEFRecord">
-              Using the <a data-cite="encoding#encoder">encoder</a>, it is only possible
-              to encode as UTF-8, unless you do the encoding manually
-              and use the "{{opaque}}" {{recordType}}, which
-              allows you to write any opaque data.
-              <br><br>
-              When you write a <a>string</a> to the "{{text}}"
-              {{recordType}}, it will be written as UTF-8.
-              External applications have the ability to additionally encode
-              this field as UTF-16BE, but that is transparent from the use
-              of the {{NFCReader}} which will always return the data
-              as a <a>string</a>.
-              <br><br>
-              As external applications may have encoded the "{{opaque}}"
-              {{recordType}} using a different
-              encoding, which can be decoded using [[[ENCODING]]] if you know
-              the encoding.
-            </p>
-          </li> <!-- reading NDEF Text record -->
-          <li>
-            If |ndef|'s <a>TNF field</a> is `1` (<a>well-known type record</a>), and
-            |ndef|'s <a>TYPE field</a> is "`U`" (value 0x55 in NFC binary
-            encoding), then run the following sub-steps for
-            <dfn>parsing NDEF URL record</dfn>, or make sure that the
-            underlying platform provides equivalent values to the
-            |record| object properties:
-            <ol>
-              <li>Set |record|'s recordType to "`url`".</li>
-              <li>
-                Set |record|'s mediaType to "`text/plain`".
-              </li>
-              <li>
-                Let |prefix code| be the value of the first <a>byte</a> of
-                |ndef|'s <a>PAYLOAD field</a>.
-              </li>
-              <li>
-                If |prefix code| is not `0`, then set |record|'s associated
-                <a>bytes</a> to the result of running <a>UTF-8 encode</a> on the
-                prefix <a>string</a> obtained from mapping the value of
-                |prefix code| to the URL prefix as specified in the
-                [[[NFC-STANDARDS]]] URI Record Type Definition specification,
-                Section 3.2.2.
-              </li>
-              <li>
-                Let |buffer:bytes| be the <a>byte sequence</a> of
-                |ndef|'s <a>PAYLOAD field</a> from the second <a>byte</a> to the end.
-              </li>
-              <li>
-                <a data-cite="encoding#concept-stream-push">Push</a> |buffer|
-                to |record|'s associated <a>bytes</a>.
-              </li>
-            </ol>
-          </li> <!-- parsing NDEF URL record -->
+          </li>
           <li>
             If |ndef|'s <a>TNF field</a> is `3` (<a>absolute-URL record</a>), then
             set |record|'s recordType to "`url`",
@@ -3419,7 +3484,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li> <!-- parsing NDEF Media record -->
           <li>
             If |ndef|'s <a>TNF field</a> is `4` (<a>external type record</a>), and
-            |ndef|'s <a>TYPE field</a> is "`w3.org:webnfc`",
+            |ndef|'s <a>TYPE field</a> is "`w3.org:A`",
             then set |message|'s url to the |ndef|'s <a>PAYLOAD field</a>.
           </li> <!-- parsing author type record -->
           <li>
