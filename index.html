@@ -1240,12 +1240,40 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         NDEFRecordData data;
       };
     </pre>
+
     <p>
-      <a>NDEFRecord</a> objects have associated <dfn id="ndefrecord-bytes">bytes</dfn>
-      (a <a>byte sequence</a>), set on creation that represents the payload data of the
-      <a>NDEF record</a>, which is `null` if there were no data in the
-      <a>NDEF record</a>.
+      A <a>NDEFRecord</a> object the following <a data-cite=
+      "ECMASCRIPT#sec-object-internal-methods-and-internal-slots">internal slots</a>:
     </p>
+    <table class="simple">
+      <thead>
+        <tr>
+          <th>
+            Internal slot
+          </th>
+          <th>
+            Initial value
+          </th>
+          <th>
+            Description (<em>non-normative</em>)
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <dfn>[[\PayloadData]]</dfn>
+          </td>
+          <td>
+            Empty <a>byte sequence</a>.
+          </td>
+          <td>
+            A <a>byte sequence</a> representing the whole or a subset of the
+            <a>PAYLOAD field</a> data.
+          </td>
+        </tr>
+      </tbody>
+    </table>
     <p>
       The <dfn>NDEFRecordData</dfn> is a union type representing data types allowed
       for <a href="#dom-ndefrecordinit-data">NDEFRecordInit.data</a> property.
@@ -1259,17 +1287,17 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </p>
     <p>
       The <dfn>toText()</dfn> method, when invoked, MUST return the result of
-      running <a>convert NDEFRecord's bytes</a> with an <a>NDEFRecord</a> object
+      running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object
       and a `text` type.
     </p>
     <p>
       The <dfn>toArrayBuffer()</dfn> method, when invoked, MUST return the result of
-      running <a>convert NDEFRecord's bytes</a> with an <a>NDEFRecord</a> object
+      running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object
       and an `arrayBuffer` type.
     </p>
     <p>
       The <dfn>toJSON()</dfn> method, when invoked, MUST return the result of
-      running <a>convert NDEFRecord's bytes</a> with an <a>NDEFRecord</a> object
+      running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object
       and a `JSON` type.
     </p>
     <p data-dfn-for="NDEFRecordInit">
@@ -1282,12 +1310,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       [[[#steps-receiving]]] and [[[#writing-or-pushing-content]]] sections.
     </p>
     <p>
-      To <dfn>convert NDEFRecord's bytes</dfn>, pass a |record:NDEFRecord|
+      To <dfn>convert NDEFRecord.[[\PayloadData]] bytes</dfn>, pass a |record:NDEFRecord|
       and a |type|, run these steps:
     </p>
     <ol class=algorithm>
       <li>
-        Let |bytes| be the |record|'s {{bytes}}.
+        Let |bytes:byte sequence| be |record|.[[\PayloadData]].
       </li>
       <li>
         Let |recordType:NDEFRecordType| be the value of |record|'s
@@ -2813,7 +2841,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             Set |arrayBuffer| to |record|'s data.
           </li>
           <li>
-            Set |length:unsigned long| to |arrayBuffer|.[[\ArrayBufferByteLength].
+            Set |length:unsigned long| to |arrayBuffer|.[[\ArrayBufferByteLength]].
           </li>
           <li>
             Set |data:byte sequence| to |arrayBuffer|.[[\ArrayBufferData]].
@@ -3266,8 +3294,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         the input.
       </li>
       <li>
-        <!-- FIXME: use internal slot like .[[ArrayBufferData]]-->
-        Set |record|'s associated <a>bytes</a> to the
+        Set |record|.[[\PayloadData]] to the
         <a>byte sequence</a> of |ndefRecord|'s <a>PAYLOAD field</a>.
       </li>
       <li>
@@ -3325,9 +3352,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         to the end.
       </li>
       <li>
-        <!-- FIXME: use internal slot like .[[ArrayBufferData]]-->
-        <a data-cite="encoding#concept-stream-push">Push</a> |buffer|
-        to |record|'s associated <a>bytes</a>.
+        Set |record|.[[\PayloadData]] to |buffer|.
       </li>
     </ol>
   </p>
@@ -3345,8 +3370,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         Set |record|'s mediaType to "".
       </li>
       <li>
-        <!-- FIXME: use internal slot like .[[ArrayBufferData]]-->
-        Set |record|'s associated <a>bytes</a> to the
+        Set |record|.[[\PayloadData]] to the
         <a>byte sequence</a> of |ndefRecord|'s <a>PAYLOAD field</a>.
       </li>
     </ol>
@@ -3458,8 +3482,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                     the input.
                   </li>
                   <li>
-                    Set |record|'s associated <a>bytes</a> to
-                    |ndef|'s <a>PAYLOAD field</a>.
+                    Set |record|.[[\PayloadData]] to the
+                    <a>byte sequence</a> of |ndef|'s <a>PAYLOAD field</a>.
                   </li>
                 </ol>
               </li>
@@ -3475,8 +3499,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                     the input.
                   </li>
                   <li>
-                    Set |record|'s associated <a>bytes</a> to
-                    |ndef|'s <a>PAYLOAD field</a>.
+                    Set |record|.[[\PayloadData]] to the
+                    <a>byte sequence</a> of |ndef|'s <a>PAYLOAD field</a>.
                   </li>
                 </ol>
               </li>
@@ -3498,8 +3522,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 Set |record|'s mediaType to "`application/octet-stream`".
               </li>
               <li>
-                Set |record|'s associated <a>bytes</a> to
-                |ndef|'s <a>PAYLOAD field</a>.
+                Set |record|.[[\PayloadData]] to the
+                <a>byte sequence</a> of |ndef|'s <a>PAYLOAD field</a>.
               </li>
             </ol>
           </li> <!-- parsing NDEF External/Unknown record -->
@@ -3509,10 +3533,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             or make sure that the underlying platform provides equivalent values
             to the |record| object properties:
             <ol>
-              <li>Set |record|'s recordType to "`opaque`".</li>
               <li>
-                Set |record|'s associated <a>bytes</a> to
-                |ndef|'s <a>PAYLOAD field</a>.
+                Set |record|'s recordType to "`opaque`".
+              </li>
+              <li>
+                Set |record|.[[\PayloadData]] to the
+                <a>byte sequence</a> of |ndef|'s <a>PAYLOAD field</a>.
               </li>
             </ol>
           </li> <!-- parsing NDEF External/Unknown record -->
