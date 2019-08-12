@@ -65,7 +65,7 @@ export class NDEFRecord extends HTMLElement {
     super();
     
     const header = this.getAttribute('header').split(',');
-    const content = this.getAttribute('content').replace(/,/g, ';').replace(/\\;/g, ',').split(';');
+    const content = this.getAttribute('content').split(',');
     const short = this.getAttribute('short');
     const noindices = this.getAttribute('noindices');
     

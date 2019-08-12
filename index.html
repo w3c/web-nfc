@@ -868,18 +868,19 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <section> <h3>Reading an <a>NFC tag</a></h3>
       <ol>
         <li>
-          Reading an <a>NFC tag</a> containing a <a>Web NFC message</a>, when a
-          web page using the Web NFC API is open and in <a data-cite="html#focused">focus</a>.
-          For instance, a web page instructs the user to tap an NFC tag, and
-          then receives information from the tag.
+          Reading an <a>NFC tag</a> containing a <a>Web NFC message</a>, when the
+          {{Document}} of the <a>top-level browsing context</a> using the Web NFC API
+          is <a>visible and focused</a>. For instance, a web page instructs the user
+          to tap an NFC tag, and then receives information from the tag.
         </li>
         <li>
           Reading an <a>NFC tag</a> containing other than <a>Web NFC message</a>,
-          when a web page using the Web NFC API is open and in <a data-cite="html#focused">focus</a>.
+          when the {{Document}} of the <a>top-level browsing context</a> using the
+          Web NFC API is <a>visible and focused</a>.
         </li>
         <li>
-          Reading an <a>NFC tag</a> when no web site using the Web NFC API is
-          open or in <a data-cite="html#focused">focus</a>.
+          Reading an <a>NFC tag</a> when no {{Document}} using the Web NFC API is
+          <a data-lt="visible and focused">visible or focused</a>.
           <p class="note">
             This use case is not supported in this version of the specification,
             and it has low priority for future versions as well.
@@ -926,8 +927,8 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <p>
         On the receiving device the UA will dispatch the content to an application
         registered and eligible to handle the content, and if that application is
-        a browser which has a web page open and in <a data-cite="html#focused">focus</a>
-        with active {{NFCReader}},
+        a browser which has a {{Document}} of the <a>top-level browsing context</a>
+        <a>visible and focused</a> with active {{NFCReader}},
         then the content is delivered to the page through the <a>NFCReadingEvent</a>.
       </p>
     </section>
@@ -1100,38 +1101,62 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <p>
       This section summarizes the security policies which are specified as
       normative requirements in the respective algorithms of this
-      specification:
+      specification.
     </p>
-    <ul>
-      <li>
+    <section> <h4>Secure Context</h4>
+      <p>
         Only <a>secure contexts</a> are allowed to access <a>NFC content</a>.
         Browsers may ignore this rule for development purposes only.
-      </li>
-      <li>
-        In order to use NFC, the {{Window}} object associated
-        with the {{Document}} contained by the
-        <a>top-level browsing context</a> using the Web NFC API must be
-        <a data-cite="page-visibility/#dom-visibilitystate-visible">visible</a>
-        and in <a data-cite="html#focused">focus</a>.
+      </p>
+    </section>
+    <section> <h4>Visible and focused document</h4>
+      <p>
+        Web NFC API is only avaliable for the {{Document}} of the
+        <a>top-level browsing context</a>, which must be <a>visible and focused</a>.
+      </p>
+      <p>
+        To determine if a given |document:Document| is <dfn>visible and focused</dfn>
+        the user agent MUST run the following steps:
+      </p>
+      <ol class=algorithm>
+        <li>
+          If the <a href="html#currently-focused-area-of-a-top-level-browsing-context">
+          currently focused area</a> does not belong to |document|, return false.
+        </li>
+        <li>
+          If |document|'s <a href="page-visibility#dom-visibilitystate">visibilityState</a>
+          is "hidden", return false.
+        </li>
+        <li>
+          Return true.
+        </li>
+      </ol>
+      <p>
         This also means that UAs should block access to the NFC radio if
         the display is off or the device is locked.
         For backgrounded web pages, receiving and pushing <a>NFC content</a>
         must be <a id="#nfc-suspended">suspended</a>.
-      </li>
-      <li>
-        When pushing <a>Web NFC content</a>, the
-        <a data-cite="dom#concept-host-serializer">serialized host</a>
-        and the URL [= url/path =] of the <a>current settings object</a> when
-        requesting the operation must be recorded in each sent <a>NDEF
-        message</a>'s <a>author type record</a>.  For details see the
-        [[[#writing-or-pushing-content]]] section.
-      </li>
-      <li>
-        When listening for and pushing <a>NFC content</a>,
-        the UA may warn the user that the given <a>origin</a> may be able to
-        infer physical location.
-      </li>
-      <li>
+      </p>
+    </section>
+    <section> <h4>Permissions controls</h4>
+      <p>
+        Making an <a>NFC tag</a> read-only must <a>obtain permission</a>, or
+        otherwise fail.
+      </p>
+      <p>
+        Setting up listeners for reading <a>NFC content</a> should
+        <a>obtain permission</a>.
+      </p>
+      <p>
+        The process of reading an <a>NDEF message</a> does not need to
+        <a>obtain permission</a>.
+      </p>
+      <p>
+        Pushing <a>NFC content</a> to an <a>NFC peer</a> does not need to
+        <a>obtain permission</a>, but the other rules in this section apply.
+        See the [[[#writing-or-pushing-content]]] section.
+      </p>
+      <p>
         Pushing <a>Web NFC content</a> to an <a>NFC tag</a> does not need to
         <a>obtain permission</a>, if the <a>message author host</a> of the
         <a>author type record</a> on that <a>NFC tag</a> is equal to the
@@ -1140,40 +1165,42 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         Otherwise the UA must <a>obtain permission</a> for pushing
         <a>NFC content</a> which overwrites existing information.
         See also the [[[#writing-or-pushing-content]]] section.
-      </li>
-      <li>
-        Pushing <a>NFC content</a> to an <a>NFC peer</a> does not need to
-        <a>obtain permission</a>, but the previous rules apply.
-        See the [[[#writing-or-pushing-content]]] section.
-      </li>
-      <li>
-        Making an <a>NFC tag</a> read-only must <a>obtain permission</a>, or
-        otherwise fail.
-      </li>
-      <li>
-        Setting up listeners for reading <a>NFC content</a> should
-        <a>obtain permission</a>.
-      </li>
-      <li>
-        The process of reading an <a>NDEF message</a> does not need to
-        <a>obtain permission</a>.
-      </li>
-      <li>
-        The payload data on <a>NFC content</a> is untrusted, and must not be used
-        by the UA to do automatic handling such as opening a web page
-        with a URL found in an <a>NFC tag</a>, unless the user approves that.
-      </li>
-      <li>
+      </p>
+      <p>
         Since all local content that a web page has access to can be shared with
         NFC, the user needs to be clearly aware about the permissions granted
         to the web page using the Web NFC API.
-      </li>
-      <!--li>
+      </p>
+    </section>
+    <section> <h4>Record URL host and path when pushing</h4>
+      <p>
+        When pushing <a>Web NFC content</a>, the
+        <a data-cite="dom#concept-host-serializer">serialized host</a>
+        and the URL [= url/path =] of the <a>current settings object</a> when
+        requesting the operation must be recorded in each sent <a>NDEF
+        message</a>'s <a>author type record</a>. For details see the
+        [[[#writing-or-pushing-content]]] section.
+      </p>
+    </section>
+    <section> <h4>Warn risk of physical location leak</h4>
+      <p>
+        When listening for and pushing <a>NFC content</a>,
+        the UA may warn the user that the given <a>origin</a> may be able to
+        infer physical location.
+      </p>
+    </section>
+    <section> <h4>Restrict automatic handling</h4>
+      <p>
+        The payload data on <a>NFC content</a> is untrusted, and must not be used
+        by the UA to do automatic handling such as opening a web page
+        with a URL found in an <a>NFC tag</a>, unless the user approves that.
+      </p>
+    </section>
+      <!--p>
         For Bluetooth and WiFi handover (supported in later versions),
         the user should have to grant access to the secondary API and must be
         able to properly understand what they are granting.
-      </li-->
-    </ul>
+      </p-->
   </section> <!-- Policies -->
 </section> <!-- Security and Privacy  -->
 
@@ -1241,7 +1268,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </pre>
 
     <p>
-      A <a>NDEFRecord</a> object the following <a data-cite=
+      A <a>NDEFRecord</a> object has the following <a data-cite=
       "ECMASCRIPT#sec-object-internal-methods-and-internal-slots">internal slots</a>:
     </p>
     <table class="simple">
@@ -1779,10 +1806,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
   <section><h3>Handling Window visibility and focus</h3>
     <p>
       Each {{Window}} object where the Web NFC API is
-      exposed has separate <a>NFCWriter</a> and <a>NFCReader</a> instances. The
-      <a data-cite="page-visibility#dfn-visibility-states">visibility</a>
-      and <a data-cite="html#focused">focus</a> state of the
-      {{Window}} object determines the
+      exposed has separate <a>NFCWriter</a> and <a>NFCReader</a> instances.
+      The <a>visible and focused</a> state of the
+      the <a>top-level browsing context</a>'s {{Document}} determines the
       <a href="#nfc-suspended">suspended</a> state of the associated
       <a>NFCWriter</a> and <a>NFCReader</a> instances.
     </p>
@@ -1799,16 +1825,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       event is fired on the {{Window}} object.
     </p>
     <p>
-      When the {{Window}} object associated with the
-      {{Document}} using the Web NFC API becomes
-      <a data-cite="page-visibility/#dom-visibilitystate-visible">visible</a>
-      and in <a data-cite="html#focused">focus</a>, <a>resume NFC</a>.
-    </p>
-    <p>
-      When the {{Window}} object associated with the
-      {{Document}} using the Web NFC API
-      loses <a data-cite="html#focused">focus</a>,
-      <a>suspend NFC</a>.
+      When the {{Document}} of the <a>top-level browsing context</a>
+      using the Web NFC API is <a>visible and focused</a>, <a>resume NFC</a>.
+      Otherwise, <a>suspend NFC</a>.
     </p>
   </section> <!-- visibility & focus: the suspended state -->
 
@@ -3208,12 +3227,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
                 Add |reader| to the <a>activated reader objects</a>.
               </li>
               <li>
-                If the <a>browsing context</a> loses
-                <a data-cite="html#focused">focus</a> (e.g. the user navigated
+                If the {{Document}} of the <a>top-level browsing context</a> is not
+                <a>visible and focused</a> (e.g. the user navigated
                 to another page), then the registered <a>activated reader objects</a>
                 still SHOULD continue to exist, but SHOULD become paused, i.e. the UA
-                SHOULD NOT check and use them until the <a data-cite="html#focused">focus</a>
-                is regained.
+                SHOULD NOT check and use them until the {{Document}} is
+                <a>visible and focused</a> again.
               </li>
             </ol>
           </li>
