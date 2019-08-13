@@ -2126,6 +2126,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           <li>
             If there is no underlying <a>NFC Adapter</a>, or if a connection cannot
             be established, then reject |p| with a
+            {{"NotSupportedError"}} {{DOMException}}
+            and return |p|.
+          </li>
+          <li>
+            If the UA is not allowed to access the underlying <a>NFC Adapter</a>
+            (e.g. a user preference), then reject |p| with a
             {{"NotReadableError"}} {{DOMException}}
             and return |p|.
           </li>
@@ -3106,6 +3112,24 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           <li>
             If there is no underlying <a>NFC Adapter</a>, or if a connection cannot
             be established, then
+            <ol>
+              <li>
+                Let |e| be the result of [= exception/create =] a
+                {{"NotSupportedError"}} {{DOMException}}.
+              </li>
+              <li>
+                <a>Fire an event</a> named "`error`" at |reader|
+                using <a>NFCErrorEvent</a> with its error attribute
+                initialized to |e|.
+              </li>
+              <li>
+                Return.
+              </li>
+            </ol>
+          </li>
+          <li>
+            If the UA is not allowed to access the underlying <a>NFC Adapter</a>
+            (e.g. a user preference), then
             <ol>
               <li>
                 Let |e| be the result of [= exception/create =] a
