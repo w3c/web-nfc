@@ -656,15 +656,14 @@
   <aside title="Push a text string to either a tag or peer"
        class="example">
     <p>
-      Pushing a text string (like the serialized JSON below)
-      to any kind of device is straight forward. Options can
-      be left out, as they default to pushing to both tags and
-      peers.
+      Pushing a text string to any kind of device is straightforward. 
+      Options can be left out, as they default to pushing to both tags
+      and peers.
     </p>
     <pre class="highlight">
 const writer = new NFCWriter();
 writer.push(
-  { prop1: "value1", prop2: "value2" }
+  "Hello World"
 ).then(() => {
   console.log("Message pushed.");
 }).catch(error => {
