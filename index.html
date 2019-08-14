@@ -741,7 +741,7 @@ reader.onreading = event => {
         console.log(`JSON: ${record.toJSON().myProperty}`);
         break;
       case "opaque":
-        if (record.mediaType.startsWith('image/') {
+        if (record.mediaType.startsWith('image/')) {
           const blob = new Blob([record.toArrayBuffer()], {type: record.mediaType});
 
           const img = document.createElement("img");
