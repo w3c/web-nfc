@@ -3340,7 +3340,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <li>
         return |record|.
       </li>
-    </ol>
+    </ol> <!-- parsing NDEF text record -->
   </p>
   <p class="note" data-link-for="NDEFRecord">
     Using the <a data-cite="encoding#encoder">encoder</a>, it is only possible
@@ -3394,7 +3394,10 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       <li>
         Set |record|.[[\PayloadData]] to |buffer|.
       </li>
-    </ol>
+      <li>
+        return |record|.
+      </li>
+    </ol> <!-- parsing NDEF URL record -->
   </p>
   </section>
 
@@ -3413,8 +3416,125 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         Set |record|.[[\PayloadData]] to the
         <a>byte sequence</a> of |ndefRecord|'s <a>PAYLOAD field</a>.
       </li>
-    </ol>
+      <li>
+        return |record|.
+      </li>
+    </ol>  <!-- parsing NDEF smart-poster record -->
   </p>
+  </section>
+
+  <section><h3>Parsing NDEF MIME type records</h3>
+    <p>
+      To <dfn>parse a NDEF MIME type record</dfn> given a |ndefRecord| into a
+      |record:NDEFRecord|, run these steps:
+      <ol class=algorithm>
+        <li>
+          Let |MIME type| be the <a>MIME type</a>
+          returned by running <a>parse a MIME type</a>
+          on |ndefRecord|'s <a>TYPE field</a>.
+        </li>
+        <li>
+          If |MIME type| is a <a>JSON MIME type</a>, then
+          <ol>
+            <li>
+              Set |record|'s recordType to "`json`".
+            </li>
+            <li>
+              Set |record|'s mediaType to the result of
+              <a>serialize a MIME type</a> with |MIME type| as
+              the input.
+            </li>
+            <li>
+              Set |record|.[[\PayloadData]] to the
+              <a>byte sequence</a> of |ndefRecord|'s <a>PAYLOAD field</a>.
+            </li>
+          </ol>
+        </li>
+        <li>
+          Otherwise,
+          <ol>
+            <li>
+              Set |record|'s recordType to "`opaque`".
+            </li>
+            <li>
+              Set |record|'s mediaType to the result of
+              <a>serialize a MIME type</a> with |MIME type| as
+              the input.
+            </li>
+            <li>
+              Set |record|.[[\PayloadData]] to the
+              <a>byte sequence</a> of |ndefRecord|'s <a>PAYLOAD field</a>.
+            </li>
+          </ol>
+        </li>
+        <li>
+          return |record|.
+        </li>
+      </ol> <!-- parsing NDEF MIME type record -->
+    </p>
+  </section>
+
+  <section><h3>Parsing NDEF absolute-URL records</h3>
+    <p>
+      To <dfn>parse a NDEF absolute-URL record</dfn> given a |ndefRecord| into a
+      |record:NDEFRecord|, run these steps:
+      <ol class=algorithm>
+        <li>
+          Set |record|'s recordType to "`url`".
+        </li>
+        <li>
+          Set |record|'s mediaType to "`text/plain`".
+        </li>
+        <li>
+          Set |record|.[[\PayloadData]] to the
+          value of |ndefRecord|'s <a>TYPE field</a>.
+        </li>
+        <li>
+          return |record|.
+        </li>
+      </ol>  <!-- parsing NDEF absolute URI record -->
+    </p>
+  </section>
+
+  <section><h3>Parsing NDEF external type records</h3>
+    <p>
+      To <dfn>parse a NDEF external type record</dfn> given a |ndefRecord| into a
+      |record:NDEFRecord|, run these steps:
+      <ol class=algorithm>
+        <li>
+          Set |record|'s recordType to the value of |ndefRecord|'s <a>TYPE field</a>.
+        </li>
+        <li>
+          Set |record|'s mediaType to "`application/octet-stream`".
+        </li>
+        <li>
+          Set |record|.[[\PayloadData]] to the
+          <a>byte sequence</a> of |ndefRecord|'s <a>PAYLOAD field</a>.
+        </li>
+        <li>
+          return |record|.
+        </li>
+      </ol>  <!-- parsing NDEF external type record -->
+    </p>
+  </section>
+
+  <section><h3>Parsing NDEF unknown type records</h3>
+    <p>
+      To <dfn>parse a NDEF unknown record</dfn> given a |ndefRecord| into a
+      |record:NDEFRecord|, run these steps:
+      <ol class=algorithm>
+        <li>
+          Set |record|'s recordType to "`opaque`".
+        </li>
+        <li>
+          Set |record|.[[\PayloadData]] to the
+          <a>byte sequence</a> of |ndefRecord|'s <a>PAYLOAD field</a>.
+        </li>
+        <li>
+          return |record|.
+        </li>
+      </ol>  <!-- parsing NDEF unknown record -->
+    </p>
   </section>
 
   <section><h3>The NFC reading algorithm</h3>
@@ -3494,94 +3614,31 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             </ol>
           </li>
           <li>
+            If |ndef|'s <a>TNF field</a> is `2` (<a>MIME type record</a>), then
+            set |record| to the result of running <a>parse a NDEF MIME type record</a>
+            on |ndef|, or make sure that the underlying platform provides equivalent
+            values to the |record| object's properties.
+          </li>
+          <li>
             If |ndef|'s <a>TNF field</a> is `3` (<a>absolute-URL record</a>), then
-            set |record|'s recordType to "`url`",
-            set |record|'s mediaType to "`text/plain`" and
-            set |record|'s associated <a>bytes</a> to |ndef|'s <a>TYPE field</a>.
-          </li> <!-- parsing NDEF Absolute URI record -->
+            set |record| to the result of running <a>parse a NDEF absolute-URL record</a>
+            on |ndef|.
+          </li>
           <li>
-            If |ndef|'s <a>TNF field</a> is `2` (<a>MIME type record</a>), then run
-            the following sub-steps for <dfn>parsing NDEF Media record</dfn>, or
-            make sure that the underlying platform provides equivalent values to
-            the |record| object properties:
-            <ol>
-              <li>
-                Let |MIME type| be the <a>MIME type</a>
-                returned by running <a>parse a MIME type</a>
-                on |ndef|'s <a>TYPE field</a>.
-              </li>
-              <li>
-                If |MIME type| is a <a>JSON MIME type</a>, then
-                <ol>
-                  <li>
-                    Set |record|'s recordType to "`json`".
-                  </li>
-                  <li>
-                    Set |record|'s mediaType to the result of
-                    <a>serialize a MIME type</a> with |MIME type| as
-                    the input.
-                  </li>
-                  <li>
-                    Set |record|.[[\PayloadData]] to the
-                    <a>byte sequence</a> of |ndef|'s <a>PAYLOAD field</a>.
-                  </li>
-                </ol>
-              </li>
-              <li>
-                Otherwise,
-                <ol>
-                  <li>
-                    Set |record|'s recordType to "`opaque`".
-                  </li>
-                  <li>
-                    Set |record|'s mediaType to the result of
-                    <a>serialize a MIME type</a> with |MIME type| as
-                    the input.
-                  </li>
-                  <li>
-                    Set |record|.[[\PayloadData]] to the
-                    <a>byte sequence</a> of |ndef|'s <a>PAYLOAD field</a>.
-                  </li>
-                </ol>
-              </li>
-            </ol>
-          </li> <!-- parsing NDEF Media record -->
-          <li>
-            If |ndef|'s <a>TNF field</a> is `4` (<a>external type record</a>), and
-            |ndef|'s <a>TYPE field</a> is "`w3.org:A`",
+            If |ndef|'s <a>TNF field</a> is `4` and
+            |ndef|'s <a>TYPE field</a> is "`w3.org:A`" (<a>author type record</a>),
             then set |message|'s url to the |ndef|'s <a>PAYLOAD field</a>.
           </li> <!-- parsing author type record -->
           <li>
             Otherwise, if |ndef|'s <a>TNF field</a> is `4` (<a>external type record</a>),
-            then run the following sub-steps,
-            or make sure that the underlying platform provides equivalent values
-            to the |record| object properties:
-            <ol>
-              <li>Set |record|'s recordType to the value of |ndef|'s <a>TYPE field</a>.</li>
-              <li>
-                Set |record|'s mediaType to "`application/octet-stream`".
-              </li>
-              <li>
-                Set |record|.[[\PayloadData]] to the
-                <a>byte sequence</a> of |ndef|'s <a>PAYLOAD field</a>.
-              </li>
-            </ol>
-          </li> <!-- parsing NDEF External/Unknown record -->
+            then set |record| to the result of running <a>parse a NDEF external type record</a>
+            on |ndef|, or make sure that the underlying platform provides equivalent values
+            to the |record| object's properties.
           <li>
             Otherwise, if |ndef|'s <a>TNF field</a> is `5` (<a>unknown record</a>)
-            then run the following sub-steps,
-            or make sure that the underlying platform provides equivalent values
-            to the |record| object properties:
-            <ol>
-              <li>
-                Set |record|'s recordType to "`opaque`".
-              </li>
-              <li>
-                Set |record|.[[\PayloadData]] to the
-                <a>byte sequence</a> of |ndef|'s <a>PAYLOAD field</a>.
-              </li>
-            </ol>
-          </li> <!-- parsing NDEF External/Unknown record -->
+            then set |record| to the result of running <a>parse a NDEF unknown record</a>
+            on |ndef|, or make sure that the underlying platform provides equivalent values
+            to the |record| object's properties.
           <li>
             Otherwise, skip to the next <a>NDEF record</a> in |input|.
           </li>
