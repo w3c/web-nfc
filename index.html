@@ -754,7 +754,7 @@ reader.onreading = event => {
   }
 };
 
-reader.start();
+reader.scan();
     </pre>
   </aside>
 
@@ -773,7 +773,7 @@ reader.start();
     </p>
     <pre class="highlight">
 const reader = new NFCReader({url: "https://mygame.com/mypath/mygame"});
-reader.start();
+reader.scan();
 reader.onreading = async event => {
   console.log(`Source:     ${ event.message.url }`);
   console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
@@ -809,7 +809,7 @@ reader.addEventListener("reading", event => {
   }
 });
 
-reader.start();
+reader.scan();
 
 const writer = new NFCWriter();
 writer.push({
@@ -849,7 +849,7 @@ reader.onreading = event => {
     console.log("=== data ===\n" + record.toText());
   }
 };
-reader.start();
+reader.scan();
 
 const writer = new NFCWriter();
 writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
@@ -1664,8 +1664,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       attribute EventHandler onreading;
       attribute EventHandler onerror;
 
-      void start();
-      void stop();
+      void scan(optional NFCScanOptions options={});
     };
 
     [Constructor(DOMString type, NFCReadingEventInit readingEventInitDict), SecureContext, Exposed=Window]
@@ -2107,6 +2106,18 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           Return |reader|.
         </li>
       </ol>
+    </p>
+  </section>
+
+  <section data-dfn-for="NFCScanOptions"> <h3>The <dfn>NFCScanOptions</dfn> dictionary</h3>
+    <pre class="idl">
+      dictionary NFCScanOptions {
+        AbortSignal? signal;
+      };
+    </pre>
+    <p>
+      The <dfn>signal</dfn> property allows to abort
+      the <a href="#dom-nfcreader-scan">scan()</a> operation.
     </p>
   </section>
 
@@ -2969,7 +2980,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       In order to receive <a>NFC content</a>, the client needs to attach an
       event listener for the "`reading`" event on an
       {{NFCReader}} instance and then activate it by calling
-      <a>NFCReader.start()</a>.
+      <a>NFCReader.scan()</a>.
     </p>
     <p>
       Each {{NFCReader}} can filter the <a>NFC content</a> based on
@@ -3110,22 +3121,26 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         </ol>
     </section>
 
-    <section> <h3>The <strong>start()</strong> method</h3>
+    <section> <h3>The <strong>scan()</strong> method</h3>
       <p>
         The section [[[#steps-receiving]]] uses {{NFCReader}} instances to match
         incoming <a>NFC content</a>.
       </p>
       <p>
-        Multiple consecutive calls to the <a data-link-for="NFCReader">start()</a>
+        Multiple consecutive calls to the <a data-link-for="NFCReader">scan()</a>
         method from the same <a>origin</a> create filters which are in OR relationship.
       </p>
       <p>
-        When the <dfn>NFCReader.start</dfn> method is invoked, the UA
+        When the <dfn>NFCReader.scan</dfn> method is invoked, the UA
         MUST run the following
         <dfn id="steps-listen">NFC listen algorithm</dfn>:
         <ol class=algorithm>
           <li>
             Let |reader:NFCReader| be the {{NFCReader}} instance.
+          </li>
+          <li>
+            Let |signal:AbortSignal| be the |options|’ dictionary member
+            of the same name if present, or `null` otherwise.
           </li>
           <li>
             If there is no underlying <a>NFC Adapter</a>, or if a connection cannot
@@ -3160,6 +3175,22 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
               </li>
               <li>
                 Return.
+              </li>
+            </ol>
+          </li>
+          <li>
+            If |signal|’s [= AbortSignal/aborted flag =] is set, then return.
+          </li>
+          <li>
+            If |signal| is not `null`, then
+            <a data-cite="dom#abortsignal-add">add the following abort steps</a> to |signal|:
+            <ol>
+              <li>
+                Remove the {{NFCReader}} instance from the <a>activated reader objects</a>.
+              </li>
+              <li>
+                If the <a>activated reader objects</a> [= list/is empty =], then make a request
+                to stop listening to <a>NDEF message</a>s on all <a>NFC adapter</a>s.
               </li>
             </ol>
           </li>
@@ -3248,7 +3279,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           <li>
             Otherwise, if the user has earlier denied permission for the calling
             <a>origin</a> for all future calls of
-            <a data-link-for="NFCReader">start()</a>
+            <a data-link-for="NFCReader">scan()</a>
             as well, then return `false`.
           </li>
           <li>
@@ -3270,22 +3301,6 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           </li>
           <li>
             Return `true`.
-          </li>
-        </ol>
-      </p>
-    </section>
-
-    <section> <h3>The <strong>stop()</strong> method</h3>
-      <p>
-        When the <dfn>NFCReader.stop</dfn> method is invoked, the UA
-        MUST run the following algorithm:
-        <ol class=algorithm>
-          <li>
-            Remove the {{NFCReader}} instance from the <a>activated reader objects</a>.
-          </li>
-          <li>
-            If the <a>activated reader objects</a> [= list/is empty =], then make a request
-            to stop listening to <a>NDEF message</a>s on all <a>NFC adapter</a>s.
           </li>
         </ol>
       </p>
