@@ -1254,9 +1254,9 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
         readonly attribute NDEFRecordType recordType;
         readonly attribute USVString mediaType;
 
-        USVString toText();
-        [NewObject] ArrayBuffer toArrayBuffer();
-        [NewObject] object toJSON();
+        USVString? toText();
+        [NewObject] ArrayBuffer? toArrayBuffer();
+        [NewObject] object? toJSON();
       };
 
       dictionary NDEFRecordInit {
@@ -3429,19 +3429,19 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm>
         <li>
-          Let |MIME type| be the <a>MIME type</a>
+          Let |mimeType| be the <a>MIME type</a>
           returned by running <a>parse a MIME type</a>
           on |ndefRecord|'s <a>TYPE field</a>.
         </li>
         <li>
-          If |MIME type| is a <a>JSON MIME type</a>, then
+          If |mimeType| is a <a>JSON MIME type</a>, then
           <ol>
             <li>
               Set |record|'s recordType to "`json`".
             </li>
             <li>
               Set |record|'s mediaType to the result of
-              <a>serialize a MIME type</a> with |MIME type| as
+              <a>serialize a MIME type</a> with |mimeType| as
               the input.
             </li>
             <li>
@@ -3458,7 +3458,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             </li>
             <li>
               Set |record|'s mediaType to the result of
-              <a>serialize a MIME type</a> with |MIME type| as
+              <a>serialize a MIME type</a> with |mimeType| as
               the input.
             </li>
             <li>
