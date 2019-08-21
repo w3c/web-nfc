@@ -855,6 +855,29 @@ const writer = new NFCWriter();
 writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </pre>
   </aside>
+
+  <aside title="Stop listening to NDEF messages" class="example">
+    <p>
+      Read NDEF messages for 3 seconds by using <a
+      href="#dom-nfcscanoptions-signal">signal</a> in the <a>NFCScanOptions</a>.
+    </p>
+    <pre class="highlight">
+const reader = new NFCReader();
+reader.onreading = event => {
+  console.log("NDEF message read."); 
+};
+
+const controller = new AbortController();
+controller.signal.onabort = event => {
+  console.log("We're done waiting for NDEF messages.");
+};
+
+reader.scan({ signal: controller.signal });
+
+// Stop listening to NDEF messages after 3s.
+setTimeout(() => controller.abort(), 3000);
+    </pre>
+  </aside>
   </section> <!-- Usage examples -->
 
   <section class="informative"> <h3>Use Cases</h3>
