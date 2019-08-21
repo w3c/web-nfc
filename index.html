@@ -934,17 +934,17 @@ setTimeout(() => controller.abort(), 3000);
         <li>
           Reading an <a>NFC tag</a> containing a <a>Web NFC message</a>, when the
           {{Document}} of the <a>top-level browsing context</a> using the Web NFC API
-          is <a>visible and focused</a>. For instance, a web page instructs the user
+          is <a>visible</a>. For instance, a web page instructs the user
           to tap an NFC tag, and then receives information from the tag.
         </li>
         <li>
           Reading an <a>NFC tag</a> containing other than <a>Web NFC message</a>,
           when the {{Document}} of the <a>top-level browsing context</a> using the
-          Web NFC API is <a>visible and focused</a>.
+          Web NFC API is <a>visible</a>.
         </li>
         <li>
           Reading an <a>NFC tag</a> when no {{Document}} using the Web NFC API is
-          <a data-lt="visible and focused">visible or focused</a>.
+          <a>visible</a>.
           <p class="note">
             This use case is not supported in this version of the specification,
             and it has low priority for future versions as well.
@@ -992,7 +992,7 @@ setTimeout(() => controller.abort(), 3000);
         On the receiving device the UA will dispatch the content to an application
         registered and eligible to handle the content, and if that application is
         a browser which has a {{Document}} of the <a>top-level browsing context</a>
-        <a>visible and focused</a> with active {{NFCReader}},
+        <a>visible</a> with active {{NFCReader}},
         then the content is delivered to the page through the <a>NFCReadingEvent</a>.
       </p>
     </section>
@@ -1173,22 +1173,18 @@ setTimeout(() => controller.abort(), 3000);
         Browsers may ignore this rule for development purposes only.
       </p>
     </section>
-    <section> <h4>Visible and focused document</h4>
+    <section> <h4>Visible document</h4>
       <p>
         Web NFC functionality is allowed only for the {{Document}} of the
-        <a>top-level browsing context</a>, which must be <a>visible and focused</a>.
+        <a>top-level browsing context</a>, which must be <a>visible</a>.
       </p>
       <p>
-        To determine if a given |document:Document| is <dfn>visible and focused</dfn>
+        To determine if a given |document:Document| is <dfn>visible</dfn>
         the user agent MUST run the following steps:
       </p>
       <ol class=algorithm>
         <li>
-          If the <a href="html#currently-focused-area-of-a-top-level-browsing-context">
-          currently focused area</a> does not belong to |document|, return false.
-        </li>
-        <li>
-          If |document|'s <a href="page-visibility#dom-visibilitystate">visibilityState</a>
+          If |document|'s <a href="http://w3c.github.io/page-visibility/#page-visibility#dom-visibilitystate">visibilityState</a>
           is "hidden", return false.
         </li>
         <li>
@@ -1986,11 +1982,11 @@ setTimeout(() => controller.abort(), 3000);
     according to the algorithmic steps described in this specification.
   </section>
 
-  <section><h3>Handling Window visibility and focus</h3>
+  <section><h3>Handling Window visibility</h3>
     <p>
       Each {{Window}} object where the Web NFC API is
       exposed has separate <a>NFCWriter</a> and <a>NFCReader</a> instances.
-      The <a>visible and focused</a> state of the
+      The <a>visible</a> state of the
       the <a>top-level browsing context</a>'s {{Document}} determines the
       <a href="#nfc-suspended">suspended</a> state of the associated
       <a>NFCWriter</a> and <a>NFCReader</a> instances.
@@ -2004,15 +2000,16 @@ setTimeout(() => controller.abort(), 3000);
       However, platform level timers for the
       <a>NFCWriter.push()</a> method continue running,
       and if they expire, the event should be recorded and handled
-      when execution next resumes, i.e. when the [= Window/focus =]
-      event is fired on the {{Window}} object.
+      when execution next resumes, i.e. when the <a
+      href="http://w3c.github.io/page-visibility/#dom-document-onvisibilitychange">visibilitychange</a>
+      event is fired on the {{Document}} object.
     </p>
     <p>
       When the {{Document}} of the <a>top-level browsing context</a>
-      using the Web NFC API is <a>visible and focused</a>, <a>resume NFC</a>.
+      using the Web NFC API is <a>visible</a>, <a>resume NFC</a>.
       Otherwise, <a>suspend NFC</a>.
     </p>
-  </section> <!-- visibility & focus: the suspended state -->
+  </section> <!-- handling window visibility -->
 
   <section><h3>Clearing the pending push tuple</h3>
   <p>
@@ -3406,11 +3403,11 @@ setTimeout(() => controller.abort(), 3000);
               </li>
               <li>
                 If the {{Document}} of the <a>top-level browsing context</a> is not
-                <a>visible and focused</a> (e.g. the user navigated
+                <a>visible</a> (e.g. the user navigated
                 to another page), then the registered <a>activated reader objects</a>
                 still SHOULD continue to exist, but SHOULD become paused, i.e. the UA
                 SHOULD NOT check and use them until the {{Document}} is
-                <a>visible and focused</a> again.
+                <a>visible</a> again.
               </li>
             </ol>
           </li>
