@@ -763,7 +763,7 @@ reader.scan();
        class="example">
     <p>
       Filtering of relevant data sources can be done by the use of
-      the <a>NFCReaderOptions</a>. Below we accept URL with
+      the <a>NFCScanOptions</a>. Below we accept URL with
       "`/mypath/mygame/`" in its path from "`mygame.com`"
       domain and its subdomains. When we read the data, we immediately update
       the game progress by issueing a push with a custom NDEF data layout.
@@ -773,8 +773,8 @@ reader.scan();
       whichever one is tapped first.
     </p>
     <pre class="highlight">
-const reader = new NFCReader({url: "https://mygame.com/mypath/mygame"});
-reader.scan();
+const reader = new NFCReader();
+reader.scan({ url: "https://mygame.com/mypath/mygame" });
 reader.onreading = async event => {
   console.log(`Source:     ${ event.message.url }`);
   console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
@@ -800,7 +800,7 @@ reader.onreading = async event => {
       Storing and receiving JSON data is easy with serialization and deserialization.
     </p>
     <pre class="highlight">
-const reader = new NFCReader({url: document.baseURI, recordType: "json"});
+const reader = new NFCReader();
 
 reader.addEventListener("reading", event => {
   for (let record of event.message.records) {
@@ -810,7 +810,7 @@ reader.addEventListener("reading", event => {
   }
 });
 
-reader.scan();
+reader.scan({ url: document.baseURI, recordType: "json" });
 
 const writer = new NFCWriter();
 writer.push({
@@ -1628,12 +1628,12 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
   <pre class="idl">
     typedef (DOMString or ArrayBuffer or NDEFMessageInit) NDEFMessageSource;
 
-    [Constructor(), SecureContext, Exposed=Window]
+    [Constructor, SecureContext, Exposed=Window]
     interface NFCWriter {
       Promise&lt;void&gt; push(NDEFMessageSource message, optional NFCPushOptions options={});
     };
 
-    [Constructor(optional NFCReaderOptions options={}), SecureContext, Exposed=Window]
+    [Constructor, SecureContext, Exposed=Window]
     interface NFCReader : EventTarget {
       attribute EventHandler onreading;
       attribute EventHandler onerror;
@@ -1995,20 +1995,25 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </dl>
   </section> <!-- NFCPushTarget enum -->
 
-  <section data-dfn-for="NFCReaderOptions">
-    <h3>The <dfn>NFCReaderOptions</dfn> dictionary</h3>
+  <section data-dfn-for="NFCScanOptions">
+    <h3>The <dfn>NFCScanOptions</dfn> dictionary</h3>
       <p>
         To describe which messages an application is interested in, the
-        <a>NFCReaderOptions</a> dictionary is used:
+        <a>NFCScanOptions</a> dictionary is used:
       </p>
       <pre class="idl">
-        dictionary NFCReaderOptions {
+        dictionary NFCScanOptions {
+          AbortSignal? signal;
           USVString url = "";
           NDEFRecordType recordType;
           USVString mediaType = "";
           NDEFCompatibility compatibility = "nfc-forum";
         };
       </pre>
+      <p>
+        The <dfn>signal</dfn> property allows to abort the
+        <a href="#dom-nfcreader-scan">scan()</a> operation.
+      </p>
       <p>
         The <dfn>url</dfn> property
         denotes the <a>URL pattern</a> which is used for matching the
@@ -2052,56 +2057,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
           mediaType: "application/octet-stream"
         }
       </pre>
-  </section> <!-- NFCReaderOptions -->
-
-  <section><h3>Constructing an {{NFCReader}} object</h3>
-    <p>
-      <ol class=algorithm>
-        <li>
-          Let |reader| be a new {{NFCReader}} object.
-        </li>
-        <li>
-          Let |options| be first argument to constructor.
-        </li>
-        <li>
-          [= list/For each =] |key| → |value| of |options|:
-          <ol>
-            <li>
-              If |key| equals "`url`", set
-              |reader|.[[\Url]] to |value|, prepended with "`https://`".
-            </li>
-            <li>
-              Otherwise, if |key| equals "`recordType`", set
-              |reader|.[[\RecordType]] to |value|.
-            </li>
-            <li>
-              Otherwise, if |key| equals "`mediaType`", set
-              |reader|.[[\MediaType]] to |value|.
-            </li>
-            <li>
-              Otherwise, if |key| equals "`compatibility`", set
-              |reader|.[[\Compatibility]] to |value|.
-            </li>
-          </ol>
-        </li>
-        <li>
-          Return |reader|.
-        </li>
-      </ol>
-    </p>
-  </section>
-
-  <section data-dfn-for="NFCScanOptions"> <h3>The <dfn>NFCScanOptions</dfn> dictionary</h3>
-    <pre class="idl">
-      dictionary NFCScanOptions {
-        AbortSignal? signal;
-      };
-    </pre>
-    <p>
-      The <dfn>signal</dfn> property allows to abort
-      the <a href="#dom-nfcreader-scan">scan()</a> operation.
-    </p>
-  </section>
+  </section> <!-- NFCScanOptions -->
 
   <section id="writing-or-pushing-content">
     <h3><dfn>Writing or pushing content</dfn></h3>
@@ -3115,8 +3071,32 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             Let |reader:NFCReader| be the {{NFCReader}} instance.
           </li>
           <li>
-            Let |signal:AbortSignal| be the |options|’ dictionary member
-            of the same name if present, or `null` otherwise.
+            Let |options| be first argument.
+          </li>
+          <li>
+            [= list/For each =] |key| → |value| of |options|:
+            <ol>
+              <li>
+                If |key| equals "`signal`", set
+                |reader|.[[\Signal]] to |value|.
+              </li>
+              <li>
+                Otherwise, if |key| equals "`url`", set
+                |reader|.[[\Url]] to |value|, prepended with "`https://`".
+              </li>
+              <li>
+                Otherwise, if |key| equals "`recordType`", set
+                |reader|.[[\RecordType]] to |value|.
+              </li>
+              <li>
+                Otherwise, if |key| equals "`mediaType`", set
+                |reader|.[[\MediaType]] to |value|.
+              </li>
+              <li>
+                Otherwise, if |key| equals "`compatibility`", set
+                |reader|.[[\Compatibility]] to |value|.
+              </li>
+            </ol>
           </li>
           <li>
             If there is no underlying <a>NFC Adapter</a>, or if a connection cannot
@@ -3137,11 +3117,11 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
             </ol>
           </li>
           <li>
-            If |signal|’s [= AbortSignal/aborted flag =] is set, then return.
+            If |reader|.[[\Signal]]’s [= AbortSignal/aborted flag =] is set, then return.
           </li>
           <li>
-            If |signal| is not `null`, then
-            <a data-cite="dom#abortsignal-add">add the following abort steps</a> to |signal|:
+            If |reader|.[[\Signal]] is not `null`, then
+            <a data-cite="dom#abortsignal-add">add the following abort steps</a> to |reader|.[[\Signal]]:
             <ol>
               <li>
                 Remove the {{NFCReader}} instance from the <a>activated reader objects</a>.
