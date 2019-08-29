@@ -2737,10 +2737,6 @@ setTimeout(() => controller.abort(), 3000);
         run these steps:
         <ol class=algorithm>
           <li>
-            If the type of a |record|'s data is not a [= JSON type =],
-            [= exception/throw =] a {{TypeError}} and abort these steps.
-          </li>
-          <li>
             Let |mimeTypeRecord| be the <a>MIME type</a>
             returned by running <a>parse a MIME type</a> on |record|'s mediaType.
             <ol>
