@@ -2149,7 +2149,7 @@ setTimeout(() => controller.abort(), 3000);
           </li>
           <li>
             If |signal| is not `null`, then
-            <a data-cite="dom#abortsignal-add">add the following abort steps</a> to |signal|:
+            <a data-cite="dom#abortsignal-abort-algorithms">add the following abort steps</a> to |signal|:
               <ol>
                 <li>
                   If the instance has already initiated NFC data transfer,
@@ -3177,7 +3177,7 @@ setTimeout(() => controller.abort(), 3000);
           </li>
           <li>
             If |reader|.[[\Signal]] is not `null`, then
-            <a data-cite="dom#abortsignal-add">add the following abort steps</a> to |reader|.[[\Signal]]:
+            <a data-cite="dom#abortsignal-abort-algorithms">add the following abort steps</a> to |reader|.[[\Signal]]:
             <ol>
               <li>
                 Remove the {{NFCReader}} instance from the <a>activated reader objects</a>.
