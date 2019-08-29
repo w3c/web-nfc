@@ -1282,7 +1282,7 @@ setTimeout(() => controller.abort(), 3000);
 
         USVString? toText();
         [NewObject] ArrayBuffer? toArrayBuffer();
-        [NewObject] object? toJSON();
+        [NewObject] any toJSON();
       };
 
       dictionary NDEFRecordInit {
