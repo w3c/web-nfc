@@ -295,6 +295,9 @@
     <dfn>ID LENGTH field</dfn>, <dfn>ID field</dfn>, <dfn>PAYLOAD LENGTH field</dfn>
     and the <dfn>PAYLOAD field</dfn>.
   </p>
+  <p class="note">
+    The [[[NFC-RTD]]] requires that the <a>TYPE field</a> names MUST be compared in case-insensitive manner.
+  </p>
   </section>
   <section>
   <h3>
@@ -656,7 +659,7 @@
   <aside title="Push a text string to either a tag or peer"
        class="example">
     <p>
-      Pushing a text string to any kind of device is straightforward. 
+      Pushing a text string to any kind of device is straightforward.
       Options can be left out, as they default to pushing to both tags
       and peers.
     </p>
@@ -864,7 +867,7 @@ writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     <pre class="highlight">
 const reader = new NFCReader();
 reader.onreading = event => {
-  console.log("NDEF message read."); 
+  console.log("NDEF message read.");
 };
 
 const controller = new AbortController();
@@ -1448,30 +1451,7 @@ setTimeout(() => controller.abort(), 3000);
       </pre>
       <p>
         A set of known standardized values exists, but it is also possible
-        for organizations to create their own custom <dfn>external type</dfn>s,
-        following the ABNF for <a>external type record</a>.
-        <pre class="abnf">
-          ext-type             = reg-name ":" custom-type
-          custom-type          = 1*(ALPHA / DIGIT / other)
-
-          DIGIT                = %x30-39
-          ALPHA                = %x41-5A / %x61-7A   ; A-Z / a-z
-          other                = "(" / ")" / "+" / "," / "-" / ":" / "=" /
-                                 "@" / ";" / "$" / "_" / "!" / "*" / "'" / "."
-        </pre>
-        The `reg-name` value is a [=host/registrable domain=].
-      </p>
-      <p>
-        And additional ABNF exists for <a>well-known type record</a>s:
-        <pre class="abnf">
-          wkt-type             = (ALPHA / DIGIT) *(ALPHA / DIGIT / other)
-        </pre>
-      </p>
-      <p class=note>
-        The [[[NFC-RTD]]] defines every type in the <a>well-known type record</a>s
-        and <a>external type records</a> in terms of URNs, but only a subset of the
-        URN is actually stored in the <a>NDEF record</a>'s <a>TYPE field</a>, which
-        corresponds to the above two ABNFs.
+        for organizations to create their own custom <a>external type</a>s.
       </p>
       <dl>
         <dt>The "<dfn>empty</dfn>" string</dt>
@@ -1498,12 +1478,27 @@ setTimeout(() => controller.abort(), 3000);
         <dd>
           The value representing <a>NDEFRecord</a> of an <a href="#dfn-opaque">opaque</a> type.
         </dd>
-        <dt>An <a>external type</a></dt>
+        <dt>An <dfn>external type</dfn></dt>
         <dd>
           A {{DOMString}} representing a custom type for the <a>external type record</a>.
-          The type must follow the <a>external type</a> ABNF and thus be a registrable
-          domain name owned by the issuing organization, a "`:`" and a type,
-          e.g. "`w3.org:A`".
+          The type must follow the <a>external type</a> ABNF.
+          <pre class="abnf">
+            ext-type             = reg-name ":" custom-type
+            custom-type          = 1*(ALPHA / DIGIT / other)
+
+            DIGIT                = %x30-39
+            ALPHA                = %x41-5A / %x61-7A   ; A-Z / a-z
+            other                = "(" / ")" / "+" / "," / "-" / ":" / "=" /
+                                   "@" / ";" / "$" / "_" / "!" / "*" / "'" / "."
+          </pre>
+          The `reg-name` value is a [=host/registrable domain=] owned by the issuing organization, a "`:`" and a type, e.g. "`w3.org:A`".
+          And additional ABNF exists for <a>well-known type record</a>s:
+          <pre class="abnf">
+            wkt-type             = (ALPHA / DIGIT) *(ALPHA / DIGIT / other)
+          </pre>
+          <p class=note>
+            The [[[NFC-RTD]]] defines every type in the <a>well-known type record</a>s and <a>external type records</a> in terms of URNs, but only a subset of the URN is actually stored in the <a>NDEF record</a>'s <a>TYPE field</a>, which corresponds to the above two ABNFs.
+          </p>
         </dd>
       </dl>
   </section> <!-- NDEFRecordType enum -->
@@ -3644,7 +3639,7 @@ setTimeout(() => controller.abort(), 3000);
           </li>
           <li>
             If |ndef|'s <a>TNF field</a> is `4` and
-            |ndef|'s <a>TYPE field</a> is "`w3.org:A`" (<a>author type record</a>),
+            |ndef|'s lowercased <a>TYPE field</a> is "`w3.org:a`" (<a>author type record</a>),
             then set |message|'s url to the |ndef|'s <a>PAYLOAD field</a>.
           </li> <!-- parsing author type record -->
           <li>
