@@ -3396,7 +3396,7 @@ setTimeout(() => controller.abort(), 3000);
         equal to an empty ordered map.
       </li>
       <li>
-        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set |record|s mediaType to |mimeType|, set |record|.[[\PayloadData]] to <code>null</code> and return |record|.
+        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set |record|s mediaType to |mimeType|, set |record|.[[\PayloadData]] to `undefined` and return |record|.
       </li>
       <li>
         Let |header:byte| be the first <a>byte</a> of |ndefRecord|'s
@@ -3418,8 +3418,11 @@ setTimeout(() => controller.abort(), 3000);
         the input.
       </li>
       <li>
-        Set |record|.[[\PayloadData]] to the
-        <a>byte sequence</a> of |ndefRecord|'s <a>PAYLOAD field</a>.
+        Let |buffer:byte sequence| be the <a>byte sequence</a> of
+        |ndefRecords|'s <a>PAYLOAD field</a>.
+      </li>
+      <li>
+        Set |record|.[[\PayloadData]] to |buffer|.
       </li>
       <li>
         return |record|.
@@ -3458,28 +3461,29 @@ setTimeout(() => controller.abort(), 3000);
         Set |record|'s mediaType to "`text/plain`".
       </li>
       <li>
-        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set  |record|.[[\PayloadData]] to <code>null</code> and return |record|.
-      </li>
-      <li>
-        Let |prefixByte:byte| be the value of the first <a>byte</a> of
-        |ndefRecord|'s <a>PAYLOAD field</a>.
-      </li>
-      <li>
-        If |prefixByte| is not `0`, then match the |prefixByte| against
-        the prefix codes in [[[NFC-STANDARDS]]],
-        URI Record Type Definition specification, Section 3.2.2.
-      </li>
-      <li>
-        Let |prefixString:string| be the matched prefix or else the
-        <a href="#dfn-empty">empty</a> <a>string</a>.
+        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set  |record|.[[\PayloadData]] to `undefined` and return |record|.
       </li>
       <li>
         Let |buffer:byte sequence| be the <a>byte sequence</a> of
-        |ndefRecords|'s <a>PAYLOAD field</a> from the second <a>byte</a>
-        to the end.
+        |ndefRecords|'s <a>PAYLOAD field</a>.
       </li>
       <li>
-        Set |record|.[[\PayloadData]] to |buffer|.
+        Let |prefixByte:byte| be the value of the first <a>byte</a> of
+        |buffer|.
+      </li>
+      <li>
+        If the value of |prefixByte| matches the URL expansion codes in the [[[NFC-STANDARDS]]] URI Record Type Definition specification, Section 3.2.2, Table 3, then
+        <ol>
+          <li>
+            Let |prefixString:string| be the <a>byte sequence</a> value corresponding to the value of |prefixByte|.
+          </li>
+          <li>
+            Set |record|.[[\PayloadData]] to |prefixString| appended to |buffer|.
+          </li>
+        </ol>
+      </li>
+      <li>
+        Otherwise, if there is no match for |prefixByte|, set |record|.[[\PayloadData]] to |buffer|.
       </li>
       <li>
         return |record|.
@@ -3500,8 +3504,14 @@ setTimeout(() => controller.abort(), 3000);
         Set |record|'s mediaType to "".
       </li>
       <li>
-        Set |record|.[[\PayloadData]] to the
-        <a>byte sequence</a> of |ndefRecord|'s <a>PAYLOAD field</a>.
+        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set  |record|.[[\PayloadData]] to `undefined` and return |record|.
+      </li>
+      <li>
+        Let |buffer:byte sequence| be the <a>byte sequence</a> of
+        |ndefRecords|'s <a>PAYLOAD field</a>.
+      </li>
+      <li>
+        Set |record|.[[\PayloadData]] to |buffer|.
       </li>
       <li>
         return |record|.
@@ -3531,10 +3541,6 @@ setTimeout(() => controller.abort(), 3000);
               <a>serialize a MIME type</a> with |mimeType| as
               the input.
             </li>
-            <li>
-              Set |record|.[[\PayloadData]] to the
-              <a>byte sequence</a> of |ndefRecord|'s <a>PAYLOAD field</a>.
-            </li>
           </ol>
         </li>
         <li>
@@ -3548,11 +3554,14 @@ setTimeout(() => controller.abort(), 3000);
               <a>serialize a MIME type</a> with |mimeType| as
               the input.
             </li>
-            <li>
-              Set |record|.[[\PayloadData]] to the
-              <a>byte sequence</a> of |ndefRecord|'s <a>PAYLOAD field</a>.
-            </li>
           </ol>
+        </li>
+        <li>
+          Let |buffer:byte sequence| be the <a>byte sequence</a> of
+          |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise `undefined`.
+        </li>
+        <li>
+          Set |record|.[[\PayloadData]] to |buffer|.
         </li>
         <li>
           return |record|.
@@ -3573,8 +3582,8 @@ setTimeout(() => controller.abort(), 3000);
           Set |record|'s mediaType to "`text/plain`".
         </li>
         <li>
-          Set |record|.[[\PayloadData]] to the
-          value of |ndefRecord|'s <a>TYPE field</a>.
+          Let |buffer:byte sequence| be the <a>byte sequence</a> of
+          |ndefRecords|'s <a>TYPE field</a>.
         </li>
         <li>
           return |record|.
@@ -3595,8 +3604,11 @@ setTimeout(() => controller.abort(), 3000);
           Set |record|'s mediaType to "`application/octet-stream`".
         </li>
         <li>
-          Set |record|.[[\PayloadData]] to the
-          <a>byte sequence</a> of |ndefRecord|'s <a>PAYLOAD field</a>.
+          Let |buffer:byte sequence| be the <a>byte sequence</a> of
+          |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise `undefined`.
+        </li>
+        <li>
+          Set |record|.[[\PayloadData]] to |buffer|.
         </li>
         <li>
           return |record|.
@@ -3614,8 +3626,11 @@ setTimeout(() => controller.abort(), 3000);
           Set |record|'s recordType to "`opaque`".
         </li>
         <li>
-          Set |record|.[[\PayloadData]] to the
-          <a>byte sequence</a> of |ndefRecord|'s <a>PAYLOAD field</a>.
+          Let |buffer:byte sequence| be the <a>byte sequence</a> of
+          |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise `undefined`.
+        </li>
+        <li>
+          Set |record|.[[\PayloadData]] to |buffer|.
         </li>
         <li>
           return |record|.
