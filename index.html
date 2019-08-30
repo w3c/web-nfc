@@ -593,42 +593,54 @@
     Android.
     <ol>
       <li>
-        <b>NFC Forum Type 1</b>: This tag is based on the ISO/IEC 14443-3A
-        (also known as NFC-A, as defined in ISO/IEC 14443-3:2011, Part 3:
-        Initialization and anticollision). The tags are rewritable and can be
-        configured to become read-only. Memory size can be between `96` bytes and
-        `2` Kbytes. Communication speed is `106` kbit/sec.
+        <b>Mifare Standard</b>: This tag, often sold under the brand names Mifare
+        Classic or Mifare Mini, is based on the ISO/IEC 14443-3A (also known as NFC-A,
+        as defined in ISO/IEC 14443-3:2011, Part 3: Initialization and anticollision).
+        The tags are rewritable and can be configured to become read-only. Memory size
+        can be between `320` and `4` kbytes. Communication speed is `106` kbit/sec. 
+        <p class=note>
+          Mifare Standard is a not an NFC Forum type and can only be read by devices
+          using NXP hardware.
+        </p>
       </li>
-      <li><b>NFC Forum Type 2</b>: This tag is also based on the
+      <li>
+        <b>NFC Forum Type 1</b>: This tag is based on the ISO/IEC 14443-3A
+        (NFC-A). The tags are rewritable and can be
+        configured to become read-only. Memory size can be between `96` bytes and
+        `2` Kbytes. Communication speed is `106` kbit/sec. In contract to all other
+        types, these tags have no anti-collision protection for dealing with multiple
+        tags within the NFC field.
+      </li>
+      <li>
+        <b>NFC Forum Type 2</b>: This tag is based on the
         ISO/IEC 14443-3A (NFC-A). The tags are rewritable and can be configured
         to become read-only. Memory size can be between `48` bytes and `2` Kbytes.
-        Communication speed is `106` kbit/sec. In contrast to Type 1, Type 2 has
-        anti-collision protection for dealing with multiple tags within the NFC
-        field.
+        Communication speed is `106` kbit/sec.
       </li>
-      <li><b>NFC Forum Type 3</b>: This tag is based on the Japanese Industrial
-        Standard (JIS) X 6319-4, commonly known as FeliCa. The tags are
-        preconfigured to be either rewritable or read-only. Memory availability
-        is variable, theoretical memory limit is `1` MByte per service.
-        Communication speed is `106` kbit/sec. Like Type 2, it supports
-        anti-collision protection.
+      <li>
+        <b>NFC Forum Type 3</b>: This tag is based on the Japanese Industrial
+        Standard (JIS) X 6319-4 (ISO/IEC 18092), commonly known as FeliCa. The tags are
+        preconfigured to be either rewritable or read-only. Memory is `2` kbytes.
+        Communication speed is `212` kbit/sec or `424` kbit/s.
       </li>
-      <li><b>NFC Forum Type 4</b> (November 2010): This tag is based on the
-        ISO/IEC 14443 like Type 1 and 2, but it supports either NFC-A or NFC-B
-        for communication. On top of that the tag may support the Data Exchange
-        Protocol (aka ISO-DEP) defined in ISO/IEC 14443 (ISO/IEC 14443-4:2008
-        Part 4: Transmission protocol). Like Type 3, the tags are preconfigured
-        to be either rewritable or read-only. Variable memory, up to `32` KB per
-        service. Supports three different communication speeds `106` or `212` or
-        `424` Kbits/s.
+      <li>
+        <b>NFC Forum Type 4</b>: This tag is based on the ISO/IEC 14443-4 A/B
+        (NFC A, NFC B) and thus supports either NFC-A or NFC-B
+        for communication. On top of that the tag may optionally support ISO-DEP
+        (Data Exchange Protocol defined in ISO/IEC 14443 (ISO/IEC 14443-4:2008
+        Part 4: Transmission protocol). The tags are preconfigured
+        to be either rewritable or read-only. Variable memory, up to `32` kbytes.
+        Supports three different communication speeds `106` or `212` or
+        `424` kbit/s.
       </li>
-      <li><b>NFC Forum Type 5</b>: This tag is based on the NFC-V RF
-        technology which is based on ISO/IEC 15693 and allows reading and
-        writing an NDEF message on a ISO/IEC 15693 RF tag that is accessible by
-        long range RFID readers as well. The NFC communication is limited to
-        short distance and may use the Active Communication Mode of
+      <li>
+        <b>NFC Forum Type 5</b>: This tag is based on ISO/IEC 15693 (NFC-V) and
+        allows reading and writing an NDEF message on a ISO/IEC 15693 RF tag
+        that is accessible by long range RFID readers as well. The NFC communication
+        is limited to short distance and may use the <i>Active Communication Mode</i> of
         ISO/IEC 18092 where the sending peer generates the field which balances
-        power consumption and improves link stability.
+        power consumption and improves link stability. Variable memory, up to `64` kbytes.
+        Communiction speed `26.48` kbit/s
       </li>
     </ol>
   </p>
