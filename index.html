@@ -597,7 +597,7 @@
         Classic or Mifare Mini, is based on the ISO/IEC 14443-3A (also known as NFC-A,
         as defined in ISO/IEC 14443-3:2011, Part 3: Initialization and anticollision).
         The tags are rewritable and can be configured to become read-only. Memory size
-        can be between `320` and `4` kbytes. Communication speed is `106` kbit/sec. 
+        can be between `320` and `4` kbytes. Communication speed is `106` kbit/sec.
         <p class=note>
           Mifare Standard is a not an NFC Forum type and can only be read by devices
           using NXP hardware.
@@ -2485,6 +2485,18 @@ setTimeout(() => controller.abort(), 3000);
                       <a>map binary data to NDEF</a>.
                     </li>
                   </ul>
+                  <dt><a>external type</a></dt>
+                  <ul>
+                    <li>
+                      <a>map external data to NDEF</a>
+                    </li>
+                  </ul>
+                  <dt>unmatched type</dt>
+                  <ul>
+                    <li>
+                      [= exception/throw =] a {{TypeError}}
+                    </li>
+                  </ul>
                 </dl>
                 <li>
                   Add |ndef| to |output|.
@@ -2888,11 +2900,59 @@ setTimeout(() => controller.abort(), 3000);
       </p>
       </section>
 
+      <section><h3>Mapping external data to NDEF</h3>
+      <p>
+        To <dfn>map external data to NDEF</dfn> given a |record:NDEFRecordInit|,
+        run these steps:
+        <ol class=algorithm>
+          <li>
+            If the type of a |record|'s data is not an
+            {{ArrayBuffer}}, [= exception/throw =] a {{TypeError}}
+            and abort these steps.
+          </li>
+          <div class=issue>
+            In addition to supporting ArrayBuffer, we need to support sub records. That
+            is really what makes external records interesting.
+          </div>
+          <li>
+            Set |arrayBuffer| to |record|'s data.
+          </li>
+          <li>
+            Set |length:unsigned long| to |arrayBuffer|.[[\ArrayBufferByteLength]].
+          </li>
+          <li>
+            Set |data:byte sequence| to |arrayBuffer|.[[\ArrayBufferData]].
+          </li>
+          <li>
+            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
+            be created by the UA.
+            <ol>
+              <li>
+                Set |ndefRecord|'s <a>TNF field</a> to `4` (<a>external type record</a>).
+              </li>
+              <li>
+                Set the |ndefRecord|'s <a>TYPE field</a> to |record|'s recordType.
+              </li>
+              <li>
+                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
+              </li>
+              <li>
+                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a> to |data|.
+              </li>
+            </ol>
+          </li>
+          <li>
+            Return |ndefRecord|.
+          </li>
+        </ol>
+      </p>
+      </section>
+
       <section><h3>Creating an author type record</h3>
       <p>
         To <dfn>create an <a>author type record</a></dfn> given URL [= url/path =] |urlPath:string|,
         run these steps:
-        <ol>
+        <ol class=algorithm>
           <li>
             Let |ndef| be the notation for the <a>NDEF record</a> to
             be created by the UA.
