@@ -582,84 +582,100 @@
   </p>
   <p>
     As NFC is based on existing RFID standards, many NFC chipsets support
-    reading RFID tags, but many of these are only supported by single
-    vendors and not part of the NFC standards. Though certain devices support
-    reading and writing to these, it is not a goal of this document to
-    support proprietary tags or support interoperability with legacy systems.
+    reading RFID tags, but some of these are only supported by single
+    vendors and not part of the NFC standards. As such this document
+    specifies ways to interact with the NFC Data Exchange Format (NDEF).
   </p>
-  <p>
-    The NFC Forum has mandated the support of five different tag types to be
-    operable with NFC devices. The same is required on operating systems such as
-    Android.
-    <ol>
-      <li>
-        <b>Mifare Standard</b>: This tag, often sold under the brand names Mifare
-        Classic or Mifare Mini, is based on the ISO/IEC 14443-3A (also known as NFC-A,
-        as defined in ISO/IEC 14443-3:2011, Part 3: Initialization and anticollision).
-        The tags are rewritable and can be configured to become read-only. Memory size
-        can be between `320` and `4` kbytes. Communication speed is `106` kbit/sec.
-        <p class=note>
-          Mifare Standard is a not an NFC Forum type and can only be read by devices
-          using NXP hardware.
-        </p>
-      </li>
-      <li>
-        <b>NFC Forum Type 1</b>: This tag is based on the ISO/IEC 14443-3A
-        (NFC-A). The tags are rewritable and can be
-        configured to become read-only. Memory size can be between `96` bytes and
-        `2` Kbytes. Communication speed is `106` kbit/sec. In contract to all other
-        types, these tags have no anti-collision protection for dealing with multiple
-        tags within the NFC field.
-      </li>
-      <li>
-        <b>NFC Forum Type 2</b>: This tag is based on the
-        ISO/IEC 14443-3A (NFC-A). The tags are rewritable and can be configured
-        to become read-only. Memory size can be between `48` bytes and `2` Kbytes.
-        Communication speed is `106` kbit/sec.
-      </li>
-      <li>
-        <b>NFC Forum Type 3</b>: This tag is based on the Japanese Industrial
-        Standard (JIS) X 6319-4 (ISO/IEC 18092), commonly known as FeliCa. The tags are
-        preconfigured to be either rewritable or read-only. Memory is `2` kbytes.
-        Communication speed is `212` kbit/sec or `424` kbit/s.
-      </li>
-      <li>
-        <b>NFC Forum Type 4</b>: This tag is based on the ISO/IEC 14443-4 A/B
-        (NFC A, NFC B) and thus supports either NFC-A or NFC-B
-        for communication. On top of that the tag may optionally support ISO-DEP
-        (Data Exchange Protocol defined in ISO/IEC 14443 (ISO/IEC 14443-4:2008
-        Part 4: Transmission protocol). The tags are preconfigured
-        to be either rewritable or read-only. Variable memory, up to `32` kbytes.
-        Supports three different communication speeds `106` or `212` or
-        `424` kbit/s.
-      </li>
-      <li>
-        <b>NFC Forum Type 5</b>: This tag is based on ISO/IEC 15693 (NFC-V) and
-        allows reading and writing an NDEF message on a ISO/IEC 15693 RF tag
-        that is accessible by long range RFID readers as well. The NFC communication
-        is limited to short distance and may use the <i>Active Communication Mode</i> of
-        ISO/IEC 18092 where the sending peer generates the field which balances
-        power consumption and improves link stability. Variable memory, up to `64` kbytes.
-        Communiction speed `26.48` kbit/s
-      </li>
-    </ol>
-  </p>
-  <p>
-    In addition to data types standardized for <a>NDEF record</a>s by the NFC
-    Forum, many commercial products such as bus cards, door openers etc use
-    different card specific data and protocol extensions which require specific
-    NFC chips (same vendor of card and reader) in order to function.
-  </p>
-  <p>
-    Card emulation mode capabilities also depend on the NFC chip in the device.
-    For payments, a Secure Element is often needed.
-  </p>
-  <p class="note">
-    This document does not aim supporting all possible use cases of NFC
-    technology, but only a few use cases which are considered relevant to be
-    used by web pages in browsers, using the browser security model.
-  </p>
-  </section> <!-- Introduction -->
+
+  <section class="informative"> <h3>NDEF compatible tag types</h3>
+    <p>
+      The NFC Forum has mandated the support of five different tag types to be
+      operable with NFC devices. The same is required on operating systems such as
+      Android.
+    </p>
+    <p>
+      In addition to that, the <a>MIFARE Standard</a> specifies a way
+      for NDEF to work on top of the older <a>MIFARE Standard</a>, which may
+      be optionally supported by implementors.
+    </p>
+    <p>
+      A note about the NDEF mapping can be found here:
+      <a href="https://www.nxp.com/docs/en/application-note/AN1305.pdf">
+      MIFARE Classic as NFC Type MIFARE Classic Tag</a>
+    </p>
+    <p>
+      <ol>
+        <li>
+          <dfn>NFC Forum Type 1</dfn>: This tag is based on the ISO/IEC 14443-3A
+          (NFC-A). The tags are rewritable and can be
+          configured to become read-only. Memory size can be between `96` bytes and
+          `2` Kbytes. Communication speed is `106` kbit/sec. In contract to all other
+          types, these tags have no anti-collision protection for dealing with multiple
+          tags within the NFC field.
+        </li>
+        <li>
+          <dfn>NFC Forum Type 2</dfn>: This tag is based on the
+          ISO/IEC 14443-3A (NFC-A). The tags are rewritable and can be configured
+          to become read-only. Memory size can be between `48` bytes and `2` Kbytes.
+          Communication speed is `106` kbit/sec.
+        </li>
+        <li>
+          <dfn>NFC Forum Type 3</dfn>: This tag is based on the Japanese Industrial
+          Standard (JIS) X 6319-4 (ISO/IEC 18092), commonly known as FeliCa. The tags are
+          preconfigured to be either rewritable or read-only. Memory is `2` kbytes.
+          Communication speed is `212` kbit/sec or `424` kbit/s.
+        </li>
+        <li>
+          <dfn>NFC Forum Type 4</dfn>: This tag is based on the ISO/IEC 14443-4 A/B
+          (NFC A, NFC B) and thus supports either NFC-A or NFC-B
+          for communication. On top of that the tag may optionally support ISO-DEP
+          (Data Exchange Protocol defined in ISO/IEC 14443 (ISO/IEC 14443-4:2008
+          Part 4: Transmission protocol). The tags are preconfigured
+          to be either rewritable or read-only. Variable memory, up to `32` kbytes.
+          Supports three different communication speeds `106` or `212` or
+          `424` kbit/s.
+        </li>
+        <li>
+          <dfn>NFC Forum Type 5</dfn>: This tag is based on ISO/IEC 15693 (NFC-V) and
+          allows reading and writing an NDEF message on a ISO/IEC 15693 RF tag
+          that is accessible by long range RFID readers as well. The NFC communication
+          is limited to short distance and may use the <i>Active Communication Mode</i> of
+          ISO/IEC 18092 where the sending peer generates the field which balances
+          power consumption and improves link stability. Variable memory, up to `64` kbytes.
+          Communiction speed `26.48` kbit/s
+        </li>
+        <li>
+          <dfn>MIFARE Standard</dfn>: This tag, often sold under the brand names MIFARE
+          Classic or MIFARE Mini, is based on the ISO/IEC 14443-3A (also known as NFC-A,
+          as defined in ISO/IEC 14443-3:2011, Part 3: Initialization and anticollision).
+          The tags are rewritable and can be configured to become read-only. Memory size
+          can be between `320` and `4` kbytes. Communication speed is `106` kbit/sec.
+          <p class=note>
+            <a>MIFARE Standard</a> is a not an NFC Forum type and can only be read by devices
+            using NXP hardware. Support for reading and writing to tags based on the
+            <a>MIFARE Standard</a> is thus non-nominative, but the type is included
+            due to the popularity and use in legacy systems.
+          </p>
+        </li>
+      </ol>
+    </p>
+    <p>
+      In addition to data types standardized for <a>NDEF record</a>s by the NFC
+      Forum, many commercial products such as bus cards, door openers may be based
+      on the <a>MIFARE Standard</a> which require specific NFC chips (same vendor of
+      card and reader) in order to function.
+    </p>
+    <p>
+      Card emulation mode capabilities also depend on the NFC chip in the device.
+      For payments, a Secure Element is often needed.
+    </p>
+    <p class="note">
+      This document does not aim supporting all possible use cases of NFC
+      technology, but only a few use cases which are considered relevant to be
+      used by web pages in browsers, using the browser security model.
+    </p>
+    </section>
+  </section>  <!-- Introduction -->
 
   <!-- - - - - - - - - - - - - - Usage Examples - - - - - - - - - - - - - - -->
   <section class="informative"> <h2>Examples</h2>
@@ -1926,46 +1942,6 @@ setTimeout(() => controller.abort(), 3000);
   </p>
   </section> <!-- release NFC -->
 
-  <section data-dfn-for="NDEFCompatibility">
-      <h3>The <dfn>NDEFCompatibility</dfn> enum</h3>
-        <p>
-          To describe what NDEF compatible devices are accepted as
-          vendor specific tags exist that support NDEF but which
-          are not universally supported by all NFC readers, or by
-          the NFC standard.
-        </p>
-        <pre class="idl">
-          enum NDEFCompatibility {
-            "nfc-forum",
-            "vendor",
-            "any"
-          };
-        </pre>
-        <p>
-          <dl>
-            <dt><dfn>nfc-forum</dfn></dt>
-            <dd>
-              The enum value representing all active and passive NFC
-              devices, supported by the NFC standard.
-            </dd>
-          </dl>
-          <dl>
-            <dt><dfn>vendor</dfn></dt>
-            <dd>
-              The enum value representing vendor specific NFC tags
-              (passive device) that require specific reader chips.
-            </dd>
-          </dl>
-          <dl>
-            <dt><dfn>any</dfn></dt>
-            <dd>
-              The enum value representing all NDEF compatible devices
-              that the reader chip can read.
-            </dd>
-          </dl>
-        </p>
-  </section>
-
   <section data-dfn-for="NFCPushOptions"> <h3>The <dfn>NFCPushOptions</dfn> dictionary</h3>
     <pre class="idl">
       dictionary NFCPushOptions {
@@ -1973,7 +1949,6 @@ setTimeout(() => controller.abort(), 3000);
         unrestricted double timeout = Infinity;
         boolean ignoreRead = true;
         AbortSignal? signal;
-        NDEFCompatibility compatibility = "nfc-forum";
       };
     </pre>
     <p>
@@ -2001,10 +1976,6 @@ setTimeout(() => controller.abort(), 3000);
     <p>
       The <dfn>signal</dfn> property allows to abort
       the <a href="#dom-nfcwriter-push">push()</a> operation.
-    </p>
-    <p>
-      The <dfn>compatibility</dfn> property denotes
-      the accepted kind of NFC devices.
     </p>
   </section>
 
@@ -2051,11 +2022,10 @@ setTimeout(() => controller.abort(), 3000);
       </p>
       <pre class="idl">
         dictionary NFCScanOptions {
-          AbortSignal? signal;
           USVString url = "";
           NDEFRecordType recordType;
           USVString mediaType = "";
-          NDEFCompatibility compatibility = "nfc-forum";
+          AbortSignal? signal;
         };
       </pre>
       <p>
@@ -2082,10 +2052,6 @@ setTimeout(() => controller.abort(), 3000);
         <a href="#dom-ndefrecord-mediatype">mediaType</a> property of each
         <a>NDEFRecord</a> object in a <a>Web NFC message</a>.
         The default value `""` means that no matching is performed.
-      </p>
-      <p>
-        The <dfn>compatibility</dfn> property denotes
-        the accepted kind of NFC devices.
       </p>
       <pre
         title="Filter accepting only JSON content from https://www.w3.org"
@@ -2198,9 +2164,6 @@ setTimeout(() => controller.abort(), 3000);
                 Let |timeout:number| be |options|'s timeout.
               </li>
               <li>
-                Let |compatibility:NDEFCompatibility| be |options|'s compatibility.
-              </li>
-              <li>
                 If the |message:NDEFMessageSource| parameter is not of type defined by
                 the <a>NDEFMessageSource</a> union, reject |p|
                 with a {{TypeError}}, and abort these steps.
@@ -2262,11 +2225,6 @@ setTimeout(() => controller.abort(), 3000);
                     <li>
                       Verify the following conditions:
                       <ul>
-                        <li>
-                          if |device| is not officially supported
-                          by the NFC Forum, |compatibility| is
-                          "`vendor`" or "`any`".
-                        </li>
                         <li>
                           if |device| is an <a>NFC tag</a>, |target|
                           is "`tag`" or "`any`".
@@ -3202,10 +3160,6 @@ setTimeout(() => controller.abort(), 3000);
                 Otherwise, if |key| equals "`mediaType`", set
                 |reader|.[[\MediaType]] to |value|.
               </li>
-              <li>
-                Otherwise, if |key| equals "`compatibility`", set
-                |reader|.[[\Compatibility]] to |value|.
-              </li>
             </ol>
           </li>
           <li>
@@ -3651,11 +3605,6 @@ setTimeout(() => controller.abort(), 3000);
         If <a>NFC is suspended</a>, abort these steps.
       </li>
       <li>
-        Let |compatibility:NDEFCompatibility| be "`vendor`" if the read NDEF
-        compatible device is not officially supported by the NFC Forum, or else
-        "`nfc-forum`".
-      </li>
-      <li>
         Let |message:NDEFMessage| be a new <a>NDEFMessage</a> object, with
         |message|'s url set to `null` and
         |message|'s records set to the empty <a>list</a>.
@@ -3752,8 +3701,8 @@ setTimeout(() => controller.abort(), 3000);
       <li>
         If <a href="#nfc-is-suspended">NFC is not suspended</a> and
         |message|'s records [= list/is not empty =], run the
-        <a>dispatch NFC content</a> steps with given |serialNumber|,
-        |message| and |compatibility|.
+        <a>dispatch NFC content</a> steps with given |serialNumber|
+        and |message|.
       </li>
     </ol>
     </section>
@@ -3762,8 +3711,7 @@ setTimeout(() => controller.abort(), 3000);
     <p>
       To <dfn>dispatch NFC content</dfn> given a |serialNumber:serialNumber|
       of type <a>serialNumber</a>, |message:NDEFMessage|
-      of type <a>NDEFMessage</a> and |compatibility:NDEFCompatibility| of type
-      <a>NDEFCompatibility</a>, run these steps:
+      of type <a>NDEFMessage</a>, run these steps:
     </p>
     <ol class=algorithm>
       <li>
@@ -3788,10 +3736,6 @@ setTimeout(() => controller.abort(), 3000);
             If |reader|.[[\MediaType]] is not `""` and
             it is not equal to any |record|'s mediaType where |record| is
             an element of |message|, [= iteration/continue =].
-          </li>
-          <li>
-            If |reader|.[[\Compatibility]] is not "`any`", and
-            not equal to |compatibility|, [= iteration/continue =].
           </li>
           <li>
             <a>Fire an event</a> named "`reading`" at |reader|
