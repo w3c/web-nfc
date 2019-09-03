@@ -909,6 +909,85 @@ reader.scan({ signal: controller.signal });
 setTimeout(() => controller.abort(), 3000);
     </pre>
   </aside>
+
+  <aside title="Read a external record with sub-records" class="example">
+      <p>
+        Read a custom made external record which contains sub-records.
+      </p>
+      <p>
+        Though using JSON can be quite convenient, it is not the most
+        storage efficient way of writing data. This is due to the fact
+        that it is string based and meant to be easily human readable.
+      </p>
+      <p>
+        For instance every property uses a string as a key, and values
+        such as booleans are also written out as "`true`" (4 bytes) or
+        "`false`" (5 bytes). In contract you can actually store up to
+        8 boolean values in one byte if every bit is used to represent one.
+      </p>
+      <p>
+        External type records can be used to create custom records
+        which may contain sub-records which can contain any NDEF record
+        type, plus custom types. This makes them quite good for
+        structuring data such as binary (say images) as well as text
+        and booleans in a quite size efficient format.
+      </p>
+      <p>
+        Instead of using property names as identifiers as in JSON,
+        seperate sub-records each with their own type, will be used.
+        Custom types need to be at least one letter long, meaning the
+        overhead per record can be as little as 4 bytes, which is
+        similar to JSON, which uses 4-6 bytes per single letter property name,
+        depending on whether it is the first property or not (given , and
+        newline separators).
+      </p>
+      <p>
+        This example shows how to read an exernal record for social posts,
+        which makes use of a sub-record consisting of a text record and a
+        custom "act" (action) record, just like smart posters. Custom
+        sub-record types start with a hyphen (`-`).
+      </p>
+
+      <pre class="highlight">
+  const reader = new NFCReader();
+  reader.onreading = event => {
+    const socialPost = event.message.records[0];
+    if (!socialPost) {
+      return;
+    }
+
+    let action;
+    let text = "";
+
+    for (let record of socialPost.toRecords()) {
+      switch (record.recordType) {
+        case "text":
+          text = record.toText();
+          break;
+        case "-act":
+          const buffer = record.toArrayBuffer();
+          const view = new DataView(buffer);
+          action = view.getUint8(0);
+          break;
+      }
+    }
+
+    switch (action) {
+      case 0: // do the action
+        console.log(`Post "${text}" to timeline`);
+        break;
+      case 1: // save for later
+        console.log(`Save "${text}" as a draft`);
+        break;
+      case 2: // open for editing
+        console.log(`Show editable post with "${text}"`);
+        break;
+    }
+  };
+
+  reader.scan({ recordType: "example.com:sp"});
+      </pre>
+    </aside>
   </section> <!-- Usage examples -->
 
   <section class="informative"> <h3>Use Cases</h3>
@@ -1311,6 +1390,7 @@ setTimeout(() => controller.abort(), 3000);
         USVString? toText();
         [NewObject] ArrayBuffer? toArrayBuffer();
         [NewObject] any toJSON();
+        sequence&lt;NDEFRecord&gt; toRecords();
       };
 
       dictionary NDEFRecordInit {
@@ -1381,7 +1461,7 @@ setTimeout(() => controller.abort(), 3000);
       and a `JSON` type.
     </p>
     <p>
-      The <dfn>toRecord()</dfn> method, when invoked, MUST return the result of
+      The <dfn>toRecords()</dfn> method, when invoked, MUST return the result of
       running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object
       and an `external` type.
     </p>
@@ -1644,7 +1724,7 @@ setTimeout(() => controller.abort(), 3000);
       <td>"`smart-poster`"</td>
       <td>""</td>
       <td>
-        toRecord() or<br>
+        toRecords() or<br>
         <a>toArrayBuffer()</a>
       </td>
     </tr>
