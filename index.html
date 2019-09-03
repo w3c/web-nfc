@@ -910,25 +910,33 @@ setTimeout(() => controller.abort(), 3000);
     </pre>
   </aside>
 
-  <aside title="Read an external record, which contains sub-records" class="example">
+  <aside title="Read an external record with an NDEF message as payload" class="example">
     <p>
-      External type records can be used to create custom records.
-      These records may contain other NDEF records as their payload,
-      so-called sub-records, which can be of any NDEF record type,
-      plus custom ones.
+      External type records can be used to create application defined records.
+      These records may contain an <a>NDEF message</a> as payload,
+      with its own <a>NDEF records</a>, including local types.
     </p>
     <p>
-      This makes them useful for structuring data such as binary, text
-      and booleans, in a quite size efficient format. Sub-records are
-      also used in the standardized smart poster record type.
+      The smart poster type also contains an <a>NDEF message</a> as
+      payload.
+    </p>
+    <p>
+      Local types are well-known types, local to a every
+      individual record type that carries an <a>NDEF message</a> as payload.
+    </p>
+    <p>
+      As NDEF gives no guarantee on the ordering of records, using
+      an external type record with an <a>NDEF message</a> as payload,
+      can be useful for encapsulating related data.
+    </p>
+    <p>
+      For external type records, local types are application specific.
+      Local types are exposed as a recordType, prefixed with "`-`".
     </p>
     <p>
       This example shows how to read an external record for social posts,
-      which makes use of a sub-record consisting of a text record and a
-      custom "act" (action) record, just like smart posters.
-    </p>
-    <p>
-      Custom sub-record types start with a hyphen (`-`).
+      which contains an <a>NDEF message</a>, containing a text record and
+      a record with the local type "act" (action), just like smart posters.
     </p>
 
     <pre class="highlight">
