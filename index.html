@@ -1380,6 +1380,11 @@ setTimeout(() => controller.abort(), 3000);
       running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object
       and a `JSON` type.
     </p>
+    <p>
+      The <dfn>toRecord()</dfn> method, when invoked, MUST return the result of
+      running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object
+      and an `external` type.
+    </p>
     <p data-dfn-for="NDEFRecordInit">
       The <dfn>NDEFRecordInit</dfn> dictionary is used to initialize an <a>NDEF record</a>
       with its type, <a>MIME type</a> and payload data via the members of
@@ -1457,6 +1462,17 @@ setTimeout(() => controller.abort(), 3000);
               If the |recordType| value is equal to "`json`" or
               "`opaque`", then return the result of running <a>parse JSON from bytes</a>
               on |bytes|. Re-[= exception/throw =] any exceptions.
+            </li>
+            <li>
+              Otherwise, return `null`.
+            </li>
+          </ol>
+          <dt>external</dt>
+          <ol>
+            <li>
+              If the |recordType| value is an <a>external type</a>, then return the
+              result of running <a>parse records from bytes</a>
+              on |bytes|.
             </li>
             <li>
               Otherwise, return `null`.
@@ -3336,9 +3352,166 @@ setTimeout(() => controller.abort(), 3000);
     of the <a href="#steps-listen">NFC listen algorithm</a>.
   </p>
 
+  <section><h3>Parsing records from bytes</h3>
+    To <dfn>parse records from bytes</dfn> given |bytes:byte sequence|,
+    run these steps:
+    <ol class=algorithm>
+      <li>
+        Let |records| be the empty list.
+      </li>
+      <li>
+        As long as there are unread bytes of |bytes|, run the following sub-steps:
+        <ol>
+          <li>
+            If remaining length of |bytes| is less than `3`, abort these sub-steps.
+          </li>
+          <li>
+            If any of the following steps requires reading bytes beyond the
+            remaining length of |bytes|, return |records|.
+          </li>
+          <li>
+            Let |ndef| be the notation for the current <a>NDEF record</a>
+          </li>
+          <li>
+            Let |header:byte| be the next byte of |bytes|.
+            <ol>
+              <li>
+                Let |messageBegin:boolean| (<a>MB field</a>) be the left most bit (bit 7) of |header|.
+              </li>
+              <li>
+                If this is the first iteration of these sub-steps and |messageBegin| is `false`,
+                return |records|.
+              <li>
+                Let |messageEnd:boolean| (<a>ME field</a>) be bit 6 of |header|.
+              </li>
+              <div class=note>
+                As chunked records are not allowed as sub records, we ignore bit 5 (<a>CF field</a>).
+              </div>
+              <li>
+                Let |shortRecord:boolean| (<a>SR field</a>) be bit 4 of |header|.
+              </li>
+              <li>
+                Let |hasIdLength:boolean| (<a>IL field</a>) be bit 3 of |header|.
+              </li>
+              <li>
+                Let |ndef|'s |typeNameField:number| (<a>TNF field</a>) be the integer value of bit 2-0 of |header|.
+              </li>
+            </ol>
+          </li>
+          <li>
+            Let |typeLength:number| (<a>TYPE LENGTH field</a>) be the integer value of next byte of |bytes|.
+          </li>
+          <li>
+            If |shortRecord| is `true`, let |payloadLength:number| (<a>PAYLOAD LENGTH field</a>)
+            be the integer value of next byte of |bytes|.
+          </li>
+          <li>
+            Otherwise, let |payloadLength| be the integer value of the next 4 bytes of |bytes|.
+          </li>
+          <li>
+            If |hasIdLength| is `true`, let |idLength:number| be the integer value of next byte of |bytes|,
+            otherwise let it be `0`.
+          </li>
+          <li>
+            If |typeLength| > 0, let |ndef|'s |type:string| be result of running <a>UTF-8 decode</a> on the
+            next |typeLength| bytes, orelse let |type| be the empty string.
+          </li>
+          <li>
+            If |idLength| > 0, let |ndef|'s |id:string| be result of running <a>UTF-8 decode</a> on the
+            next |idLength| bytes, orelse let |id| be the empty string.
+          </li>
+          <li>
+            Let |ndef|'s |payload| be the <a>byte sequence</a> of the last |payloadLength| bytes, which may
+            be `0` bytes.
+          </li>
+          <li>
+            Let |record:NDEFRecord| be the result of <a>parse an NDEF record</a> on |ndef|.
+          </li>
+          <li>
+            If |record| is not `null`, <a>append</a> |record| to |records|.
+          </li>
+          <li>
+            If |messageEnd| is `true`, abort these sub-steps.
+        </ol>
+      </li>
+      <li>
+        Return |records|.
+      </li>
+    </ol>
+  </section>
+
+  <section><h3>Parsing NDEF records</h3>
+  <p>
+    To <dfn>parse an NDEF record</dfn> given |ndef| into a
+    |record:NDEFRecord|, run these steps:
+    <ol class=algorithm>
+      <li>
+        If |ndef|'s |typeNameField:number| is `0` (<a>empty record</a>), then set
+        |record|'s recordType to "`empty`" and set |record|'s mediaType to `""`.
+      </li>
+      <li>
+        If |ndef|'s |typeNameField| is `1` (<a>well-known type record</a>):
+        <ol>
+          <li>
+            Set |record| to the result of the algorithm below switching on
+            |ndef|'s |type:string|:
+            <dl>
+              <dt>"`T`" (`0x54`)</dt>
+              <ul>
+                <li>
+                  running <a>parse an NDEF text record</a> on |ndef|.
+                </li>
+              </ul>
+              <dt>"`U`" (`0x55`)</dt>
+              <ul>
+                <li>
+                  running <a>parse an NDEF URL record</a> on |ndef|
+                </li>
+              </ul>
+              <dt>"`Sp`" (`0x53` `0x70`)</dt>
+              <ul>
+                <li>
+                  running <a>parse an NDEF smart-poster record</a> on |ndef|
+                </li>
+              </ul>
+            </dl>
+          </li>
+        </ol>
+      </li>
+      <li>
+        If |ndef|'s |typeNameField| is `2` (<a>MIME type record</a>), then
+        set |record| to the result of running <a>parse an NDEF MIME type record</a>
+        on |ndef|, or make sure that the underlying platform provides equivalent
+        values to the |record| object's properties.
+      </li>
+      <li>
+        If |ndef|'s |typeNameField| is `3` (<a>absolute-URL record</a>), then
+        set |record| to the result of running <a>parse an NDEF absolute-URL record</a>
+        on |ndef|.
+      </li>
+      <li>
+        If |ndef|'s |typeNameField| is `4` and
+        |ndef|'s lowercased <a>TYPE field</a> is "`w3.org:a`" (<a>author type record</a>),
+        then set |message|'s url to the |ndef|'s |payload|.
+      </li> <!-- parsing author type record -->
+      <li>
+        Otherwise, if |ndef|'s |typeNameField| is `4` (<a>external type record</a>),
+        then set |record| to the result of running <a>parse an NDEF external type record</a>
+        on |ndef|, or make sure that the underlying platform provides equivalent values
+        to the |record| object's properties.
+      <li>
+        Otherwise, if |ndef|'s |typeNameField| is `5` (<a>unknown record</a>)
+        then set |record| to the result of running <a>parse an NDEF unknown record</a>
+        on |ndef|, or make sure that the underlying platform provides equivalent values
+        to the |record| object's properties.
+      </li>
+    </ol>
+  </p>
+  </section>
+
   <section><h3>Parsing NDEF well-known `T` records</h3>
   <p>
-    To <dfn>parse a NDEF text record</dfn> given a |ndefRecord| into a
+    To <dfn>parse an NDEF text record</dfn> given a |ndefRecord| into a
     |record:NDEFRecord|, run these steps:
     <ol class=algorithm>
       <li>
@@ -3405,7 +3578,7 @@ setTimeout(() => controller.abort(), 3000);
 
   <section><h3>Parsing NDEF well-known `U` records</h3>
   <p>
-    To <dfn>parse a NDEF URL record</dfn> given a |ndefRecord| into a
+    To <dfn>parse an NDEF URL record</dfn> given a |ndefRecord| into a
     |record:NDEFRecord|, run these steps:
     <ol class=algorithm>
       <li>
@@ -3448,7 +3621,7 @@ setTimeout(() => controller.abort(), 3000);
 
   <section><h3>Parsing NDEF well-known `Sp` records</h3>
   <p>
-    To <dfn>parse a NDEF smart-poster record</dfn> given a |ndefRecord| into a
+    To <dfn>parse an NDEF smart-poster record</dfn> given a |ndefRecord| into a
     |record:NDEFRecord|, run these steps:
     <ol class=algorithm>
       <li>
@@ -3476,7 +3649,7 @@ setTimeout(() => controller.abort(), 3000);
 
   <section><h3>Parsing NDEF MIME type records</h3>
     <p>
-      To <dfn>parse a NDEF MIME type record</dfn> given a |ndefRecord| into a
+      To <dfn>parse an NDEF MIME type record</dfn> given a |ndefRecord| into a
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm>
         <li>
@@ -3526,7 +3699,7 @@ setTimeout(() => controller.abort(), 3000);
 
   <section><h3>Parsing NDEF absolute-URL records</h3>
     <p>
-      To <dfn>parse a NDEF absolute-URL record</dfn> given a |ndefRecord| into a
+      To <dfn>parse an NDEF absolute-URL record</dfn> given a |ndefRecord| into a
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm>
         <li>
@@ -3548,7 +3721,7 @@ setTimeout(() => controller.abort(), 3000);
 
   <section><h3>Parsing NDEF external type records</h3>
     <p>
-      To <dfn>parse a NDEF external type record</dfn> given a |ndefRecord| into a
+      To <dfn>parse an NDEF external type record</dfn> given a |ndefRecord| into a
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm>
         <li>
@@ -3573,7 +3746,7 @@ setTimeout(() => controller.abort(), 3000);
 
   <section><h3>Parsing NDEF unknown type records</h3>
     <p>
-      To <dfn>parse a NDEF unknown record</dfn> given a |ndefRecord| into a
+      To <dfn>parse an NDEF unknown record</dfn> given a |ndefRecord| into a
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm>
         <li>
@@ -3630,74 +3803,15 @@ setTimeout(() => controller.abort(), 3000);
         following sub-steps:
         <ol>
           <li>
-            Let |ndef| be the notation for the current <a>NDEF record</a>.
+            Let |ndef| be the notation for the current <a>NDEF record</a> with
+            |typeNameField:number| corresponding to the <a>TNF field</a> and
+            |payload:byte sequence| corresponding to the <a>PAYLOAD field</a> data.
           </li>
           <li>
-            Let |record:NDEFRecord| be a new <a>NDEFRecord</a> object.
+            Let |record:NDEFRecord| be the result of <a>parse an NDEF record</a> on |ndef|.
           </li>
           <li>
-            If |ndef|'s <a>TNF field</a> is `0` (<a>empty record</a>), then set
-            |record|'s recordType to "`empty`" and set |record|'s mediaType to `""`.
-          </li>
-          <li>
-            If |ndef|'s <a>TNF field</a> is `1` (<a>well-known type record</a>):
-            <ol>
-              <li>
-                Set |record| to the result of the algorithm below switching on |ndef|'s <a>TYPE field</a>:
-                <dl>
-                  <dt>"`T`" (`0x54`)</dt>
-                  <ul>
-                    <li>
-                      running <a>parse a NDEF text record</a> on |ndef|.
-                    </li>
-                  </ul>
-                  <dt>"`U`" (`0x55`)</dt>
-                  <ul>
-                    <li>
-                      running <a>parse a NDEF URL record</a> on |ndef|
-                    </li>
-                  </ul>
-                  <dt>"`Sp`" (`0x53` `0x70`)</dt>
-                  <ul>
-                    <li>
-                      running <a>parse a NDEF smart-poster record</a> on |ndef|
-                    </li>
-                  </ul>
-                </dl>
-              </li>
-            </ol>
-          </li>
-          <li>
-            If |ndef|'s <a>TNF field</a> is `2` (<a>MIME type record</a>), then
-            set |record| to the result of running <a>parse a NDEF MIME type record</a>
-            on |ndef|, or make sure that the underlying platform provides equivalent
-            values to the |record| object's properties.
-          </li>
-          <li>
-            If |ndef|'s <a>TNF field</a> is `3` (<a>absolute-URL record</a>), then
-            set |record| to the result of running <a>parse a NDEF absolute-URL record</a>
-            on |ndef|.
-          </li>
-          <li>
-            If |ndef|'s <a>TNF field</a> is `4` and
-            |ndef|'s lowercased <a>TYPE field</a> is "`w3.org:a`" (<a>author type record</a>),
-            then set |message|'s url to the |ndef|'s <a>PAYLOAD field</a>.
-          </li> <!-- parsing author type record -->
-          <li>
-            Otherwise, if |ndef|'s <a>TNF field</a> is `4` (<a>external type record</a>),
-            then set |record| to the result of running <a>parse a NDEF external type record</a>
-            on |ndef|, or make sure that the underlying platform provides equivalent values
-            to the |record| object's properties.
-          <li>
-            Otherwise, if |ndef|'s <a>TNF field</a> is `5` (<a>unknown record</a>)
-            then set |record| to the result of running <a>parse a NDEF unknown record</a>
-            on |ndef|, or make sure that the underlying platform provides equivalent values
-            to the |record| object's properties.
-          <li>
-            Otherwise, skip to the next <a>NDEF record</a> in |input|.
-          </li>
-          <li>
-            <a>Append</a> |record| to |message|'s records.
+             If |record| is not `null`, <a>append</a> |record| to |message|'s records.
           </li>
         </ol>
       </li>
