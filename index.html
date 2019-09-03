@@ -910,45 +910,28 @@ setTimeout(() => controller.abort(), 3000);
     </pre>
   </aside>
 
-  <aside title="Read a external record with sub-records" class="example">
-      <p>
-        Read a custom made external record which contains sub-records.
-      </p>
-      <p>
-        Though using JSON can be quite convenient, it is not the most
-        storage efficient way of writing data. This is due to the fact
-        that it is string based and meant to be easily human readable.
-      </p>
-      <p>
-        For instance every property uses a string as a key, and values
-        such as booleans are also written out as "`true`" (4 bytes) or
-        "`false`" (5 bytes). In contract you can actually store up to
-        8 boolean values in one byte if every bit is used to represent one.
-      </p>
-      <p>
-        External type records can be used to create custom records
-        which may contain sub-records which can contain any NDEF record
-        type, plus custom types. This makes them quite good for
-        structuring data such as binary (say images) as well as text
-        and booleans in a quite size efficient format.
-      </p>
-      <p>
-        Instead of using property names as identifiers as in JSON,
-        seperate sub-records each with their own type, will be used.
-        Custom types need to be at least one letter long, meaning the
-        overhead per record can be as little as 4 bytes, which is
-        similar to JSON, which uses 4-6 bytes per single letter property name,
-        depending on whether it is the first property or not (given , and
-        newline separators).
-      </p>
-      <p>
-        This example shows how to read an exernal record for social posts,
-        which makes use of a sub-record consisting of a text record and a
-        custom "act" (action) record, just like smart posters. Custom
-        sub-record types start with a hyphen (`-`).
-      </p>
+  <aside title="Read an external record, which contains sub-records" class="example">
+    <p>
+      External type records can be used to create custom records.
+      These records may contain other NDEF records as their payload,
+      so-called sub-records, which can be of any NDEF record type,
+      plus custom ones.
+    </p>
+    <p>
+      This makes them useful for structuring data such as binary, text
+      and booleans, in a quite size efficient format. Sub-records are
+      also used in the standardized smart poster record type.
+    </p>
+    <p>
+      This example shows how to read an external record for social posts,
+      which makes use of a sub-record consisting of a text record and a
+      custom "act" (action) record, just like smart posters.
+    </p>
+    <p>
+      Custom sub-record types start with a hyphen (`-`).
+    </p>
 
-      <pre class="highlight">
+    <pre class="highlight">
   const reader = new NFCReader();
   reader.onreading = event => {
     const socialPost = event.message.records[0];
