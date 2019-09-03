@@ -3580,6 +3580,9 @@ setTimeout(() => controller.abort(), 3000);
           Set |record|'s recordType to "`opaque`".
         </li>
         <li>
+          Set |record|'s mediaType to "`application/octet-stream`".
+        </li>
+        <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
           |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise `undefined`.
         </li>
