@@ -1449,7 +1449,7 @@ setTimeout(() => controller.abort(), 3000);
         </li>
         <li>
           The <dfn>message identifier</dfn> is a <a>message identifier host</a>, optionally followed
-          by a <a>path-absolute-URL string</a>
+          by a <a>path-absolute-URL string</a>.
         </li>
       </ul>
     </p>
@@ -1488,7 +1488,7 @@ setTimeout(() => controller.abort(), 3000);
     </p>
     <ol class=algorithm>
       <li>
-        Let |bytes:byte sequence| be |record|.[[\PayloadData]].
+        Let |bytes:byte sequence| be |record|.<a>[[\PayloadData]]</a>.
       </li>
       <li>
         Let |recordType:NDEFRecordType| be the value of |record|'s
@@ -1887,6 +1887,50 @@ setTimeout(() => controller.abort(), 3000);
     such as a tag, is within the magnetic induction field.
   </p>
   <p>
+    A {{NFCReader}} object has the following <a data-cite=
+    "ECMASCRIPT#sec-object-internal-methods-and-internal-slots">
+    internal slots</a>:
+  </p>
+  <table class="simple">
+    <thead>
+     <tr>
+      <th>Internal Slot</th>
+      <th>Description (<em>non-normative</em>)</th>
+     </tr>
+    </thead>
+    <tbody data-link-for="NFCScanOptions">
+     <tr>
+      <td><dfn>[[\Url]]</dfn></td>
+      <td>
+        This slot holds the provided {{NFCScanOptions}}.<a>url</a> value.
+        It is initially an empty <a>string</a>.
+      </td>
+     </tr>
+     <tr>
+      <td><dfn>[[\RecordType]]</dfn></td>
+      <td>
+        This slot holds the provided {{NFCScanOptions}}.<a>recordType</a> value.
+        It is initially unset.
+      </td>
+     </tr>
+     <tr>
+      <td><dfn>[[\MediaType]]</dfn></td>
+      <td>
+        This slot holds the provided {{NFCScanOptions}}.<a>mediaType</a> value.
+        It is initially an empty <a>string</a>.
+      </td>
+      </tr>
+      <tr>
+        <td><dfn>[[\Signal]]</dfn></td>
+        <td>
+          This slot holds the provided {{NFCScanOptions}}.<a>signal</a> value.
+          It is initially unset.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
     The <dfn data-dfn-for="NFCReader">onreading</dfn> is an {{EventHandler}} which is called to notify
     that new reading is available.
   </p>
@@ -1911,7 +1955,7 @@ setTimeout(() => controller.abort(), 3000);
     </thead>
     <tbody>
      <tr>
-      <td>[[\Suspended]]</td>
+      <td><dfn>[[\Suspended]]</dfn></td>
       <td>
         A boolean flag indicating whether NFC functionality is
         <a href="#nfc-suspended">suspended</a> or not, initially
@@ -1919,13 +1963,13 @@ setTimeout(() => controller.abort(), 3000);
       </td>
      </tr>
      <tr>
-      <td>[[\ActivatedReaderList]]</td>
+      <td><dfn>[[\ActivatedReaderList]]</dfn></td>
       <td>
         A <a>set</a> of {{NFCReader}} instances initially set to the empty <a>set</a>.
       </td>
      </tr>
      <tr>
-      <td>[[\PendingPush]]</td>
+      <td><dfn>[[\PendingPush]]</dfn></td>
       <td>
         A promise-writer tuple where the promise holds a pending {{Promise}} and
         writer holds a {{NFCWriter}}. Initially the slot is empty.
@@ -1934,19 +1978,19 @@ setTimeout(() => controller.abort(), 3000);
     </tbody>
   </table>
   <p>
-    The <dfn>activated reader objects</dfn> is the value of the [[\ActivatedReaderList]] internal slot.
+    The <dfn>activated reader objects</dfn> is the value of the <a>[[\ActivatedReaderList]]</a> internal slot.
   </p>
   <p>
-    The <dfn>pending push tuple</dfn> is the value of the [[\PendingPush]] internal slot.
+    The <dfn>pending push tuple</dfn> is the value of the <a>[[\PendingPush]]</a> internal slot.
   </p>
   <p>
-    <dfn id="nfc-is-suspended">NFC is suspended</dfn> if the [[\Suspended]] internal slot is `true`.
+    <dfn id="nfc-is-suspended">NFC is suspended</dfn> if the <a>[[\Suspended]]</a> internal slot is `true`.
   </p>
   <p>
-    To <dfn id="suspend-nfc">suspend NFC</dfn>, set the [[\Suspended]] internal slot to `true`.
+    To <dfn id="suspend-nfc">suspend NFC</dfn>, set the <a>[[\Suspended]]</a> internal slot to `true`.
   </p>
   <p>
-    To <dfn id="resume-nfc">resume NFC</dfn>, set the [[\Suspended]] internal slot to `false`.
+    To <dfn id="resume-nfc">resume NFC</dfn>, set the <a>[[\Suspended]]</a> internal slot to `false`.
   </p>
   <p class="note">
     Internal slots are used only as a notation in this specification, and
@@ -3277,19 +3321,19 @@ setTimeout(() => controller.abort(), 3000);
             <ol>
               <li>
                 If |key| equals "`signal`", set
-                |reader|.[[\Signal]] to |value|.
+                |reader|.<a>[[\Signal]]</a> to |value|.
               </li>
               <li>
                 Otherwise, if |key| equals "`url`", set
-                |reader|.[[\Url]] to |value|, prepended with "`https://`".
+                |reader|.<a>[[\Url]]</a> to |value|, prepended with "`https://`".
               </li>
               <li>
                 Otherwise, if |key| equals "`recordType`", set
-                |reader|.[[\RecordType]] to |value|.
+                |reader|.<a>[[\RecordType]]</a> to |value|.
               </li>
               <li>
                 Otherwise, if |key| equals "`mediaType`", set
-                |reader|.[[\MediaType]] to |value|.
+                |reader|.<a>[[\MediaType]]</a> to |value|.
               </li>
             </ol>
           </li>
@@ -3330,11 +3374,11 @@ setTimeout(() => controller.abort(), 3000);
             </ol>
           </li>
           <li>
-            If |reader|.[[\Signal]]’s [= AbortSignal/aborted flag =] is set, then return.
+            If |reader|.<a>[[\Signal]]</a>'s [= AbortSignal/aborted flag =] is set, then return.
           </li>
           <li>
-            If |reader|.[[\Signal]] is not `null`, then
-            <a data-cite="dom#abortsignal-abort-algorithms">add the following abort steps</a> to |reader|.[[\Signal]]:
+            If |reader|.<a>[[\Signal]]</a> is not `null`, then
+            <a data-cite="dom#abortsignal-abort-algorithms">add the following abort steps</a> to |reader|.<a>[[\Signal]]</a>:
             <ol>
               <li>
                 Remove the {{NFCReader}} instance from the <a>activated reader objects</a>.
@@ -3388,7 +3432,7 @@ setTimeout(() => controller.abort(), 3000);
                 </ol>
               </li>
               <li>
-                If the |reader|.[[\Url]] is not an empty <a>string</a>
+                If the |reader|.<a>[[\Url]]</a> is not an empty <a>string</a>
                 and it is not a <a>valid URL pattern</a>, then
                 <ol>
                   <li>
@@ -3645,7 +3689,8 @@ setTimeout(() => controller.abort(), 3000);
         equal to an empty ordered map.
       </li>
       <li>
-        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set |record|s mediaType to |mimeType|, set |record|.[[\PayloadData]] to `undefined` and return |record|.
+        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set |record|s mediaType to |mimeType|,
+        set |record|.<a>[[\PayloadData]]</a> to `undefined` and return |record|.
       </li>
       <li>
         Let |header:byte| be the first <a>byte</a> of |ndefRecord|'s
@@ -3671,7 +3716,7 @@ setTimeout(() => controller.abort(), 3000);
         |ndefRecords|'s <a>PAYLOAD field</a>.
       </li>
       <li>
-        Set |record|.[[\PayloadData]] to |buffer|.
+        Set |record|.<a>[[\PayloadData]]</a> to |buffer|.
       </li>
       <li>
         return |record|.
@@ -3710,7 +3755,8 @@ setTimeout(() => controller.abort(), 3000);
         Set |record|'s mediaType to "`text/plain`".
       </li>
       <li>
-        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set  |record|.[[\PayloadData]] to `undefined` and return |record|.
+        If |ndefRecord|'s <a>PAYLOAD field</a> is not present,
+        set |record|.<a>[[\PayloadData]]</a> to `undefined` and return |record|.
       </li>
       <li>
         Let |buffer:byte sequence| be the <a>byte sequence</a> of
@@ -3727,12 +3773,12 @@ setTimeout(() => controller.abort(), 3000);
             Let |prefixString:string| be the <a>byte sequence</a> value corresponding to the value of |prefixByte|.
           </li>
           <li>
-            Set |record|.[[\PayloadData]] to |prefixString| appended to |buffer|.
+            Set |record|.<a>[[\PayloadData]]</a> to |prefixString| appended to |buffer|.
           </li>
         </ol>
       </li>
       <li>
-        Otherwise, if there is no match for |prefixByte|, set |record|.[[\PayloadData]] to |buffer|.
+        Otherwise, if there is no match for |prefixByte|, set |record|.<a>[[\PayloadData]]</a> to |buffer|.
       </li>
       <li>
         return |record|.
@@ -3753,14 +3799,14 @@ setTimeout(() => controller.abort(), 3000);
         Set |record|'s mediaType to "".
       </li>
       <li>
-        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set  |record|.[[\PayloadData]] to `undefined` and return |record|.
+        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set |record|.<a>[[\PayloadData]]</a> to `undefined` and return |record|.
       </li>
       <li>
         Let |buffer:byte sequence| be the <a>byte sequence</a> of
         |ndefRecords|'s <a>PAYLOAD field</a>.
       </li>
       <li>
-        Set |record|.[[\PayloadData]] to |buffer|.
+        Set |record|.<a>[[\PayloadData]]</a> to |buffer|.
       </li>
       <li>
         return |record|.
@@ -3810,7 +3856,7 @@ setTimeout(() => controller.abort(), 3000);
           |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise `undefined`.
         </li>
         <li>
-          Set |record|.[[\PayloadData]] to |buffer|.
+          Set |record|.<a>[[\PayloadData]]</a> to |buffer|.
         </li>
         <li>
           return |record|.
@@ -3857,7 +3903,7 @@ setTimeout(() => controller.abort(), 3000);
           |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise `undefined`.
         </li>
         <li>
-          Set |record|.[[\PayloadData]] to |buffer|.
+          Set |record|.<a>[[\PayloadData]]</a> to |buffer|.
         </li>
         <li>
           return |record|.
@@ -3882,7 +3928,7 @@ setTimeout(() => controller.abort(), 3000);
           |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise `undefined`.
         </li>
         <li>
-          Set |record|.[[\PayloadData]] to |buffer|.
+          Set |record|.<a>[[\PayloadData]]</a> to |buffer|.
         </li>
         <li>
           return |record|.
@@ -3960,19 +4006,19 @@ setTimeout(() => controller.abort(), 3000);
           <li>
             Let |match:boolean| be the result of running
             <a href="#dfn-match-message-identifier-with-url-pattern">URL pattern match</a>,
-            with |reader|.[[\Url]] as the <a>URL pattern</a> and
+            with |reader|.<a>[[\Url]]</a> as the <a>URL pattern</a> and
             |message|'s url as the <a>message identifier</a>.
           </li>
           <li>
             If |match| is `false`, [= iteration/continue =].
           </li>
           <li>
-            If |reader|.[[\RecordType]] is [= dictionary member/present =]
+            If |reader|.<a>[[\RecordType]]</a> is [= dictionary member/present =]
             and it is not equal to any |record:NDEFRecord|.[[\RecordType]] where |record|
             is an element of |message|, [= iteration/continue =].
           </li>
           <li>
-            If |reader|.[[\MediaType]] is not `""` and
+            If |reader|.<a>[[\MediaType]]</a> is not `""` and
             it is not equal to any |record|'s mediaType where |record| is
             an element of |message|, [= iteration/continue =].
           </li>
