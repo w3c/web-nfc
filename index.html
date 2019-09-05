@@ -415,70 +415,15 @@
       The NFC Forum <dfn data-no-export="">external type record</dfn>s are for client specified
       data and must have a type name following the [[[NFC-RTD]]] standard.
     </p>
-    <p class=note>
-      Web NFC defines a special <a>external type record</a> that is not accessible
-      to client applications.
-    </p>
     <p>
       <ndef-record
         header="*,*,*,*,*,4 (EXTERNAL)"
-        content="*,*,*,EXTERNAL TYPE (eg. w3.org:A),*,*"
+        content="*,*,*,EXTERNAL TYPE (eg. w3.org:member),*,*"
         short>
       </ndef-record>
     </p>
     </section>
-    <section>
-    <h4>
-      Web NFC author records (TNF 4)
-    </h4>
-    <p>
-      When writing data with Web NFC, a special <dfn>author type record</dfn> is written
-      in addition to the other records. This record is specificed by this specification
-      and is specific to Web NFC. The record indicates that the containing
-      <a>NDEF message</a> is targeted for <a>browsing context</a>s using this API
-      and contains information useful for handling the <a>NDEF message</a> with
-      the algorithms defined in this specification.
-      The format is as follows:
-      <ul>
-        <li>
-          A short, non-chunked record with <a>IL field</a> set to `0` and
-          thus no <a>ID LENGTH field</a> and <a>ID field</a>.
-        </li>
-        <li>
-          Uses NFC Forum <a>external type record</a> with the
-          <a>TYPE field</a> set to "`w3.org:A`".
-        </li>
-        <li>
-          The payload contains the <a>message identifier</a> of the
-          <a>Web NFC message</a>.
-        </li>
-      </ul>
-      <ndef-record
-        header="*,*,0,1,0,4 (EXTERNAL)"
-        content="8,*,_,w3.org:A,_,*"
-        short>
-      </ndef-record>
-    </p>
 
-    <p>
-      This enables matching <a>Web NFC content</a> with <a>URL pattern</a>s
-      specified by {{NFCReader}}s. For <a>NDEF message</a>s that are not <a>Web NFC
-      message</a>s, the <a>message identifier</a> is `null`.
-    </p>
-    <p>
-      The term <dfn>Web NFC content</dfn> denotes all <a>Web NFC message</a>s
-      contained within an <a>NDEF message</a>, identified by the <a>message identifier</a>.
-      This version of the specification supports one <a>author type record</a> per
-      <a>NDEF message</a>.
-    </p>
-    <p class="note">
-      As part of the <a>NDEF record</a>, an <a>ID field</a> may be
-      present in each record for application specific usages. According to the
-      [[[NFC-STANDARDS]]] it contains a URL with the maximum length of 256 bytes.
-      This URL is used for identifying the <a>NDEF record</a> payload in an
-      application specific way.
-    </p>
-    </section>
     <section>
     <h4>
       Unknown type records (TNF 5)
@@ -788,7 +733,7 @@ reader.scan();
        class="example">
     <p>
       Filtering of relevant data sources can be done by the use of
-      the <a>NFCScanOptions</a>. Below we accept URL with
+      the <a>NFCScanOptions</a>. Below we accept the record identifier URL with
       "`/mypath/mygame/`" in its path from "`mygame.com`"
       domain and its subdomains. When we read the data, we immediately update
       the game progress by issueing a push with a custom NDEF data layout.
@@ -799,14 +744,14 @@ reader.scan();
     </p>
     <pre class="highlight">
 const reader = new NFCReader();
-reader.scan({ url: "https://mygame.com/mypath/mygame" });
+reader.scan({ id: "https://mygame.com/mypath/mygame" });
 reader.onreading = async event => {
   console.log(`Source:     ${ event.message.url }`);
   console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
 
   const newMessage = {
-    url: "/mypath/mygame/update",
     records: [{
+      id: "/mypath/mygame/update",
       recordType: "json",
       mediaType: "application/json",
       data: { level: 3, points: 4500, lives: 3 }
@@ -1017,12 +962,12 @@ setTimeout(() => controller.abort(), 3000);
           </li>
           <li>
             Writing to an <a>NFC tag</a> which already contains a
-            <a>Web NFC message</a> with a different <a>message identifier</a>
+            <a>Web NFC message</a> with a different <a>record identifier</a>
             (i.e. overwriting a web-specific tag).
           </li>
           <li>
             Writing to an <a>NFC tag</a> which already contains a
-            <a>Web NFC message</a> with the same <a>message identifier</a>
+            <a>Web NFC message</a> with the same <a>record identifier</a>
             (i.e. updating own tag).
           </li>
           <li>
@@ -1168,7 +1113,7 @@ setTimeout(() => controller.abort(), 3000);
   <p>
     The integrity of <a>NFC content</a> SHOULD NOT be trusted when
     used for implementing security policies, for instance the authenticity of
-    <a>message identifier</a>, unless a <a>prearranged trust relationship</a> exists.
+    <a>record identifier</a>, unless a <a>prearranged trust relationship</a> exists.
   </p>
   </section>
 
@@ -1276,14 +1221,17 @@ setTimeout(() => controller.abort(), 3000);
         See the [[[#writing-or-pushing-content]]] section.
       </p>
       <p>
-        Pushing <a>Web NFC content</a> to an <a>NFC tag</a> does not need to
-        <a>obtain permission</a>, if the <a>message identifier host</a> of the
-        <a>author type record</a> on that <a>NFC tag</a> is equal to the
-        <a data-cite="dom#concept-host-serializer">serialized host</a>
-        of the <a>current settings object</a>'s origin.
+        Pushing an <a>NDEF message</a> to an <a>NFC tag</a> does not need to
+        <a>obtain permission</a>, if the existing <a>NDEF message</a> only
+        contains <a>NDEF record</a>s without <a>ID field</a>s, or with <a>
+        ID field</a>s matching the [=host/registrable domain=] of the
+        <a>current settings object</a>'s origin.
         Otherwise the UA must <a>obtain permission</a> for pushing
         <a>NFC content</a> which overwrites existing information.
         See also the [[[#writing-or-pushing-content]]] section.
+        <div class=issue>
+          Verify with security folks.
+        </div>
       </p>
       <p>
         Since all local content that a web page has access to can be shared with
@@ -1291,14 +1239,12 @@ setTimeout(() => controller.abort(), 3000);
         to the web page using the Web NFC API.
       </p>
     </section>
-    <section> <h4>Record URL host and path when pushing</h4>
+    <section> <h4>Store site URL as record identifier when writing data</h4>
       <p>
-        When pushing <a>Web NFC content</a>, the
-        <a data-cite="dom#concept-host-serializer">serialized host</a>
-        and the URL [= url/path =] of the <a>current settings object</a> when
-        requesting the operation must be recorded in each sent <a>NDEF
-        message</a>'s <a>author type record</a>. For details see the
-        [[[#writing-or-pushing-content]]] section.
+        When pushing an <a>NDEF message</a>, the [= host/registrable domain =],
+        <a data-cite="dom#concept-host-serializer">serialized</a>,
+        of the <a>current settings object</a> must be stored as the <a>record
+        identifier</a> in each top-level <a>NDEF Record</a>.
       </p>
     </section>
     <section> <h4>Warn risk of physical location leak</h4>
@@ -1327,28 +1273,20 @@ setTimeout(() => controller.abort(), 3000);
 <section> <h2>Data Representation</h2>
   <section> <h3>The <dfn>NDEFMessage</dfn> interface</h3>
     <p>
-      The content of any <a>Web NFC message</a> is exposed by the
+      The content of any <a>NDEF message</a> is exposed by the
       <a>NDEFMessage</a> interface:
     </p>
     <pre class="idl">
       [Exposed=Window]
       interface NDEFMessage {
         constructor(NDEFMessageInit messageInit);
-
-        readonly attribute USVString url;
         readonly attribute FrozenArray&lt;NDEFRecord&gt; records;
       };
 
       dictionary NDEFMessageInit {
-        USVString url;
         sequence&lt;NDEFRecordInit&gt; records;
       };
     </pre>
-    <p>
-      The <dfn data-dfn-for="NDEFMessage">url</dfn>
-      property represents the <a>message identifier</a> of a received
-      <a>Web NFC message</a>.
-    </p>
     <p>
       The <dfn data-dfn-for="NDEFMessage">records</dfn>
       property represents a <a>list</a> of <a>NDEF record</a>s defining the
@@ -1356,9 +1294,7 @@ setTimeout(() => controller.abort(), 3000);
     </p>
     <p data-dfn-for="NDEFMessageInit">
       The <dfn>NDEFMessageInit</dfn> dictionary is used to initialize a
-      <a>Web NFC message</a>. When used in the <a>NFCWriter.push()</a>
-      method, its <dfn>url</dfn> member represents a URL [= url/path =]
-      used for constructing the <a>message identifier</a> of the pushed <a>Web NFC content</a>.
+      <a>Web NFC message</a>.
     </p>
   </section>
 
@@ -1438,20 +1374,25 @@ setTimeout(() => controller.abort(), 3000);
       The <dfn>recordType</dfn> property represents the <a>NDEF record</a> types.
     </p>
     <p>
-      The <dfn>id</dfn> property represents the <a>message identifier</a>, which is an
+      The <dfn>id</dfn> property represents the <a>record identifier</a>, which is an
       absolute or relative URL. The required uniqueness of the identifier is
       guaranteed by the generator, as such only absolute URLs based on the origin
       of the browsing content can be written using this specification.
       <ul>
         <li>
-          The <dfn>message identifier host</dfn> is a <a data-cite="url#concept-host-serializer">
+          The <dfn>record identifier host</dfn> is a <a data-cite="url#concept-host-serializer">
           serialized host</a>.
         </li>
         <li>
-          The <dfn>message identifier</dfn> is a <a>message identifier host</a>, optionally followed
+          The <dfn>record identifier</dfn> is a <a>record identifier host</a>, optionally followed
           by a <a>path-absolute-URL string</a>.
         </li>
       </ul>
+      <div class=note>
+        The NFC NDEF specifications uses the terms "message identifier" and "payload identifier"
+        instead of <a>record identifier</a>, but the identifier is tied to each record and not
+        the message (collection of records), and it may be present when no payload is.
+      </div>
     </p>
     <p>
       The <dfn>toText()</dfn> method, when invoked, MUST return the result of
@@ -1475,7 +1416,8 @@ setTimeout(() => controller.abort(), 3000);
     </p>
     <p data-dfn-for="NDEFRecordInit">
       The <dfn>NDEFRecordInit</dfn> dictionary is used to initialize an <a>NDEF record</a>
-      with its type, optional <a>MIME type</a> and message identifier, and payload data via the members of
+      with its type, optional <a>MIME type</a> and <a>record identifier</a>, and payload
+      data via the members of
       <dfn>recordType</dfn>, <dfn>mediaType</dfn>, <dfn>id</dfn>,
       and <dfn>data</dfn>. The mapping from data types of an
       <a>NDEFRecordInit</a> to <a>NDEF record</a> types is presented
@@ -1623,7 +1565,7 @@ setTimeout(() => controller.abort(), 3000);
             other                = "(" / ")" / "+" / "," / "-" / ":" / "=" /
                                    "@" / ";" / "$" / "_" / "!" / "*" / "'" / "."
           </pre>
-          The `reg-name` value is a [=host/registrable domain=] owned by the issuing organization, a "`:`" and a type, e.g. "`w3.org:A`".
+          The `reg-name` value is a [=host/registrable domain=] owned by the issuing organization, a "`:`" and a type, e.g. "`w3.org:member`".
           And additional ABNF exists for <a>well-known type record</a>s:
           <pre class="abnf">
             wkt-type             = (ALPHA / DIGIT) *(ALPHA / DIGIT / other)
@@ -1765,8 +1707,7 @@ setTimeout(() => controller.abort(), 3000);
       </td>
     </tr>
     <tr>
-      <td><a>External type record</a> with type other than
-        `w3.org:A`</td>
+      <td><a>External type record</a></td>
       <td><a>external type</a></td>
       <td>"`application/octet-stream`"</td>
       <td>
@@ -1786,10 +1727,6 @@ setTimeout(() => controller.abort(), 3000);
       </td>
     </tr>
   </table>
-  <p>
-    The <a>author type record</a>s MUST NOT be exposed to client
-    <a>browsing context</a>s.
-  </p>
   </section>
 </section> <!-- Data types and content -->
 
@@ -1900,9 +1837,9 @@ setTimeout(() => controller.abort(), 3000);
     </thead>
     <tbody data-link-for="NFCScanOptions">
      <tr>
-      <td><dfn>[[\Url]]</dfn></td>
+      <td><dfn>[[\Id]]</dfn></td>
       <td>
-        This slot holds the provided {{NFCScanOptions}}.<a>url</a> value.
+        This slot holds the provided {{NFCScanOptions}}.<a>id</a> value.
         It is initially an empty <a>string</a>.
       </td>
      </tr>
@@ -2063,8 +2000,7 @@ setTimeout(() => controller.abort(), 3000);
     </ol>
     <p class=note>
       Rejecting |p| will clear the <a>pending push tuple</a> and
-      remove the <a>async write handlers</a> as it is a transformed promise
-      with fulfillment and rejection handlers.
+      remove the <a>async write handlers</a>.
     </p>
   </p>
   </section>
@@ -2178,7 +2114,7 @@ setTimeout(() => controller.abort(), 3000);
       </p>
       <pre class="idl">
         dictionary NFCScanOptions {
-          USVString url = "";
+          USVString id = "";
           NDEFRecordType recordType;
           USVString mediaType = "";
           AbortSignal? signal;
@@ -2189,12 +2125,12 @@ setTimeout(() => controller.abort(), 3000);
         <a href="#dom-nfcreader-scan">scan()</a> operation.
       </p>
       <p>
-        The <dfn>url</dfn> property
+        The <dfn>id</dfn> property
         denotes the <a>URL pattern</a> which is used for matching the
-        <a>message identifier</a> of <a>Web NFC message</a>s which are being read.
+        <a>record identifier</a> of individual <a>NDEF Record</a>s which are being read.
         The default value `""` means that no matching is performed.
       </p>
-      <p>
+    <p>
         The <dfn>recordType</dfn> property
         denotes the enum value which is used for matching the
         <a href="#idl-def-ndefrecordtype">recordType</a> property of each
@@ -2213,7 +2149,7 @@ setTimeout(() => controller.abort(), 3000);
         title="Filter accepting only JSON content from https://www.w3.org"
         class="example highlight">
         const options = {
-          url: "https://www.w3.org/*",  // any path from the domain is accepted
+          id: "https://www.w3.org/*",  // any path from the domain is accepted
           recordType: "json",
           mediaType: "application/*+json"  // any JSON-based MIME type
         }
@@ -2222,7 +2158,7 @@ setTimeout(() => controller.abort(), 3000);
         title="Filter which only accepts binary content from a given path for w3 domain and its subdomains"
         class="example highlight">
         const options = {
-          url: "https://w3.org/info/restaurant/daily-menu/",
+          id: "https://w3.org/info/restaurant/daily-menu/",
           recordType: "opaque",
           mediaType: "application/octet-stream"
         }
@@ -2409,7 +2345,7 @@ setTimeout(() => controller.abort(), 3000);
                               <a href="#steps-receiving">receiving steps</a>.
                             </li>
                             <li>
-                              Let |idHost| be the <a>message identifier host</a> of the
+                              Let |idHost| be the <a>record identifier host</a> of the
                               tag.
                             </li>
                             <li>
@@ -2457,23 +2393,26 @@ setTimeout(() => controller.abort(), 3000);
                 </dl>
               </li>
               <li>
-                Let |transformedPromise| be the result of
-                <a data-cite="promises-guide">transforming</a> |p| with a fulfillment
-                and rejection handler that:
+                [=promise/React=] to |p|:
                 <ol>
                   <li>
-                    Clears the <a>pending push tuple</a>.
-                  </li>
-                  <li>
-                    Removes <a>async write handlers</a>.
+                    If |p| was settled (fulfilled or rejected), then:
+                    <ol>
+                      <li>
+                        Clears the <a>pending push tuple</a>.
+                      </li>
+                      <li>
+                        Removes <a>async write handlers</a>.
+                      </li>
+                    </ol>
                   </li>
                 </ol>
               </li>
               <li>
-                Set <a>pending push tuple</a> to (`this`, |transformedPromise|).
+                Set <a>pending push tuple</a> to (`this`, |p|).
               </li>
               <li>
-                Return |transformedPromise|.
+                Return |p|.
               </li>
             </ol>
             <p class="note">
@@ -2613,11 +2552,11 @@ setTimeout(() => controller.abort(), 3000);
                   </ul>
                 </dl>
                 <li>
-                  If |message|'s |id:string| is not empty:
+                  If |message|'s |id:string| is not `null`:
                   <ul>
                     <li>
                       Set |identifier| to the result of invoking
-                      <a>create a message identifier</a> given |id|.
+                      <a>create a record identifier</a> given |id|.
                       If this throws an exception, re-[= exception/throw =] it.
                     </li>
                     <li>
@@ -2637,19 +2576,6 @@ setTimeout(() => controller.abort(), 3000);
               </li> <!-- converting each record -->
             </ol>
           </li> <!-- converting message -->
-          <li>
-            Let |authorRecord| be the result of invoking
-            <a>create an author type record</a> given |message|'s url.
-            If this throws exception |e|, reject |promise| with |e|
-            and abort these steps.
-          </li>
-          <li>
-            Add |authorRecord| to |output|.
-            <p class="note">
-              Implementations may choose the location of the author type record
-              within the <a>NDEF message</a>.
-            </p>
-          </li>
         </ol>
       </section>
 
@@ -3081,67 +3007,42 @@ setTimeout(() => controller.abort(), 3000);
       </p>
       </section>
 
-      <section><h3>Creating an author type record</h3>
+      <section><h3>Creating a record identifier</h3>
       <p>
-        To <dfn>create an <a>author type record</a></dfn> given URL [= url/path =] |urlPath:string|,
-        run these steps:
-        <ol class=algorithm>
-          <li>
-            Let |ndef| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
-          </li>
-          <li>
-            Set |ndef|'s <a>SR field</a> to `1` (short record).
-          </li>
-          <li>
-            Set |ndef|'s <a>IL field</a> to `0` (no <a>ID LENGTH field</a> and <a>ID field</a>).
-          </li>
-          <li>
-            Set |ndef|'s <a>CF field</a> to `0` (no chunked record).
-          </li>
-          <li>
-            Set |ndef|'s <a>TNF field</a> to `4` (<a>external type record</a>).
-          </li>
-          <li>
-            Set |ndef|'s <a>TYPE field</a> to "`w3.org:A`".
-          </li>
-          <li>
-            Set |ndef|'s PAYLOAD to the result of invoking
-            <a>create a message identifier</a> given |urlPath|.
-            If this throws an exception, re-[= exception/throw =] it.
-          </li>
-          <li>
-            Return |ndef|.
-          </li>
-        </ol>
-      </p>
-      </section>
-
-      <section><h3>Creating a message identifier</h3>
-      <p>
-        To <dfn>create a message identifier</dfn> given URL [= url/path =] |urlPath:string|,
+        To <dfn>create a record identifier</dfn> given URL string |id:string|,
         run these steps:
         <ol class=algorithm>
           <li>
             Let |origin| be the <a>current settings object</a>'s origin.
           </li>
           <li>
-            Let |author| be |origin|'s host,
+            Let |host| be |origin|'s host,
             <a data-cite="url#concept-host-serializer">serialized</a>.
           </li>
           <li>
-            Append |urlPath| to |author|.
-          </li>
-          <li>
             Let |urlRecord| be the result of
-            <a data-lt="url parser">parsing</a> |author| with "`https://`" prepended.
+            <a data-lt="url parser">parsing</a> |id| with "`https://`" + |host| as the base URL.
           </li>
           <li>
-            If |urlRecord| is failure, [= exception/throw =] a
-            {{TypeError}} and abort these steps.
+            If any of the following cases matches, [= exception/throw =] a
+            {{TypeError}} and abort these steps:
+            <ul>
+              <li>
+                If |urlRecord| is failure.
+              </li>
+              <li>
+                If |urlRecord|'s protocol is not equal to `"https:`".
+              </li>
+              <li>
+                If |urlRecord|'s host doesn't end with |host|'s [=host/registrable domain=].
+              </li>
+            </ul>
           </li>
           <li>
-            Return |author|.
+            Let |identifier| be |urlRecord|, <a data-cite="dom#concept-url-serializer">serialized</a>.
+          </li>
+          <li>
+            Return |identifier|.
           </li>
         </ol>
       </p>
@@ -3158,19 +3059,13 @@ setTimeout(() => controller.abort(), 3000);
       accessible to the client.
     </p>
     <p>
-      Each {{NFCReader}} can filter the <a>NFC content</a> based on
-      data type, and the URL [= url/path =] of the
-      <a>browsing context</a> which has been saved to the <a>author type record</a>
-      of the <a>NFC content</a>.
+      Each {{NFCReader}} can accept <a>NDEF message</a>s based on
+      data type, and a record identifier (URL) filters.
     </p>
     <p>
-      If you filter by URL [= url/path =], that means it will be matched against
-      the <a>author type record</a>, thus the presence of such is required.
-      If you don't filter by URL [= url/path =], then all NFC devices are accepted.
-    </p>
-    <p>
-      The latter is matched against the <a>URL pattern</a>s associated with
-      the <a>activated reader objects</a>.
+      Filtering by a <a>record identifier</a> URL pattern, means that it will
+      be matched against the URLs found in the <a>NDEF record</a>s' <a>ID field</a>,
+      thus the presence of such is required.
     </p>
 
     <section> <h3>Match patterns</h3>
@@ -3192,20 +3087,20 @@ setTimeout(() => controller.abort(), 3000);
     </section>
     <section> <h3>URL patterns</h3>
         A <dfn>URL pattern</dfn> is a <a>URL record</a> that can be used to match
-        the <a>message identifier</a> of a <a>Web NFC message</a>.
+        the optional <a>record identifier</a> of every <a>NDEF record</a> <a>ID field</a>.
         A <dfn>valid URL pattern</dfn> is a valid <a>URL record</a> whose
         [= url/scheme =] component is equal to "`https`".
 
       <p>
         A <a>URL pattern</a>'s [= url/scheme =], [= url/host =]
         and [= url/path =] components that are used by the
-        <a href="#dfn-match-message-identifier-with-url-pattern">URL pattern match algorithm</a>
+        <a href="#dfn-match-record-identifier-with-url-pattern">URL pattern match algorithm</a>
         have the following matching rules:
 
         <table class="simple">
           <tr>
             <th><strong>URL pattern component</strong></th>
-            <th><strong>Matching rule for message identifier</strong></th>
+            <th><strong>Matching rule for record identifier</strong></th>
           </tr>
           <tr>
             <td>[= url/host =]</td>
@@ -3219,7 +3114,7 @@ setTimeout(() => controller.abort(), 3000);
             <td>[= url/path =]</td>
             <td>
               If <a>URL pattern</a>'s path is "`/*`", match any
-              <a>message identifier</a> path. Otherwise, begins with <a>URL pattern</a>'s
+              <a>record identifier</a> path. Otherwise, begins with <a>URL pattern</a>'s
               [= url/path =].
             </td>
           </tr>
@@ -3243,12 +3138,12 @@ setTimeout(() => controller.abort(), 3000);
     </section>
 
     <section> <h3>URL pattern match algorithm</h3>
-        To <dfn>match message identifier with URL pattern</dfn> for a given
-        <a>message identifier</a> and <a>URL pattern</a>, run
+        To <dfn>match record identifier with URL pattern</dfn> for a given
+        <a>record identifier</a> and <a>URL pattern</a>, run
         these steps:
         <ol class=algorithm>
           <li>
-            Let |raw id| be a <a>message identifier</a> passed to this algorithm.
+            Let |raw id| be a <a>record identifier</a> passed to this algorithm.
           </li>
           <li>
             Let |raw pattern| be a <a>URL pattern</a> passed to this algorithm.
@@ -3276,8 +3171,8 @@ setTimeout(() => controller.abort(), 3000);
             to |pattern|'s [= url/host =].
           </li>
           <li>
-            If |author|'s [= url/host =] does not end with
-            |subdomain pattern| and |author|'s
+            If |id|'s [= url/host =] does not end with
+            |subdomain pattern| and |id|'s
             [= url/host =] is not equal to |pattern|'s
             [= url/host =], return `false`.
           </li>
@@ -3286,7 +3181,7 @@ setTimeout(() => controller.abort(), 3000);
             "`/*`", return `true`.
           </li>
           <li>
-            If |author|'s [= url/path =] begins with
+            If |id|'s [= url/path =] begins with
             |pattern|'s [= url/path =],
             return `true`.
           </li>
@@ -3324,8 +3219,8 @@ setTimeout(() => controller.abort(), 3000);
                 |reader|.<a>[[\Signal]]</a> to |value|.
               </li>
               <li>
-                Otherwise, if |key| equals "`url`", set
-                |reader|.<a>[[\Url]]</a> to |value|, prepended with "`https://`".
+                Otherwise, if |key| equals "`id`", set
+                |reader|.<a>[[\Id]]</a> to |value|, prepended with "`https://`".
               </li>
               <li>
                 Otherwise, if |key| equals "`recordType`", set
@@ -3432,7 +3327,7 @@ setTimeout(() => controller.abort(), 3000);
                 </ol>
               </li>
               <li>
-                If the |reader|.<a>[[\Url]]</a> is not an empty <a>string</a>
+                If the |reader|.<a>[[\Id]]</a> is not an empty <a>string</a>
                 and it is not a <a>valid URL pattern</a>, then
                 <ol>
                   <li>
@@ -3651,15 +3546,10 @@ setTimeout(() => controller.abort(), 3000);
         values to the |record| object's properties.
       </li>
       <li>
-        If |ndef|'s |typeNameField| is `3` (<a>absolute-URL record</a>), then
+        Otherwise, if |ndef|'s |typeNameField| is `3` (<a>absolute-URL record</a>), then
         set |record| to the result of running <a>parse an NDEF absolute-URL record</a>
         on |ndef|.
       </li>
-      <li>
-        If |ndef|'s |typeNameField| is `4` and
-        |ndef|'s lowercased <a>TYPE field</a> is "`w3.org:a`" (<a>author type record</a>),
-        then set |message|'s url to the |ndef|'s |payload|.
-      </li> <!-- parsing author type record -->
       <li>
         Otherwise, if |ndef|'s |typeNameField| is `4` (<a>external type record</a>),
         then set |record| to the result of running <a>parse an NDEF external type record</a>
@@ -4004,17 +3894,14 @@ setTimeout(() => controller.abort(), 3000);
         the <a>activated reader objects</a>, run the following sub-steps:
         <ol>
           <li>
-            Let |match:boolean| be the result of running
-            <a href="#dfn-match-message-identifier-with-url-pattern">URL pattern match</a>,
-            with |reader|.<a>[[\Url]]</a> as the <a>URL pattern</a> and
-            |message|'s url as the <a>message identifier</a>.
-          </li>
-          <li>
-            If |match| is `false`, [= iteration/continue =].
+            If |reader|.<a>[[\Id]]</a> is [= dictionary member/present =]
+            and doesn't <a href="#dfn-match-record-identifier-with-url-pattern">match</a>
+            any |record:NDEFRecord|'s id where |record|
+            is an element of |message|, [= iteration/continue =].
           </li>
           <li>
             If |reader|.<a>[[\RecordType]]</a> is [= dictionary member/present =]
-            and it is not equal to any |record:NDEFRecord|.[[\RecordType]] where |record|
+            and it is not equal to any |record|'s recordType where |record|
             is an element of |message|, [= iteration/continue =].
           </li>
           <li>
