@@ -1820,11 +1820,7 @@ setTimeout(() => controller.abort(), 3000);
     such as tags.
   </p>
   <p>
-    The <dfn>NFCReader</dfn> is an object used for reading data when a device,
-    such as a tag, is within the magnetic induction field.
-  </p>
-  <p>
-    A {{NFCReader}} object has the following <a data-cite=
+    An {{NFCWriter}} object has the following <a data-cite=
     "ECMASCRIPT#sec-object-internal-methods-and-internal-slots">
     internal slots</a>:
   </p>
@@ -1832,36 +1828,80 @@ setTimeout(() => controller.abort(), 3000);
     <thead>
      <tr>
       <th>Internal Slot</th>
+      <th>Initial value</th>
+      <th>Description (<em>non-normative</em>)</th>
+     </tr>
+    </thead>
+    <tbody data-link-for="NFCWriter">
+     <tr>
+      <td><dfn>[[\PushOptions]]</dfn></td>
+      <td>`null`</td>
+      <td>
+        The {{NFCPushOptions}} value for writer.
+      </td>
+     </tr>
+     <tr>
+      <td><dfn>[[\PushMessage]]</dfn></td>
+      <td>`null`</td>
+      <td>
+        The {{NDEFMessage}} to be written.
+        It is initially unset.
+      </td>
+     </tr>
+     <tr>
+      <td><dfn>[[\PushTimer]]</dfn></td>
+      <td>`null`</td>
+      <td>
+        A timer associated with the writer.
+      </td>
+     </tr>
+    </tbody>
+  </table>
+
+  <p>
+    The <dfn>NFCReader</dfn> is an object used for reading data when a device,
+    such as a tag, is within the magnetic induction field.
+  </p>
+  <p>
+    An {{NFCReader}} object has the following <a data-cite=
+    "ECMASCRIPT#sec-object-internal-methods-and-internal-slots">
+    internal slots</a>:
+  </p>
+  <table class="simple">
+    <thead>
+     <tr>
+      <th>Internal Slot</th>
+      <th>Initial value</th>
       <th>Description (<em>non-normative</em>)</th>
      </tr>
     </thead>
     <tbody data-link-for="NFCScanOptions">
      <tr>
       <td><dfn>[[\Id]]</dfn></td>
+      <td>An empty <a>string</a>.
       <td>
-        This slot holds the provided {{NFCScanOptions}}.<a>id</a> value.
-        It is initially an empty <a>string</a>.
+        The {{NFCScanOptions}}.<a>id</a> value.
       </td>
      </tr>
      <tr>
       <td><dfn>[[\RecordType]]</dfn></td>
+      <td>`undefined`</td>
       <td>
-        This slot holds the provided {{NFCScanOptions}}.<a>recordType</a> value.
-        It is initially unset.
+        The {{NFCScanOptions}}.<a>recordType</a> value.
       </td>
      </tr>
      <tr>
       <td><dfn>[[\MediaType]]</dfn></td>
+      <td>An empty <a>string</a>.
       <td>
-        This slot holds the provided {{NFCScanOptions}}.<a>mediaType</a> value.
-        It is initially an empty <a>string</a>.
+        The {{NFCScanOptions}}.<a>mediaType</a> value.
       </td>
       </tr>
       <tr>
         <td><dfn>[[\Signal]]</dfn></td>
+        <td>`undefined`</td>
         <td>
-          This slot holds the provided {{NFCScanOptions}}.<a>signal</a> value.
-          It is initially unset.
+          The {{NFCScanOptions}}.<a>signal</a> to abort the operation.
         </td>
       </tr>
     </tbody>
@@ -1887,12 +1927,14 @@ setTimeout(() => controller.abort(), 3000);
     <thead>
      <tr>
       <th>Internal Slot</th>
+      <th>Initial value</th>
       <th>Description (<em>non-normative</em>)</th>
      </tr>
     </thead>
     <tbody>
      <tr>
       <td><dfn>[[\Suspended]]</dfn></td>
+      <td>`false`</td>
       <td>
         A boolean flag indicating whether NFC functionality is
         <a href="#nfc-suspended">suspended</a> or not, initially
@@ -1901,15 +1943,17 @@ setTimeout(() => controller.abort(), 3000);
      </tr>
      <tr>
       <td><dfn>[[\ActivatedReaderList]]</dfn></td>
+      <td>empty <a>set</a></td>
       <td>
-        A <a>set</a> of {{NFCReader}} instances initially set to the empty <a>set</a>.
+        A <a>set</a> of {{NFCReader}} instances.
       </td>
      </tr>
      <tr>
       <td><dfn>[[\PendingPush]]</dfn></td>
+      <td>empty</td>
       <td>
-        A promise-writer tuple where the promise holds a pending {{Promise}} and
-        writer holds a {{NFCWriter}}. Initially the slot is empty.
+        A &lt;|promise:Promise|, |writer:NFCWriter|&gt; tuple where |promise|
+        holds a pending {{Promise}} and |writer| holds an {{NFCWriter}}.
       </td>
       </tr>
     </tbody>
@@ -1969,6 +2013,27 @@ setTimeout(() => controller.abort(), 3000);
     </p>
   </section> <!-- visibility & focus: the suspended state -->
 
+  <section><h3>Clearing the pending push tuple</h3>
+  <p>
+    To <dfn>clear the pending push tuple</dfn> on an
+    <a>environment settings object</a>, perform the following steps:
+    <ol class=algorithm>
+      <li>
+        If there is no <a>pending push tuple</a> |tuple|, abort these steps.
+      </li>
+      <li>
+        Let |writer| be the <a>pending push tuple</a>'s writer.
+      </li>
+      <li>
+        Stop |writer|.[[\PushTimer]] if active.
+      </li>
+      <li>
+        Clear |tuple|.
+      </li>
+    </ol>
+  </p>
+</section>
+
   <section><h3>Aborting pending push operation</h3>
   <p>
     To attempt to <dfn>abort a pending push operation</dfn> on an
@@ -1978,30 +2043,17 @@ setTimeout(() => controller.abort(), 3000);
         If there is no <a>pending push tuple</a> |tuple|, abort these steps.
       </li>
       <li>
-        Let |writer:NFCWriter| be |tuple|'s writer.
-      </li>
-      <li>
-        Let |p:Promise| be |tuple|'s promise.
-      </li>
-      <li>
-        Stop the |writer|'s |timer| if it is active.
-      </li>
-      <li>
-        If the |writer| has already initiated NFC data transfer,
+        If |tuple|'s writer has already initiated an ongoing NFC data transfer,
         abort these steps.
       </li>
       <li>
-        Clear the <a>pending push tuple</a>.
-      </li>
-      <li>
-        Reject |p| with an {{"AbortError"}} {{DOMException}}
+        Reject |tuple|'s promise with an {{"AbortError"}} {{DOMException}}
         and abort these steps.
+        <p class=note>
+          Rejecting the promise will clear the <a>pending push tuple</a>.
+        </p>
       </li>
     </ol>
-    <p class=note>
-      Rejecting |p| will clear the <a>pending push tuple</a> and
-      remove the <a>async write handlers</a>.
-    </p>
   </p>
   </section>
 
@@ -2193,10 +2245,6 @@ setTimeout(() => controller.abort(), 3000);
             Let |options:NFCPushOptions| be the second argument.
           </li>
           <li>
-            Let |signal:AbortSignal| be the |options|’ dictionary member
-            of the same name if present, or `null` otherwise.
-          </li>
-          <li>
             If there is no underlying <a>NFC Adapter</a>, or if a connection cannot
             be established, then reject |p| with a
             {{"NotSupportedError"}} {{DOMException}}
@@ -2209,9 +2257,13 @@ setTimeout(() => controller.abort(), 3000);
             and return |p|.
           </li>
           <li>
-            If pushing data is not supported by the underlying <a>NFC Adapter</a>, then reject
-            |p| with a {{"NotSupportedError"}}
+            If pushing data is not supported by the underlying
+            <a>NFC Adapter</a>, then reject |p| with a {{"NotSupportedError"}}
             {{DOMException}} and return |p|.
+          </li>
+          <li>
+            Let |signal:AbortSignal| be the |options|’ dictionary member
+            of the same name if present, or `null` otherwise.
           </li>
           <li>
             If |signal|’s [= AbortSignal/aborted flag =] is set, then reject |p|
@@ -2219,57 +2271,95 @@ setTimeout(() => controller.abort(), 3000);
           </li>
           <li>
             If |signal| is not `null`, then
-            <a data-cite="dom#abortsignal-abort-algorithms">add the following abort steps</a> to |signal|:
+            <a data-cite="dom#abortsignal-abort-algorithms">
+            add the following abort steps</a> to |signal|:
               <ol>
                 <li>
-                  If the instance has already initiated NFC data transfer,
-                  and it can't be aborted, ignore the abort signal and return.
-                </li>
-                <li>
-                  Stop the instance's |timer| if it is active.
-                </li>
-                <li>
-                  Reject |p| with an {{"AbortError"}}
-                  {{DOMException}} and abort these steps.
+                  Run the <a>abort a pending push operation</a> on the
+                  <a>environment settings object</a>.
                 </li>
               </ol>
           </li>
           <li>
-            Run the following steps <a>in parallel</a>:
+            [=promise/React=] to |p|:
+            <ol>
+              <li>
+                if |p| was settled (fulfilled or rejected), then run the
+                <a>clear the pending push tuple</a> steps.
+              </li>
+            </ol>
+          </li>
+          <li>
+            Return |p| and run the following steps <a>in parallel</a>:
             <ol>
               <li>
                 An implementation MAY reject |p| with
                 a {{"NotSupportedError"}} {{DOMException}}
                 and abort these steps.
-                <div class="note">
-                  The UA might terminate message push at this point. The reasons
-                  for terminations are implementation details. For example, the user
-                  could have has set a preference to allow a given origin only to
-                  read, write, or push data to peers. Also, the implementation might
-                  be unable to support the operation requested.
-                </div>
-              </li>
-              <li>
-                Let |target:NFCPushTarget| be |options|'s target.
-              </li>
-              <li>
-                Let |timeout:number| be |options|'s timeout.
-              </li>
-              <li>
-                If the |message:NDEFMessageSource| parameter is not of type defined by
-                the <a>NDEFMessageSource</a> union, reject |p|
-                with a {{TypeError}}, and abort these steps.
-              </li>
-              <li>
-                If the |message| parameter is of
-                <a>NDEFMessageInit</a> type, and |message|'s records
-                [= list/is empty =], reject |p| with
-                a {{TypeError}} and abort these steps.
-              </li>
+                <p class="note">
+                  The UA might abort message push at this point. The reasons
+                  for termination are implementation details. For example, the
+                  user could have has set a preference to allow a given origin
+                  only to read, write, or push data to peers. Also, the
+                  implementation might be unable to support the requested
+                  operation.
+                </p>
+                <li>
+                  Let |output| be the notation for the <a>NDEF message</a>
+                  to be created by UA, as the result of passing
+                  |message| to <a>create Web NFC message</a>.
+                  If this throws an exception, reject |p| with that
+                  exception and abort these steps.
+                </li>
+                <li>
+                  Attempt to <a>abort a pending push operation</a>.
+                  <p class="note">
+                    A push replaces all previously configured push operations.
+                  </p>
+                </li>
+                <li>
+                  Set `this`.[[\PushOptions]] to |options|.
+                </li>
+                <li>
+                  Set `this`.[[\PushMessage]] to |output|.
+                </li>
+                <li>
+                  Set <a>pending push tuple</a> to (`this`, |p|).
+                </li>
+                <li>
+                  Run the <a>start the push timer</a> steps.
+                </li>
+                <li>
+                  Run the <a>start the NFC push</a> steps whenever an
+                  <a>NFC device</a> |device| comes within communication range.
+                </li>
+                <p class="note">
+                  If <a>NFC is suspended</a>,
+                  continue waiting until |timer| expires (if set), or
+                  promise is aborted by the user, or until an <a>NFC device</a>
+                  comes within communication range.
+                </p>
+              </ol>
+            </li>
+          </li>
+        </ol>
+      </p>
+
+      <p id="steps-push-timer">
+        To <dfn>start the push timer</dfn>, run these steps:
+        <ol class=algorithm>
+          <p>
+            Let |p:Promise| be the <a>pending push tuple</a>'s promise.
+          </p>
+          <li>
+            Let |writer:NFCWriter| be the <a>pending push tuple</a>'s writer.
+          </li>
+          <li>
+            Let |timeout:number| be |writer|.[[\PushOptions]]'s timeout.
+            <ul>
               <li>
                 If |timeout| value is `NaN` or negative, reject
-                |p| with a {{TypeError}} and abort
-                these steps.
+                |p| with a {{TypeError}} and abort these steps.
               </li>
               <li>
                 If |timeout| value is not supported by the UA, reject
@@ -2277,150 +2367,110 @@ setTimeout(() => controller.abort(), 3000);
                 {{DOMException}} and abort these steps.
               </li>
               <li>
-                Let |output| be the notation for the <a>NDEF message</a>
-                to be created by UA, as the result of passing
-                |message| to <a>create Web NFC message</a>.
-                If this throws an exception, reject |p| with that
-                exception and abort these steps.
+                If |timeout| value is equal to `Infinity`, abort these
+                steps.
+              </li>
+            </ul>
+          </li>
+          <li>
+            Start a timer |timer| with the timeout value set to
+            |timeout| and set |writer|.[[\PushTimer]] to |timer|.
+          </li>
+          <li>
+            When |timer| expires, reject |p| with {{"TimeoutError"}}
+            {{DOMException}}.
+          </li>
+        </ol>
+      </p>
+
+      <p id="steps-start-nfc-push">
+        To <dfn>start the NFC push</dfn>, run these steps:
+        <ol class=algorithm>
+          <li>
+            Let |p:Promise| be the <a>pending push tuple</a>'s promise.
+          </li>
+          <li>
+            Let |writer| be the <a>pending push tuple</a>'s writer.
+          </li>
+          <li>
+            Let |options:NFCPushOptions| be |writer|.[[\PushOptions]].
+          </li>
+          <li>
+            Let |target:NFCPushTarget| be |options|' target.
+          </li>
+          <li>
+            Verify the following conditions:
+            <ul>
+              <li>
+                if |device| is an <a>NFC tag</a>, |target| is
+                "`tag`" or "`any`".
               </li>
               <li>
-                If |target| is "`any`", run the following
-                steps twice, once with |slot| set to the value
-                "`tag`", and once set to the value "`peer`";
-                otherwise run the following step once, with
-                |slot| set to the value of |target|.
+                if |device| is an <a>NFC peer</a>, |target| is
+                "`peer`" or "`any`".
               </li>
               <li>
-                Attempt to <a>abort a pending push operation</a>.
+                <a href="#nfc-is-suspended">NFC is not suspended</a>.
+              </li>
+            </ul>
+          </li>
+          <li>
+            In case of success, run the following steps:
+            <ol>
+              <li>
+                Stop |writer|.[[\PushTimer]] if active.
               </li>
               <li>
-                Associate |output| with |slot|.
-              </li>
-              </ul>
-              <li>
-                If |timeout| value is not equal to `Infinity`,
-                start a timer |timer| with the timeout value set to
-                |timeout|.
-              </li>
-              <li>
-                Add the following <dfn>async write handlers</dfn>:
-                <dl>
-                  <dt>The |timer| expires</dt>
-                  <ol>
-                    <li>
-                      Reject |p| with {{"TimeoutError"}} {{DOMException}}.
-                    </li>
-                  </ol>
-                  <dt>An <a>NFC device</a> |device| comes within
-                    communication range</dt>
-                  <ol>
-                    <li>
-                      Verify the following conditions:
-                      <ul>
-                        <li>
-                          if |device| is an <a>NFC tag</a>, |target|
-                          is "`tag`" or "`any`".
-                        </li>
-                        <li>
-                          if |device| is an <a>NFC peer</a>,
-                          |target| is "`peer`" or
-                          "`any`".
-                        </li>
-                        <li>
-                          <a href="#nfc-is-suspended">NFC is not suspended</a>.
-                        </li>
-                      </ul>
-                      In case of success, run the following sub-steps:
-                      <ol>
-                        <li>
-                          Stop |timer| if active.
-                        </li>
-                        <li>
-                          If |device| is an <a>NFC tag</a>,
-                          <ul>
-                            <li>Read the tag.</li>
-                            <li>
-                              If |options|'s ignoreRead is not equal to
-                              `true`, run the
-                              <a href="#steps-receiving">receiving steps</a>.
-                            </li>
-                            <li>
-                              Let |idHost| be the <a>record identifier host</a> of the
-                              tag.
-                            </li>
-                            <li>
-                              If |idHost| is `null`, or different than the
-                              <a data-cite="url#concept-host-serializer">
-                              serialized host</a> of the
-                              <a>current settings object</a>'s origin, and the
-                              <a>obtain push permission</a> steps return
-                              `false`, then reject |p| with
-                              {{"NotAllowedError"}} {{DOMException}}
-                              and abort these steps.
-                            </li>
-                          </ul>
-                        </li>
-                        <li>
-                          Initiate data transfer to |device| using
-                          |output| as buffer, using the <a>NFC adapter</a>
-                          in communication range with (connected to)
-                          |device|.
-                        </li>
-                        <li>
-                          If the transfer fails, reject |p| with
-                          {{"NetworkError"}} {{DOMException}}
-                          and abort these steps.
-                          <p class="note">
-                            Multiple adapters should be used sequentially by users.
-                            There is very small likelihood that a simultaneous tap
-                            will happen on two or multiple different and connected
-                            <a>NFC adapter</a>s.
-                            If it happens, the user will likely need to repeat the
-                            taps until success, preferably one device at a time.
-                            The error here gives an indication that the operation
-                            needs to be repeated. Otherwise the user may think the
-                            operation succeeded on all connected <a>NFC adapter</a>s.
-                          </p>
-                        </li>
-                        <li>
-                          When the transfer has completed, clear |output|
-                          associated with |target|, resolve
-                          |p|.
-                        </li>
-                      </ol>
-                    </li>
-                  </ol>
-                </dl>
-              </li>
-              <li>
-                [=promise/React=] to |p|:
-                <ol>
+                If |device| is an <a>NFC tag</a>,
+                <ul>
+                  <li>Read the tag.</li>
                   <li>
-                    If |p| was settled (fulfilled or rejected), then:
-                    <ol>
-                      <li>
-                        Clears the <a>pending push tuple</a>.
-                      </li>
-                      <li>
-                        Removes <a>async write handlers</a>.
-                      </li>
-                    </ol>
+                    If |options|'s ignoreRead is not equal to
+                    `true`, run the
+                    <a href="#steps-receiving">receiving steps</a>.
                   </li>
-                </ol>
+                  <li>
+                    Let |idHost| be the <a>record identifier host</a> of the
+                    tag.
+                  </li>
+                  <li>
+                    If |idHost| is `null`, or different than the
+                    <a data-cite="url#concept-host-serializer">
+                    serialized host</a> of the <a>current settings object</a>'s
+                    origin, and the <a>obtain push permission</a> steps return
+                    `false`, then reject |p| with {{"NotAllowedError"}}
+                    {{DOMException}} and abort these steps.
+                  </li>
+                </ul>
               </li>
               <li>
-                Set <a>pending push tuple</a> to (`this`, |p|).
+                Let |output:NDEFMessage| be |writer|.[[\PushMessage]].
               </li>
               <li>
-                Return |p|.
+                Initiate data transfer to |device| using
+                |output| as buffer, using the <a>NFC adapter</a>
+                in communication range with |device|.
+                <p class="note">
+                  Multiple adapters should be used sequentially by users.
+                  There is very small likelihood that a simultaneous tap
+                  will happen on two or multiple different and connected
+                  <a>NFC adapter</a>s.
+                  If it happens, the user will likely need to repeat the
+                  taps until success, preferably one device at a time.
+                  The error here gives an indication that the operation
+                  needs to be repeated. Otherwise the user may think the
+                  operation succeeded on all connected <a>NFC adapter</a>s.
+                </p>
+              </li>
+              <li>
+                If the transfer fails, reject |p| with
+                {{"NetworkError"}} {{DOMException}}
+                and abort these steps.
+              </li>
+              <li>
+                When the transfer has completed, resolve |p|.
               </li>
             </ol>
-            <p class="note">
-              If <a>NFC is suspended</a>,
-              continue waiting until |timer| expires (if set), or
-              promise is aborted by the user, or until an <a>NFC device</a>
-              comes within communication range.
-            </p>
           </li>
         </ol>
       </p>
@@ -2469,10 +2519,20 @@ setTimeout(() => controller.abort(), 3000);
 
       <section><h3>Creating Web NFC message</h3>
         <p>
-          To <dfn>create Web NFC message</dfn> given a |message:NDEFMessageSource| run
-          these steps:
+          To <dfn>create Web NFC message</dfn> given a
+          |message:NDEFMessageSource| run these steps:
         </p>
         <ol class=algorithm id="create-web-nfc-message">
+          <li>
+            If the |message:NDEFMessageSource| parameter is not of type defined
+            by the <a>NDEFMessageSource</a> union, throw a {{TypeError}} and
+            abort these steps.
+          </li>
+          <li>
+            If the |message:NDEFMessageSource| parameter is of
+            <a>NDEFMessageInit</a> type, and |message|'s records
+            [= list/is empty =], throw a {{TypeError}} and abort these steps.
+          </li>
           <li>
             Let |output| be the notation for the <a>NDEF message</a>
             to be created by the UA as a result of these steps.
