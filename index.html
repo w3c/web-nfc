@@ -1901,6 +1901,13 @@ setTimeout(() => controller.abort(), 3000);
     </tbody>
   </table>
 
+  <p class="note">
+    Note that the internal slots of {{NFCReader}} come from the
+    |options:NFCScanOptions| passed to <a>NFCReader.scan()</a>.
+    Therefore there is maximum one filter associated with any given
+    {{NFCReader}} object and successive invocations of <a>NFCReader.scan()</a>
+    with new |options:NFCScanOptions| will replace existing filters.
+  </p>
   <p>
     The <dfn data-dfn-for="NFCReader">onreading</dfn> is an {{EventHandler}} which is called to notify
     that new reading is available.
@@ -3251,10 +3258,6 @@ setTimeout(() => controller.abort(), 3000);
         incoming <a>NFC content</a>.
       </p>
       <p>
-        Multiple consecutive calls to the <a data-link-for="NFCReader">scan()</a>
-        method from the same <a>origin</a> create filters which are in OR relationship.
-      </p>
-      <p>
         When the <dfn>NFCReader.scan</dfn> method is invoked, the UA
         MUST run the following
         <dfn id="steps-listen">NFC listen algorithm</dfn>:
@@ -3269,7 +3272,7 @@ setTimeout(() => controller.abort(), 3000);
             [= list/For each =] |key| → |value| of |options|:
             <ol>
               <li>
-                If |key| equals "`signal`", set
+                If |key| equals "`signal`" and |value| is not `undefined`, set
                 |reader|.<a>[[\Signal]]</a> to |value|.
               </li>
               <li>
