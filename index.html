@@ -1304,8 +1304,6 @@ setTimeout(() => controller.abort(), 3000);
       <a>NDEFRecord</a> interface:
     </p>
     <pre class="idl">
-      typedef any NDEFRecordData;
-
       [Exposed=Window]
       interface NDEFRecord {
         constructor(NDEFRecordInit recordInit);
@@ -1325,7 +1323,7 @@ setTimeout(() => controller.abort(), 3000);
         USVString mediaType;
         USVString id;
 
-        NDEFRecordData data;
+        any data;
       };
     </pre>
 
@@ -1362,10 +1360,6 @@ setTimeout(() => controller.abort(), 3000);
         </tr>
       </tbody>
     </table>
-    <p>
-      The <dfn>NDEFRecordData</dfn> is a union type representing data types allowed
-      for <a href="#dom-ndefrecordinit-data">NDEFRecordInit.data</a> property.
-    </p>
     <p>
       The <dfn>mediaType</dfn> property represents the <a>MIME type</a> of
       the <a>NDEF record</a> payload.
