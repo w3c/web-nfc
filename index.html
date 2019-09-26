@@ -1386,37 +1386,32 @@ setTimeout(() => controller.abort(), 3000);
     </p>
     <p>
       The <dfn>toText()</dfn> method, when invoked, MUST return the result of
-      running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object
-      and a `text` type.
+      running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object and `text` target.
     </p>
     <p>
       The <dfn>toArrayBuffer()</dfn> method, when invoked, MUST return the result of
-      running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object
-      and an `arrayBuffer` type.
+      running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object and `arrayBuffer` target.
     </p>
     <p>
       The <dfn>toJSON()</dfn> method, when invoked, MUST return the result of
-      running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object
-      and a `JSON` type.
+      running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object and a `JSON` target.
     </p>
     <p>
       The <dfn>toRecords()</dfn> method, when invoked, MUST return the result of
-      running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object
-      and an `external` type.
+      running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object and `records` target.
     </p>
     <p data-dfn-for="NDEFRecordInit">
       The <dfn>NDEFRecordInit</dfn> dictionary is used to initialize an <a>NDEF record</a>
-      with its type, optional <a>MIME type</a> and <a>record identifier</a>, and payload
+      with its type, optional <a>MIME type</a>, <a>record identifier</a> and payload
       data via the members of
       <dfn>recordType</dfn>, <dfn>mediaType</dfn>, <dfn>id</dfn>,
-      and <dfn>data</dfn>. The mapping from data types of an
+      and <dfn>data</dfn>, respectively. The mapping from data types of an
       <a>NDEFRecordInit</a> to <a>NDEF record</a> types is presented
       in the algorithmic steps which handle the data and described in the
       [[[#steps-receiving]]] and [[[#writing-or-pushing-content]]] sections.
     </p>
     <p>
-      To <dfn>convert NDEFRecord.[[\PayloadData]] bytes</dfn>, pass a |record:NDEFRecord|
-      and a |type|, run these steps:
+      To <dfn>convert NDEFRecord.[[\PayloadData]] bytes</dfn>, pass a |record:NDEFRecord| and a |target|, run these steps:
     </p>
     <ol class=algorithm>
       <li>
@@ -1426,7 +1421,7 @@ setTimeout(() => controller.abort(), 3000);
         Let |recordType:NDEFRecordType| be the value of |record|'s
         <a data-link-for="NDEFRecord">recordType</a> attribute.
       </li>
-      <li>Switch on |type|:
+      <li>Switch on |target|:
         <dl>
           <dt>text</dt>
           <ol>
@@ -1468,8 +1463,8 @@ setTimeout(() => controller.abort(), 3000);
           <dt>arrayBuffer</dt>
           <ol>
             <li>
-              If the |recordType| value is equal to "`json`" or
-              "`opaque`", then return an {{ArrayBuffer}} whose contents are the
+              If the |recordType| value is equal to "`json`" or "`opaque`", then
+              return an {{ArrayBuffer}} whose contents are the
               |bytes|. Re-[= exception/throw =] any exceptions.
             </li>
             <li>
@@ -1479,20 +1474,21 @@ setTimeout(() => controller.abort(), 3000);
           <dt>JSON</dt>
           <ol>
             <li>
-              If the |recordType| value is equal to "`json`" or
-              "`opaque`", then return the result of running <a>parse JSON from bytes</a>
+              If the |recordType| value is equal to "`json`" or "`opaque`", then
+              return the result of running <a>parse JSON from bytes</a>
               on |bytes|. Re-[= exception/throw =] any exceptions.
             </li>
             <li>
               Otherwise, return `null`.
             </li>
           </ol>
-          <dt>external</dt>
+          <dt>records</dt>
           <ol>
             <li>
-              If the |recordType| value is an <a>external type</a>, then return the
-              result of running <a>parse records from bytes</a>
-              on |bytes|.
+              If the |recordType| value is "`smart-poster`", or "`opaque`", or
+              an <a>external type</a>, then return the result of running
+              <a>parse records from bytes</a> on |bytes|.
+              Re-[= exception/throw =] any exceptions.
             </li>
             <li>
               Otherwise, return `null`.
@@ -2593,13 +2589,23 @@ setTimeout(() => controller.abort(), 3000);
                   <dt>"`opaque`"</dt>
                   <ul>
                     <li>
-                      <a>map binary data to NDEF</a>.
+                      If |record|'s data is {{NDEFMessageSource}}, then return
+                      the result of running the <a>create Web NFC message</a>
+                      given |record|'s data.
+                    </li>
+                    <li>
+                      Otherwise, <a>map binary data to NDEF</a>.
                     </li>
                   </ul>
                   <dt><a>external type</a></dt>
                   <ul>
                     <li>
-                      <a>map external data to NDEF</a>
+                      If |record|'s data is {{NDEFMessageSource}}, then return
+                      the result of running the <a>create Web NFC message</a>
+                      given |record|'s data.
+                    </li>
+                    <li>
+                      Otherwise, <a>map external data to NDEF</a>
                     </li>
                   </ul>
                   <dt>unmatched type</dt>
