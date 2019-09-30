@@ -918,43 +918,42 @@
 
     <section> <h3>Push a smart poster message</h3>
       <p>
-        Smart poster defined in NFC Forum Smart Poster Record Type Definition
-        specification. It is an NDEF record that contains an <a>NDEF message</a>
-        as payload, which in turn may contain several records: a URI record that
-        refers to a content, and additional optional records for that content's
-        title, icon, size, type and possible action (e.g. send SMS, make call,
-        launch browser, or save for later, or open for editing, etc).
+        Smart poster is defined in the NFC Forum Smart Poster Record Type
+        Definition specification as an NDEF record that contains an
+        <a>NDEF message</a> as payload, which may contain several records: a
+        mandatory URI record that refers to a content, and additional optional
+        records for that content's title, icon, size, type and possible action
+        (e.g. the value `0` for doing an action associated to the content, like
+        send SMS, make call, launch browser, or the value `1` for saving the
+        content, or the value `2` for opening for editing).
       </p>
       <pre class="example">
         const writer = new NFCWriter();
-        let sp = new NDEFMessage({
-          records: [
-            {
-              recordType: "url",
-              data: "https://my.org/content/19911"
-            },
-            {
-              recordType: "t", // type, a local type to Sp
-              data: "image/gif"
-            },
-            {
-              recordType: "text",
-              data: "Funny dance"
-            },
-            {
-              recordType: "s",  // size, a local type to Sp
-              data: 4096  // byte size of the content at the URL above
-            },
-            {
-              recordType: "act",  // action, a local type to Sp
-              data: 0  // do the action, in this case open in the browser
-            },
-          ];
-        });
         writer.push({ records: [
           {
             recordType: "smart-poster",
-            data: sp.records
+            data: { records: [
+              {
+                recordType: "url",
+                data: "https://my.org/content/19911"
+              },
+              {
+                recordType: "t", // smart poster type, a local type to Sp
+                data: "image/gif"
+              },
+              {
+                recordType: "text",
+                data: "Funny dance"
+              },
+              {
+                recordType: "s",  // size, a local type to Sp
+                data: 4096  // byte size of the content at the URL above
+              },
+              {
+                recordType: "act",  // action, a local type to Sp
+                data: 0  // do the action, in this case open in the browser
+              }
+            ]}
           }
         ]}).catch(_ => {
           console.log("Push failed");
@@ -967,34 +966,28 @@
         External type records can be used to create application defined records
         that may even contain an <a>NDEF message</a> as payload.
       </p>
-      <p>
-        This example show how to do the previous Smart Poster use case with
-        external records. In this case, content sourcing and the action
-        mechanism are internal to the application.
-      </p>
       <pre class="example">
         const writer = new NFCWriter();
-        let ext = new NDEFMessage({
-          records: [
-            {
-              recordType: "url",
-              data: "https://my.org/game/19911"
-            },
-            {
-              recordType: "text",
-              data: "Game context given here"
-            },
-            {
-              recordType: "opaque",
-              mediaType: "image/png"
-              data: getImageBytes(fromURL);
-            }
-          ];
-        });
         writer.push({ records: [
           {
             recordType: "external",
-            data: ext.records  // embedded message
+            data: {
+              records: [
+                {
+                  recordType: "url",
+                  data: "https://my.org/game/19911"
+                },
+                {
+                  recordType: "text",
+                  data: "Game context given here"
+                },
+                {
+                  recordType: "opaque",
+                  mediaType: "image/png"
+                  data: getImageBytes(fromURL);
+                }
+              ]
+            }
           }
         ]}).catch(_ => {
           console.log("Push failed");
@@ -2682,9 +2675,9 @@
                   <dt><a>external type</a></dt>
                   <ul>
                     <li>
-                      If |record|'s data is {{NDEFMessageSource}}, then return
-                      the result of running the <a>create Web NFC message</a>
-                      given |record|'s data.
+                      If |record|'s data is of type {{NDEFMessageInit}}, then
+                      return the result of running the
+                      <a>create Web NFC message</a> given |record|'s data.
                     </li>
                     <li>
                       Otherwise, <a>map external data to NDEF</a>
