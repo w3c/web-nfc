@@ -624,113 +624,111 @@
     this specification.
   </p>
 
-  <aside title="Push a text string to either a tag or peer"
-       class="example">
+  <section><h3>Push a text string to either a tag or peer</h3>
     <p>
       Pushing a text string to any kind of device is straightforward.
       Options can be left out, as they default to pushing to both tags
       and peers.
     </p>
-    <pre class="highlight">
-const writer = new NFCWriter();
-writer.push(
-  "Hello World"
-).then(() => {
-  console.log("Message pushed.");
-}).catch(error => {
-  console.log(`Push failed :-( try again: ${error}.`);
-});
+    <pre class="example">
+      const writer = new NFCWriter();
+      writer.push(
+        "Hello World"
+      ).then(() => {
+        console.log("Message pushed.");
+      }).catch(error => {
+        console.log(`Push failed :-( try again: ${error}.`);
+      });
     </pre>
-  </aside>
+  </section>
 
-  <aside title="Push a text string to a peer device" class="example">
+  <section><h3>Push a text string to a peer device</h3>
     <p>
       It is possible to restrict to which devices (tags or peers) data
       should be pushed. Below we specify to only push to peers,
       and thus, no data is pushed when the user taps a tag.
     </p>
-    <pre class="highlight">
-const writer = new NFCWriter();
-writer.push(
-  "Text meant for peers only", { target: "peer" }
-).then(() => {
-  console.log("Message pushed.");
-}).catch(_ => {
-  console.log("Push failed :-( try again.");
-});
+    <pre class="example">
+      const writer = new NFCWriter();
+      writer.push(
+        "Text meant for peers only", { target: "peer" }
+      ).then(() => {
+        console.log("Message pushed.");
+      }).catch(_ => {
+        console.log("Push failed :-( try again.");
+      });
     </pre>
-  </aside>
+  </section>
 
-  <aside title="Push a URL to either a tag or peer" class="example">
+  <section> <h3>Push a URL to either a tag or peer</h3>
     <p>
       In order to push an NDEF record of URL type, simply use NDEFMessage.
     </p>
-    <pre class="highlight">
-const writer = new NFCWriter();
-writer.push({
-  records: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
-}).then(() => {
-  console.log("Message pushed.");
-}).catch(_ => {
-  console.log("Push failed :-( try again.");
-});
+    <pre class="example">
+      const writer = new NFCWriter();
+      writer.push({
+        records: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
+      }).then(() => {
+        console.log("Message pushed.");
+      }).catch(_ => {
+        console.log("Push failed :-( try again.");
+      });
     </pre>
-  </aside>
+  </section>
 
-  <aside title="Read data from tag, and write to empty ones" class="example">
+  <section> <h3>Read data from tag, and write to empty ones</h3>
     <p>
       Below we read various different kinds of data which can be stored on a tag.
       In the case the tag is empty, we write a text message with the value
       "Hello World".
     </p>
     <pre class="highlight">
-const writer = new NFCWriter();
-const reader = new NFCReader();
+      const writer = new NFCWriter();
+      const reader = new NFCReader();
 
-reader.onreading = event => {
-  const message = event.message;
-  if (message.records[0].recordType == 'empty') {
-    writer.push({
-      url: "/custom/path",
-      records: [{ recordType: "text", data: 'Hello World' }]
-    });
-    return;
-  }
-
-  console.log(`Read message written by ${message.url}`);
-
-  for (let record of message.records) {
-    switch (record.recordType) {
-      case "text":
-        console.log(`Text: ${record.toText()}`);
-        break;
-      case "url":
-        console.log(`URL: ${record.toText()}`);
-        break;
-      case "json":
-        console.log(`JSON: ${record.toJSON().myProperty}`);
-        break;
-      case "opaque":
-        if (record.mediaType.startsWith('image/')) {
-          const blob = new Blob([record.toArrayBuffer()], {type: record.mediaType});
-
-          const img = document.createElement("img");
-          img.src = URL.createObjectURL(blob);
-          img.onload = () => window.URL.revokeObjectURL(this.src);
-
-          document.body.appendChild(img);
+      reader.onreading = event => {
+        const message = event.message;
+        if (message.records[0].recordType == 'empty') {
+          writer.push({
+            url: "/custom/path",
+            records: [{ recordType: "text", data: 'Hello World' }]
+          });
+          return;
         }
-        break;
-    }
-  }
-};
 
-reader.scan();
+        console.log(`Read message written by ${message.url}`);
+
+        for (let record of message.records) {
+          switch (record.recordType) {
+            case "text":
+              console.log(`Text: ${record.toText()}`);
+              break;
+            case "url":
+              console.log(`URL: ${record.toText()}`);
+              break;
+            case "json":
+              console.log(`JSON: ${record.toJSON().myProperty}`);
+              break;
+            case "opaque":
+              if (record.mediaType.startsWith('image/')) {
+                const blob = new Blob([record.toArrayBuffer()], {type: record.mediaType});
+
+                const img = document.createElement("img");
+                img.src = URL.createObjectURL(blob);
+                img.onload = () => window.URL.revokeObjectURL(this.src);
+
+                document.body.appendChild(img);
+              }
+              break;
+          }
+        }
+      };
+
+      reader.scan();
     </pre>
-  </aside>
+  </section>
 
-  <aside title="Save and restore game progress with another device"
-       class="example">
+  <section> <h3>Save and restore game progress with another device</h3>
     <p>
       Filtering of relevant data sources can be done by the use of
       the <a>NFCScanOptions</a>. Below we accept the record identifier URL with
@@ -742,115 +740,114 @@ reader.scan();
       The example allows reading and pushing to both peers and tags,
       whichever one is tapped first.
     </p>
-    <pre class="highlight">
-const reader = new NFCReader();
-reader.scan({ id: "https://mygame.com/mypath/mygame" });
-reader.onreading = async event => {
-  console.log(`Source:     ${ event.message.url }`);
-  console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
+    <pre class="example">
+      const reader = new NFCReader();
+      reader.scan({ id: "https://mygame.com/mypath/mygame" });
+      reader.onreading = async event => {
+        console.log(`Source:     ${ event.message.url }`);
+        console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
 
-  const newMessage = {
-    records: [{
-      id: "/mypath/mygame/update",
-      recordType: "json",
-      mediaType: "application/json",
-      data: { level: 3, points: 4500, lives: 3 }
-    }]
-  };
-  const writer = new NFCWriter();
-  await writer.push(newMessage);
-  console.log("Pushed message");
-};
+        const newMessage = {
+          records: [{
+            id: "/mypath/mygame/update",
+            recordType: "json",
+            mediaType: "application/json",
+            data: { level: 3, points: 4500, lives: 3 }
+          }]
+        };
+        const writer = new NFCWriter();
+        await writer.push(newMessage);
+        console.log("Pushed message");
+      };
     </pre>
-  </aside>
+  </section>
 
-  <aside title="Push and read JSON (serialized and deserialized)"
-       class="example">
+  <section> <h3>Push and read JSON (serialized and deserialized)</h3>
     <p>
       Storing and receiving JSON data is easy with serialization and deserialization.
     </p>
-    <pre class="highlight">
-const reader = new NFCReader();
+    <pre class="example">
+      const reader = new NFCReader();
 
-reader.addEventListener("reading", event => {
-  for (let record of event.message.records) {
-    const json = record.toJSON();
-    const article =/[aeio]/.test(json.title) ? "an" : "a";
-    console.log(`${json.name} is ${article} ${json.title}`);
-  }
-});
+      reader.addEventListener("reading", event => {
+        for (let record of event.message.records) {
+          const json = record.toJSON();
+          const article =/[aeio]/.test(json.title) ? "an" : "a";
+          console.log(`${json.name} is ${article} ${json.title}`);
+        }
+      });
 
-reader.scan({ url: document.baseURI, recordType: "json" });
+      reader.scan({ url: document.baseURI, recordType: "json" });
 
-const writer = new NFCWriter();
-writer.push({
-  records: [
-    {
-      recordType: "json",
-      mediaType: "application/json",
-      data: {
-        name: "Benny Jensen",
-        title: "Banker"
-      }
-    },
-    {
-      recordType: "json",
-      mediaType: "application/json",
-      data: {
-        name: "Zoey Braun",
-        title: "Engineer"
-      }
-    }]
-});
+      const writer = new NFCWriter();
+      writer.push({
+        records: [
+          {
+            recordType: "json",
+            mediaType: "application/json",
+            data: {
+              name: "Benny Jensen",
+              title: "Banker"
+            }
+          },
+          {
+            recordType: "json",
+            mediaType: "application/json",
+            data: {
+              name: "Zoey Braun",
+              title: "Engineer"
+            }
+          }]
+      });
     </pre>
-  </aside>
+  </section>
 
-  <aside title="Write data to tag and print out existing data" class="example">
+  <section> <h3>Write data to tag and print out existing data</h3>
     <p>
       Pushing data to a tag requires tapping it. If existing data should be
       read during the same tap, we need to set the ignoreRead
       property to `false` for the <a>NFCWriter</a>.
     </p>
-    <pre class="highlight">
-const reader = new NFCReader();
-reader.onreading = event => {
-  for (let record of event.message.records) {
-    console.log("Record type:  " + record.recordType);
-    console.log("MIME type:    " + record.mediaType);
-    console.log("=== data ===\n" + record.toText());
-  }
-};
-reader.scan();
+    <pre class="example">
+      const reader = new NFCReader();
+      reader.onreading = event => {
+        for (let record of event.message.records) {
+          console.log("Record type:  " + record.recordType);
+          console.log("MIME type:    " + record.mediaType);
+          console.log("=== data ===\n" + record.toText());
+        }
+      };
+      reader.scan();
 
-const writer = new NFCWriter();
-writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
+      const writer = new NFCWriter();
+      writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
     </pre>
-  </aside>
+  </section>
 
-  <aside title="Stop listening to NDEF messages" class="example">
+  <section> <h3>Stop listening to NDEF messages</h3>
     <p>
       Read NDEF messages for 3 seconds by using <a
       href="#dom-nfcscanoptions-signal">signal</a> in the <a>NFCScanOptions</a>.
     </p>
     <pre class="highlight">
-const reader = new NFCReader();
-reader.onreading = event => {
-  console.log("NDEF message read.");
-};
+      const reader = new NFCReader();
+      reader.onreading = event => {
+        console.log("NDEF message read.");
+      };
 
-const controller = new AbortController();
-controller.signal.onabort = event => {
-  console.log("We're done waiting for NDEF messages.");
-};
+      const controller = new AbortController();
+      controller.signal.onabort = event => {
+        console.log("We're done waiting for NDEF messages.");
+      };
 
-reader.scan({ signal: controller.signal });
+      reader.scan({ signal: controller.signal });
 
-// Stop listening to NDEF messages after 3s.
-setTimeout(() => controller.abort(), 3000);
+      // Stop listening to NDEF messages after 3s.
+      setTimeout(() => controller.abort(), 3000);
     </pre>
-  </aside>
+  </section>
 
-  <aside title="Read an external record with an NDEF message as payload" class="example">
+  <section> <h3>Read an external record with an NDEF message as payload</h3>
     <p>
       External type records can be used to create application defined records.
       These records may contain an <a>NDEF message</a> as payload,
@@ -878,48 +875,48 @@ setTimeout(() => controller.abort(), 3000);
       which contains an <a>NDEF message</a>, containing a text record and
       a record with the local type "act" (action), just like smart posters.
     </p>
+    <pre class="example">
+        const reader = new NFCReader();
+        reader.onreading = event => {
+          const socialPost = event.message.records[0];
+          if (!socialPost) {
+            return;
+          }
 
-    <pre class="highlight">
-  const reader = new NFCReader();
-  reader.onreading = event => {
-    const socialPost = event.message.records[0];
-    if (!socialPost) {
-      return;
-    }
+          let action;
+          let text = "";
 
-    let action;
-    let text = "";
+          for (let record of socialPost.toRecords()) {
+            switch (record.recordType) {
+              case "text":
+                text = record.toText();
+                break;
+              case "-act":
+                const buffer = record.toArrayBuffer();
+                const view = new DataView(buffer);
+                action = view.getUint8(0);
+                break;
+            }
+          }
 
-    for (let record of socialPost.toRecords()) {
-      switch (record.recordType) {
-        case "text":
-          text = record.toText();
-          break;
-        case "-act":
-          const buffer = record.toArrayBuffer();
-          const view = new DataView(buffer);
-          action = view.getUint8(0);
-          break;
-      }
-    }
+          switch (action) {
+            case 0: // do the action
+              console.log(`Post "${text}" to timeline`);
+              break;
+            case 1: // save for later
+              console.log(`Save "${text}" as a draft`);
+              break;
+            case 2: // open for editing
+              console.log(`Show editable post with "${text}"`);
+              break;
+          }
+        };
 
-    switch (action) {
-      case 0: // do the action
-        console.log(`Post "${text}" to timeline`);
-        break;
-      case 1: // save for later
-        console.log(`Save "${text}" as a draft`);
-        break;
-      case 2: // open for editing
-        console.log(`Show editable post with "${text}"`);
-        break;
-    }
-  };
-
-  reader.scan({ recordType: "example.com:sp"});
+        reader.scan({ recordType: "example.com:sp"});
       </pre>
-    </aside>
-    <aside title="Push a smart poster message" class="example">
+    </section>
+
+    <section> <h3>Push a smart poster message</h3>
       <p>
         Smart poster defined in NFC Forum Smart Poster Record Type Definition
         specification. It is an NDEF record that contains an <a>NDEF message</a>
@@ -928,7 +925,7 @@ setTimeout(() => controller.abort(), 3000);
         title, icon, size, type and possible action (e.g. send SMS, make call,
         launch browser, or save for later, or open for editing, etc).
       </p>
-      <pre class="highlight">
+      <pre class="example">
         const writer = new NFCWriter();
         let sp = new NDEFMessage({
           records: [
@@ -963,9 +960,9 @@ setTimeout(() => controller.abort(), 3000);
           console.log("Push failed");
         });
       </pre>
-    </aside>
-    <aside title="Push an external record with an NDEF message as payload"
-           class="example">
+    </section>
+
+    <section> <h3>Push an external record with an NDEF message as payload</h3>
       <p>
         External type records can be used to create application defined records
         that may even contain an <a>NDEF message</a> as payload.
@@ -975,7 +972,7 @@ setTimeout(() => controller.abort(), 3000);
         external records. In this case, content sourcing and the action
         mechanism are internal to the application.
       </p>
-      <pre class="highlight">
+      <pre class="example">
         const writer = new NFCWriter();
         let ext = new NDEFMessage({
           records: [
@@ -1003,9 +1000,7 @@ setTimeout(() => controller.abort(), 3000);
           console.log("Push failed");
         });
       </pre>
-    </aside>
-
-
+    </section>
   </section> <!-- Usage examples -->
 
   <section class="informative"> <h3>Use Cases</h3>
