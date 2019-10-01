@@ -60,25 +60,25 @@
           publisher: "NFC Forum",
           date: "24 July 2006",
         },
-        "NFC-TEXT": {
+        "NDEF-TEXT": {
           href: "http://members.nfc-forum.org/specs/spec_list/",
           title: "NFC Forum Text Record Type Definition",
           publisher: "NFC Forum",
           date: "24 July 2006",
         },
-        "NFC-URI": {
+        "NDEF-URI": {
           href: "http://members.nfc-forum.org/specs/spec_list/",
           title: "NFC Forum URI Record Type Definition",
           publisher: "NFC Forum",
           date: "24 July 2006",
         },
-        "NFC-SIGNATURE": {
+        "NDEF-SIGNATURE": {
           href: "http://members.nfc-forum.org/specs/spec_list/",
           title: "NFC Forum Signature Record Type Definition",
           publisher: "NFC Forum",
           date: "24 July 2006",
         },
-        "NFC-SMARTPOSTER": {
+        "NDEF-SMARTPOSTER": {
           href: "http://members.nfc-forum.org/specs/spec_list/",
           title: "NFC Forum Smart Poster Record Type Definition",
           publisher: "NFC Forum",
@@ -419,7 +419,7 @@
       </tr>
       <tr>
         <td>1</td>
-        <td>NFC Forum <a>well-known type record</a></td>
+        <td>NFC Forum <a>well-known type</a> record</td>
       </tr>
       <tr>
         <td>2</td>
@@ -461,19 +461,7 @@
   </p>
   <p>
     The <dfn>CF field</dfn> (bit `5`, chunk flag) indicates whether the payload
-    is chunked across multiple records. The initial chunk record has this flag
-    set, its <a>TYPE field</a> set to the type of the whole chunked payload,
-    and its <a>ID field</a> MAY be set to an identifier used for the whole
-    chunked payload. It's <a>PAYLOAD LENGTH field</a> denotes the size of the
-    payload chunk in this record only.
-    The middle chunk records have this flag set, have the same <a>ID field</a>
-    as the first chunk, their <a>TYPE LENGTH field</a> and <a>IL field</a> MUST
-    be `0` and their <a>TNF field</a> MUST be `6` (unchanged).
-    The terminating chunk record has this flag cleared, and in rest undergo the
-    same rules as the middle chunk records.
-    A chunked payload MUST be contained in a single <a>NDEF message</a>,
-    therefore the initial and middle chunk records cannot have the
-    <a>ME field</a> set.
+    is <a>chunked</a> across multiple records.
   </p>
   <p class="note">
     Web NFC turns all received chunked records into logical records and
@@ -526,53 +514,103 @@
   <h3>
     NDEF Record types
   </h3>
-    <section>
-    <h4>
-      Empty NDEF records (TNF 0)
-    </h4>
-    The <dfn>empty record</dfn>s, which have no payload or type
-    and are used to indicate empty tags.
-
+    <section> <h4>Empty NDEF record (TNF 0)</h4>
+    <p>
+      An <dfn>empty record</dfn>'s' <a>TYPE LENGTH field</a>,
+      <a>ID LENGTH field</a> and <a>PAYLOAD LENGTH field</a> MUST be `0`, thus
+      the <a>TYPE field</a>, <a>ID field</a> and <a>PAYLOAD field</a> MUST NOT
+      be present.
+    </p>
     <ndef-record
       header="1,1,0,1,0,0 (EMPTY)"
       content="0,0,_,_,_,_"
       short>
     </ndef-record>
     </section>
+
     <section>
     <h4>
-       Well-known records (TNF 1)
+      Well-known type records (TNF 1)
     </h4>
     <p>
-      The NFC Forum has standardized a small set of useful RTD (Record Type
-      Definition) types for use in the NFC Forum <dfn  data-no-export="">well-known type record</dfn>s,
-      for instance text, URL, and binary data such as media. In addition, there
-      are record types designed for more complex interactions, such as smart
-      poster (containing optional embedded records for url, text, signature and
-      actions), and handover records. Most of these are defined in [[[NFC-RTD]]].
+      The NFC Forum has standardized a small set of useful record types in
+      [[NFC-RTD]] (Resource Type Definition specifications) called
+      <dfn>well-known type</dfn> records, for instance text, URL, media and
+      opaque binary data. In addition, there are record types designed for more
+      complex interactions, such as smart poster (containing optional embedded
+      records for url, text, signature and actions), and handover records.
     </p>
     <p>
-      For well-known records, the RTD type is stored in the <a>TYPE field</a> and is "`T`"
-      (`0x54`) for text, "`U`" (`0x55`) for url and "`Sp`" (`0x53`, `0x70`) for smart poster.
+      The type information stored in the <a>TYPE field</a> can be of two kinds:
+      either <dfn>NFC Forum global type</dfn> that are defined and managed by the NFC Forum, or <dfn>NFC Forum local type</dfn> that are strings that always
+      start with lower-case letter or a number and are either defined by the
+      NFC Forum, or by an application, within the scope of the local context
+      of another record or application.
     </p>
     <p>
-      Other known RTD types supported by the platform and not Web NFC are
-      "`ac`" (`0x61`, `0x63`) for alternative carrier, "`Hc`" (`0x48`, `0x63`) for
-      handover carrier, "`Hr`" (`0x48`, `0x72`) for handover request, and "`Hs`"
-      (`0x48`, `0x73`) for handover select.
+      The global types are "`T`" (`0x54`) for text, "`U`" (`0x55`) for URL,
+      "`Sp`" (`0x53`, `0x70`) for smart poster, "`Hc`" (`0x48`, `0x63`) for
+      handover carrier, "`Hr`" (`0x48`, `0x72`) for handover request, "`Hs`"
+      (`0x48`, `0x73`) for handover select and the NFC Forum defined local
+      type "`ac`" (`0x61`, `0x63`) for alternative carrier (within the context
+      of handovers).
     </p>
     <p>
-      An <dfn>NFC handover</dfn> defines RTD and the
-      corresponding message structure that allows negotiation and activation of
-      an alternative communication carrier, such as Bluetooth or WiFi.
-      The negotiated communication carrier would then be used (separately) to
-      perform certain activities between the two devices, such as sending photos
-      to the other device, printing to a Bluetooth printer or streaming video to
-      a television set.
+      The canonical form of these type definitions is a URN with namespace
+      identifier `nfc` and namespace specific string `wkt`. For instance, the
+      <a>well-known type</a> of a <a>Text record</a> is `"urn:nfc:wkt:T"`, but
+      it is stored as `"T"`.
     </p>
+
+    <section> <h5>Text record</h5>
+      <div>
+        The <dfn>Text record</dfn> is a <a>well-known type</a> that is defined
+        in the [[NDEF-TEXT]] specification.
+        The <a>TNF field</a> is `1` and the <a>TYPE field</a> is `T`.
+        The first byte of the <a>PAYLOAD field</a> is a status byte, followed
+        by the ISO/IANA language code in US-ASCII encoding.
+        The rest of the payload is the actual text, encoded either in UTF-8 or
+        UTF-16, as indicated by the status byte as follows:
+        <ul>
+          <li>Bits 0 to 5 define the length of the IANA language code.</li>
+          <li>Bit 6 is `0`.</li>
+          <li>
+            If bit 7 if set, means the payload is encoded in UTF-8, otherwise in
+            UTF-16.
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section> <h5>URI record</h5>
+      <p>
+        <dfn>URI record</dfn> is defined in [[NDEF-URI]].
+        The <a>TNF field</a> is `1` and the <a>TYPE field</a> is `U` (`0x55`).
+        The first byte of the <a>PAYLOAD field</a> is a URI identifier code,
+        in fact an index in an abbreviation table where the values are prepended
+        to the rest of the URI. For instance the value `0` denotes no prepending,
+        `1` denotes `"http://www."`, `0x04` denotes `"https://"` and so on.
+        The rest of the payload contains the rest of the URI as a UTF-8 string
+        (and if the first byte is `0`, then it denotes the whole URI).
+      </p>
+      <p>
+        The URI is defined in [[RFC3987]] and in fact is a UTF-8 encoded IRI
+        that can be a URN or a URL.
+      </p>
+    </section>
+
+    <section> <h5>Smart poster record</h5>
     <p>
-      Smart poster embeds additional records inside its payload. Below you
-      see an example embedding a text and a url record.
+      <dfn>Smart poster</dfn> is defined in [[NDEF-SMARTPOSTER]] as an NDEF
+      record that contains an <a>NDEF message</a> as payload, which may contain
+      several records: a mandatory <a>URI record</a> that refers to a content,
+      and additional optional records for that content's title, icon, size,
+      type and possible action (e.g. the value `0` for doing an action
+      associated to the content, like send SMS, make call, launch browser, or
+      the value `1` for saving the content, or the value `2` for opening for
+      editing).
+      The example below shows a smart poster record that embeds a text and a
+      URL record.
       <ndef-record
         header="1,1,0,1,0,1 (WELL KNOWN)"
         content="*,*,_,'Sp' (0x53 0x70),_,*"
@@ -590,12 +628,25 @@
       </ndef-record>
     </p>
     </section>
+
+    <p>
+      An <dfn>NFC handover</dfn> defines RTD and the
+      corresponding message structure that allows negotiation and activation of
+      an alternative communication carrier, such as Bluetooth or WiFi.
+      The negotiated communication carrier would then be used (separately) to
+      perform certain activities between the two devices, such as sending photos
+      to the other device, printing to a Bluetooth printer or streaming video to
+      a television set.
+    </p>
+
+    </section>  <!-- Well-known types -->
+
     <section>
     <h4>
       MIME type records (TNF 2)
     </h4>
     <p>
-      The <dfn>MIME type record</dfn>s are records that store `opaque`
+      The <dfn>MIME type record</dfn>s are records that store binary
       data with associated <a>MIME type</a>.
       <ndef-record
         header="*,*,*,*,*,2 (MIME)"
@@ -607,6 +658,7 @@
       Web NFC has special handling for working with JSON MIME type data.
     </p>
     </section>
+
     <section>
     <h4>
       Absolute-URL records (TNF 3)
@@ -630,13 +682,20 @@
       </ndef-record>
     </p>
     </section>
+
     <section>
     <h4>
       External type records (TNF 4)
     </h4>
     <p>
-      The NFC Forum <dfn data-no-export="">external type record</dfn>s are for client specified
-      data and must have a type name following the [[[NFC-RTD]]] standard.
+      The NFC Forum <dfn data-no-export="">external type record</dfn>s are for
+      application specified data types and are defined in [[[NFC-RTD]]].
+    </p>
+    <p>
+      The external type is a URN with the prefix `"urn:nfc:ext:"` followed by
+      the name of the owner domain, adding a colon, then a non-zero type name,
+      for instance `"urn:nfc:ext:w3.org:atype"`, stored as `"w3.org:atype"`
+      in the <a>TYPE field</a>.
     </p>
     <p>
       <ndef-record
@@ -653,7 +712,10 @@
     </h4>
     <p>
       The <dfn>unknown record</dfn>s are records that store
-      `opaque` data without associated <a>MIME type</a>.
+      `opaque` data without associated <a>MIME type</a>, meaning that the
+      `application/octet-stream` default <a>MIME type</a> MAY be assumed.
+      The [[NFC-NDEF]] specification recommends that <a>NDEF</a> parsers store
+      or forward the payload without processing it.
     </p>
     <p>
       <ndef-record
@@ -667,10 +729,35 @@
     <h4>
       Unchanged type records (TNF 6)
     </h4>
-    <p>
+    <div>
       The <dfn>unchanged record</dfn>s are record chunks of
       a chunked data set, and is used for any, but the first record.
-    </p>
+      A <dfn>chunked</dfn> payload is spread across multiple <a>NDEF record</a>s
+      that undergo the following rules:
+      <ul>
+        <li>
+          The initial chunk record has the <a>CF field</a> set, its
+          <a>TYPE field</a> set to the type of the whole chunked payload and
+          its <a>ID field</a> MAY be set to an identifier used for the whole
+          chunked payload. Its <a>PAYLOAD LENGTH field</a> denotes the size of
+          the payload chunk in this record only.
+        </li>
+        <li>
+          The middle chunk records have the <a>CF field</a> set, have the
+          same <a>ID field</a> as the first chunk, their
+          <a>TYPE LENGTH field</a> and <a>IL field</a> MUST be `0` and their
+          <a>TNF field</a> MUST be `6` (unchanged).
+        </li>
+        <li>
+          The terminating chunk record has this flag cleared, and in rest undergo the same rules as the middle chunk records.
+        </li>
+        <li>
+          A chunked payload MUST be contained in a single <a>NDEF message</a>,
+          therefore the initial and middle chunk records cannot have the
+          <a>ME field</a> set.
+        </li>
+      </ul>
+    </div>
     <p>
       First record:
       <ndef-record
@@ -1109,7 +1196,7 @@
       payload.
     </p>
     <p>
-      Local types are well-known types, local to a every
+      Local types are well-known types defined locally to every
       individual record type that carries an <a>NDEF message</a> as payload.
     </p>
     <p>
@@ -1168,16 +1255,6 @@
   </section>
 
   <section> <h3>Push a smart poster message</h3>
-    <p>
-      Smart poster is defined in the NFC Forum Smart Poster Record Type
-      Definition specification as an NDEF record that contains an
-      <a>NDEF message</a> as payload, which may contain several records: a
-      mandatory URI record that refers to a content, and additional optional
-      records for that content's title, icon, size, type and possible action
-      (e.g. the value `0` for doing an action associated to the content, like
-      send SMS, make call, launch browser, or the value `1` for saving the
-      content, or the value `2` for opening for editing).
-    </p>
     <pre class="example">
       const writer = new NFCWriter();
       writer.push({ records: [
@@ -1272,6 +1349,10 @@
     The integrity of <a>NFC content</a> SHOULD NOT be trusted when
     used for implementing security policies, for instance the authenticity of
     <a>record identifier</a>, unless a <a>prearranged trust relationship</a> exists.
+  </p>
+  <p>
+    Security considerations for media types in general are discussed in
+    [[RFC2048]] and for “application” media types in [[RFC2046]].
   </p>
   </section>
 
@@ -1371,9 +1452,6 @@
         Otherwise the UA must <a>obtain permission</a> for pushing
         <a>NFC content</a> which overwrites existing information.
         See also the [[[#writing-or-pushing-content]]] section.
-        <div class=issue>
-          Verify with security folks.
-        </div>
       </p>
       <p>
         Since all local content that a web page has access to can be shared with
@@ -1698,12 +1776,13 @@
                                    "@" / ";" / "$" / "_" / "!" / "*" / "'" / "."
           </pre>
           The `reg-name` value is a [=host/registrable domain=] owned by the issuing organization, a "`:`" and a type, e.g. "`w3.org:member`".
-          And additional ABNF exists for <a>well-known type record</a>s:
+          And additional ABNF exists for <a>well-known type</a> records:
           <pre class="abnf">
             wkt-type             = (ALPHA / DIGIT) *(ALPHA / DIGIT / other)
           </pre>
           <p class=note>
-            The [[[NFC-RTD]]] defines every type in the <a>well-known type record</a>s and <a>external type records</a> in terms of URNs, but only a subset of the URN is actually stored in the <a>NDEF record</a>'s <a>TYPE field</a>, which corresponds to the above two ABNFs.
+            The [[[NFC-RTD]]] defines every type in the <a>well-known type</a>
+            records and <a>external type records</a> in terms of URNs, but only a subset of the URN is actually stored in the <a>NDEF record</a>'s <a>TYPE field</a>, which corresponds to the above two ABNFs.
           </p>
         </dd>
       </dl>
@@ -1732,13 +1811,13 @@
       <td><dfn>"`text`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{DOMString}}</td>
-      <td><a>Well-known type record</a> with type "`T`"</td>
+      <td><a>Well-known type</a> record with type "`T`"</td>
     </tr>
     <tr>
       <td><dfn>"`url`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{DOMString}}</td>
-      <td><a>Well-known type record</a> with type "`U`"</td>
+      <td><a>Well-known type</a> record with type "`U`"</td>
     </tr>
     <tr>
       <td><dfn>"`json`"</dfn></td>
@@ -1790,19 +1869,19 @@
       </td>
     </tr>
     <tr>
-      <td><a>Well-known type record</a> with type "`T`"</td>
+      <td><a>Well-known type</a> record with type "`T`"</td>
       <td>"`text`"</td>
       <td>"`text/plain`"</td>
       <td><a>toText()</a></td>
     </tr>
     <tr>
-      <td><a>Well-known type record</a> with type "`U`"</td>
+      <td><a>Well-known type</a> record with type "`U`"</td>
       <td>"`url`"</td>
       <td>"`text/plain`"</td>
       <td><a>toText()</a></td>
     </tr>
     <tr>
-      <td><a>Well-known type record</a> with type "`Sp`"</td>
+      <td><a>Well-known type</a> record with type "`Sp`"</td>
       <td>"`smart-poster`"</td>
       <td>""</td>
       <td>
@@ -2821,7 +2900,7 @@
         steps:
         <p class="note">
           This is useful when clients specifically want to write text in a
-          <a>well-known type record</a>.
+          <a>well-known type</a> record.
           Other options would be to use the value "`opaque`"
           with an explicit <a>MIME type</a> text type, which allows for
           better differentiation, e.g. when using "`text/xml`", or
@@ -2913,7 +2992,8 @@
             be created by the UA.
             <ol>
               <li>
-                Set the |ndefRecord|'s <a>TNF field</a> to `1` (<a>well-known type record</a>).
+                Set the |ndefRecord|'s <a>TNF field</a> to `1` (
+                <a>well-known type</a> record).
               </li>
               <li>
                 Set the |ndefRecord|'s <a>TYPE field</a> to "`T`" (`0x54`).
@@ -3003,7 +3083,8 @@
             be created by the UA.
             <ol>
               <li>
-                Set the |ndefRecord|'s <a>TNF field</a> to `1` (<a>well-known type record</a>).
+                Set the |ndefRecord|'s <a>TNF field</a> to `1`
+                (<a>well-known type</a> record).
               </li>
               <li>
                 Set the |ndefRecord|'s <a>TYPE field</a> to "`U`" (`0x55`).
@@ -3178,10 +3259,6 @@
             {{ArrayBuffer}}, [= exception/throw =] a {{TypeError}}
             and abort these steps.
           </li>
-          <div class=issue>
-            In addition to supporting ArrayBuffer, we need to support sub records. That
-            is really what makes external records interesting.
-          </div>
           <li>
             Set |arrayBuffer| to |record|'s data.
           </li>
@@ -3715,7 +3792,7 @@
         |record|'s recordType to "`empty`" and set |record|'s mediaType to `""`.
       </li>
       <li>
-        If |ndef|'s |typeNameField| is `1` (<a>well-known type record</a>):
+        If |ndef|'s |typeNameField| is `1` (<a>well-known type</a> record):
         <ol>
           <li>
             Set |record| to the result of the algorithm below switching on
