@@ -1251,21 +1251,9 @@
     <section> <h4>Visible document</h4>
       <p>
         Web NFC functionality is allowed only for the {{Document}} of the
-        <a>top-level browsing context</a>, which must be <a>visible</a>.
+        <a>top-level browsing context</a>, which must be
+        <dfn data-cite="PAGE-VISIBILITY#dom-visibilitystate-visible">visible</dfn>.
       </p>
-      <p>
-        To determine if a given |document:Document| is <dfn>visible</dfn>
-        the user agent MUST run the following steps:
-      </p>
-      <ol class=algorithm>
-        <li>
-          If |document|'s <a href="http://w3c.github.io/page-visibility/#page-visibility#dom-visibilitystate">visibilityState</a>
-          is "hidden", return false.
-        </li>
-        <li>
-          Return true.
-        </li>
-      </ol>
       <p>
         This also means that UAs should block access to the NFC radio if
         the display is off or the device is locked.
@@ -2053,34 +2041,33 @@
     according to the algorithmic steps described in this specification.
   </section>
 
-  <section><h3>Handling Window visibility</h3>
+  <section><h3>Handling visibility change</h3>
     <p>
-      Each {{Window}} object where the Web NFC API is
-      exposed has separate <a>NFCWriter</a> and <a>NFCReader</a> instances.
-      The <a>visible</a> state of the
-      the <a>top-level browsing context</a>'s {{Document}} determines the
-      <a href="#nfc-suspended">suspended</a> state of the associated
-      <a>NFCWriter</a> and <a>NFCReader</a> instances.
+      When the user agent determines that the
+      <dfn data-cite="PAGE-VISIBILITY#dfn-visibility-states">visibility
+      state</dfn> of the [=environment settings object / responsible document=]
+      of the <a>current settings object</a> changes, it must run these steps:
     </p>
+    <ol class="algorithm">
+      <li>Let |document:Document| be the [=environment settings object /
+      responsible document=] of the <a>current settings object</a>.
+      </li>
+      <li>
+        If |document|'s <a>visibility state</a> is `"visible"`,
+        <a>resume NFC</a> and abort these steps.
+      </li>
+      <li>
+        Otherwise, <a>suspend NFC</a> and attempt to <a>abort a pending
+        push operation</a>.
+      </li>
+    </ol>
     <p>
-      The term <dfn id="nfc-suspended">suspended</dfn> in this specification
-      refers to NFC operations being suspended, i.e. no <a>NFC content</a> is
+      The term <dfn id="nfc-suspended">suspended</dfn> refers to NFC
+      operations being suspended, which means that no <a>NFC content</a> is
       pushed by <a>NFCWriter</a>s, and no received <a>NFC content</a> is
-      presented to any {{NFCReader}} while suspended.
-
-      However, platform level timers for the
-      <a>NFCWriter.push()</a> method continue running,
-      and if they expire, the event should be recorded and handled
-      when execution next resumes, i.e. when the <a
-      href="http://w3c.github.io/page-visibility/#dom-document-onvisibilitychange">visibilitychange</a>
-      event is fired on the {{Document}} object.
+      presented to any {{NFCReader}} while being suspended.
     </p>
-    <p>
-      When the {{Document}} of the <a>top-level browsing context</a>
-      using the Web NFC API is <a>visible</a>, <a>resume NFC</a>.
-      Otherwise, <a>suspend NFC</a>.
-    </p>
-  </section> <!-- handling window visibility -->
+  </section>
 
   <section><h3>Clearing the pending push tuple</h3>
   <p>
