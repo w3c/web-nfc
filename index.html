@@ -64,17 +64,11 @@
           href: "http://members.nfc-forum.org/specs/spec_list/",
           title: "NFC Forum Text Record Type Definition",
           publisher: "NFC Forum",
-          date: "24 July 2006",
+          date: "14 August 2013",
         },
         "NDEF-URI": {
           href: "http://members.nfc-forum.org/specs/spec_list/",
           title: "NFC Forum URI Record Type Definition",
-          publisher: "NFC Forum",
-          date: "24 July 2006",
-        },
-        "NDEF-SIGNATURE": {
-          href: "http://members.nfc-forum.org/specs/spec_list/",
-          title: "NFC Forum Signature Record Type Definition",
           publisher: "NFC Forum",
           date: "24 July 2006",
         },
@@ -83,6 +77,18 @@
           title: "NFC Forum Smart Poster Record Type Definition",
           publisher: "NFC Forum",
           date: "24 July 2006",
+        },
+        "NDEF-SIGNATURE": {
+          href: "http://members.nfc-forum.org/specs/spec_list/",
+          title: "NFC Forum Signature Record Type Definition",
+          publisher: "NFC Forum",
+          date: "18 November 2010",
+        },
+        "NFC-HANDOVER": {
+          href: "http://members.nfc-forum.org/specs/spec_list/",
+          title: "NFC Forum Connection Handover Technical Specification",
+          publisher: "NFC Forum",
+          date: "16 January 2014",
         },
         "ISO-639.2": {
           href: "https://www.loc.gov/standards/iso639-2/php/code_list.php",
@@ -540,33 +546,37 @@
       complex interactions, such as smart poster (containing optional embedded
       records for url, text, signature and actions), and handover records.
     </p>
-    <p>
+    <div>
       The type information stored in the <a>TYPE field</a> can be of two kinds:
-      either <dfn>NFC Forum global type</dfn> that are defined and managed by the NFC Forum, or <dfn>NFC Forum local type</dfn> that are strings that always
-      start with lower-case letter or a number and are either defined by the
-      NFC Forum, or by an application, within the scope of the local context
-      of another record or application.
-    </p>
-    <p>
-      The global types are "`T`" (`0x54`) for text, "`U`" (`0x55`) for URL,
-      "`Sp`" (`0x53`, `0x70`) for smart poster, "`Hc`" (`0x48`, `0x63`) for
-      handover carrier, "`Hr`" (`0x48`, `0x72`) for handover request, "`Hs`"
-      (`0x48`, `0x73`) for handover select and the NFC Forum defined local
-      type "`ac`" (`0x61`, `0x63`) for alternative carrier (within the context
-      of handovers).
-    </p>
+      <ul>
+        <li>
+          <dfn>NFC Forum global type</dfn> that are defined and managed by the
+          NFC Forum and usually start with uppercase letter.
+          Examples: "`T`" for text, "`U`" for URL, "`Sp`" for smart poster,
+          "`Sig`" for signature, "`Hc`" for handover carrier, "`Hr`" for
+          handover request, "`Hs`" for handover select, etc.
+        </li>
+        <li>
+          <dfn>NFC Forum local type</dfn> that are defined by the NFC Forum or
+          by an application, within the scope of the local context of another
+          record or application and always start with lowercase letter or a
+          number. See <a>Smart poster</a> for an example on how local types are
+          used.
+        </li>
+      </ul>
+    </div>
     <p>
       The canonical form of these type definitions is a URN with namespace
-      identifier `nfc` and namespace specific string `wkt`. For instance, the
-      <a>well-known type</a> of a <a>Text record</a> is `"urn:nfc:wkt:T"`, but
-      it is stored as `"T"`.
+      identifier `nfc` and namespace specific string "`wkt`". For instance, the
+      <a>well-known type</a> of a <a>Text record</a> is "`urn:nfc:wkt:T`", but
+      it is stored as "`T`".
     </p>
 
     <section> <h5>Text record</h5>
       <div>
         The <dfn>Text record</dfn> is a <a>well-known type</a> that is defined
         in the [[NDEF-TEXT]] specification.
-        The <a>TNF field</a> is `1` and the <a>TYPE field</a> is `T`.
+        The <a>TNF field</a> is `1` and the <a>TYPE field</a> is "`T`" (`0x54`).
         The first byte of the <a>PAYLOAD field</a> is a status byte, followed
         by the ISO/IANA language code in US-ASCII encoding.
         The rest of the payload is the actual text, encoded either in UTF-8 or
@@ -585,11 +595,11 @@
     <section> <h5>URI record</h5>
       <p>
         <dfn>URI record</dfn> is defined in [[NDEF-URI]].
-        The <a>TNF field</a> is `1` and the <a>TYPE field</a> is `U` (`0x55`).
+        The <a>TNF field</a> is `1` and the <a>TYPE field</a> is "`U`" (`0x55`).
         The first byte of the <a>PAYLOAD field</a> is a URI identifier code,
         in fact an index in an abbreviation table where the values are prepended
         to the rest of the URI. For instance the value `0` denotes no prepending,
-        `1` denotes `"http://www."`, `0x04` denotes `"https://"` and so on.
+        `1` denotes "`http://www.`", `0x04` denotes "`https://`"" and so on.
         The rest of the payload contains the rest of the URI as a UTF-8 string
         (and if the first byte is `0`, then it denotes the whole URI).
       </p>
@@ -604,11 +614,36 @@
       <dfn>Smart poster</dfn> is defined in [[NDEF-SMARTPOSTER]] as an NDEF
       record that contains an <a>NDEF message</a> as payload, which may contain
       several records: a mandatory <a>URI record</a> that refers to a content,
-      and additional optional records for that content's title, icon, size,
-      type and possible action (e.g. the value `0` for doing an action
-      associated to the content, like send SMS, make call, launch browser, or
-      the value `1` for saving the content, or the value `2` for opening for
-      editing).
+      and additional optional records related to the content: a title record
+      (a <a>Text record</a>), one or more icon records, a type record, a size
+      record and an action record.
+    </p>
+    <p>
+      Icon records are <a>MIME type record</a>s. Readers SHOULD select one icon
+      to display.
+    </p>
+    <p>
+      The type record has <a>NFC Forum local type</a> "`t`" specific to smart
+      poster and the <a>PAYLOAD field</a> contains a UTF-8 encoded MIME type for
+      the content referred to by the URI record.
+    </p>
+    <p>
+      The size record has <a>NFC Forum local type</a> "`s`" specific to smart
+      poster and the <a>PAYLOAD field</a> contains a 4-byte 32 bit unsigned
+      integer that denotes the size of the object referred to by the URL in the
+      URI record.
+    </p>
+    <p>
+      The action record  has <a>NFC Forum local type</a> "`act`" specific to
+      smart poster and the <a>PAYLOAD field</a> contains a single byte. If its
+      value is `0`, it means "do the action" (depending on type, this might mean
+      send SMS to phone number, make call to phone number, launch browser with
+      URL). If the value is `1`, it means "save the content for later processing"
+      (e.g. store the SMS, URL, phone number etc) using a platform-specific
+      default application. The value `2` means "open for editing" with a
+      platform-specific default application.
+    </p>
+    <div>
       The example below shows a smart poster record that embeds a text and a
       URL record.
       <ndef-record
@@ -626,18 +661,29 @@
           short noindices>
         </ndef-record>
       </ndef-record>
+    </div>
+    </section>
+
+    <section> <h5>Signature records</h5>
+    <p>
+      <dfn>NDEF Signature</dfn> is defined [[NDEF-SIGNATURE]].
+      Its <a>TYPE field</a> contains "`Sig`" (`0x53`, `0x69`, `0x67`) and its
+      <a>PAYLOAD field</a> contains version, signature and a certificate chain.
+      Web NFC does not support this at the moment.
     </p>
     </section>
 
+    <section> <h5>Handover records</h5>
     <p>
-      An <dfn>NFC handover</dfn> defines RTD and the
+      <dfn>NFC handover</dfn> is defined [[NFC-HANDOVER]] and the
       corresponding message structure that allows negotiation and activation of
       an alternative communication carrier, such as Bluetooth or WiFi.
       The negotiated communication carrier would then be used (separately) to
       perform certain activities between the two devices, such as sending photos
       to the other device, printing to a Bluetooth printer or streaming video to
-      a television set.
+      a television set. Web NFC does not support this at the moment.
     </p>
+    </section>
 
     </section>  <!-- Well-known types -->
 
