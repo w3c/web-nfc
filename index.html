@@ -149,7 +149,7 @@
 <!-- - - - - - - - - - - - - - -  Introduction  - - - - - - - - - - - - - - -->
 <section class="informative"> <h2>Introduction</h2>
   <p>
-    In general, there are following groups of user scenarios for NFC:
+    NFC user scenarios can be grouped as follows:
     <ul>
       <li>
         Hold a device in close proximity to a passively powered tag, such as
@@ -157,7 +157,7 @@
       </li>
       <li>
         Hold two active devices, e.g. phones or tablets, in close proximity
-        in order to push an <a>NDEF message</a> from one device to the other.
+        in order to push data from one device to the other.
       </li>
       <li>
         Hold two active devices, e.g. phones or tablets, in close proximity
@@ -167,18 +167,20 @@
       <li>Card emulation
        <ol>
         <li>
-          With a secure element: for payments by holding your phone close to a
-          point-of-sales terminal, instead of swiping a payment card.
+          With a secure element: payments by holding your phone close to a
+          point-of-sales terminal.
         </li>
-        <li>With host card emulation: for allowing use-cases like using a phone
-          acting as a hotel room keycard.
+        <li>
+          With host card emulation (HCE): for allowing use-cases like using a
+          phone acting as a hotel room keycard.
         </li>
        </ol>
       </li>
     </ul>
   </p>
   <p>
-    NFC works using magnetic induction, meaning that the reader will emit a
+    NFC works using magnetic induction, meaning that the reader (an active,
+    powered device) will emit a
     small electric charge which then creates a magnetic field. This field powers
     the passive device which turns it into electrical impulses to communicate
     data. Thus, when the devices are within range, a read is always performed
@@ -282,12 +284,13 @@
   </p>
   <p>
     An <dfn>NDEF message</dfn> encapsulates one or more application-defined
-    <a>NDEF record</a>s. NDEF messages can be stored on an <a>NFC tag</a> or exchanged between NFC-enabled devices.
+    <a>NDEF record</a>s. NDEF messages can be stored on an <a>NFC tag</a> or
+    exchanged between NFC-enabled devices.
   </p>
   <p>
     The term <dfn>NFC content</dfn> denotes all bytes sent to or received from
-    an <a>NFC tag</a> or an <a>NFC peer</a>. In the current API it is synonym to
-    <a>NDEF message</a>.
+    an <a>NFC tag</a> or an <a>NFC peer</a>. In the current API it is synonym
+    to <a>NDEF message</a>.
   </p>
   </section>
 </section> <!-- Terminology -->
@@ -301,7 +304,7 @@
   <section class="informative"> <h3>NDEF compatible tag types</h3>
     <p>
       The NFC Forum has mandated the support of five different tag types to be
-      operable with NFC devices. The same is required on operating systems such
+      operable with NFC devices. The same is required on operating systems, such
       as Android.
     </p>
     <p>
@@ -379,11 +382,6 @@
     <p>
       Card emulation mode capabilities also depend on the NFC chip in the device.
       For payments, a Secure Element is often needed.
-    </p>
-    <p class="note">
-      This document does not aim supporting all possible use cases of NFC
-      technology, but only a few use cases which are considered relevant to be
-      used by web pages in browsers, using the browser security model.
     </p>
   </section>
 
@@ -619,8 +617,8 @@
       record and an action record.
     </p>
     <p>
-      Icon records are <a>MIME type record</a>s. Readers SHOULD select one icon
-      to display.
+      Icon records are <a>MIME type record</a>s. If multiple icon records are
+      included, readers SHOULD select only one of them to display.
     </p>
     <p>
       The type record has <a>NFC Forum local type</a> "`t`" specific to smart
@@ -634,14 +632,50 @@
       URI record.
     </p>
     <p>
-      The action record  has <a>NFC Forum local type</a> "`act`" specific to
-      smart poster and the <a>PAYLOAD field</a> contains a single byte. If its
-      value is `0`, it means "do the action" (depending on type, this might mean
-      send SMS to phone number, make call to phone number, launch browser with
-      URL). If the value is `1`, it means "save the content for later processing"
-      (e.g. store the SMS, URL, phone number etc) using a platform-specific
-      default application. The value `2` means "open for editing" with a
-      platform-specific default application.
+      The action record has <a>NFC Forum local type</a> "`act`" specific to
+      smart poster and the <a>PAYLOAD field</a> contains a single byte, whose
+      value has the following meaning:
+    </p>
+    <table class="simple">
+      <tr>
+        <th><strong>Value</strong></th>
+        <th><strong>Description</strong></th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>Do the action</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Save for later</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Open for editing</td>
+      </tr>
+      <tr>
+        <td>3..0xFF</td>
+        <td>Reserved for future use</td>
+      </tr>
+    </table>
+    <p>
+      The action record is optional and there is no default action on the smart
+      poster content if the action record is missing.
+    </p>
+    <p class="note">
+      At the time of NDEF standardization the value `0` ("do the action") was
+      meant for use cases like send an SMS, make a call or launch browser.
+      Similarly, the value `1`, ("save the content for later processing") was
+      meant for use cases like store the SMS in inbox, save the URL in
+      bookmarks, or save the phone number to contacts. Also, the value `2`
+      ("open for editing") was meant to open the smart poster content with a
+      default application for editing.
+    </p>
+    <p>
+      Implementations don't need to implement any standardized behavior for the
+      actions defined here. In this API it's up to the applications what actions
+      they define (that may include the use cases above). However, Web NFC
+      just provides the values.
     </p>
     <div>
       The example below shows a smart poster record that embeds a text and a
@@ -669,7 +703,9 @@
       <dfn>NDEF Signature</dfn> is defined [[NDEF-SIGNATURE]].
       Its <a>TYPE field</a> contains "`Sig`" (`0x53`, `0x69`, `0x67`) and its
       <a>PAYLOAD field</a> contains version, signature and a certificate chain.
-      Web NFC does not support this at the moment.
+      In this version of the API, Web NFC only provides the raw byte content
+      of the payload (see this
+      <a href="https://github.com/w3c/web-nfc/issues/363">issue</a>).
     </p>
     </section>
 
@@ -681,7 +717,8 @@
       The negotiated communication carrier would then be used (separately) to
       perform certain activities between the two devices, such as sending photos
       to the other device, printing to a Bluetooth printer or streaming video to
-      a television set. Web NFC does not support this at the moment.
+      a television set. Web NFC does not support this at the moment (see this
+      <a href="https://github.com/w3c/web-nfc/issues/364">issue</a>.
     </p>
     </section>
 
@@ -795,7 +832,8 @@
           <a>TNF field</a> MUST be `6` (unchanged).
         </li>
         <li>
-          The terminating chunk record has this flag cleared, and in rest undergo the same rules as the middle chunk records.
+          The terminating chunk record has this flag cleared, and in rest
+          undergo the same rules as the middle chunk records.
         </li>
         <li>
           A chunked payload MUST be contained in a single <a>NDEF message</a>,
@@ -896,7 +934,7 @@
   </section>
   <section> <h3>Pushing data to an <a>NFC peer</a> device</h3>
     <p>
-      In general, pushing data to another Web NFC capable device requires that
+      In general, pushing data to another NFC capable device requires that
       on the initiating device the user would first have to navigate to a web
       site. The user would then touch the device against another Web NFC
       equipped device, and data transfer would occur.
@@ -1398,7 +1436,7 @@
   </p>
   <p>
     Security considerations for media types in general are discussed in
-    [[RFC2048]] and for “application” media types in [[RFC2046]].
+    [[RFC2048]] and [[RFC2046]].
   </p>
   </section>
 
