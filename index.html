@@ -48,11 +48,47 @@
           publisher: "NFC Forum",
           date: "24 July 2006",
         },
+        "NFC-NDEF": {
+          href: "http://members.nfc-forum.org/specs/spec_list/",
+          title: "NFC Data Exchange Format (NDEF) Technical Specification",
+          publisher: "NFC Forum",
+          date: "24 July 2006",
+        },
         "NFC-RTD": {
           href: "http://members.nfc-forum.org/specs/spec_list/",
           title: "NFC Record Type Definition (RTD) Technical Specification",
           publisher: "NFC Forum",
           date: "24 July 2006",
+        },
+        "NDEF-TEXT": {
+          href: "http://members.nfc-forum.org/specs/spec_list/",
+          title: "NFC Forum Text Record Type Definition",
+          publisher: "NFC Forum",
+          date: "14 August 2013",
+        },
+        "NDEF-URI": {
+          href: "http://members.nfc-forum.org/specs/spec_list/",
+          title: "NFC Forum URI Record Type Definition",
+          publisher: "NFC Forum",
+          date: "24 July 2006",
+        },
+        "NDEF-SMARTPOSTER": {
+          href: "http://members.nfc-forum.org/specs/spec_list/",
+          title: "NFC Forum Smart Poster Record Type Definition",
+          publisher: "NFC Forum",
+          date: "24 July 2006",
+        },
+        "NDEF-SIGNATURE": {
+          href: "http://members.nfc-forum.org/specs/spec_list/",
+          title: "NFC Forum Signature Record Type Definition",
+          publisher: "NFC Forum",
+          date: "18 November 2010",
+        },
+        "NFC-HANDOVER": {
+          href: "http://members.nfc-forum.org/specs/spec_list/",
+          title: "NFC Forum Connection Handover Technical Specification",
+          publisher: "NFC Forum",
+          date: "16 January 2014",
         },
         "ISO-639.2": {
           href: "https://www.loc.gov/standards/iso639-2/php/code_list.php",
@@ -109,6 +145,58 @@
     contains.
   </p>
 </section>
+
+<!-- - - - - - - - - - - - - - -  Introduction  - - - - - - - - - - - - - - -->
+<section class="informative"> <h2>Introduction</h2>
+  <p>
+    NFC user scenarios can be grouped as follows:
+    <ul>
+      <li>
+        Hold a device in close proximity to a passively powered tag, such as
+        a plastic card or sticker, in order to read and/or write data.
+      </li>
+      <li>
+        Hold two active devices, e.g. phones or tablets, in close proximity
+        in order to push data from one device to the other.
+      </li>
+      <li>
+        Hold two active devices, e.g. phones or tablets, in close proximity
+        in order to initiate a connection using another wireless carrier such
+        as Bluetooth or WiFi.
+      </li>
+      <li>Card emulation
+       <ol>
+        <li>
+          With a secure element: payments by holding your phone close to a
+          point-of-sales terminal.
+        </li>
+        <li>
+          With host card emulation (HCE): for allowing use-cases like using a
+          phone acting as a hotel room keycard.
+        </li>
+       </ol>
+      </li>
+    </ul>
+  </p>
+  <p>
+    NFC works using magnetic induction, meaning that the reader (an active,
+    powered device) will emit a
+    small electric charge which then creates a magnetic field. This field powers
+    the passive device which turns it into electrical impulses to communicate
+    data. Thus, when the devices are within range, a read is always performed
+    (see NFC Analog Specification and NFC Digital Protocol, NFC Forum, 2006).
+    The peer-to-peer connection works in a similar way, as the device
+    periodically switches into a so-called initiator mode in order to scan for
+    targets, then later to fall back into target mode. If a target is found, the
+    data is read the same way as for tags.
+  </p>
+  <p>
+    As NFC is based on existing RFID standards, many NFC chipsets support
+    reading RFID tags, but some of these are only supported by single
+    vendors and not part of the NFC standards. As such this document
+    specifies ways to interact with the NFC Data Exchange Format (NDEF).
+  </p>
+</section> <!-- Introduction -->
 
 <!-- - - - - - - - - - - - - - -  Terminology - - - - - - - - - - - - - - - -->
 <section> <h2>Terminology and conventions</h2>
@@ -191,347 +279,33 @@
     An <dfn>NFC device</dfn> is either an <a>NFC peer</a>, or an <a>NFC tag</a>.
   </p>
   <p>
+    <dfn>NDEF</dfn> is an abbreviation for NFC Forum Data Exchange Format, a
+    lightweight binary message format that is standardized in [[!NFC-NDEF]].
+  </p>
+  <p>
     An <dfn>NDEF message</dfn> encapsulates one or more application-defined
-    <a>NDEF record</a>s. <dfn>NDEF</dfn> is an abbreviation for NFC Forum
-    Data Exchange Format, a lightweight binary message format. NDEF messages
-    can be stored on an <a>NFC tag</a> or exchanged between NFC-enabled devices.
+    <a>NDEF record</a>s. NDEF messages can be stored on an <a>NFC tag</a> or
+    exchanged between NFC-enabled devices.
   </p>
   <p>
-    The term <dfn>NFC content</dfn> is a synonym for <a>NDEF message</a>,
-    which can originate either from an <a>NFC tag</a> or an <a>NFC peer</a>.
+    The term <dfn>NFC content</dfn> denotes all bytes sent to or received from
+    an <a>NFC tag</a> or an <a>NFC peer</a>. In the current API it is synonym
+    to <a>NDEF message</a>.
   </p>
-</section>
-<section>
-<h3>
-  The NDEF record and fields
-</h3>
-  <p>
-    An <dfn>NDEF record</dfn> is a part of an <a>NDEF message</a>. Each record
-    is a binary structure that contains a data payload, as well as associated
-    type information. In addition to this, it includes information about how
-    the data is structured, like payload size, whether the data is chunked over
-    multiple records etc.
-  </p>
-  <p>
-    A <dfn>Web NFC message</dfn> consists of a sequence of <a>NDEF record</a>s.
-  </p>
-  <p>
-    A generic record looks like the following:
-    <ndef-record class="ndef"
-      header="*,*,*,*,*,*"
-      content="*,PAYLOAD LENGTH - 1 (SR) to 4 bytes,ID LENGTH (optional),TYPE (optional),ID (optional),PAYLOAD (optional)">
-    </ndef-record>
-  </p>
-  <p>
-    Only the first three bytes (lines in figure) are mandatory. First the
-    header byte, followed by the <a>TYPE LENGTH field</a> and <a>PAYLOAD
-    LENGTH field</a>, which may both be zero.
-  </p>
-  <p>
-    The <dfn>MB field</dfn> (bit `7`, message begin) indicates whether this is
-    the beginning of a message, the <dfn>ME field</dfn> (bit `6`, message end)
-    indicates whether it is the end. The <dfn>CF field</dfn> (bit `5`,
-    chunk flag) indicates whether the payload is chunked across multiple records.
-  </p>
-  <p class="note">
-    Web NFC turns all chunked records into logical records.
-  </p>
-  <p>
-    The <dfn>SR field</dfn> (bit `4`, short record) indicates whether the record is a
-    short record. A short
-    record is one with a payload length <= `255` bytes. Normal records can have payload
-    lengths exceeding `255` bytes up to a maximum of `4` GB. Short records only use one
-    byte to indicate length, whether as normal records use `4` bytes (`2`<sup>`32`</sup>`-1` bytes).
-  </p>
-  <p>
-    The <dfn>IL field</dfn> (bit `3`, id length) indicates whether an <a>ID LENGTH field</a> is
-    available. This optional identifier is a URL.
-  </p>
-  <p>
-    The <dfn>TNF field</dfn> (bit `0-2`, type name format) indicates the format of the
-    type name and is often exposed by native NFC software stacks. The field can take
-    binary values denoting the following NDEF record payload types:
-    <table class="simple">
-      <tr>
-        <th><strong>TNF value</strong></th>
-        <th><strong>Description</strong></th>
-      </tr>
-      <tr>
-        <td>0</td>
-        <td><a>Empty record</a></td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>NFC Forum <a>well-known type record</a></td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td><a>MIME type record</a></td>
-      </tr>
-      <tr>
-        <td>3</td>
-        <td><a>Absolute-URL record</a></td>
-      </tr>
-      <tr>
-        <td>4</td>
-        <td>NFC Forum <a>external type record</a></td>
-      </tr>
-      <tr>
-        <td>5</td>
-        <td><a>Unknown record</a></td>
-      </tr>
-      <tr>
-        <td>6</td>
-        <td><a>Unchanged record</a></td>
-      </tr>
-      <tr>
-        <td>7</td>
-        <td>Reserved for future use</td>
-      </tr>
-    </table>
-  </p>
-  <p>
-    Other fields include <dfn>TYPE LENGTH field</dfn>, <dfn>TYPE field</dfn>,
-    <dfn>ID LENGTH field</dfn>, <dfn>ID field</dfn>, <dfn>PAYLOAD LENGTH field</dfn>
-    and the <dfn>PAYLOAD field</dfn>.
-  </p>
-  <p class="note">
-    The [[[NFC-RTD]]] requires that the <a>TYPE field</a> names MUST be compared in case-insensitive manner.
-  </p>
-  </section>
-  <section>
-  <h3>
-    Record types
-  </h3>
-    <section>
-    <h4>
-      Empty NDEF records (TNF 0)
-    </h4>
-    The <dfn>empty record</dfn>s, which have no payload or type
-    and are used to indicate empty tags.
-
-    <ndef-record
-      header="1,1,0,1,0,0 (EMPTY)"
-      content="0,0,_,_,_,_"
-      short>
-    </ndef-record>
-    </section>
-    <section>
-    <h4>
-       Well-known records (TNF 1)
-    </h4>
-    <p>
-      The NFC Forum has standardized a small set of useful RTD (Record Type
-      Definition) types for use in the NFC Forum <dfn  data-no-export="">well-known type record</dfn>s,
-      for instance text, URL, and binary data such as media. In addition, there
-      are record types designed for more complex interactions, such as smart
-      poster (containing optional embedded records for url, text, signature and
-      actions), and handover records. Most of these are defined in [[[NFC-RTD]]].
-    </p>
-    <p>
-      For well-known records, the RTD type is stored in the <a>TYPE field</a> and is "`T`"
-      (`0x54`) for text, "`U`" (`0x55`) for url and "`Sp`" (`0x53`, `0x70`) for smart poster.
-    </p>
-    <p>
-      Other known RTD types supported by the platform and not Web NFC are
-      "`ac`" (`0x61`, `0x63`) for alternative carrier, "`Hc`" (`0x48`, `0x63`) for
-      handover carrier, "`Hr`" (`0x48`, `0x72`) for handover request, and "`Hs`"
-      (`0x48`, `0x73`) for handover select.
-    </p>
-    <p>
-      An <dfn>NFC handover</dfn> defines RTD and the
-      corresponding message structure that allows negotiation and activation of
-      an alternative communication carrier, such as Bluetooth or WiFi.
-      The negotiated communication carrier would then be used (separately) to
-      perform certain activities between the two devices, such as sending photos
-      to the other device, printing to a Bluetooth printer or streaming video to
-      a television set.
-    </p>
-    <p>
-      Smart poster embeds additional records inside its payload. Below you
-      see an example embedding a text and a url record.
-      <ndef-record
-        header="1,1,0,1,0,1 (WELL KNOWN)"
-        content="*,*,_,'Sp' (0x53 0x70),_,*"
-        short>
-        <ndef-record slot="payload"
-          header="1,0,0,1,0,1 (WELL KNOWN)"
-          content="TYPE LENGTH (1 byte),*,_,'T' (0x54),_,*"
-          short noindices>
-        </ndef-record>
-        <ndef-record slot="payload"
-          header="0,1,0,1,0,1 (WELL KNOWN)"
-          content="TYPE LENGTH (1 byte),*,_,'U' (0x55),_,*"
-          short noindices>
-        </ndef-record>
-      </ndef-record>
-    </p>
-    </section>
-    <section>
-    <h4>
-      MIME type records (TNF 2)
-    </h4>
-    <p>
-      The <dfn>MIME type record</dfn>s are records that store `opaque`
-      data with associated <a>MIME type</a>.
-      <ndef-record
-        header="*,*,*,*,*,2 (MIME)"
-        content="*,*,*,SERIALIZED MIME TYPE,*,MIME TYPE PAYLOAD"
-        short>
-      </ndef-record>
-    </p>
-    <p class=note>
-      Web NFC has special handling for working with JSON MIME type data.
-    </p>
-    </section>
-    <section>
-    <h4>
-      Absolute-URL records (TNF 3)
-    </h4>
-    <p>
-      In <dfn>absolute-URL record</dfn>s the <a>TYPE field</a> contains the
-      <a>absolute-URL string</a>, and not the payload.
-    </p>
-    <p class=note>
-      NOTE: Some platforms, like Windows Phone have stored additional data
-      in the payload, but any payload data in these records are ignored by
-      other platforms such as Android. On Android, reading such a record,
-      will attempt to load the URL in Chrome and it is as such not intended
-      for client applications.
-    </p>
-    <p>
-      <ndef-record
-        header="*,*,*,*,*,3 (ABSOLUTE URL)"
-        content="*,*,*,ABSOLUTE URL STRING,*,PAYLOAD (optional/ignored)"
-        short>
-      </ndef-record>
-    </p>
-    </section>
-    <section>
-    <h4>
-      External type records (TNF 4)
-    </h4>
-    <p>
-      The NFC Forum <dfn data-no-export="">external type record</dfn>s are for client specified
-      data and must have a type name following the [[[NFC-RTD]]] standard.
-    </p>
-    <p>
-      <ndef-record
-        header="*,*,*,*,*,4 (EXTERNAL)"
-        content="*,*,*,EXTERNAL TYPE (eg. w3.org:member),*,*"
-        short>
-      </ndef-record>
-    </p>
-    </section>
-
-    <section>
-    <h4>
-      Unknown type records (TNF 5)
-    </h4>
-    <p>
-      The <dfn>unknown record</dfn>s are records that store
-      `opaque` data without associated <a>MIME type</a>.
-    </p>
-    <p>
-      <ndef-record
-        header="*,*,*,*,*,5 (UNKNOWN)"
-        content="0,*,*,_,*,*"
-        short>
-      </ndef-record>
-    </p>
-  </section>
-  <section>
-    <h4>
-      Unchanged type records (TNF 6)
-    </h4>
-    <p>
-      The <dfn>unchanged record</dfn>s are record chunks of
-      a chunked data set, and is used for any, but the first record.
-    </p>
-    <p>
-      First record:
-      <ndef-record
-        header="1,0,1,1,0,*"
-        content="0,PAYLOAD LENGTH FOR THIS RECORD,_,_,_,*"
-        short>
-      </ndef-record>
-      <br>
-      Intermediate record:
-      <ndef-record
-        header="0,0,1,1,0,6 (UNCHANGED)"
-        content="0,PAYLOAD LENGTH FOR THIS RECORD,_,_,_,*"
-        short>
-      </ndef-record>
-      <br>
-      Last record:
-      <ndef-record
-        header="0,1,0,1,0,6 (UNCHANGED)"
-        content="0,PAYLOAD LENGTH FOR THIS RECORD,_,_,_,*"
-        short>
-      </ndef-record>
-    </p>
-    <p>
-      Any implementation of Web NFC MUST transparently expose chunked records
-      as single logical records.
-    </p>
-    </section>
   </section>
 </section> <!-- Terminology -->
 
-<!-- - - - - - - - - - - - - - -  Introduction  - - - - - - - - - - - - - - -->
-<section class="informative"> <h2>Introduction</h2>
-  <p>
-    In general, there are following groups of user scenarios for NFC:
-    <ul>
-      <li>
-        Hold a device in close proximity to a passively powered tag, such as
-        a plastic card or sticker, in order to read and/or write data.
-      </li>
-      <li>
-        Hold two active devices, e.g. phones or tablets, in close proximity
-        in order to push a <a>Web NFC message</a> from one device to the other.
-      </li>
-      <li>
-        Hold two active devices, e.g. phones or tablets, in close proximity
-        in order to initiate a connection using another wireless carrier such
-        as Bluetooth or WiFi.
-      </li>
-      <li>Card emulation
-       <ol>
-        <li>
-          With a secure element: for payments by holding your phone close to a
-          point-of-sales terminal, instead of swiping a payment card.
-        </li>
-        <li>With host card emulation: for allowing use-cases like using a phone
-          acting as a hotel room keycard.
-        </li>
-       </ol>
-      </li>
-    </ul>
-  </p>
-  <p>
-    NFC works using magnetic induction, meaning that the reader will emit a
-    small electric charge which then creates a magnetic field. This field powers
-    the passive device which turns it into electrical impulses to communicate
-    data. Thus, when the devices are within range, a read is always performed
-    (see NFC Analog Specification and NFC Digital Protocol, NFC Forum, 2006).
-    The peer-to-peer connection works in a similar way, as the device
-    periodically switches into a so-called initiator mode in order to scan for
-    targets, then later to fall back into target mode. If a target is found, the
-    data is read the same way as for tags.
-  </p>
-  <p>
-    As NFC is based on existing RFID standards, many NFC chipsets support
-    reading RFID tags, but some of these are only supported by single
-    vendors and not part of the NFC standards. As such this document
-    specifies ways to interact with the NFC Data Exchange Format (NDEF).
-  </p>
 
+<section class="informative">
+  <h2>The NFC Standard</h2>
+  <p>
+    NFC is standardized in the NFC Forum and described in [[NFC-STANDARDS]].
+  </p>
   <section class="informative"> <h3>NDEF compatible tag types</h3>
     <p>
       The NFC Forum has mandated the support of five different tag types to be
-      operable with NFC devices. The same is required on operating systems such as
-      Android.
+      operable with NFC devices. The same is required on operating systems, such
+      as Android.
     </p>
     <p>
       In addition to that, the <a>MIFARE Standard</a> specifies a way
@@ -609,16 +383,664 @@
       Card emulation mode capabilities also depend on the NFC chip in the device.
       For payments, a Secure Element is often needed.
     </p>
+  </section>
+
+  <section>
+  <h3>
+    The NDEF record and fields
+  </h3>
+  <p>
+    An <dfn>NDEF record</dfn> is a part of an <a>NDEF message</a>. Each record
+    is a binary structure that contains a data payload, as well as associated
+    type information. In addition to this, it includes information about how
+    the data is structured, like payload size, whether the data is chunked over
+    multiple records etc.
+  </p>
+  <p>
+    A generic record looks like the following:
+    <ndef-record class="ndef"
+      header="*,*,*,*,*,*"
+      content="*,PAYLOAD LENGTH - 1 (SR) to 4 bytes,ID LENGTH (optional),TYPE (optional),ID (optional),PAYLOAD (optional)">
+    </ndef-record>
+  </p>
+  <p>
+    Only the first three bytes (lines in figure) are mandatory. First the
+    header byte, followed by the <a>TYPE LENGTH field</a> and <a>PAYLOAD
+    LENGTH field</a>, which may both be zero.
+  </p>
+  <p>
+    The <dfn>TNF field</dfn> (bit `0-2`, type name format) indicates the format
+    of the type name and is often exposed by native NFC software stacks. The
+    field can take binary values denoting the following NDEF record payload types:
+    <table class="simple">
+      <tr>
+        <th><strong>TNF value</strong></th>
+        <th><strong>Description</strong></th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td><a>Empty record</a></td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>NFC Forum <a>well-known type</a> record</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><a>MIME type record</a></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><a>Absolute-URL record</a></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>NFC Forum <a>external type record</a></td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><a>Unknown record</a></td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><a>Unchanged record</a></td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Reserved for future use</td>
+      </tr>
+    </table>
+  </p>
+  <p>
+    The <dfn>IL field</dfn> (bit `3`, id length) indicates whether an
+    <a>ID LENGTH field</a> is present. If the <a>IL field</a> is `0`, then the
+    <a>ID field</a> is not present either.
+  </p>
+  <p>
+    The <dfn>SR field</dfn> (bit `4`, short record) indicates a short record,
+    one with a payload length <= `255` bytes. Normal records can have payload
+    lengths exceeding `255` bytes up to a maximum of `4` GB. Short records only
+    use one byte to indicate length, whether as normal records use `4` bytes
+    (`2`<sup>`32`</sup>`-1` bytes).
+  </p>
+  <p>
+    The <dfn>CF field</dfn> (bit `5`, chunk flag) indicates whether the payload
+    is <a>chunked</a> across multiple records.
+  </p>
+  <p class="note">
+    Web NFC turns all received chunked records into logical records and
+    transparently chunks sent payload when that is needed.
+  </p>
+  <p>
+    The <dfn>ME field</dfn> (bit `6`, message end) indicates whether this record
+    is the last in the <a>NDEF message</a>.
+  </p>
+  <p>
+    The <dfn>MB field</dfn> (bit `7`, message begin) indicates whether this
+    record is the first of the <a>NDEF message</a>.
+  </p>
+  <p>
+    The <dfn>TYPE LENGTH field</dfn> is an unsigned 8-bit integer that denotes
+    the byte size of the <a>TYPE field</a>.
+  </p>
+  <p>
+    The <dfn>TYPE field</dfn> is a globally unique and maintained identifier
+    that describes the type of the <a>PAYLOAD field</a> in a structure,
+    encoding and format dictated by value of the <a>TNF field</a>.
+  </p>
+  <p class="note">
+    The [[[!NFC-RTD]]] requires that the <a>TYPE field</a> names MUST be compared in case-insensitive manner.
+  </p>
+  <p>
+    The <dfn>ID LENGTH field</dfn> is an unsigned 8-bit integer that denotes
+    the byte size of the <a>ID field</a>.
+  </p>
+  <p>
+    The <dfn>ID field</dfn> is an identifier in the form of a URI reference
+    ([[RFC3986]]) that is unique, and can be absolute of relative (in the
+    latter case the application must provide a base URI). Middle and terminating
+    chunk records MUST NOT have an <a>ID field</a>, other records MAY have it.
+  </p>
+  <p>
+    The <dfn>PAYLOAD LENGTH field</dfn> denotes the byte size of the
+    <a>PAYLOAD field</a>. If the <a>SR field</a> is `1`, its size is one byte,
+    otherwise 4 bytes, representing an 8-bit or 32-bit unsigned integer,
+    respectively.
+  </p>
+  <p>
+    The <dfn>PAYLOAD field</dfn> carries the application bytes. Any internal
+    structure of the data is opaque to NDEF. Note that in certain cases
+    discussed later, this field MAY contain an <a>NDEF message</a> as data.
+  </p>
+  </section>
+
+  <section>
+  <h3>
+    NDEF Record types
+  </h3>
+    <section> <h4>Empty NDEF record (TNF 0)</h4>
+    <p>
+      An <dfn>empty record</dfn>'s' <a>TYPE LENGTH field</a>,
+      <a>ID LENGTH field</a> and <a>PAYLOAD LENGTH field</a> MUST be `0`, thus
+      the <a>TYPE field</a>, <a>ID field</a> and <a>PAYLOAD field</a> MUST NOT
+      be present.
+    </p>
+    <ndef-record
+      header="1,1,0,1,0,0 (EMPTY)"
+      content="0,0,_,_,_,_"
+      short>
+    </ndef-record>
+    </section>
+
+    <section>
+    <h4>
+      Well-known type records (TNF 1)
+    </h4>
+    <p>
+      The NFC Forum has standardized a small set of useful record types in
+      [[NFC-RTD]] (Resource Type Definition specifications) called
+      <dfn>well-known type</dfn> records, for instance text, URL, media and
+      opaque binary data. In addition, there are record types designed for more
+      complex interactions, such as smart poster (containing optional embedded
+      records for url, text, signature and actions), and handover records.
+    </p>
+    <div>
+      The type information stored in the <a>TYPE field</a> can be of two kinds:
+      <ul>
+        <li>
+          <dfn>NFC Forum global type</dfn> that are defined and managed by the
+          NFC Forum and usually start with uppercase letter.
+          Examples: "`T`" for text, "`U`" for URL, "`Sp`" for smart poster,
+          "`Sig`" for signature, "`Hc`" for handover carrier, "`Hr`" for
+          handover request, "`Hs`" for handover select, etc.
+        </li>
+        <li>
+          <dfn>NFC Forum local type</dfn> that are defined by the NFC Forum or
+          by an application, within the scope of the local context of another
+          record or application and always start with lowercase letter or a
+          number. See <a>Smart poster</a> for an example on how local types are
+          used.
+        </li>
+      </ul>
+    </div>
+    <p>
+      The canonical form of these type definitions is a URN with namespace
+      identifier `nfc` and namespace specific string "`wkt`". For instance, the
+      <a>well-known type</a> of a <a>Text record</a> is "`urn:nfc:wkt:T`", but
+      it is stored as "`T`".
+    </p>
+
+    <section> <h5>Text record</h5>
+      <div>
+        The <dfn>Text record</dfn> is a <a>well-known type</a> that is defined
+        in the [[NDEF-TEXT]] specification.
+        The <a>TNF field</a> is `1` and the <a>TYPE field</a> is "`T`" (`0x54`).
+        The first byte of the <a>PAYLOAD field</a> is a status byte, followed
+        by the ISO/IANA language code in US-ASCII encoding.
+        The rest of the payload is the actual text, encoded either in UTF-8 or
+        UTF-16, as indicated by the status byte as follows:
+        <ul>
+          <li>Bits 0 to 5 define the length of the IANA language code.</li>
+          <li>Bit 6 is `0`.</li>
+          <li>
+            If bit 7 if set, means the payload is encoded in UTF-8, otherwise in
+            UTF-16.
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section> <h5>URI record</h5>
+      <p>
+        <dfn>URI record</dfn> is defined in [[NDEF-URI]].
+        The <a>TNF field</a> is `1` and the <a>TYPE field</a> is "`U`" (`0x55`).
+        The first byte of the <a>PAYLOAD field</a> is a URI identifier code,
+        in fact an index in an abbreviation table where the values are prepended
+        to the rest of the URI. For instance the value `0` denotes no prepending,
+        `1` denotes "`http://www.`", `0x04` denotes "`https://`"" and so on.
+        The rest of the payload contains the rest of the URI as a UTF-8 string
+        (and if the first byte is `0`, then it denotes the whole URI).
+      </p>
+      <p>
+        The URI is defined in [[RFC3987]] and in fact is a UTF-8 encoded IRI
+        that can be a URN or a URL.
+      </p>
+    </section>
+
+    <section> <h5>Smart poster record</h5>
+    <p>
+      <dfn>Smart poster</dfn> is defined in [[NDEF-SMARTPOSTER]] as an NDEF
+      record that contains an <a>NDEF message</a> as payload, which may contain
+      several records: a mandatory <a>URI record</a> that refers to a content,
+      and additional optional records related to the content: a title record
+      (a <a>Text record</a>), one or more icon records, a type record, a size
+      record and an action record.
+    </p>
+    <p>
+      Icon records are <a>MIME type record</a>s. If multiple icon records are
+      included, readers SHOULD select only one of them to display.
+    </p>
+    <p>
+      The type record has <a>NFC Forum local type</a> "`t`" specific to smart
+      poster and the <a>PAYLOAD field</a> contains a UTF-8 encoded MIME type for
+      the content referred to by the URI record.
+    </p>
+    <p>
+      The size record has <a>NFC Forum local type</a> "`s`" specific to smart
+      poster and the <a>PAYLOAD field</a> contains a 4-byte 32 bit unsigned
+      integer that denotes the size of the object referred to by the URL in the
+      URI record.
+    </p>
+    <p>
+      The action record has <a>NFC Forum local type</a> "`act`" specific to
+      smart poster and the <a>PAYLOAD field</a> contains a single byte, whose
+      value has the following meaning:
+    </p>
+    <table class="simple">
+      <tr>
+        <th><strong>Value</strong></th>
+        <th><strong>Description</strong></th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>Do the action</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Save for later</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Open for editing</td>
+      </tr>
+      <tr>
+        <td>3..0xFF</td>
+        <td>Reserved for future use</td>
+      </tr>
+    </table>
+    <p>
+      The action record is optional and there is no default action on the smart
+      poster content if the action record is missing.
+    </p>
     <p class="note">
-      This document does not aim supporting all possible use cases of NFC
-      technology, but only a few use cases which are considered relevant to be
-      used by web pages in browsers, using the browser security model.
+      At the time of NDEF standardization the value `0` ("do the action") was
+      meant for use cases like send an SMS, make a call or launch browser.
+      Similarly, the value `1`, ("save the content for later processing") was
+      meant for use cases like store the SMS in inbox, save the URL in
+      bookmarks, or save the phone number to contacts. Also, the value `2`
+      ("open for editing") was meant to open the smart poster content with a
+      default application for editing.
+    </p>
+    <p>
+      Implementations don't need to implement any standardized behavior for the
+      actions defined here. In this API it's up to the applications what actions
+      they define (that may include the use cases above). However, Web NFC
+      just provides the values.
+    </p>
+    <div>
+      The example below shows a smart poster record that embeds a text and a
+      URL record.
+      <ndef-record
+        header="1,1,0,1,0,1 (WELL KNOWN)"
+        content="*,*,_,'Sp' (0x53 0x70),_,*"
+        short>
+        <ndef-record slot="payload"
+          header="1,0,0,1,0,1 (WELL KNOWN)"
+          content="TYPE LENGTH (1 byte),*,_,'T' (0x54),_,*"
+          short noindices>
+        </ndef-record>
+        <ndef-record slot="payload"
+          header="0,1,0,1,0,1 (WELL KNOWN)"
+          content="TYPE LENGTH (1 byte),*,_,'U' (0x55),_,*"
+          short noindices>
+        </ndef-record>
+      </ndef-record>
+    </div>
+    </section>
+
+    <section> <h5>Signature records</h5>
+    <p>
+      <dfn>NDEF Signature</dfn> is defined [[NDEF-SIGNATURE]].
+      Its <a>TYPE field</a> contains "`Sig`" (`0x53`, `0x69`, `0x67`) and its
+      <a>PAYLOAD field</a> contains version, signature and a certificate chain.
+      In this version of the API, Web NFC only provides the raw byte content
+      of the payload (see this
+      <a href="https://github.com/w3c/web-nfc/issues/363">issue</a>).
     </p>
     </section>
-  </section>  <!-- Introduction -->
 
-  <!-- - - - - - - - - - - - - - Usage Examples - - - - - - - - - - - - - - -->
-  <section class="informative"> <h2>Examples</h2>
+    <section> <h5>Handover records</h5>
+    <p>
+      <dfn>NFC handover</dfn> is defined [[NFC-HANDOVER]] and the
+      corresponding message structure that allows negotiation and activation of
+      an alternative communication carrier, such as Bluetooth or WiFi.
+      The negotiated communication carrier would then be used (separately) to
+      perform certain activities between the two devices, such as sending photos
+      to the other device, printing to a Bluetooth printer or streaming video to
+      a television set. Web NFC does not support this at the moment (see this
+      <a href="https://github.com/w3c/web-nfc/issues/364">issue</a>.
+    </p>
+    </section>
+
+    </section>  <!-- Well-known types -->
+
+    <section>
+    <h4>
+      MIME type records (TNF 2)
+    </h4>
+    <p>
+      The <dfn>MIME type record</dfn>s are records that store binary
+      data with associated <a>MIME type</a>.
+      <ndef-record
+        header="*,*,*,*,*,2 (MIME)"
+        content="*,*,*,SERIALIZED MIME TYPE,*,MIME TYPE PAYLOAD"
+        short>
+      </ndef-record>
+    </p>
+    <p class=note>
+      Web NFC has special handling for working with JSON MIME type data.
+    </p>
+    </section>
+
+    <section>
+    <h4>
+      Absolute-URL records (TNF 3)
+    </h4>
+    <p>
+      In <dfn>absolute-URL record</dfn>s the <a>TYPE field</a> contains the
+      <a>absolute-URL string</a>, and not the payload.
+    </p>
+    <p class=note>
+      NOTE: Some platforms, like Windows Phone have stored additional data
+      in the payload, but any payload data in these records are ignored by
+      other platforms such as Android. On Android, reading such a record,
+      will attempt to load the URL in Chrome and it is as such not intended
+      for client applications.
+    </p>
+    <p>
+      <ndef-record
+        header="*,*,*,*,*,3 (ABSOLUTE URL)"
+        content="*,*,*,ABSOLUTE URL STRING,*,PAYLOAD (optional/ignored)"
+        short>
+      </ndef-record>
+    </p>
+    </section>
+
+    <section>
+    <h4>
+      External type records (TNF 4)
+    </h4>
+    <p>
+      The NFC Forum <dfn data-no-export="">external type record</dfn>s are for
+      application specified data types and are defined in [[[NFC-RTD]]].
+    </p>
+    <p>
+      The external type is a URN with the prefix `"urn:nfc:ext:"` followed by
+      the name of the owner domain, adding a colon, then a non-zero type name,
+      for instance `"urn:nfc:ext:w3.org:atype"`, stored as `"w3.org:atype"`
+      in the <a>TYPE field</a>.
+    </p>
+    <p>
+      <ndef-record
+        header="*,*,*,*,*,4 (EXTERNAL)"
+        content="*,*,*,EXTERNAL TYPE (eg. w3.org:member),*,*"
+        short>
+      </ndef-record>
+    </p>
+    </section>
+
+    <section>
+    <h4>
+      Unknown type records (TNF 5)
+    </h4>
+    <p>
+      The <dfn>unknown record</dfn>s are records that store
+      `opaque` data without associated <a>MIME type</a>, meaning that the
+      `application/octet-stream` default <a>MIME type</a> MAY be assumed.
+      The [[NFC-NDEF]] specification recommends that <a>NDEF</a> parsers store
+      or forward the payload without processing it.
+    </p>
+    <p>
+      <ndef-record
+        header="*,*,*,*,*,5 (UNKNOWN)"
+        content="0,*,*,_,*,*"
+        short>
+      </ndef-record>
+    </p>
+  </section>
+  <section>
+    <h4>
+      Unchanged type records (TNF 6)
+    </h4>
+    <div>
+      The <dfn>unchanged record</dfn>s are record chunks of
+      a chunked data set, and is used for any, but the first record.
+      A <dfn>chunked</dfn> payload is spread across multiple <a>NDEF record</a>s
+      that undergo the following rules:
+      <ul>
+        <li>
+          The initial chunk record has the <a>CF field</a> set, its
+          <a>TYPE field</a> set to the type of the whole chunked payload and
+          its <a>ID field</a> MAY be set to an identifier used for the whole
+          chunked payload. Its <a>PAYLOAD LENGTH field</a> denotes the size of
+          the payload chunk in this record only.
+        </li>
+        <li>
+          The middle chunk records have the <a>CF field</a> set, have the
+          same <a>ID field</a> as the first chunk, their
+          <a>TYPE LENGTH field</a> and <a>IL field</a> MUST be `0` and their
+          <a>TNF field</a> MUST be `6` (unchanged).
+        </li>
+        <li>
+          The terminating chunk record has this flag cleared, and in rest
+          undergo the same rules as the middle chunk records.
+        </li>
+        <li>
+          A chunked payload MUST be contained in a single <a>NDEF message</a>,
+          therefore the initial and middle chunk records cannot have the
+          <a>ME field</a> set.
+        </li>
+      </ul>
+    </div>
+    <p>
+      First record:
+      <ndef-record
+        header="1,0,1,1,0,*"
+        content="0,PAYLOAD LENGTH FOR THIS RECORD,_,_,_,*"
+        short>
+      </ndef-record>
+      <br>
+      Intermediate record:
+      <ndef-record
+        header="0,0,1,1,0,6 (UNCHANGED)"
+        content="0,PAYLOAD LENGTH FOR THIS RECORD,_,_,_,*"
+        short>
+      </ndef-record>
+      <br>
+      Last record:
+      <ndef-record
+        header="0,1,0,1,0,6 (UNCHANGED)"
+        content="0,PAYLOAD LENGTH FOR THIS RECORD,_,_,_,*"
+        short>
+      </ndef-record>
+    </p>
+    <p>
+      Any implementation of Web NFC MUST transparently expose chunked records
+      as single logical records.
+    </p>
+    </section>
+  </section>
+</section>  <!-- NFC Standard -->
+
+<section class="informative"> <h3>Use Cases</h3>
+  <p>
+    A few Web NFC user scenarios are described in the
+    <a href="https://w3c.github.io/web-nfc/use-cases.html">Use Cases</a>
+    document. These user scenarios can be grouped by criteria based on
+    security, privacy and feature categories, resulting in generic flows as
+    follows.
+  </p>
+  <section> <h3>Reading an <a>NFC tag</a></h3>
+    <ol>
+      <li>
+        Reading an <a>NFC tag</a> containing an <a>NDEF message</a>, when the
+        {{Document}} of the <a>top-level browsing context</a> using the Web NFC API
+        is <a>visible</a>. For instance, a web page instructs the user
+        to tap an NFC tag, and then receives information from the tag.
+      </li>
+      <li>
+        Reading an <a>NFC tag</a> containing other than <a>NDEF message</a>,
+        when the {{Document}} of the <a>top-level browsing context</a> using the
+        Web NFC API is <a>visible</a>.
+      </li>
+      <li>
+        Reading an <a>NFC tag</a> when no {{Document}} using the Web NFC API is
+        <a>visible</a>.
+        <p class="note">
+          This use case is not supported in this version of the specification,
+          and it has low priority for future versions as well.
+        </p>
+      </li>
+    </ol>
+  </section>
+  <section> <h3>Writing to an <a>NFC tag</a></h3>
+    <p>
+      The user opens a web page which can write an <a>NFC tag</a>. The write
+      operations may be one of the following:
+      <ol>
+        <li>
+          Writing to an empty <a>NFC tag</a>.
+        </li>
+        <li>
+          Writing to an <a>NFC tag</a> which already contains a
+          <a>NDEF message</a> with a different <a>record identifier</a>
+          (i.e. overwriting a web-specific tag).
+        </li>
+        <li>
+          Writing to an <a>NFC tag</a> which already contains a
+          <a>NDEF message</a> with the same <a>record identifier</a>
+          (i.e. updating own tag).
+        </li>
+        <li>
+          Writing to other, writable <a>NFC tag</a>s (i.e. overwriting a
+          generic tag).
+        </li>
+      </ol>
+    </p>
+    <p class="note">
+      Note that an NFC write operation to an <a>NFC tag</a> always involves
+      also a read operation.
+    </p>
+  </section>
+  <section> <h3>Pushing data to an <a>NFC peer</a> device</h3>
+    <p>
+      In general, pushing data to another NFC capable device requires that
+      on the initiating device the user would first have to navigate to a web
+      site. The user would then touch the device against another Web NFC
+      equipped device, and data transfer would occur.
+    </p>
+    <p>
+      On the receiving device the UA will dispatch the content to an application
+      registered and eligible to handle the content, and if that application is
+      a browser which has a {{Document}} of the <a>top-level browsing context</a>
+      <a>visible</a> with active {{NFCReader}},
+      then the content is delivered to the page through the <a>NFCReadingEvent</a>.
+    </p>
+  </section>
+  <section> <h3>Handover to another wireless connection type</h3>
+    <p>
+      NFC supports handover protocols to Bluetooth or WiFi connectivity for
+      the purpose of larger volume data transfer. The user touches another
+      NFC capable device, and as a result configuration data is sent for a
+      new Bluetooth or WiFi connection, which is then established between the
+      devices.
+    </p>
+    <p class="note">
+      This use case is not supported in this version of the specification.
+    </p>
+  </section>
+  <section> <h3>Payment scenarios</h3>
+    <p>
+      Payment scenarios with Web NFC generally do not refer to supporting
+      the payment process itself, but associating the payment status with
+      a web page in order to have secondary actions. For instance,
+      the user buys goods in a store, and payments options include contactless
+      payment using NFC technology.
+      In general, touching the device to the point of sales terminal receiver
+      area will result in a transaction between the secure element from the
+      device and the point of sales terminal. With the Web NFC API, if the
+      user navigates to a web site before paying, there may be interaction
+      with that site regarding the payment, e.g. the user could get points and
+      discounts, or get delivered application or service specific data (e.g.
+      tickets, keys, etc) to the device.
+    </p>
+    <p class="note">
+      This use case is not supported in this version of the specification.
+    </p>
+  </section>
+  <section> <h3>Support for multiple NFC adapters</h3>
+    <p>
+      Users may attach one or more external <a>NFC adapter</a>s to their
+      devices, in addition to a built-in adapter. Users may use either
+      <a>NFC adapter</a>.
+    </p>
+  </section>
+</section> <!-- Use Cases -->
+
+<section class="informative"> <h3>Features</h3>
+  <p>High level features for the Web NFC specification include the following:
+    <ol>
+      <li>
+        Support devices with single or multiple <a>NFC adapter</a>s.
+        If there are multiple adapters present when invoking an NFC function
+        then the UA operates all <a>NFC adapter</a>s in parallel.
+      </li>
+      <li>
+        Support communication with active (powered devices such as readers,
+        phones) and passive (smart cards, tags, etc) devices.
+      </li>
+      <li>
+        Allow users to act on (e.g. read, write or transceive) discovered
+        NFC devices (passive and active), as well as access the payload
+        which were read in the process as <a>NDEF message</a>s.
+      </li>
+      <li>
+        Allow users to write a payload via <a>NDEF record</a>s to compatible
+        devices, such as writeable tags, when they come in range, as
+        <a>NDEF message</a>s.
+      </li>
+      <li>
+        [future] Allow manual connection for various technologies such as
+        NFC-A and NFC-F depending on the secondary device.
+      </li>
+      <li>
+        [future] Allow <a>NFC handover</a> to Bluetooth or WiFi.
+      </li>
+      <li>
+        [future] Allow card emulation with secure element or host card
+        emulation.
+      </li>
+    </ol>
+  </p>
+  <p>
+    This specification makes a few simplifications in what use cases
+    and data types the Web NFC API can handle:
+    <ul>
+      <li>
+        Expose data types already known to web browsers as
+        <a>MIME type</a>s.
+      </li>
+      <li>Use the web security model.</li>
+      <li>
+        Implementations encapsulate <a>NDEF record</a> handling and the API
+        exposes only data and control events.
+      </li>
+    </ul>
+  </p>
+</section> <!-- Features -->
+
+<!-- - - - - - - - - - - - - - Usage Examples - - - - - - - - - - - - - - -->
+<section class="informative"> <h2>Examples</h2>
   <p>
     This section shows how developers can make use of the various features of
     this specification.
@@ -829,7 +1251,7 @@
       Read NDEF messages for 3 seconds by using <a
       href="#dom-nfcscanoptions-signal">signal</a> in the <a>NFCScanOptions</a>.
     </p>
-    <pre class="highlight">
+    <pre class="example">
       const reader = new NFCReader();
       reader.onreading = event => {
         console.log("NDEF message read.");
@@ -858,7 +1280,7 @@
       payload.
     </p>
     <p>
-      Local types are well-known types, local to a every
+      Local types are well-known types defined locally to every
       individual record type that carries an <a>NDEF message</a> as payload.
     </p>
     <p>
@@ -876,293 +1298,115 @@
       a record with the local type "act" (action), just like smart posters.
     </p>
     <pre class="example">
-        const reader = new NFCReader();
-        reader.onreading = event => {
-          const socialPost = event.message.records[0];
-          if (!socialPost) {
-            return;
+      const reader = new NFCReader();
+      reader.onreading = event => {
+        const socialPost = event.message.records[0];
+        if (!socialPost) {
+          return;
+        }
+
+        let action;
+        let text = "";
+
+        for (let record of socialPost.toRecords()) {
+          switch (record.recordType) {
+            case "text":
+              text = record.toText();
+              break;
+            case "-act":
+              const buffer = record.toArrayBuffer();
+              const view = new DataView(buffer);
+              action = view.getUint8(0);
+              break;
           }
+        }
 
-          let action;
-          let text = "";
+        switch (action) {
+          case 0: // do the action
+            console.log(`Post "${text}" to timeline`);
+            break;
+          case 1: // save for later
+            console.log(`Save "${text}" as a draft`);
+            break;
+          case 2: // open for editing
+            console.log(`Show editable post with "${text}"`);
+            break;
+        }
+      };
 
-          for (let record of socialPost.toRecords()) {
-            switch (record.recordType) {
-              case "text":
-                text = record.toText();
-                break;
-              case "-act":
-                const buffer = record.toArrayBuffer();
-                const view = new DataView(buffer);
-                action = view.getUint8(0);
-                break;
+      reader.scan({ recordType: "example.com:sp"});
+    </pre>
+  </section>
+
+  <section> <h3>Push a smart poster message</h3>
+    <pre class="example">
+      const writer = new NFCWriter();
+      writer.push({ records: [
+        {
+          recordType: "smart-poster",
+          data: { records: [
+            {
+              recordType: "url",
+              data: "https://my.org/content/19911"
+            },
+            {
+              recordType: "t", // smart poster type, a local type to Sp
+              data: "image/gif"
+            },
+            {
+              recordType: "text",
+              data: "Funny dance"
+            },
+            {
+              recordType: "s",  // size, a local type to Sp
+              data: 4096  // byte size of the content at the URL above
+            },
+            {
+              recordType: "act",  // action, a local type to Sp
+              data: 0  // do the action, in this case open in the browser
             }
-          }
+          ]}
+        }
+      ]}).catch(_ => {
+        console.log("Push failed");
+      });
+    </pre>
+  </section>
 
-          switch (action) {
-            case 0: // do the action
-              console.log(`Post "${text}" to timeline`);
-              break;
-            case 1: // save for later
-              console.log(`Save "${text}" as a draft`);
-              break;
-            case 2: // open for editing
-              console.log(`Show editable post with "${text}"`);
-              break;
-          }
-        };
-
-        reader.scan({ recordType: "example.com:sp"});
-      </pre>
-    </section>
-
-    <section> <h3>Push a smart poster message</h3>
-      <p>
-        Smart poster is defined in the NFC Forum Smart Poster Record Type
-        Definition specification as an NDEF record that contains an
-        <a>NDEF message</a> as payload, which may contain several records: a
-        mandatory URI record that refers to a content, and additional optional
-        records for that content's title, icon, size, type and possible action
-        (e.g. the value `0` for doing an action associated to the content, like
-        send SMS, make call, launch browser, or the value `1` for saving the
-        content, or the value `2` for opening for editing).
-      </p>
-      <pre class="example">
-        const writer = new NFCWriter();
-        writer.push({ records: [
-          {
-            recordType: "smart-poster",
-            data: { records: [
+  <section> <h3>Push an external record with an NDEF message as payload</h3>
+    <p>
+      External type records can be used to create application defined records
+      that may even contain an <a>NDEF message</a> as payload.
+    </p>
+    <pre class="example">
+      const writer = new NFCWriter();
+      writer.push({ records: [
+        {
+          recordType: "external",
+          data: {
+            records: [
               {
                 recordType: "url",
-                data: "https://my.org/content/19911"
-              },
-              {
-                recordType: "t", // smart poster type, a local type to Sp
-                data: "image/gif"
+                data: "https://my.org/game/19911"
               },
               {
                 recordType: "text",
-                data: "Funny dance"
+                data: "Game context given here"
               },
               {
-                recordType: "s",  // size, a local type to Sp
-                data: 4096  // byte size of the content at the URL above
-              },
-              {
-                recordType: "act",  // action, a local type to Sp
-                data: 0  // do the action, in this case open in the browser
+                recordType: "opaque",
+                mediaType: "image/png"
+                data: getImageBytes(fromURL);
               }
-            ]}
+            ]
           }
-        ]}).catch(_ => {
-          console.log("Push failed");
-        });
-      </pre>
-    </section>
-
-    <section> <h3>Push an external record with an NDEF message as payload</h3>
-      <p>
-        External type records can be used to create application defined records
-        that may even contain an <a>NDEF message</a> as payload.
-      </p>
-      <pre class="example">
-        const writer = new NFCWriter();
-        writer.push({ records: [
-          {
-            recordType: "external",
-            data: {
-              records: [
-                {
-                  recordType: "url",
-                  data: "https://my.org/game/19911"
-                },
-                {
-                  recordType: "text",
-                  data: "Game context given here"
-                },
-                {
-                  recordType: "opaque",
-                  mediaType: "image/png"
-                  data: getImageBytes(fromURL);
-                }
-              ]
-            }
-          }
-        ]}).catch(_ => {
-          console.log("Push failed");
-        });
-      </pre>
-    </section>
-  </section> <!-- Usage examples -->
-
-  <section class="informative"> <h3>Use Cases</h3>
-    <p>
-      A few Web NFC user scenarios are described in the
-      <a href="https://w3c.github.io/web-nfc/use-cases.html">Use Cases</a>
-      document. These user scenarios can be grouped by criteria based on
-      security, privacy and feature categories, resulting in generic flows as
-      follows.
-    </p>
-    <section> <h3>Reading an <a>NFC tag</a></h3>
-      <ol>
-        <li>
-          Reading an <a>NFC tag</a> containing a <a>Web NFC message</a>, when the
-          {{Document}} of the <a>top-level browsing context</a> using the Web NFC API
-          is <a>visible</a>. For instance, a web page instructs the user
-          to tap an NFC tag, and then receives information from the tag.
-        </li>
-        <li>
-          Reading an <a>NFC tag</a> containing other than <a>Web NFC message</a>,
-          when the {{Document}} of the <a>top-level browsing context</a> using the
-          Web NFC API is <a>visible</a>.
-        </li>
-        <li>
-          Reading an <a>NFC tag</a> when no {{Document}} using the Web NFC API is
-          <a>visible</a>.
-          <p class="note">
-            This use case is not supported in this version of the specification,
-            and it has low priority for future versions as well.
-          </p>
-        </li>
-      </ol>
-    </section>
-    <section> <h3>Writing to an <a>NFC tag</a></h3>
-      <p>
-        The user opens a web page which can write an <a>NFC tag</a>. The write
-        operations may be one of the following:
-        <ol>
-          <li>
-            Writing to an empty <a>NFC tag</a>.
-          </li>
-          <li>
-            Writing to an <a>NFC tag</a> which already contains a
-            <a>Web NFC message</a> with a different <a>record identifier</a>
-            (i.e. overwriting a web-specific tag).
-          </li>
-          <li>
-            Writing to an <a>NFC tag</a> which already contains a
-            <a>Web NFC message</a> with the same <a>record identifier</a>
-            (i.e. updating own tag).
-          </li>
-          <li>
-            Writing to other, writable <a>NFC tag</a>s (i.e. overwriting a
-            generic tag).
-          </li>
-        </ol>
-      </p>
-      <p class="note">
-        Note that an NFC write operation to an <a>NFC tag</a> always involves
-        also a read operation.
-      </p>
-    </section>
-    <section> <h3>Pushing data to an <a>NFC peer</a> device</h3>
-      <p>
-        In general, pushing data to another Web NFC capable device requires that
-        on the initiating device the user would first have to navigate to a web
-        site. The user would then touch the device against another Web NFC
-        equipped device, and data transfer would occur.
-      </p>
-      <p>
-        On the receiving device the UA will dispatch the content to an application
-        registered and eligible to handle the content, and if that application is
-        a browser which has a {{Document}} of the <a>top-level browsing context</a>
-        <a>visible</a> with active {{NFCReader}},
-        then the content is delivered to the page through the <a>NFCReadingEvent</a>.
-      </p>
-    </section>
-    <section> <h3>Handover to another wireless connection type</h3>
-      <p>
-        NFC supports handover protocols to Bluetooth or WiFi connectivity for
-        the purpose of larger volume data transfer. The user touches another
-        NFC capable device, and as a result configuration data is sent for a
-        new Bluetooth or WiFi connection, which is then established between the
-        devices.
-      </p>
-      <p class="note">
-        This use case is not supported in this version of the specification.
-      </p>
-    </section>
-    <section> <h3>Payment scenarios</h3>
-      <p>
-        Payment scenarios with Web NFC generally do not refer to supporting
-        the payment process itself, but associating the payment status with
-        a web page in order to have secondary actions. For instance,
-        the user buys goods in a store, and payments options include contactless
-        payment using NFC technology.
-        In general, touching the device to the point of sales terminal receiver
-        area will result in a transaction between the secure element from the
-        device and the point of sales terminal. With the Web NFC API, if the
-        user navigates to a web site before paying, there may be interaction
-        with that site regarding the payment, e.g. the user could get points and
-        discounts, or get delivered application or service specific data (e.g.
-        tickets, keys, etc) to the device.
-      </p>
-      <p class="note">
-        This use case is not supported in this version of the specification.
-      </p>
-    </section>
-    <section> <h3>Support for multiple NFC adapters</h3>
-      <p>
-        Users may attach one or more external <a>NFC adapter</a>s to their
-        devices, in addition to a built-in adapter. Users may use either
-        <a>NFC adapter</a>.
-      </p>
-    </section>
-  </section> <!-- Use Cases -->
-
-  <section class="informative"> <h3>Features</h3>
-    <p>High level features for the Web NFC specification include the following:
-      <ol>
-        <li>
-          Support devices with single or multiple <a>NFC adapter</a>s.
-          If there are multiple adapters present when invoking an NFC function
-          then the UA operates all <a>NFC adapter</a>s in parallel.
-        </li>
-        <li>
-          Support communication with active (powered devices such as readers,
-          phones) and passive (smart cards, tags, etc) devices.
-        </li>
-        <li>
-          Allow users to act on (e.g. read, write or transceive) discovered
-          NFC devices (passive and active), as well as access the payload
-          which were read in the process as <a>Web NFC message</a>s.
-        </li>
-        <li>
-          Allow users to write a payload via <a>NDEF record</a>s to compatible
-          devices, such as writeable tags, when they come in range, as
-          <a>Web NFC message</a>s.
-        </li>
-        <li>
-          [future] Allow manual connection for various technologies such as
-          NFC-A and NFC-F depending on the secondary device.
-        </li>
-        <li>
-          [future] Allow <a>NFC handover</a> to Bluetooth or WiFi.
-        </li>
-        <li>
-          [future] Allow card emulation with secure element or host card
-          emulation.
-        </li>
-      </ol>
-    </p>
-    <p>
-      This specification makes a few simplifications in what use cases
-      and data types the Web NFC API can handle:
-      <ul>
-        <li>
-          Expose data types already known to web browsers as
-          <a>MIME type</a>s.
-        </li>
-        <li>Use the web security model.</li>
-        <li>
-          Implementations encapsulate <a>NDEF record</a> handling and the API
-          exposes only data and control events.
-        </li>
-      </ul>
-    </p>
-  </section> <!-- Features -->
-</section> <!-- Introduction -->
+        }
+      ]}).catch(_ => {
+        console.log("Push failed");
+      });
+    </pre>
+  </section>
+</section> <!-- Usage examples -->
 
 <!-- - - - - - - - - - - - - Security and Privacy - - - - - - - - - - - - - -->
 <section> <h2 id="security">Security and Privacy</h2>
@@ -1189,6 +1433,10 @@
     The integrity of <a>NFC content</a> SHOULD NOT be trusted when
     used for implementing security policies, for instance the authenticity of
     <a>record identifier</a>, unless a <a>prearranged trust relationship</a> exists.
+  </p>
+  <p>
+    Security considerations for media types in general are discussed in
+    [[RFC2048]] and [[RFC2046]].
   </p>
   </section>
 
@@ -1288,9 +1536,6 @@
         Otherwise the UA must <a>obtain permission</a> for pushing
         <a>NFC content</a> which overwrites existing information.
         See also the [[[#writing-or-pushing-content]]] section.
-        <div class=issue>
-          Verify with security folks.
-        </div>
       </p>
       <p>
         Since all local content that a web page has access to can be shared with
@@ -1349,11 +1594,11 @@
     <p>
       The <dfn data-dfn-for="NDEFMessage">records</dfn>
       property represents a <a>list</a> of <a>NDEF record</a>s defining the
-      <a>Web NFC message</a>.
+      <a>NDEF message</a>.
     </p>
     <p data-dfn-for="NDEFMessageInit">
       The <dfn>NDEFMessageInit</dfn> dictionary is used to initialize a
-      <a>Web NFC message</a>.
+      <a>NDEF message</a>.
     </p>
   </section>
 
@@ -1615,12 +1860,13 @@
                                    "@" / ";" / "$" / "_" / "!" / "*" / "'" / "."
           </pre>
           The `reg-name` value is a [=host/registrable domain=] owned by the issuing organization, a "`:`" and a type, e.g. "`w3.org:member`".
-          And additional ABNF exists for <a>well-known type record</a>s:
+          And additional ABNF exists for <a>well-known type</a> records:
           <pre class="abnf">
             wkt-type             = (ALPHA / DIGIT) *(ALPHA / DIGIT / other)
           </pre>
           <p class=note>
-            The [[[NFC-RTD]]] defines every type in the <a>well-known type record</a>s and <a>external type records</a> in terms of URNs, but only a subset of the URN is actually stored in the <a>NDEF record</a>'s <a>TYPE field</a>, which corresponds to the above two ABNFs.
+            The [[[NFC-RTD]]] defines every type in the <a>well-known type</a>
+            records and <a>external type records</a> in terms of URNs, but only a subset of the URN is actually stored in the <a>NDEF record</a>'s <a>TYPE field</a>, which corresponds to the above two ABNFs.
           </p>
         </dd>
       </dl>
@@ -1649,13 +1895,19 @@
       <td><dfn>"`text`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{DOMString}}</td>
-      <td><a>Well-known type record</a> with type "`T`"</td>
+      <td><a>Well-known type</a> record with type "`T`"</td>
     </tr>
     <tr>
       <td><dfn>"`url`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{DOMString}}</td>
-      <td><a>Well-known type record</a> with type "`U`"</td>
+      <td><a>Well-known type</a> record with type "`U`"</td>
+    </tr>
+    <tr>
+      <td><dfn>"`smart-poster`"</dfn></td>
+      <td><i>unused</i></td>
+      <td>{{NDEFMessage}}</td>
+      <td><a>Well-known type</a> record with type "`Sp`"</td>
     </tr>
     <tr>
       <td><dfn>"`json`"</dfn></td>
@@ -1707,23 +1959,23 @@
       </td>
     </tr>
     <tr>
-      <td><a>Well-known type record</a> with type "`T`"</td>
+      <td><a>Well-known type</a> record with type "`T`"</td>
       <td>"`text`"</td>
       <td>"`text/plain`"</td>
       <td><a>toText()</a></td>
     </tr>
     <tr>
-      <td><a>Well-known type record</a> with type "`U`"</td>
+      <td><a>Well-known type</a> record with type "`U`"</td>
       <td>"`url`"</td>
       <td>"`text/plain`"</td>
       <td><a>toText()</a></td>
     </tr>
     <tr>
-      <td><a>Well-known type record</a> with type "`Sp`"</td>
+      <td><a>Well-known type</a> record with type "`Sp`"</td>
       <td>"`smart-poster`"</td>
       <td>""</td>
       <td>
-        toRecords() or<br>
+        <a>toRecords()</a> or<br>
         <a>toArrayBuffer()</a>
       </td>
     </tr>
@@ -1783,9 +2035,9 @@
 <section> <h2>The NFCReader and NFCWriter objects</h2>
   The objects provide a way for the <a>browsing context</a> to
   use NFC functionality.
-  They allow for pushing <a>Web NFC message</a>s to <a>NFC tag</a>s
+  They allow for pushing <a>NDEF message</a>s to <a>NFC tag</a>s
   or <a>NFC peer</a>s within range, and to act on incoming
-  <a>Web NFC message</a>s either from an <a>NFC tag</a> or an
+  <a>NDEF message</a>s either from an <a>NFC tag</a> or an
   <a>NFC peer</a>.
   <pre class="idl">
     typedef (DOMString or ArrayBuffer or NDEFMessageInit) NDEFMessageSource;
@@ -2165,7 +2417,7 @@
       implementation-dependent. The value `Infinity` means there is
       no timeout, i.e. no timer is started. After the |timeout|
       expires, the message set for pushing is cleared, an error is returned,
-      and a new <a>Web NFC message</a> can be set for pushing.
+      and a new <a>NDEF message</a> can be set for pushing.
     </p>
     <p>
       When the value of the <dfn>ignoreRead</dfn> property is
@@ -2242,7 +2494,7 @@
         The <dfn>recordType</dfn> property
         denotes the enum value which is used for matching the
         <a href="#idl-def-ndefrecordtype">recordType</a> property of each
-        <a>NDEFRecord</a> object in a <a>Web NFC message</a>.
+        <a>NDEFRecord</a> object in an <a>NDEF message</a>.
         If the dictionary member is [= dictionary member/not present =],
         then it will be ignored by the <a href="#steps-listen">NFC listen algorithm</a>.
       </p>
@@ -2250,7 +2502,7 @@
         The <dfn>mediaType</dfn> property
         denotes the <a>match pattern</a> which is used for matching the
         <a href="#dom-ndefrecord-mediatype">mediaType</a> property of each
-        <a>NDEFRecord</a> object in a <a>Web NFC message</a>.
+        <a>NDEFRecord</a> object in an <a>NDEF message</a>.
         The default value `""` means that no matching is performed.
       </p>
       <pre
@@ -2280,7 +2532,7 @@
       to an <a>NFC tag</a> or how to push it to an <a>NFC peer</a>
       device when it is next time in proximity range before a timer expires.
       At any time there is at maximum of two
-      <a>Web NFC message</a>s that can be set for pushing for an <a>origin</a>:
+      <a>NDEF message</a>s that can be set for pushing for an <a>origin</a>:
       one targeted to <a>NFC tag</a>s and one to <a>NFC peer</a>s, until
       the current message is sent, a timeout happens, or the push is
       aborted.
@@ -2363,7 +2615,7 @@
                 <li>
                   Let |output| be the notation for the <a>NDEF message</a>
                   to be created by UA, as the result of passing
-                  |message| to <a>create Web NFC message</a>.
+                  |message| to <a>create NDEF message</a>.
                   If this throws an exception, reject |p| with that
                   exception and abort these steps.
                 </li>
@@ -2573,9 +2825,9 @@
       </p>
       </section>
 
-      <section><h3>Creating Web NFC message</h3>
+      <section><h3>Creating NDEF message</h3>
         <p>
-          To <dfn>create Web NFC message</dfn> given a
+          To <dfn>create NDEF message</dfn> given a
           |message:NDEFMessageSource| run these steps:
         </p>
         <ol class=algorithm id="create-web-nfc-message">
@@ -2652,7 +2904,7 @@
                   <ul>
                     <li>
                       If |record|'s data is {{NDEFMessageSource}}, then return
-                      the result of running the <a>create Web NFC message</a>
+                      the result of running the <a>create NDEF message</a>
                       given |record|'s data.
                     </li>
                     <li>
@@ -2664,7 +2916,7 @@
                     <li>
                       If |record|'s data is of type {{NDEFMessageInit}}, then
                       return the result of running the
-                      <a>create Web NFC message</a> given |record|'s data.
+                      <a>create NDEF message</a> given |record|'s data.
                     </li>
                     <li>
                       Otherwise, <a>map external data to NDEF</a>
@@ -2738,7 +2990,7 @@
         steps:
         <p class="note">
           This is useful when clients specifically want to write text in a
-          <a>well-known type record</a>.
+          <a>well-known type</a> record.
           Other options would be to use the value "`opaque`"
           with an explicit <a>MIME type</a> text type, which allows for
           better differentiation, e.g. when using "`text/xml`", or
@@ -2830,7 +3082,8 @@
             be created by the UA.
             <ol>
               <li>
-                Set the |ndefRecord|'s <a>TNF field</a> to `1` (<a>well-known type record</a>).
+                Set the |ndefRecord|'s <a>TNF field</a> to `1` (
+                <a>well-known type</a> record).
               </li>
               <li>
                 Set the |ndefRecord|'s <a>TYPE field</a> to "`T`" (`0x54`).
@@ -2920,7 +3173,8 @@
             be created by the UA.
             <ol>
               <li>
-                Set the |ndefRecord|'s <a>TNF field</a> to `1` (<a>well-known type record</a>).
+                Set the |ndefRecord|'s <a>TNF field</a> to `1`
+                (<a>well-known type</a> record).
               </li>
               <li>
                 Set the |ndefRecord|'s <a>TYPE field</a> to "`U`" (`0x55`).
@@ -3095,10 +3349,6 @@
             {{ArrayBuffer}}, [= exception/throw =] a {{TypeError}}
             and abort these steps.
           </li>
-          <div class=issue>
-            In addition to supporting ArrayBuffer, we need to support sub records. That
-            is really what makes external records interesting.
-          </div>
           <li>
             Set |arrayBuffer| to |record|'s data.
           </li>
@@ -3632,7 +3882,7 @@
         |record|'s recordType to "`empty`" and set |record|'s mediaType to `""`.
       </li>
       <li>
-        If |ndef|'s |typeNameField| is `1` (<a>well-known type record</a>):
+        If |ndef|'s |typeNameField| is `1` (<a>well-known type</a> record):
         <ol>
           <li>
             Set |record| to the result of the algorithm below switching on
