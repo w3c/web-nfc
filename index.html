@@ -1112,7 +1112,6 @@
         const message = event.message;
         if (message.records[0].recordType == 'empty') {
           writer.push({
-            url: "/custom/path",
             records: [{ recordType: "text", data: 'Hello World' }]
           });
           return;
