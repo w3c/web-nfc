@@ -738,7 +738,7 @@
       </ndef-record>
     </p>
     <p class=note>
-      Web NFC has special handling for working with JSON MIME type data.
+      Web NFC has special handling for working with JSON <a>MIME type</a> data.
     </p>
     </section>
 
@@ -1839,7 +1839,7 @@
         </dd>
         <dt>The "<dfn>opaque</dfn>" string</dt>
         <dd>
-          The value representing <a>NDEFRecord</a> of an <a href="#dfn-opaque">opaque</a> type.
+          The value representing a <a>MIME type record</a>.
         </dd>
         <dt>An <dfn>external type</dfn></dt>
         <dd>
@@ -1863,6 +1863,14 @@
             The [[[NFC-RTD]]] defines every type in the <a>well-known type</a>
             records and <a>external type records</a> in terms of URNs, but only a subset of the URN is actually stored in the <a>NDEF record</a>'s <a>TYPE field</a>, which corresponds to the above two ABNFs.
           </p>
+        </dd>
+        <dt>A <dfn>local type</dfn></dt>
+        <dd>
+          A {{DOMString}} that MUST start with lowercase letter or a number, representing a type for a <a>NFC Forum local type</a>,
+          typically used in a record of an <a>NDEFMessage</a> that is the payload
+          of a parent <a>NDEFRecord</a>, for instance in a <a>smart poster</a>.
+          The context of the <a>local type</a> is the parent record whose payload
+          is the <a>NDEFMessage</a> to which this record belongs.
         </dd>
       </dl>
   </section> <!-- NDEFRecordType enum -->
@@ -1925,7 +1933,8 @@
       <td><i>unused</i></td>
       <td>
         {{ArrayBuffer}} or<br>
-        any <a>typed array type</a>
+        any <a>typed array type</a> or>br>
+        {{NDEFMessage}}
       </td>
       <td><a>External type record</a></td>
     </tr>
@@ -2009,7 +2018,8 @@
       <td>
         <a>text()</a> or<br>
         <a>json()</a> or<br>
-        <a>arrayBuffer()</a>
+        <a>arrayBuffer()</a> or<br>
+        <a>toRecords()</a>
       </td>
     </tr>
     <tr>
@@ -2019,7 +2029,8 @@
       <td>
         <a>text()</a> or<br>
         <a>json()</a> or<br>
-        <a>arrayBuffer()</a>
+        <a>arrayBuffer()</a> or<br>
+        <a>toRecords()</a>
       </td>
     </tr>
   </table>
@@ -2898,7 +2909,7 @@
                   <dt>"`opaque`"</dt>
                   <ul>
                     <li>
-                      If |record|'s data is {{NDEFMessageSource}}, then return
+                      If |record|'s data is {{NDEFMessageInit}}, then return
                       the result of running the <a>create NDEF message</a>
                       given |record|'s data.
                     </li>
