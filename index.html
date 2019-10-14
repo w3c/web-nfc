@@ -1587,7 +1587,7 @@
       };
 
       dictionary NDEFMessageInit {
-        sequence&lt;NDEFRecordInit&gt; records;
+        required sequence&lt;NDEFRecordInit&gt; records;
       };
     </pre>
     <p>
@@ -1622,7 +1622,7 @@
       };
 
       dictionary NDEFRecordInit {
-        NDEFRecordType recordType;
+        required NDEFRecordType recordType;
         USVString mediaType;
         USVString id;
 
