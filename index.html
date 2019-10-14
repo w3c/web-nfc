@@ -1122,17 +1122,17 @@
         for (let record of message.records) {
           switch (record.recordType) {
             case "text":
-              console.log(`Text: ${record.toText()}`);
+              console.log(`Text: ${record.text()}`);
               break;
             case "url":
-              console.log(`URL: ${record.toText()}`);
+              console.log(`URL: ${record.text()}`);
               break;
             case "json":
-              console.log(`JSON: ${record.toJSON().myProperty}`);
+              console.log(`JSON: ${record.json().myProperty}`);
               break;
             case "opaque":
               if (record.mediaType.startsWith('image/')) {
-                const blob = new Blob([record.toArrayBuffer()], {type: record.mediaType});
+                const blob = new Blob([record.arrayBuffer()], {type: record.mediaType});
 
                 const img = document.createElement("img");
                 img.src = URL.createObjectURL(blob);
@@ -1192,7 +1192,7 @@
 
       reader.addEventListener("reading", event => {
         for (let record of event.message.records) {
-          const json = record.toJSON();
+          const json = record.json();
           const article =/[aeio]/.test(json.title) ? "an" : "a";
           console.log(`${json.name} is ${article} ${json.title}`);
         }
@@ -1235,7 +1235,7 @@
         for (let record of event.message.records) {
           console.log("Record type:  " + record.recordType);
           console.log("MIME type:    " + record.mediaType);
-          console.log("=== data ===\n" + record.toText());
+          console.log("=== data ===\n" + record.text());
         }
       };
       reader.scan();
@@ -1310,10 +1310,10 @@
         for (let record of socialPost.toRecords()) {
           switch (record.recordType) {
             case "text":
-              text = record.toText();
+              text = record.text();
               break;
             case "-act":
-              const buffer = record.toArrayBuffer();
+              const buffer = record.arrayBuffer();
               const view = new DataView(buffer);
               action = view.getUint8(0);
               break;
@@ -1615,9 +1615,9 @@
         readonly attribute USVString mediaType;
         readonly attribute USVString id;
 
-        USVString? toText();
-        [NewObject] ArrayBuffer? toArrayBuffer();
-        [NewObject] any toJSON();
+        USVString? text();
+        [NewObject] ArrayBuffer? arrayBuffer();
+        [NewObject] any json();
         sequence&lt;NDEFRecord&gt; toRecords();
       };
 
@@ -1692,15 +1692,15 @@
       </div>
     </p>
     <p>
-      The <dfn>toText()</dfn> method, when invoked, MUST return the result of
+      The <dfn>text()</dfn> method, when invoked, MUST return the result of
       running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object and `text` target.
     </p>
     <p>
-      The <dfn>toArrayBuffer()</dfn> method, when invoked, MUST return the result of
+      The <dfn>arrayBuffer()</dfn> method, when invoked, MUST return the result of
       running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object and `arrayBuffer` target.
     </p>
     <p>
-      The <dfn>toJSON()</dfn> method, when invoked, MUST return the result of
+      The <dfn>json()</dfn> method, when invoked, MUST return the result of
       running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with an <a>NDEFRecord</a> object and a `JSON` target.
     </p>
     <p>
@@ -1948,22 +1948,22 @@
       <td>"`empty`"</td>
       <td><i>empty</i></td>
       <td>
-        <a>toText()</a> or<br>
-        <a>toJSON()</a> or<br>
-        <a>toArrayBuffer()</a>
+        <a>text()</a> or<br>
+        <a>json()</a> or<br>
+        <a>arrayBuffer()</a>
       </td>
     </tr>
     <tr>
       <td><a>Well-known type</a> record with type "`T`"</td>
       <td>"`text`"</td>
       <td>"`text/plain`"</td>
-      <td><a>toText()</a></td>
+      <td><a>text()</a></td>
     </tr>
     <tr>
       <td><a>Well-known type</a> record with type "`U`"</td>
       <td>"`url`"</td>
       <td>"`text/plain`"</td>
-      <td><a>toText()</a></td>
+      <td><a>text()</a></td>
     </tr>
     <tr>
       <td><a>Well-known type</a> record with type "`Sp`"</td>
@@ -1971,14 +1971,14 @@
       <td>""</td>
       <td>
         <a>toRecords()</a> or<br>
-        <a>toArrayBuffer()</a>
+        <a>arrayBuffer()</a>
       </td>
     </tr>
     <tr>
       <td><a>Absolute-URL record</a></td>
       <td>"`url`"</td>
       <td>"`text/plain`"</td>
-      <td><a>toText()</a></td>
+      <td><a>text()</a></td>
     </tr>
     <tr>
       <td><a>MIME type record</a> with
@@ -1987,9 +1987,9 @@
       <td>"`json`"</td>
       <td>The <a>MIME type</a> used in the NDEF record</td>
       <td>
-        <a>toText()</a> or<br>
-        <a>toJSON()</a> or<br>
-        <a>toArrayBuffer()</a>
+        <a>text()</a> or<br>
+        <a>json()</a> or<br>
+        <a>arrayBuffer()</a>
       </td>
     </tr>
     <tr>
@@ -1997,9 +1997,9 @@
       <td>"`opaque`"</td>
       <td>The <a>MIME type</a> used in the NDEF record</td>
       <td>
-        <a>toText()</a> or<br>
-        <a>toJSON()</a> or<br>
-        <a>toArrayBuffer()</a>
+        <a>text()</a> or<br>
+        <a>json()</a> or<br>
+        <a>arrayBuffer()</a>
       </td>
     </tr>
     <tr>
@@ -2007,9 +2007,9 @@
       <td><a>external type</a></td>
       <td>"`application/octet-stream`"</td>
       <td>
-        <a>toText()</a> or<br>
-        <a>toJSON()</a> or<br>
-        <a>toArrayBuffer()</a>
+        <a>text()</a> or<br>
+        <a>json()</a> or<br>
+        <a>arrayBuffer()</a>
       </td>
     </tr>
     <tr>
@@ -2017,9 +2017,9 @@
       <td>"`opaque`"</td>
       <td>"`application/octet-stream`"</td>
       <td>
-        <a>toText()</a> or<br>
-        <a>toJSON()</a> or<br>
-        <a>toArrayBuffer()</a>
+        <a>text()</a> or<br>
+        <a>json()</a> or<br>
+        <a>arrayBuffer()</a>
       </td>
     </tr>
   </table>
