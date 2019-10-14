@@ -1312,7 +1312,7 @@
             case "text":
               text = record.text();
               break;
-            case "-act":
+            case "action":
               const buffer = record.arrayBuffer();
               const view = new DataView(buffer);
               action = view.getUint8(0);
@@ -1819,31 +1819,41 @@
       <dl>
         <dt>The "<dfn>empty</dfn>" string</dt>
         <dd>
-          The value representing <a href="#dfn-empty">empty</a> <a>NDEFRecord</a>.
+          The value representing <a href="#empty-ndef-record-tnf-0">empty</a> <a>NDEFRecord</a>.
         </dd>
         <dt>The "<dfn>text</dfn>" string</dt>
         <dd>
-          The value representing <a>NDEFRecord</a> of a <a href="#dfn-text">text</a> type.
+          The value representing a <a>Text record</a>.
         </dd>
         <dt>The "<dfn>url</dfn>" string</dt>
         <dd>
-          The value representing <a>NDEFRecord</a> of a <a href="#dfn-url">url</a> type.
+          The value representing a <a>URI record</a>.
         </dd>
         <dt>The "<dfn>smart-poster</dfn>" string</dt>
         <dd>
-          The value representing <a>NDEFRecord</a> of a <a href="#dfn-smart-poster">smart-poster</a> type.
+          The value representing a <a>Smart poster</a> record.
         </dd>
-        <dt>The "<dfn>json</dfn>" string</dt>
+        <dt>The "<dfn>absolute-url</dfn>" string</dt>
         <dd>
-          The value representing <a>NDEFRecord</a> of a <a href="#dfn-json">json</a> type.
+          The value representing a <a>absolute-URL record</a>.
         </dd>
         <dt>The "<dfn>opaque</dfn>" string</dt>
         <dd>
           The value representing a <a>MIME type record</a>.
         </dd>
+        <dt>The "<dfn>json</dfn>" string</dt>
+        <dd>
+          The value representing a <a>MIME type record</a> that has a JSON
+          <a>MIME type</a>.
+        </dd>
+        <dt>The "<dfn>unknown</dfn>" string</dt>
+        <dd>
+          The value representing an <a>unknown record</a>.
+        </dd>
         <dt>An <dfn>external type</dfn></dt>
         <dd>
-          A {{DOMString}} representing a custom type for the <a>external type record</a>.
+          A {{DOMString}} representing a custom type for the
+          <a>external type record</a>.
           The type must follow the <a>external type</a> ABNF.
           <pre class="abnf">
             ext-type             = reg-name ":" custom-type
@@ -1870,9 +1880,16 @@
           typically used in a record of an <a>NDEFMessage</a> that is the payload
           of a parent <a>NDEFRecord</a>, for instance in a <a>smart poster</a>.
           The context of the <a>local type</a> is the parent record whose payload
-          is the <a>NDEFMessage</a> to which this record belongs.
+          is the <a>NDEFMessage</a> to which this record belongs. The value
+          MUST NOT be equal to any other <a>NDEFRecordType</a> strings defined
+          in this API.
         </dd>
       </dl>
+      <p>
+        Any implementation of Web NFC MUST transparently expose chunked records
+        as single logical records, therefore <a>unchanged record</a>s are not
+        explicitly represented.
+      </p>
   </section> <!-- NDEFRecordType enum -->
 
   <section id="data-mapping"><h3>Data mapping</h3>
@@ -1892,25 +1909,25 @@
       <td><dfn>"`empty`"</dfn></td>
       <td><i>unused</i></td>
       <td><i>unused</i></td>
-      <td><a>Empty record</a></td>
+      <td><a>Empty record</a> (TNF=0)</td>
     </tr>
     <tr>
       <td><dfn>"`text`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{DOMString}}</td>
-      <td><a>Well-known type</a> record with type "`T`"</td>
+      <td><a>Well-known type</a> (TNF=1) record with TYPE="`T`"</td>
     </tr>
     <tr>
       <td><dfn>"`url`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{DOMString}}</td>
-      <td><a>Well-known type</a> record with type "`U`"</td>
+      <td><a>Well-known type</a> (TNF=1) record with TYPE="`U`"</td>
     </tr>
     <tr>
       <td><dfn>"`smart-poster`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{NDEFMessage}}</td>
-      <td><a>Well-known type</a> record with type "`Sp`"</td>
+      <td><a>Well-known type</a> (TNF=1) record with TYPE="`Sp`"</td>
     </tr>
     <tr>
       <td><dfn>"`json`"</dfn></td>
@@ -1918,25 +1935,46 @@
       <td>
         [= JSON type =]
       </td>
-      <td><a>MIME type record</a> with type equal to
-        <a>MIME type</a>.
+      <td><a>MIME type record</a> (TNF=2) with TYPE= [= JSON type =].
       </td>
     </tr>
     <tr>
       <td><dfn>"`opaque`"</dfn></td>
-      <td><a>MIME type</a></td>
+      <td>[= MIME type =]</a></td>
       <td>{{ArrayBuffer}}</td>
-      <td><a>MIME type record</a></td>
+      <td><a>MIME type record</a> (TNF=2) with TYPE= [= MIME type =]</td>
     </tr>
     <tr>
-      <td><a>external type</a></td>
+      <td><dfn>"`absolute-url`"</dfn></td>
+      <td><i>unused</i></td>
+      <td>{{DOMString}} <i>url</i></td>
+      <td><a>Absolute-URL record</a> (TNF=3) with TYPE=<i>url</i></td>
+    </tr>
+    <tr>
+      <td><i>[= external type =]</i></td>
       <td><i>unused</i></td>
       <td>
-        {{ArrayBuffer}} or<br>
-        any <a>typed array type</a> or>br>
+        {{ArrayBuffer}} or any<br>
+        <a>typed array type</a> or<br>
         {{NDEFMessage}}
       </td>
-      <td><a>External type record</a></td>
+      <td><a>External type record</a> (TNF=4) with TYPE= [= external type =]</td>
+    </tr>
+    <tr>
+      <td><i>[= local type =]</i></td>
+      <td><i>unused</i></td>
+      <td>
+        {{ArrayBuffer}} or any<br>
+        <a>typed array type</a>
+      </td>
+      <td><a>External type record</a> (TNF=4) with TYPE= [= local type =] inside
+        the <a>NDEFMessage</a> payload of another record</td>
+    </tr>
+    <tr>
+      <td><dfn>"`unknown`"</dfn></td>
+      <td><i>unused</i></td>
+      <td>{{ArrayBuffer}}</td>
+      <td><a>unknown record</a> (TNF=5)</td>
     </tr>
   </table>
   <p>
@@ -1947,15 +1985,15 @@
   </p>
   <table class="simple" data-link-for="NDEFRecord">
     <tr>
-      <th>NDEF record type</th>
-      <th>NDEFRecord recordType</th>
-      <th>NDEFRecord mediaType</th>
-      <th>NDEFRecord data getters</th>
+      <th>NDEF record<br>TNF and TYPE</th>
+      <th>NDEFRecord<br> recordType</th>
+      <th>NDEFRecord<br> mediaType</th>
+      <th>NDEFRecord<br> data getters</th>
     </tr>
     <tr>
-      <td><a>Empty record</a></td>
+      <td><a>Empty record</a> (TNF=0)</td>
       <td>"`empty`"</td>
-      <td><i>empty</i></td>
+      <td>""</td>
       <td>
         <a>text()</a> or<br>
         <a>json()</a> or<br>
@@ -1963,19 +2001,19 @@
       </td>
     </tr>
     <tr>
-      <td><a>Well-known type</a> record with type "`T`"</td>
+      <td><a>Well-known type</a> (TNF=1) record with TYPE="`T`"</td>
       <td>"`text`"</td>
       <td>"`text/plain`"</td>
-      <td><a>text()</a></td>
+      <td><a>text()</a> or <a>json()</a> or <a>arrayBuffer()</a></a></td>
     </tr>
     <tr>
-      <td><a>Well-known type</a> record with type "`U`"</td>
+      <td><a>Well-known type</a> (TNF=1) record with TYPE="`U`"</td>
       <td>"`url`"</td>
       <td>"`text/plain`"</td>
-      <td><a>text()</a></td>
+      <td><a>text()</a> or <a>json()</a> or <a>arrayBuffer()</a></a></td>
     </tr>
     <tr>
-      <td><a>Well-known type</a> record with type "`Sp`"</td>
+      <td><a>Well-known type</a> (TNF=1) record with TYPE="`Sp`"</td>
       <td>"`smart-poster`"</td>
       <td>""</td>
       <td>
@@ -1984,17 +2022,9 @@
       </td>
     </tr>
     <tr>
-      <td><a>Absolute-URL record</a></td>
-      <td>"`url`"</td>
-      <td>"`text/plain`"</td>
-      <td><a>text()</a></td>
-    </tr>
-    <tr>
-      <td><a>MIME type record</a> with
-        <a>JSON MIME type</a>
-      </td>
+      <td><a>MIME type record</a> (TNF=2) with TYPE=<a>JSON MIME type</a></td>
       <td>"`json`"</td>
-      <td>The <a>MIME type</a> used in the NDEF record</td>
+      <td>The <a>JSON MIME type</a> used in the NDEF record</td>
       <td>
         <a>text()</a> or<br>
         <a>json()</a> or<br>
@@ -2002,7 +2032,7 @@
       </td>
     </tr>
     <tr>
-      <td><a>MIME type record</a></td>
+      <td><a>MIME type record</a> (TNF=2) with TYPE=<a>MIME type</a></td>
       <td>"`opaque`"</td>
       <td>The <a>MIME type</a> used in the NDEF record</td>
       <td>
@@ -2012,7 +2042,16 @@
       </td>
     </tr>
     <tr>
-      <td><a>External type record</a></td>
+      <td><a>Absolute-URL record</a> (TNF=3) with TYPE=<i>url</i></td>
+      <td>"`url`"</td>
+      <td>""</td>
+      <td>
+        <a>text()</a> returning <i>url</i> or<br>
+        <a>arrayBuffer()</a>
+      </td>
+    </tr>
+    <tr>
+      <td><a>External type record</a> (TNF=4) with TYPE=<a>external type</a></td>
       <td><a>external type</a></td>
       <td>"`application/octet-stream`"</td>
       <td>
@@ -2023,8 +2062,19 @@
       </td>
     </tr>
     <tr>
-      <td>Any other <a>NDEF record</a> type</td>
-      <td>"`opaque`"</td>
+      <td>Any embedded <a>NDEF record</a> with TYPE=<a>local type</a></td>
+      <td><a>local type</a></td>
+      <td>"`application/octet-stream`"</td>
+      <td>
+        <a>text()</a> or<br>
+        <a>json()</a> or<br>
+        <a>arrayBuffer()</a> or<br>
+        <a>toRecords()</a>
+      </td>
+    </tr>
+    <tr>
+      <td><a>Unknown record</a> (TNF=5)</td>
+      <td>"`unknown`"</td>
       <td>"`application/octet-stream`"</td>
       <td>
         <a>text()</a> or<br>
