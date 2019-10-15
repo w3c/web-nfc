@@ -1268,75 +1268,6 @@
     </pre>
   </section>
 
-  <section> <h3>Read an external record with an NDEF message as payload</h3>
-    <p>
-      External type records can be used to create application defined records.
-      These records may contain an <a>NDEF message</a> as payload,
-      with its own <a>NDEF records</a>, including local types.
-    </p>
-    <p>
-      The smart poster type also contains an <a>NDEF message</a> as
-      payload.
-    </p>
-    <p>
-      Local types are well-known types defined locally to every
-      individual record type that carries an <a>NDEF message</a> as payload.
-    </p>
-    <p>
-      As NDEF gives no guarantee on the ordering of records, using
-      an external type record with an <a>NDEF message</a> as payload,
-      can be useful for encapsulating related data.
-    </p>
-    <p>
-      For external type records, local types are application specific.
-      Local types are exposed as a recordType, in this example prefixed with "`-`".
-    </p>
-    <p>
-      This example shows how to read an external record for social posts,
-      which contains an <a>NDEF message</a>, containing a text record and
-      a record with the local type "act" (action), just like smart posters.
-    </p>
-    <pre class="example">
-      const reader = new NFCReader();
-      reader.onreading = event => {
-        const socialPost = event.message.records[0];
-        if (!socialPost) {
-          return;
-        }
-
-        let action;
-        let text = "";
-
-        for (let record of socialPost.toRecords()) {
-          switch (record.recordType) {
-            case "text":
-              text = record.text();
-              break;
-            case "action":
-              const buffer = record.arrayBuffer();
-              const view = new DataView(buffer);
-              action = view.getUint8(0);
-              break;
-          }
-        }
-
-        switch (action) {
-          case 0: // do the action
-            console.log(`Post "${text}" to timeline`);
-            break;
-          case 1: // save for later
-            console.log(`Save "${text}" as a draft`);
-            break;
-          case 2: // open for editing
-            console.log(`Show editable post with "${text}"`);
-            break;
-        }
-      };
-
-      reader.scan({ recordType: "example.com:sp"});
-    </pre>
-  </section>
-
   <section> <h3>Push a smart poster message</h3>
     <pre class="example">
       const writer = new NFCWriter();
@@ -1369,6 +1300,69 @@
       ]}).catch(_ => {
         console.log("Push failed");
       });
+    </pre>
+  </section>
+
+  <section> <h3>Read an external record with an NDEF message as payload</h3>
+    <p>
+      External type records can be used to create application defined records.
+      These records may contain an <a>NDEF message</a> as payload,
+      with its own <a>NDEF records</a>, including local types that are used in
+      the context of the application.
+    </p>
+    <p>
+      Note that the <a>smart poster</a> record type also contains an
+      <a>NDEF message</a> as payload.
+    </p>
+    <p>
+      As NDEF gives no guarantee on the ordering of records, using
+      an external type record with an <a>NDEF message</a> as payload,
+      can be useful for encapsulating related data.
+    </p>
+    <p>
+      This example shows how to read an external record for social posts,
+      which contains an <a>NDEF message</a>, containing a text record and
+      a record with the local type "act" (action), with definition borrowed from
+      <a>smart poster</a>, but used in local application context.
+    </p>
+    <pre class="example">
+      const reader = new NFCReader();
+      reader.onreading = event => {
+        const socialPost = event.message.records[0];
+        if (!socialPost) {
+          return;
+        }
+
+        let action;
+        let text = "";
+
+        for (let record of socialPost.toRecords()) {
+          switch (record.recordType) {
+            case "text":
+              text = record.text();
+              break;
+            case "act":
+              const buffer = record.arrayBuffer();
+              const view = new DataView(buffer);
+              action = view.getUint8(0);
+              break;
+          }
+        }
+
+        switch (action) {
+          case 0: // do the action
+            console.log(`Post "${text}" to timeline`);
+            break;
+          case 1: // save for later
+            console.log(`Save "${text}" as a draft`);
+            break;
+          case 2: // open for editing
+            console.log(`Show editable post with "${text}"`);
+            break;
+        }
+      };
+
+      reader.scan({ recordType: "example.com:sp"});
     </pre>
   </section>
 
@@ -1981,7 +1975,8 @@
     The mapping from <a>NDEF record</a> types to <a>NDEFRecord</a>,
     as used for incoming <a>NDEF message</a>s described in the
     [[[#steps-receiving]]] section, is as
-    follows:
+    follows. The data getters column shows the ones that should work for the
+    given payload type (the others may or will fail, depending on case).
   </p>
   <table class="simple" data-link-for="NDEFRecord">
     <tr>
@@ -1994,11 +1989,7 @@
       <td><a>Empty record</a> (TNF=0)</td>
       <td>"`empty`"</td>
       <td>""</td>
-      <td>
-        <a>text()</a> or<br>
-        <a>json()</a> or<br>
-        <a>arrayBuffer()</a>
-      </td>
+      <td><i>none</i> (all getters fail)</td>
     </tr>
     <tr>
       <td><a>Well-known type</a> (TNF=1) record with TYPE="`T`"</td>
@@ -2068,8 +2059,7 @@
       <td>
         <a>text()</a> or<br>
         <a>json()</a> or<br>
-        <a>arrayBuffer()</a> or<br>
-        <a>toRecords()</a>
+        <a>arrayBuffer()</a>
       </td>
     </tr>
     <tr>
@@ -2077,10 +2067,7 @@
       <td>"`unknown`"</td>
       <td>"`application/octet-stream`"</td>
       <td>
-        <a>text()</a> or<br>
-        <a>json()</a> or<br>
-        <a>arrayBuffer()</a> or<br>
-        <a>toRecords()</a>
+        <a>arrayBuffer()</a>
       </td>
     </tr>
   </table>
