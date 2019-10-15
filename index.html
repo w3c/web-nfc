@@ -563,12 +563,6 @@
         </li>
       </ul>
     </div>
-    <p>
-      The canonical form of these type definitions is a URN with namespace
-      identifier `nfc` and namespace specific string "`wkt`". For instance, the
-      <a>well-known type</a> of a <a>Text record</a> is "`urn:nfc:wkt:T`", but
-      it is stored as "`T`".
-    </p>
 
     <section> <h5>Text record</h5>
       <div>
@@ -1884,6 +1878,26 @@
         as single logical records, therefore <a>unchanged record</a>s are not
         explicitly represented.
       </p>
+      <p>
+        Two <a>well-known type</a>s (including any <a>NFC Forum local type</a>
+        and any <a>NFC Forum global type</a>) MUST be compared character by
+        character in case-sensitive manner.
+      </p>
+      <p>
+        Two external types MUST be compared character by character, in
+        case-insensitive manner.
+      </p>
+      <p>
+        The binary representation of any <a>well-known type</a> and
+        <a>external type</a> MUST be written as a relative URI (RFC 3986),
+        omitting the namespace identifier (NID) "`nfc`" and namespace specific
+        string (NSS) "`wkt`" and "`ext`", respecively, i.e. omitting the
+        "`urn:nfc:wkt:`" and "`urn:nfc:ext:`" prefixes.
+        For instance, "`urn:nfc:ext:company.com:a" is stored as "`company.com:a`"
+        and the <a>well-known type</a> of a <a>Text record</a> is
+        "`urn:nfc:wkt:T`", but it is stored as "`T`".
+      </p>
+
   </section> <!-- NDEFRecordType enum -->
 
   <section id="data-mapping"><h3>Data mapping</h3>
