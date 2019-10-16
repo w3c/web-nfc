@@ -2552,7 +2552,7 @@
         <a>record identifier</a> of individual <a>NDEF Record</a>s which are being read.
         The default value `""` means that no matching is performed.
       </p>
-    <p>
+      <p>
         The <dfn>recordType</dfn> property
         denotes the enum value which is used for matching the
         <a href="#idl-def-ndefrecordtype">recordType</a> property of each
@@ -2600,7 +2600,7 @@
       aborted.
     </p>
     <section><h3>The <strong>push()</strong> method</h3>
-      <p id="steps-push">
+      <div id="steps-push">
         The
         <dfn>NFCWriter.push</dfn> method, when invoked, MUST run the
         <dfn>push a message</dfn> algorithm:
@@ -2713,9 +2713,9 @@
             </li>
           </li>
         </ol>
-      </p>
+      </div>
 
-      <p id="steps-push-timer">
+      <div id="steps-push-timer">
         To <dfn>start the push timer</dfn>, run these steps:
         <ol class=algorithm>
           <p>
@@ -2751,9 +2751,9 @@
             {{DOMException}}.
           </li>
         </ol>
-      </p>
+      </div>
 
-      <p id="steps-start-nfc-push">
+      <div id="steps-start-nfc-push">
         To <dfn>start the NFC push</dfn>, run these steps:
         <ol class=algorithm>
           <li>
@@ -2858,9 +2858,10 @@
             </ol>
           </li>
         </ol>
-      </p>
+      </div>
+    </section>
 
-      <section><h3>Obtaining push permission</h3>
+    <section><h3>Obtaining push permission</h3>
       <p>
         To <dfn>obtain push permission</dfn>, run these steps:
         <ol class=algorithm>
@@ -2900,8 +2901,10 @@
           </li>
         </ol>
       </p>
-      </section>
+    </section>
+  </section> <!-- Writing or pushing content -->
 
+  <section> <h3> Creating content</h3>
       <section><h3>Creating NDEF message</h3>
         <p>
           To <dfn>create NDEF message</dfn> given a
@@ -3560,11 +3563,13 @@
         </ol>
       </p>
       </section>
-    </section> <!-- push() -->
-
-  </section> <!-- Writing or pushing content -->
+  </section> <!-- creating content -->
 
   <section> <h3>Listening for content</h3>
+    <p>
+      If there are any {{NFCReader}} instances in <a>activated reader objects</a>
+      then the <a>UA</a> MUST listen to <a>NDEF message</a>s.
+    </p>
     <p>
       To listen for <a>NFC content</a>, the client MUST activate an
       {{NFCReader}} instance by calling <a>NFCReader.scan()</a>. When attaching
@@ -3706,8 +3711,7 @@
 
     <section> <h3>The <strong>scan()</strong> method</h3>
       <p>
-        The section [[[#steps-receiving]]] uses {{NFCReader}} instances to match
-        incoming <a>NFC content</a>.
+        Incoming <a>NFC content</a> is matched using {{NFCReader}} instances.
       </p>
       <p>
         When the <dfn>NFCReader.scan</dfn> method is invoked, the UA
@@ -3909,14 +3913,114 @@
       </p>
     </section>
 
+    <section><h3>The NFC reading algorithm</h3>
+    To receive <a>NDEF</a> content, run the <dfn>NFC reading algorithm</dfn>:
+    <ol class=algorithm id="parse-ndef">
+      <li>
+        If <a>NFC is suspended</a>, abort these steps.
+      </li>
+      <li>
+        If the <a>NFC device</a> in proximity range does not expose <a>NDEF</a>
+        technology for reading or formatting, abort these steps.
+        <p class="note">
+          This means there is no reading event generated when non-<a>NDEF</a>
+          NFC technology comes in proximity range. This may change in future
+          version of the specification.
+        </p>
+      </li>
+      <li>
+        Let |serialNumber:serialNumber| be the device identifier as a series of
+        numbers, or `null` if unavailable.
+      </li>
+      <li>
+        If |serialNumber| is not `null`, set it to the
+        <a>string</a> of U+003A (`:`) concatenating each number represented as
+        <a>ASCII hex digit</a>, in the same order.
+      </li>
+      <li>
+        Let |message:NDEFMessage| be a new <a>NDEFMessage</a> object, with
+        |message|'s records set to the empty <a>list</a>.
+      </li>
+      <li>
+        If the <a>NFC device</a> in proximity range is an unformatted
+        <a>NFC tag</a> that is NDEF-formattable, let |input| be `null`.
+        Otherwise, let |input| be the notation for the <a>NDEF message</a>
+        which has been received.
+        <p class="note">
+           The UA SHOULD represent an unformatted <a>NFC tag</a> as an
+           <a>NDEF message</a> containing no <a>NDEF record</a>s, i.e. an empy
+           array for its <a href="#dom-ndefmessage-records">records</a> property.
+        </p>
+      </li>
+      <li>
+        [= list/For each =] <a>NDEF record</a> which is part of |input|, run the
+        following sub-steps:
+        <ol>
+          <li>
+            Let |ndef| be the notation for the current <a>NDEF record</a> with
+            |typeNameField:number| corresponding to the <a>TNF field</a> and
+            |payload:byte sequence| corresponding to the <a>PAYLOAD field</a>
+            data.
+          </li>
+          <li>
+            Let |record:NDEFRecord| be the result of <a>parse an NDEF record</a>
+            on |ndef|.
+          </li>
+          <li>
+             If |record| is not `null`, <a>append</a> |record| to |message|'s
+             records.
+          </li>
+        </ol>
+      </li>
+      <li>
+        If <a href="#nfc-is-suspended">NFC is not suspended</a>, run the
+        <a>dispatch NFC content</a> steps with given |serialNumber|
+        and |message|.
+      </li>
+    </ol>
+    </section>
+
+    <section data-link-for="NFCReadingEvent"><h3>Dispatching NFC content</h3>
+    <p>
+      To <dfn>dispatch NFC content</dfn> given a |serialNumber:serialNumber|
+      of type <a>serialNumber</a>, |message:NDEFMessage|
+      of type <a>NDEFMessage</a>, run these steps:
+    </p>
+    <ol class=algorithm>
+      <li>
+        [= list/For each =] {{NFCReader}} instance |reader:NFCReader| in
+        the <a>activated reader objects</a>, run the following sub-steps:
+        <ol>
+          <li>
+            If |reader|.<a>[[\Id]]</a> is [= dictionary member/present =]
+            and doesn't <a href="#dfn-match-record-identifier-with-url-pattern">match</a>
+            any |record:NDEFRecord|'s id where |record|
+            is an element of |message|, [= iteration/continue =].
+          </li>
+          <li>
+            If |reader|.<a>[[\RecordType]]</a> is [= dictionary member/present =]
+            and it is not equal to any |record|'s recordType where |record|
+            is an element of |message|, [= iteration/continue =].
+          </li>
+          <li>
+            If |reader|.<a>[[\MediaType]]</a> is not `""` and
+            it is not equal to any |record|'s mediaType where |record| is
+            an element of |message|, [= iteration/continue =].
+          </li>
+          <li>
+            <a>Fire an event</a> named "`reading`" at |reader|
+            using <a>NFCReadingEvent</a> with its <a>serialNumber</a> attribute
+            initialized to |serialNumber| and <a>message</a> attribute
+            initialized to |message|.
+          </li>
+        </ol>
+      </li>
+    </ol>
+    </section>
   </section>
 
   <section id="steps-receiving">
-  <h3>Receiving and parsing content</h3>
-  <p>
-    If there are any {{NFCReader}} instances in <a>activated reader objects</a>
-    then UAs MUST listen to <a>NDEF message</a>s.
-  </p>
+  <h3>Parsing content</h3>
 
   <section><h3>Parsing records from bytes</h3>
     To <dfn>parse records from bytes</dfn> given |bytes:byte sequence|,
@@ -4361,112 +4465,6 @@
       </ol>  <!-- parsing NDEF unknown record -->
     </p>
   </section>
-
-  <section><h3>The NFC reading algorithm</h3>
-    To receive <a>NDEF</a> content, run the <dfn>NFC reading algorithm</dfn>:
-    <ol class=algorithm id="parse-ndef">
-      <li>
-        If <a>NFC is suspended</a>, abort these steps.
-      </li>
-      <li>
-        If the <a>NFC device</a> in proximity range does not expose <a>NDEF</a>
-        technology for reading or formatting, abort these steps.
-        <p class="note">
-          This means there is no reading event generated when non-<a>NDEF</a>
-          NFC technology comes in proximity range. This may change in future
-          version of the specification.
-        </p>
-      </li>
-      <li>
-        Let |serialNumber:serialNumber| be the device identifier as a series of
-        numbers, or `null` if unavailable.
-      </li>
-      <li>
-        If |serialNumber| is not `null`, set it to the
-        <a>string</a> of U+003A (`:`) concatenating each number represented as
-        <a>ASCII hex digit</a>, in the same order.
-      </li>
-      <li>
-        Let |message:NDEFMessage| be a new <a>NDEFMessage</a> object, with
-        |message|'s records set to the empty <a>list</a>.
-      </li>
-      <li>
-        If the <a>NFC device</a> in proximity range is an unformatted
-        <a>NFC tag</a> that is NDEF-formattable, let |input| be `null`.
-        Otherwise, let |input| be the notation for the <a>NDEF message</a>
-        which has been received.
-        <p class="note">
-           The UA SHOULD represent an unformatted <a>NFC tag</a> as an
-           <a>NDEF message</a> containing no <a>NDEF record</a>s, i.e. an empy
-           array for its <a href="#dom-ndefmessage-records">records</a> property.
-        </p>
-      </li>
-      <li>
-        [= list/For each =] <a>NDEF record</a> which is part of |input|, run the
-        following sub-steps:
-        <ol>
-          <li>
-            Let |ndef| be the notation for the current <a>NDEF record</a> with
-            |typeNameField:number| corresponding to the <a>TNF field</a> and
-            |payload:byte sequence| corresponding to the <a>PAYLOAD field</a>
-            data.
-          </li>
-          <li>
-            Let |record:NDEFRecord| be the result of <a>parse an NDEF record</a>
-            on |ndef|.
-          </li>
-          <li>
-             If |record| is not `null`, <a>append</a> |record| to |message|'s
-             records.
-          </li>
-        </ol>
-      </li>
-      <li>
-        If <a href="#nfc-is-suspended">NFC is not suspended</a>, run the
-        <a>dispatch NFC content</a> steps with given |serialNumber|
-        and |message|.
-      </li>
-    </ol>
-    </section>
-
-    <section data-link-for="NFCReadingEvent"><h3>Dispatching NFC content</h3>
-    <p>
-      To <dfn>dispatch NFC content</dfn> given a |serialNumber:serialNumber|
-      of type <a>serialNumber</a>, |message:NDEFMessage|
-      of type <a>NDEFMessage</a>, run these steps:
-    </p>
-    <ol class=algorithm>
-      <li>
-        [= list/For each =] {{NFCReader}} instance |reader:NFCReader| in
-        the <a>activated reader objects</a>, run the following sub-steps:
-        <ol>
-          <li>
-            If |reader|.<a>[[\Id]]</a> is [= dictionary member/present =]
-            and doesn't <a href="#dfn-match-record-identifier-with-url-pattern">match</a>
-            any |record:NDEFRecord|'s id where |record|
-            is an element of |message|, [= iteration/continue =].
-          </li>
-          <li>
-            If |reader|.<a>[[\RecordType]]</a> is [= dictionary member/present =]
-            and it is not equal to any |record|'s recordType where |record|
-            is an element of |message|, [= iteration/continue =].
-          </li>
-          <li>
-            If |reader|.<a>[[\MediaType]]</a> is not `""` and
-            it is not equal to any |record|'s mediaType where |record| is
-            an element of |message|, [= iteration/continue =].
-          </li>
-          <li>
-            <a>Fire an event</a> named "`reading`" at |reader|
-            using <a>NFCReadingEvent</a> with its <a>serialNumber</a> attribute
-            initialized to |serialNumber| and <a>message</a> attribute
-            initialized to |message|.
-          </li>
-        </ol>
-      </li>
-    </ol>
-    </section>
-  </section> <!-- receiving content -->
 </section>
 
 <section id="idl-index" class="appendix">
