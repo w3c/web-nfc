@@ -167,7 +167,7 @@
       <li>Card emulation
        <ol>
         <li>
-          With a secure element: payments by holding your phone close to a
+          With a secure element: make payments by holding a phone close to a
           point-of-sales terminal.
         </li>
         <li>
@@ -1061,7 +1061,7 @@
   <section><h3>Push a text string to a peer device</h3>
     <p>
       It is possible to restrict to which devices (tags or peers) data
-      should be pushed. Below we specify to only push to peers,
+      should be pushed. Below push is specified only to peers,
       and thus, no data is pushed when the user taps a tag.
     </p>
     <pre class="example">
@@ -1094,7 +1094,8 @@
 
   <section> <h3>Read data from tag, and write to empty ones</h3>
     <p>
-      Below we read various different kinds of data which can be stored on a tag.
+      This example shows reading various different kinds of data which can be
+       stored on a tag.
       In the case the tag is empty, we write a text message with the value
       "Hello World".
     </p>
@@ -1994,7 +1995,7 @@
   </p>
   <table class="simple" data-link-for="NDEFRecord">
     <tr>
-      <th>NDEF record<br>TNF and TYPE</th>
+      <th>NDEF record <a>TNF field</a><br> and <a>TYPE field</a></th>
       <th>NDEFRecord<br> recordType</th>
       <th>NDEFRecord<br> mediaType</th>
       <th>NDEFRecord<br> data getters</th>
@@ -3868,7 +3869,8 @@
                 Let |messageEnd:boolean| (<a>ME field</a>) be bit 6 of |header|.
               </li>
               <div class=note>
-                As chunked records are not allowed as sub records, we ignore bit 5 (<a>CF field</a>).
+                As chunked records are not allowed as sub records, ignore bit 5
+                (<a>CF field</a>) is ignored.
               </div>
               <li>
                 Let |shortRecord:boolean| (<a>SR field</a>) be bit 4 of |header|.
@@ -4044,21 +4046,18 @@
   </p>
   <p class="note" data-link-for="NDEFRecord">
     Using the <a data-cite="encoding#encoder">encoder</a>, it is only possible
-    to encode as UTF-8, unless you do the encoding manually
-    and use the "{{opaque}}" {{recordType}}, which
-    allows you to write any opaque data.
+    to encode as UTF-8, unless the encoding is done manually by using the
+    "{{opaque}}" {{recordType}}, which allows writing any opaque data.
     <br><br>
-    When you write a <a>string</a> to the "{{text}}"
-    {{recordType}}, it will be written as UTF-8.
+    A <a>string</a> is written to the "{{text}}" {{recordType}} as UTF-8.
     External applications have the ability to additionally encode
     this field as UTF-16BE, but that is transparent from the use
     of the {{NFCReader}} which will always return the data
     as a <a>string</a>.
     <br><br>
-    As external applications may have encoded the "{{opaque}}"
-    {{recordType}} using a different
-    encoding, which can be decoded using [[[ENCODING]]] if you know
-    the encoding.
+    External applications may have encoded the "{{opaque}}" {{recordType}} using
+    a different encoding, that may can be decoded using [[[ENCODING]]], if the
+    encoding is known.
   </p>
   </section>
 
