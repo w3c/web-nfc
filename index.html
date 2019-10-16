@@ -116,11 +116,12 @@
     protocol for simple wireless interconnection of closely coupled devices
     operating at 13.56 MHz.
 
-    The hardware standard is deined in [[[NFC-STANDARDS]]].
+    The hardware standard is defined in [[[NFC-STANDARDS]]].
   </p>
   <p>
     This document defines an API to enable selected use-cases based on
-    NFC technology.
+    NFC technology. The current scope of the specification is <a>NDEF</a>.
+    Other NFC technologies may be supported in the future.
   </p>
 </section>
 
@@ -874,6 +875,9 @@
     security, privacy and feature categories, resulting in generic flows as
     follows.
   </p>
+  <section> <h3>Formatting an <a>NFC tag</a></h3>
+
+  </section>
   <section> <h3>Reading an <a>NFC tag</a></h3>
     <ol>
       <li>
@@ -891,8 +895,7 @@
         Reading an <a>NFC tag</a> when no {{Document}} using the Web NFC API is
         <a>visible</a>.
         <p class="note">
-          This use case is not supported in this version of the specification,
-          and it has low priority for future versions as well.
+          This use case is not supported in this version of the specification.
         </p>
       </li>
     </ol>
@@ -1095,25 +1098,21 @@
   <section> <h3>Read data from tag, and write to empty ones</h3>
     <p>
       This example shows reading various different kinds of data which can be
-       stored on a tag.
-      In the case the tag is empty, we write a text message with the value
-      "Hello World".
+      stored on a tag. If the tag is unformatted or contains an empty record,
+      a text message is written with the value "Hello World".
     </p>
-    <pre class="highlight">
+    <pre class="example">
       const writer = new NFCWriter();
       const reader = new NFCReader();
-
       reader.onreading = event => {
         const message = event.message;
-        if (message.records[0].recordType == 'empty') {
+        if (message.records.length == 0 ||     // unformatted tag
+            message.records[0].recordType == 'empty' ) {  // empty record
           writer.push({
             records: [{ recordType: "text", data: 'Hello World' }]
           });
           return;
         }
-
-        console.log(`Read message written by ${message.url}`);
-
         for (let record of message.records) {
           switch (record.recordType) {
             case "text":
@@ -1139,7 +1138,6 @@
           }
         }
       };
-
       reader.scan();
     </pre>
   </section>
@@ -1160,7 +1158,6 @@
       const reader = new NFCReader();
       reader.scan({ id: "https://mygame.com/mypath/mygame" });
       reader.onreading = async event => {
-        console.log(`Source:     ${ event.message.url }`);
         console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
 
         const newMessage = {
@@ -1187,13 +1184,15 @@
 
       reader.addEventListener("reading", event => {
         for (let record of event.message.records) {
-          const json = record.json();
-          const article =/[aeio]/.test(json.title) ? "an" : "a";
-          console.log(`${json.name} is ${article} ${json.title}`);
+          if (record.recordType === 'json') {
+            const json = record.json();
+            const article =/[aeio]/.test(json.title) ? "an" : "a";
+            console.log(`${json.name} is ${article} ${json.title}`);
+          }
         }
       });
 
-      reader.scan({ url: document.baseURI, recordType: "json" });
+      reader.scan({ recordType: "json" });
 
       const writer = new NFCWriter();
       writer.push({
@@ -2753,6 +2752,10 @@
         To <dfn>start the NFC push</dfn>, run these steps:
         <ol class=algorithm>
           <li>
+            If the <a>NFC device</a> in proximity range does not expose
+            <a>NDEF</a> technology for formatting or writing, abort these steps.
+          </li>
+          <li>
             Let |p:Promise| be the <a>pending push tuple</a>'s promise.
           </li>
           <li>
@@ -2817,6 +2820,11 @@
                 |output| as buffer, using the <a>NFC adapter</a>
                 in communication range with |device|.
                 <p class="note">
+                  If the <a>NFC device</a> in proximity range is an unformatted
+                  <a>NFC tag</a> that is <a>NDEF</a>-formattable, format it and
+                  write |output| as buffer.
+                </p>
+                <p class="note">
                   Multiple adapters should be used sequentially by users.
                   There is very small likelihood that a simultaneous tap
                   will happen on two or multiple different and connected
@@ -2826,6 +2834,11 @@
                   The error here gives an indication that the operation
                   needs to be repeated. Otherwise the user may think the
                   operation succeeded on all connected <a>NFC adapter</a>s.
+                </p>
+                <p class="ednote">
+                  Note that the NFC transfer will overwrite existing <a>NDEF</a>
+                  data on an <a>NFC tag</a> that is not read-only. In future
+                  versions a new flag may be introduced to avoid this behavior.
                 </p>
               </li>
               <li>
@@ -3786,6 +3799,10 @@
                 SHOULD NOT check and use them until the {{Document}} is
                 <a>visible</a> again.
               </li>
+              <li>
+                Whenever the <a>UA</a> detects NFC technology, run the
+                <a>NFC reading algorithm</a>.
+              </li>
             </ol>
           </li>
         </ol>
@@ -4255,21 +4272,36 @@
     </p>
   </section>
 
-  <section><h3>The NFC reading algorithm</h3>
-    When the <a>UA</a> is to <dfn>receive NFC content</dfn> it MUST run the
-    following algorithm:
+  <section class="informative">
+    <h3>Formatting tags and non-<a>NDEF</a> use cases</h3>
+    <div>
+      Since the current scope of the specification is <a>NDEF</a>, the following
+      constraints apply to the algorithms below:
+      <ol>
+
+      </ol>
+    </div>
     <p class="note">
        The UA SHOULD represent an unformatted <a>NFC tag</a> as an
-       <a>NDEF message</a> containing a single empty <a>NDEF record</a>.
+       <a>NDEF message</a> containing no <a>NDEF record</a>s, i.e. an empy array
+       for its <a href="#dom-ndefmessage-records">records</a> property.
     </p>
+  </section>
+
+  <section><h3>The NFC reading algorithm</h3>
+    To receive <a>NDEF</a> content, run the <dfn>NFC reading algorithm</dfn>:
     <ol class=algorithm id="parse-ndef">
       <li>
         If <a>NFC is suspended</a>, abort these steps.
       </li>
       <li>
-        Let |message:NDEFMessage| be a new <a>NDEFMessage</a> object, with
-        |message|'s url set to `null` and
-        |message|'s records set to the empty <a>list</a>.
+        If the <a>NFC device</a> in proximity range does not expose <a>NDEF</a>
+        technology for reading or formatting, abort these steps.
+        <p class="note">
+          This means there is no reading event generated when non-<a>NDEF</a>
+          NFC technology comes in proximity range. This may change in future
+          version of the specification.
+        </p>
       </li>
       <li>
         Let |serialNumber:serialNumber| be the device identifier as a series of
@@ -4281,7 +4313,13 @@
         <a>ASCII hex digit</a>, in the same order.
       </li>
       <li>
-        Let |input| be the notation for the <a>NDEF message</a>
+        Let |message:NDEFMessage| be a new <a>NDEFMessage</a> object, with
+        |message|'s records set to the empty <a>list</a>.
+      </li>
+      <li>
+        If the <a>NFC device</a> in proximity range is an unformatted
+        <a>NFC tag</a> that is NDEF-formattable, let |input| be `null`.
+        Otherwise, let |input| be the notation for the <a>NDEF message</a>
         which has been received.
       </li>
       <li>
@@ -4291,19 +4329,21 @@
           <li>
             Let |ndef| be the notation for the current <a>NDEF record</a> with
             |typeNameField:number| corresponding to the <a>TNF field</a> and
-            |payload:byte sequence| corresponding to the <a>PAYLOAD field</a> data.
+            |payload:byte sequence| corresponding to the <a>PAYLOAD field</a>
+            data.
           </li>
           <li>
-            Let |record:NDEFRecord| be the result of <a>parse an NDEF record</a> on |ndef|.
+            Let |record:NDEFRecord| be the result of <a>parse an NDEF record</a>
+            on |ndef|.
           </li>
           <li>
-             If |record| is not `null`, <a>append</a> |record| to |message|'s records.
+             If |record| is not `null`, <a>append</a> |record| to |message|'s
+             records.
           </li>
         </ol>
       </li>
       <li>
-        If <a href="#nfc-is-suspended">NFC is not suspended</a> and
-        |message|'s records [= list/is not empty =], run the
+        If <a href="#nfc-is-suspended">NFC is not suspended</a>, run the
         <a>dispatch NFC content</a> steps with given |serialNumber|
         and |message|.
       </li>
