@@ -3979,24 +3979,46 @@
       </li>
     </ol> <!-- parsing NDEF text record -->
   </p>
-  <p class="note" data-link-for="NDEFRecord">
-    Using the <a data-cite="encoding#encoder">encoder</a>, it is only possible
-    to encode as UTF-8, unless you do the encoding manually
-    and use the "{{opaque}}" {{recordType}}, which
-    allows you to write any opaque data.
-    <br><br>
-    When you write a <a>string</a> to the "{{text}}"
-    {{recordType}}, it will be written as UTF-8.
-    External applications have the ability to additionally encode
-    this field as UTF-16BE, but that is transparent from the use
-    of the {{NFCReader}} which will always return the data
-    as a <a>string</a>.
-    <br><br>
-    As external applications may have encoded the "{{opaque}}"
-    {{recordType}} using a different
-    encoding, which can be decoded using [[[ENCODING]]] if you know
-    the encoding.
-  </p>
+  <aside class="note" data-link-for="NDEFRecord">
+    <p>
+      The Unicode standard defines multiple encodings like UTF-8, UTF-16 and UTF-32.
+      UTF-8 is the preferred encoding on the web, and it has the advantage
+      that it is endianness agnostic, as code points are represented in single bytes.
+    </p>
+    <p>
+      The NDEF text records allow the text to be encoded as either UTF-8 or UTF-16.
+      Generally, it is preferred to use UTF-8 encoding on the web, but integration
+      with existing systems may require UTF-16.
+    </p>
+    <p>
+      The data transmission order and thus the byte order of NDEF is
+      defined as big endian (BE) in [[[NFC-NDEF]]], which means that everything is read
+      back with big endian byte ordering.
+    </p>
+    <p>
+      For UTF-16, byte order matters as it might differ between reading and writing
+      due to each code point spanning two bytes. For this reason UTF-16 encoded text
+      usually contains a byte order mark (also known as BOM) which is written as
+      `0xFEFF`. This means that if the byte order differs between host machine and
+      NDEF, then the value will be read back as `0xFFFE`, indicating that the byte
+      order should be swapped. The [[[ENCODING]]] differentiates UTF-16 as UTF-16BE
+      (big endian) and UTF-16LE (little endian) depending on the byte order.
+    </p>
+    <p>
+      In the case that no byte order mark is present, UTF-16BE encoding should be assumed.
+    </p>
+    <p>
+      Using the <a data-cite="encoding#decoder">decoder</a> with `encoding` set to
+      `utf-16`, it will automatically detect whether bytes should be swapped in
+      case the byte order mark is present. `utf-16be` can be used to read as big
+      endian in case there is no byte order mark.
+    </p>
+    <p>
+      Using the <a data-cite="encoding#encoder">encoder</a>, it is only possible
+      to encode as UTF-8, so if UTF-16 is needed, it will have to be encoded
+      manually or by using a library.
+    </p>
+  </aside>
   </section>
 
   <section><h3>Parsing NDEF well-known `U` records</h3>
