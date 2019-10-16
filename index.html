@@ -116,11 +116,12 @@
     protocol for simple wireless interconnection of closely coupled devices
     operating at 13.56 MHz.
 
-    The hardware standard is deined in [[[NFC-STANDARDS]]].
+    The hardware standard is defined in [[[NFC-STANDARDS]]].
   </p>
   <p>
     This document defines an API to enable selected use-cases based on
-    NFC technology.
+    NFC technology. The current scope of the specification is <a>NDEF</a>.
+    Other NFC technologies may be supported in the future.
   </p>
 </section>
 
@@ -167,7 +168,7 @@
       <li>Card emulation
        <ol>
         <li>
-          With a secure element: payments by holding your phone close to a
+          With a secure element: make payments by holding a phone close to a
           point-of-sales terminal.
         </li>
         <li>
@@ -563,12 +564,6 @@
         </li>
       </ul>
     </div>
-    <p>
-      The canonical form of these type definitions is a URN with namespace
-      identifier `nfc` and namespace specific string "`wkt`". For instance, the
-      <a>well-known type</a> of a <a>Text record</a> is "`urn:nfc:wkt:T`", but
-      it is stored as "`T`".
-    </p>
 
     <section> <h5>Text record</h5>
       <div>
@@ -738,7 +733,7 @@
       </ndef-record>
     </p>
     <p class=note>
-      Web NFC has special handling for working with JSON MIME type data.
+      Web NFC has special handling for working with JSON <a>MIME type</a> data.
     </p>
     </section>
 
@@ -795,7 +790,7 @@
     </h4>
     <p>
       The <dfn>unknown record</dfn>s are records that store
-      `opaque` data without associated <a>MIME type</a>, meaning that the
+      opaque data without associated <a>MIME type</a>, meaning that the
       `application/octet-stream` default <a>MIME type</a> MAY be assumed.
       The [[NFC-NDEF]] specification recommends that <a>NDEF</a> parsers store
       or forward the payload without processing it.
@@ -880,6 +875,7 @@
     security, privacy and feature categories, resulting in generic flows as
     follows.
   </p>
+
   <section> <h3>Reading an <a>NFC tag</a></h3>
     <ol>
       <li>
@@ -897,8 +893,7 @@
         Reading an <a>NFC tag</a> when no {{Document}} using the Web NFC API is
         <a>visible</a>.
         <p class="note">
-          This use case is not supported in this version of the specification,
-          and it has low priority for future versions as well.
+          This use case is not supported in this version of the specification.
         </p>
       </li>
     </ol>
@@ -1067,7 +1062,7 @@
   <section><h3>Push a text string to a peer device</h3>
     <p>
       It is possible to restrict to which devices (tags or peers) data
-      should be pushed. Below we specify to only push to peers,
+      should be pushed. Below push is specified only to peers,
       and thus, no data is pushed when the user taps a tag.
     </p>
     <pre class="example">
@@ -1100,25 +1095,22 @@
 
   <section> <h3>Read data from tag, and write to empty ones</h3>
     <p>
-      Below we read various different kinds of data which can be stored on a tag.
-      In the case the tag is empty, we write a text message with the value
-      "Hello World".
+      This example shows reading various different kinds of data which can be
+      stored on a tag. If the tag is unformatted or contains an empty record,
+      a text message is written with the value "Hello World".
     </p>
-    <pre class="highlight">
+    <pre class="example">
       const writer = new NFCWriter();
       const reader = new NFCReader();
-
       reader.onreading = event => {
         const message = event.message;
-        if (message.records[0].recordType == 'empty') {
+        if (message.records.length == 0 ||     // unformatted tag
+            message.records[0].recordType == 'empty' ) {  // empty record
           writer.push({
             records: [{ recordType: "text", data: 'Hello World' }]
           });
           return;
         }
-
-        console.log(`Read message written by ${message.url}`);
-
         for (let record of message.records) {
           switch (record.recordType) {
             case "text":
@@ -1130,7 +1122,7 @@
             case "json":
               console.log(`JSON: ${record.json().myProperty}`);
               break;
-            case "opaque":
+            case "media":
               if (record.mediaType.startsWith('image/')) {
                 const blob = new Blob([record.arrayBuffer()], {type: record.mediaType});
 
@@ -1144,7 +1136,6 @@
           }
         }
       };
-
       reader.scan();
     </pre>
   </section>
@@ -1165,7 +1156,6 @@
       const reader = new NFCReader();
       reader.scan({ id: "https://mygame.com/mypath/mygame" });
       reader.onreading = async event => {
-        console.log(`Source:     ${ event.message.url }`);
         console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
 
         const newMessage = {
@@ -1192,13 +1182,15 @@
 
       reader.addEventListener("reading", event => {
         for (let record of event.message.records) {
-          const json = record.json();
-          const article =/[aeio]/.test(json.title) ? "an" : "a";
-          console.log(`${json.name} is ${article} ${json.title}`);
+          if (record.recordType === 'json') {
+            const json = record.json();
+            const article =/[aeio]/.test(json.title) ? "an" : "a";
+            console.log(`${json.name} is ${article} ${json.title}`);
+          }
         }
       });
 
-      reader.scan({ url: document.baseURI, recordType: "json" });
+      reader.scan({ recordType: "json" });
 
       const writer = new NFCWriter();
       writer.push({
@@ -1268,75 +1260,6 @@
     </pre>
   </section>
 
-  <section> <h3>Read an external record with an NDEF message as payload</h3>
-    <p>
-      External type records can be used to create application defined records.
-      These records may contain an <a>NDEF message</a> as payload,
-      with its own <a>NDEF records</a>, including local types.
-    </p>
-    <p>
-      The smart poster type also contains an <a>NDEF message</a> as
-      payload.
-    </p>
-    <p>
-      Local types are well-known types defined locally to every
-      individual record type that carries an <a>NDEF message</a> as payload.
-    </p>
-    <p>
-      As NDEF gives no guarantee on the ordering of records, using
-      an external type record with an <a>NDEF message</a> as payload,
-      can be useful for encapsulating related data.
-    </p>
-    <p>
-      For external type records, local types are application specific.
-      Local types are exposed as a recordType, in this example prefixed with "`-`".
-    </p>
-    <p>
-      This example shows how to read an external record for social posts,
-      which contains an <a>NDEF message</a>, containing a text record and
-      a record with the local type "act" (action), just like smart posters.
-    </p>
-    <pre class="example">
-      const reader = new NFCReader();
-      reader.onreading = event => {
-        const socialPost = event.message.records[0];
-        if (!socialPost) {
-          return;
-        }
-
-        let action;
-        let text = "";
-
-        for (let record of socialPost.toRecords()) {
-          switch (record.recordType) {
-            case "text":
-              text = record.text();
-              break;
-            case "-act":
-              const buffer = record.arrayBuffer();
-              const view = new DataView(buffer);
-              action = view.getUint8(0);
-              break;
-          }
-        }
-
-        switch (action) {
-          case 0: // do the action
-            console.log(`Post "${text}" to timeline`);
-            break;
-          case 1: // save for later
-            console.log(`Save "${text}" as a draft`);
-            break;
-          case 2: // open for editing
-            console.log(`Show editable post with "${text}"`);
-            break;
-        }
-      };
-
-      reader.scan({ recordType: "example.com:sp"});
-    </pre>
-  </section>
-
   <section> <h3>Push a smart poster message</h3>
     <pre class="example">
       const writer = new NFCWriter();
@@ -1372,6 +1295,69 @@
     </pre>
   </section>
 
+  <section> <h3>Read an external record with an NDEF message as payload</h3>
+    <p>
+      External type records can be used to create application defined records.
+      These records may contain an <a>NDEF message</a> as payload,
+      with its own <a>NDEF records</a>, including local types that are used in
+      the context of the application.
+    </p>
+    <p>
+      Note that the <a>smart poster</a> record type also contains an
+      <a>NDEF message</a> as payload.
+    </p>
+    <p>
+      As NDEF gives no guarantee on the ordering of records, using
+      an external type record with an <a>NDEF message</a> as payload,
+      can be useful for encapsulating related data.
+    </p>
+    <p>
+      This example shows how to read an external record for social posts,
+      which contains an <a>NDEF message</a>, containing a text record and
+      a record with the local type "act" (action), with definition borrowed from
+      <a>smart poster</a>, but used in local application context.
+    </p>
+    <pre class="example">
+      const reader = new NFCReader();
+      reader.onreading = event => {
+        const socialPost = event.message.records[0];
+        if (!socialPost) {
+          return;
+        }
+
+        let action;
+        let text = "";
+
+        for (let record of socialPost.toRecords()) {
+          switch (record.recordType) {
+            case "text":
+              text = record.text();
+              break;
+            case "act":
+              const buffer = record.arrayBuffer();
+              const view = new DataView(buffer);
+              action = view.getUint8(0);
+              break;
+          }
+        }
+
+        switch (action) {
+          case 0: // do the action
+            console.log(`Post "${text}" to timeline`);
+            break;
+          case 1: // save for later
+            console.log(`Save "${text}" as a draft`);
+            break;
+          case 2: // open for editing
+            console.log(`Show editable post with "${text}"`);
+            break;
+        }
+      };
+
+      reader.scan({ recordType: "example.com:sp"});
+    </pre>
+  </section>
+
   <section> <h3>Push an external record with an NDEF message as payload</h3>
     <p>
       External type records can be used to create application defined records
@@ -1393,7 +1379,7 @@
                 data: "Game context given here"
               },
               {
-                recordType: "opaque",
+                recordType: "media",
                 mediaType: "image/png"
                 data: getImageBytes(fromURL);
               }
@@ -1587,7 +1573,7 @@
       };
 
       dictionary NDEFMessageInit {
-        sequence&lt;NDEFRecordInit&gt; records;
+        required sequence&lt;NDEFRecordInit&gt; records;
       };
     </pre>
     <p>
@@ -1622,7 +1608,7 @@
       };
 
       dictionary NDEFRecordInit {
-        NDEFRecordType recordType;
+        required NDEFRecordType recordType;
         USVString mediaType;
         USVString id;
 
@@ -1777,7 +1763,7 @@
           <dt>JSON</dt>
           <ol>
             <li>
-              If the |recordType| value is equal to "`json`" or "`opaque`", then
+              If the |recordType| value is equal to "`json`" or "`media`", then
               return the result of running <a>parse JSON from bytes</a>
               on |bytes|. Re-[= exception/throw =] any exceptions.
             </li>
@@ -1788,7 +1774,7 @@
           <dt>records</dt>
           <ol>
             <li>
-              If the |recordType| value is "`smart-poster`", or "`opaque`", or
+              If the |recordType| value is "`smart-poster`", or "`media`", or
               an <a>external type</a>, then return the result of running
               <a>parse records from bytes</a> on |bytes|.
               Re-[= exception/throw =] any exceptions.
@@ -1819,31 +1805,41 @@
       <dl>
         <dt>The "<dfn>empty</dfn>" string</dt>
         <dd>
-          The value representing <a href="#dfn-empty">empty</a> <a>NDEFRecord</a>.
+          The value representing <a href="#empty-ndef-record-tnf-0">empty</a> <a>NDEFRecord</a>.
         </dd>
         <dt>The "<dfn>text</dfn>" string</dt>
         <dd>
-          The value representing <a>NDEFRecord</a> of a <a href="#dfn-text">text</a> type.
+          The value representing a <a>Text record</a>.
         </dd>
         <dt>The "<dfn>url</dfn>" string</dt>
         <dd>
-          The value representing <a>NDEFRecord</a> of a <a href="#dfn-url">url</a> type.
+          The value representing a <a>URI record</a>.
         </dd>
         <dt>The "<dfn>smart-poster</dfn>" string</dt>
         <dd>
-          The value representing <a>NDEFRecord</a> of a <a href="#dfn-smart-poster">smart-poster</a> type.
+          The value representing a <a>Smart poster</a> record.
+        </dd>
+        <dt>The "<dfn>absolute-url</dfn>" string</dt>
+        <dd>
+          The value representing a <a>absolute-URL record</a>.
+        </dd>
+        <dt>The "<dfn>media</dfn>" string</dt>
+        <dd>
+          The value representing a <a>MIME type record</a>.
         </dd>
         <dt>The "<dfn>json</dfn>" string</dt>
         <dd>
-          The value representing <a>NDEFRecord</a> of a <a href="#dfn-json">json</a> type.
+          The value representing a <a>MIME type record</a> that has a JSON
+          <a>MIME type</a>.
         </dd>
-        <dt>The "<dfn>opaque</dfn>" string</dt>
+        <dt>The "<dfn>unknown</dfn>" string</dt>
         <dd>
-          The value representing <a>NDEFRecord</a> of an <a href="#dfn-opaque">opaque</a> type.
+          The value representing an <a>unknown record</a>.
         </dd>
         <dt>An <dfn>external type</dfn></dt>
         <dd>
-          A {{DOMString}} representing a custom type for the <a>external type record</a>.
+          A {{DOMString}} representing a custom type for the
+          <a>external type record</a>.
           The type must follow the <a>external type</a> ABNF.
           <pre class="abnf">
             ext-type             = reg-name ":" custom-type
@@ -1864,7 +1860,42 @@
             records and <a>external type records</a> in terms of URNs, but only a subset of the URN is actually stored in the <a>NDEF record</a>'s <a>TYPE field</a>, which corresponds to the above two ABNFs.
           </p>
         </dd>
+        <dt>A <dfn>local type</dfn></dt>
+        <dd>
+          A {{DOMString}} that MUST start with lowercase letter or a number, representing a type for a <a>NFC Forum local type</a>,
+          typically used in a record of an <a>NDEFMessage</a> that is the payload
+          of a parent <a>NDEFRecord</a>, for instance in a <a>smart poster</a>.
+          The context of the <a>local type</a> is the parent record whose payload
+          is the <a>NDEFMessage</a> to which this record belongs. The value
+          MUST NOT be equal to any other <a>NDEFRecordType</a> strings defined
+          in this API.
+        </dd>
       </dl>
+      <p>
+        Any implementation of Web NFC MUST transparently expose chunked records
+        as single logical records, therefore <a>unchanged record</a>s are not
+        explicitly represented.
+      </p>
+      <p>
+        Two <a>well-known type</a>s (including any <a>NFC Forum local type</a>
+        and any <a>NFC Forum global type</a>) MUST be compared character by
+        character in case-sensitive manner.
+      </p>
+      <p>
+        Two external types MUST be compared character by character, in
+        case-insensitive manner.
+      </p>
+      <p>
+        The binary representation of any <a>well-known type</a> and
+        <a>external type</a> MUST be written as a relative URI (RFC 3986),
+        omitting the namespace identifier (NID) "`nfc`" and namespace specific
+        string (NSS) "`wkt`" and "`ext`", respecively, i.e. omitting the
+        "`urn:nfc:wkt:`" and "`urn:nfc:ext:`" prefixes.
+        For instance, "`urn:nfc:ext:company.com:a" is stored as "`company.com:a`"
+        and the <a>well-known type</a> of a <a>Text record</a> is
+        "`urn:nfc:wkt:T`", but it is stored as "`T`".
+      </p>
+
   </section> <!-- NDEFRecordType enum -->
 
   <section id="data-mapping"><h3>Data mapping</h3>
@@ -1884,25 +1915,25 @@
       <td><dfn>"`empty`"</dfn></td>
       <td><i>unused</i></td>
       <td><i>unused</i></td>
-      <td><a>Empty record</a></td>
+      <td><a>Empty record</a> (TNF=0)</td>
     </tr>
     <tr>
       <td><dfn>"`text`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{DOMString}}</td>
-      <td><a>Well-known type</a> record with type "`T`"</td>
+      <td><a>Well-known type</a> (TNF=1) record with TYPE="`T`"</td>
     </tr>
     <tr>
       <td><dfn>"`url`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{DOMString}}</td>
-      <td><a>Well-known type</a> record with type "`U`"</td>
+      <td><a>Well-known type</a> (TNF=1) record with TYPE="`U`"</td>
     </tr>
     <tr>
       <td><dfn>"`smart-poster`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{NDEFMessage}}</td>
-      <td><a>Well-known type</a> record with type "`Sp`"</td>
+      <td><a>Well-known type</a> (TNF=1) record with TYPE="`Sp`"</td>
     </tr>
     <tr>
       <td><dfn>"`json`"</dfn></td>
@@ -1910,63 +1941,82 @@
       <td>
         [= JSON type =]
       </td>
-      <td><a>MIME type record</a> with type equal to
-        <a>MIME type</a>.
+      <td><a>MIME type record</a> (TNF=2) with TYPE= [= JSON type =].
       </td>
     </tr>
     <tr>
-      <td><dfn>"`opaque`"</dfn></td>
-      <td><a>MIME type</a></td>
+      <td><dfn>"`media`"</dfn></td>
+      <td>[= MIME type =]</a></td>
       <td>{{ArrayBuffer}}</td>
-      <td><a>MIME type record</a></td>
+      <td><a>MIME type record</a> (TNF=2) with TYPE= [= MIME type =]</td>
     </tr>
     <tr>
-      <td><a>external type</a></td>
+      <td><dfn>"`absolute-url`"</dfn></td>
+      <td><i>unused</i></td>
+      <td>{{DOMString}} <i>url</i></td>
+      <td><a>Absolute-URL record</a> (TNF=3) with TYPE=<i>url</i></td>
+    </tr>
+    <tr>
+      <td><i>[= external type =]</i></td>
       <td><i>unused</i></td>
       <td>
-        {{ArrayBuffer}} or<br>
-        any <a>typed array type</a>
+        {{ArrayBuffer}} or any<br>
+        <a>typed array type</a> or<br>
+        {{NDEFMessage}}
       </td>
-      <td><a>External type record</a></td>
+      <td><a>External type record</a> (TNF=4) with TYPE= [= external type =]</td>
+    </tr>
+    <tr>
+      <td><i>[= local type =]</i></td>
+      <td><i>unused</i></td>
+      <td>
+        {{ArrayBuffer}} or any<br>
+        <a>typed array type</a>
+      </td>
+      <td><a>External type record</a> (TNF=4) with TYPE= [= local type =] inside
+        the <a>NDEFMessage</a> payload of another record</td>
+    </tr>
+    <tr>
+      <td><dfn>"`unknown`"</dfn></td>
+      <td><i>unused</i></td>
+      <td>{{ArrayBuffer}}</td>
+      <td><a>unknown record</a> (TNF=5)</td>
     </tr>
   </table>
   <p>
     The mapping from <a>NDEF record</a> types to <a>NDEFRecord</a>,
     as used for incoming <a>NDEF message</a>s described in the
     [[[#steps-receiving]]] section, is as
-    follows:
+    follows. The data getters column shows the ones that should work for the
+    given payload type (the others may or will fail, depending on case).
   </p>
   <table class="simple" data-link-for="NDEFRecord">
     <tr>
-      <th>NDEF record type</th>
-      <th>NDEFRecord recordType</th>
-      <th>NDEFRecord mediaType</th>
-      <th>NDEFRecord data getters</th>
+      <th>NDEF record <a>TNF field</a><br> and <a>TYPE field</a></th>
+      <th>NDEFRecord<br> recordType</th>
+      <th>NDEFRecord<br> mediaType</th>
+      <th>NDEFRecord<br> data getters</th>
     </tr>
     <tr>
-      <td><a>Empty record</a></td>
+      <td><a>Empty record</a> (TNF=0)</td>
       <td>"`empty`"</td>
-      <td><i>empty</i></td>
-      <td>
-        <a>text()</a> or<br>
-        <a>json()</a> or<br>
-        <a>arrayBuffer()</a>
-      </td>
+      <td>""</td>
+      <td><i>none</i> (all getters fail)</td>
     </tr>
     <tr>
-      <td><a>Well-known type</a> record with type "`T`"</td>
+      <td><a>Well-known type</a> (TNF=1) record with TYPE="`T`"</td>
       <td>"`text`"</td>
       <td>"`text/plain`"</td>
-      <td><a>text()</a></td>
+      <td><a>text()</a> or <a>json()</a> or <a>arrayBuffer()</a></a></td>
     </tr>
     <tr>
-      <td><a>Well-known type</a> record with type "`U`"</td>
+      <td><a>Well-known type</a> (TNF=1) record with TYPE="`U`"</td>
       <td>"`url`"</td>
       <td>"`text/plain`"</td>
-      <td><a>text()</a></td>
+      <td><a>text()</a> or <a>json()</a> or <a>arrayBuffer()</a></a></td>
     </tr>
     <tr>
-      <td><a>Well-known type</a> record with type "`Sp`"</td>
+      <td><a>Well-known type</a> (TNF=1) record with TYPE="`Sp`"</td>
       <td>"`smart-poster`"</td>
       <td>""</td>
       <td>
@@ -1975,16 +2025,18 @@
       </td>
     </tr>
     <tr>
-      <td><a>Absolute-URL record</a></td>
-      <td>"`url`"</td>
-      <td>"`text/plain`"</td>
-      <td><a>text()</a></td>
-    </tr>
-    <tr>
-      <td><a>MIME type record</a> with
-        <a>JSON MIME type</a>
-      </td>
+      <td><a>MIME type record</a> (TNF=2) with TYPE=<a>JSON MIME type</a></td>
       <td>"`json`"</td>
+      <td>The <a>JSON MIME type</a> used in the NDEF record</td>
+      <td>
+        <a>text()</a> or<br>
+        <a>json()</a> or<br>
+        <a>arrayBuffer()</a>
+      </td>
+    </tr>
+    <tr>
+      <td><a>MIME type record</a> (TNF=2) with TYPE=<a>MIME type</a></td>
+      <td>"`media`"</td>
       <td>The <a>MIME type</a> used in the NDEF record</td>
       <td>
         <a>text()</a> or<br>
@@ -1993,32 +2045,40 @@
       </td>
     </tr>
     <tr>
-      <td><a>MIME type record</a></td>
-      <td>"`opaque`"</td>
-      <td>The <a>MIME type</a> used in the NDEF record</td>
+      <td><a>Absolute-URL record</a> (TNF=3) with TYPE=<i>url</i></td>
+      <td>"`url`"</td>
+      <td>""</td>
       <td>
-        <a>text()</a> or<br>
-        <a>json()</a> or<br>
+        <a>text()</a> returning <i>url</i> or<br>
         <a>arrayBuffer()</a>
       </td>
     </tr>
     <tr>
-      <td><a>External type record</a></td>
+      <td><a>External type record</a> (TNF=4) with TYPE=<a>external type</a></td>
       <td><a>external type</a></td>
       <td>"`application/octet-stream`"</td>
       <td>
         <a>text()</a> or<br>
         <a>json()</a> or<br>
-        <a>arrayBuffer()</a>
+        <a>arrayBuffer()</a> or<br>
+        <a>toRecords()</a>
       </td>
     </tr>
     <tr>
-      <td>Any other <a>NDEF record</a> type</td>
-      <td>"`opaque`"</td>
+      <td>Any embedded <a>NDEF record</a> with TYPE=<a>local type</a></td>
+      <td><a>local type</a></td>
       <td>"`application/octet-stream`"</td>
       <td>
         <a>text()</a> or<br>
         <a>json()</a> or<br>
+        <a>arrayBuffer()</a>
+      </td>
+    </tr>
+    <tr>
+      <td><a>Unknown record</a> (TNF=5)</td>
+      <td>"`unknown`"</td>
+      <td>"`application/octet-stream`"</td>
+      <td>
         <a>arrayBuffer()</a>
       </td>
     </tr>
@@ -2395,6 +2455,7 @@
         NFCPushTarget target = "any";
         unrestricted double timeout = Infinity;
         boolean ignoreRead = true;
+        boolean overwrite = true;
         AbortSignal? signal;
       };
     </pre>
@@ -2417,8 +2478,14 @@
     <p>
       When the value of the <dfn>ignoreRead</dfn> property is
       `true`, the <a href="#steps-push">push algorithm</a>
-      will skip invoking the <a href="#steps-receiving">
-      receiving and parsing steps</a> for an <a>NFC tag</a>.
+      will skip invoking the <a>NFC reading algorithm</a> for an <a>NFC tag</a>.
+    </p>
+    <p>
+      When the value of the <dfn>overwrite</dfn> property is
+      `false`, the <a href="#steps-push">push algorithm</a>
+      will read the <a>NFC tag</a> regardless of the `ignoreRead` value
+      to determine if it has <a>NDEF</a> records on it, and if yes, it will not
+      execute any pending push.
     </p>
     <p>
       The <dfn>signal</dfn> property allows to abort
@@ -2485,7 +2552,7 @@
         <a>record identifier</a> of individual <a>NDEF Record</a>s which are being read.
         The default value `""` means that no matching is performed.
       </p>
-    <p>
+      <p>
         The <dfn>recordType</dfn> property
         denotes the enum value which is used for matching the
         <a href="#idl-def-ndefrecordtype">recordType</a> property of each
@@ -2514,7 +2581,7 @@
         class="example highlight">
         const options = {
           id: "https://w3.org/info/restaurant/daily-menu/",
-          recordType: "opaque",
+          recordType: "media",
           mediaType: "application/octet-stream"
         }
       </pre>
@@ -2533,7 +2600,7 @@
       aborted.
     </p>
     <section><h3>The <strong>push()</strong> method</h3>
-      <p id="steps-push">
+      <div id="steps-push">
         The
         <dfn>NFCWriter.push</dfn> method, when invoked, MUST run the
         <dfn>push a message</dfn> algorithm:
@@ -2548,8 +2615,8 @@
             Let |options:NFCPushOptions| be the second argument.
           </li>
           <li>
-            If there is no underlying <a>NFC Adapter</a>, or if a connection cannot
-            be established, then reject |p| with a
+            If there is no underlying <a>NFC Adapter</a>, or if a connection
+            cannot be established, then reject |p| with a
             {{"NotSupportedError"}} {{DOMException}}
             and return |p|.
           </li>
@@ -2646,9 +2713,9 @@
             </li>
           </li>
         </ol>
-      </p>
+      </div>
 
-      <p id="steps-push-timer">
+      <div id="steps-push-timer">
         To <dfn>start the push timer</dfn>, run these steps:
         <ol class=algorithm>
           <p>
@@ -2684,9 +2751,9 @@
             {{DOMException}}.
           </li>
         </ol>
-      </p>
+      </div>
 
-      <p id="steps-start-nfc-push">
+      <div id="steps-start-nfc-push">
         To <dfn>start the NFC push</dfn>, run these steps:
         <ol class=algorithm>
           <li>
@@ -2700,6 +2767,12 @@
           </li>
           <li>
             Let |target:NFCPushTarget| be |options|' target.
+          </li>
+          <li>
+            If the <a>NFC device</a> in proximity range does not expose
+            <a>NDEF</a> technology for formatting or writing, then
+            reject |p| with a {{"NotSupportedError"}} {{DOMException}} and
+            return |p|.
           </li>
           <li>
             Verify the following conditions:
@@ -2726,11 +2799,15 @@
               <li>
                 If |device| is an <a>NFC tag</a>,
                 <ul>
-                  <li>Read the tag.</li>
                   <li>
                     If |options|'s ignoreRead is not equal to
-                    `true`, run the
-                    <a href="#steps-receiving">receiving steps</a>.
+                    `true`, run the <a>NFC reading algorithm</a>.
+                  </li>
+                  <li>
+                    Otherwise, if |options|'s overwrite is `false`, read the tag
+                    to check whether there are <a>NDEF</a> records on the tag.
+                    If yes, then reject |p| with a {{"NotAllowedError"}}
+                    {{DOMException}} and return |p|.
                   </li>
                   <li>
                     Let |idHost| be the <a>record identifier host</a> of the
@@ -2754,6 +2831,11 @@
                 |output| as buffer, using the <a>NFC adapter</a>
                 in communication range with |device|.
                 <p class="note">
+                  If the <a>NFC device</a> in proximity range is an unformatted
+                  <a>NFC tag</a> that is <a>NDEF</a>-formatable, format it and
+                  write |output| as buffer.
+                </p>
+                <p class="note">
                   Multiple adapters should be used sequentially by users.
                   There is very small likelihood that a simultaneous tap
                   will happen on two or multiple different and connected
@@ -2776,9 +2858,10 @@
             </ol>
           </li>
         </ol>
-      </p>
+      </div>
+    </section>
 
-      <section><h3>Obtaining push permission</h3>
+    <section><h3>Obtaining push permission</h3>
       <p>
         To <dfn>obtain push permission</dfn>, run these steps:
         <ol class=algorithm>
@@ -2818,8 +2901,10 @@
           </li>
         </ol>
       </p>
-      </section>
+    </section>
+  </section> <!-- Writing or pushing content -->
 
+  <section> <h3> Creating content</h3>
       <section><h3>Creating NDEF message</h3>
         <p>
           To <dfn>create NDEF message</dfn> given a
@@ -2860,16 +2945,16 @@
                   <li>
                     Otherwise, if the type of |record|'s data is an
                     {{ArrayBuffer}}, then set |record|'s recordType
-                    to "`opaque`".
+                    to "`media`".
                   </li>
                   <li>
                     Otherwise, set |record|'s recordType to "`json`".
                   </li>
                 </ol>
               </li>
-              <li>Let |ndef| be the result of passing |record| to the algorithm below
-                switching on |record|'s recordType. If the algorithm throws an exception
-                |e|, reject |promise| with |e| and abort these steps.
+              <li>Let |ndef| be the result of passing |record| to the algorithm
+                below switching on |record|'s recordType. If the algorithm throws
+                an exception |e|, reject |promise| with |e| and abort these steps.
                 <dl>
                   <dt>"`empty`"</dt>
                   <ul>
@@ -2895,26 +2980,35 @@
                       <a>map JSON to NDEF</a>.
                     </li>
                   </ul>
-                  <dt>"`opaque`"</dt>
+                  <dt>"`media`"</dt>
                   <ul>
                     <li>
-                      If |record|'s data is {{NDEFMessageSource}}, then return
-                      the result of running the <a>create NDEF message</a>
-                      given |record|'s data.
-                    </li>
-                    <li>
-                      Otherwise, <a>map binary data to NDEF</a>.
+                      <a>map binary data to NDEF</a>.
                     </li>
                   </ul>
                   <dt><a>external type</a></dt>
                   <ul>
+                    If |record|'s recordType is an <a>external type</a>,
                     <li>
                       If |record|'s data is of type {{NDEFMessageInit}}, then
                       return the result of running the
                       <a>create NDEF message</a> given |record|'s data.
                     </li>
                     <li>
-                      Otherwise, <a>map external data to NDEF</a>
+                      Otherwise, <a>map external data to NDEF</a> given |record|.
+                    </li>
+                  </ul>
+                  <dt><a>local type</a></dt>
+                  <ul>
+                    If |record|'s recordType is a <a>local type</a> and if
+                    |record| is a payload to another <a>NDEF</a> record,
+                    <li>
+                      If |record|'s data is of type {{NDEFMessageInit}}, then
+                      return the result of running the
+                      <a>create NDEF message</a> given |record|'s data.
+                    </li>
+                    <li>
+                      Otherwise, <a>map local type to NDEF</a> given |record|.
                     </li>
                   </ul>
                   <dt>unmatched type</dt>
@@ -2925,7 +3019,8 @@
                   </ul>
                 </dl>
                 <li>
-                  If |message|'s |id:string| is not `null`:
+                  If |message| is of type {{NDEFMessageInit}} and its
+                  |id:string| is not `null`:
                   <ul>
                     <li>
                       Set |identifier| to the result of invoking
@@ -2986,7 +3081,7 @@
         <p class="note">
           This is useful when clients specifically want to write text in a
           <a>well-known type</a> record.
-          Other options would be to use the value "`opaque`"
+          Other options would be to use the value "`media`"
           with an explicit <a>MIME type</a> text type, which allows for
           better differentiation, e.g. when using "`text/xml`", or
           "`text/vcard`".
@@ -3378,6 +3473,56 @@
       </p>
       </section>
 
+      <section><h3>Mapping local type to NDEF</h3>
+      <p>
+        To <dfn>map local type to NDEF</dfn> given a |record:NDEFRecordInit|,
+        run these steps:
+        <ol class=algorithm>
+          <li>
+            If the type of a |record|'s data is not an
+            {{ArrayBuffer}}, [= exception/throw =] a {{TypeError}}
+            and abort these steps.
+          </li>
+          <li>
+            Set |arrayBuffer| to |record|'s data.
+          </li>
+          <li>
+            Set |length:unsigned long| to |arrayBuffer|.[[\ArrayBufferByteLength]].
+          </li>
+          <li>
+            Set |data:byte sequence| to |arrayBuffer|.[[\ArrayBufferData]].
+          </li>
+          <li>
+            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
+            be created by the UA.
+            <ol>
+              <li>
+                Set the |ndefRecord|'s <a>TYPE field</a> to |record|'s recordType.
+              </li>
+              <li>
+                If |record|'s recordType is a standard local type to
+                <a>smart poster</a> or a handover record, then
+                set |ndefRecord|'s <a>TNF field</a> to `1`
+                (<a>well-known type</a> record), otherwise
+                set |ndefRecord|'s <a>TNF field</a> to `4`
+                (<a>external type record</a>).
+              </li>
+              <li>
+                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
+              </li>
+              <li>
+                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a>
+                to |data|.
+              </li>
+            </ol>
+          </li>
+          <li>
+            Return |ndefRecord|.
+          </li>
+        </ol>
+      </p>
+      </section>
+
       <section><h3>Creating a record identifier</h3>
       <p>
         To <dfn>create a record identifier</dfn> given URL string |id:string|,
@@ -3418,11 +3563,13 @@
         </ol>
       </p>
       </section>
-    </section> <!-- push() -->
-
-  </section> <!-- Writing or pushing content -->
+  </section> <!-- creating content -->
 
   <section> <h3>Listening for content</h3>
+    <p>
+      If there are any {{NFCReader}} instances in <a>activated reader objects</a>
+      then the <a>UA</a> MUST listen to <a>NDEF message</a>s.
+    </p>
     <p>
       To listen for <a>NFC content</a>, the client MUST activate an
       {{NFCReader}} instance by calling <a>NFCReader.scan()</a>. When attaching
@@ -3564,8 +3711,7 @@
 
     <section> <h3>The <strong>scan()</strong> method</h3>
       <p>
-        The section [[[#steps-receiving]]] uses {{NFCReader}} instances to match
-        incoming <a>NFC content</a>.
+        Incoming <a>NFC content</a> is matched using {{NFCReader}} instances.
       </p>
       <p>
         When the <dfn>NFCReader.scan</dfn> method is invoked, the UA
@@ -3722,6 +3868,10 @@
                 SHOULD NOT check and use them until the {{Document}} is
                 <a>visible</a> again.
               </li>
+              <li>
+                Whenever the <a>UA</a> detects NFC technology, run the
+                <a>NFC reading algorithm</a>.
+              </li>
             </ol>
           </li>
         </ol>
@@ -3763,14 +3913,114 @@
       </p>
     </section>
 
+    <section><h3>The NFC reading algorithm</h3>
+    To receive <a>NDEF</a> content, run the <dfn>NFC reading algorithm</dfn>:
+    <ol class=algorithm id="parse-ndef">
+      <li>
+        If <a>NFC is suspended</a>, abort these steps.
+      </li>
+      <li>
+        If the <a>NFC device</a> in proximity range does not expose <a>NDEF</a>
+        technology for reading or formatting, abort these steps.
+        <p class="note">
+          This means there is no reading event generated when non-<a>NDEF</a>
+          NFC technology comes in proximity range. This may change in future
+          version of the specification.
+        </p>
+      </li>
+      <li>
+        Let |serialNumber:serialNumber| be the device identifier as a series of
+        numbers, or `null` if unavailable.
+      </li>
+      <li>
+        If |serialNumber| is not `null`, set it to the
+        <a>string</a> of U+003A (`:`) concatenating each number represented as
+        <a>ASCII hex digit</a>, in the same order.
+      </li>
+      <li>
+        Let |message:NDEFMessage| be a new <a>NDEFMessage</a> object, with
+        |message|'s records set to the empty <a>list</a>.
+      </li>
+      <li>
+        If the <a>NFC device</a> in proximity range is an unformatted
+        <a>NFC tag</a> that is NDEF-formattable, let |input| be `null`.
+        Otherwise, let |input| be the notation for the <a>NDEF message</a>
+        which has been received.
+        <p class="note">
+           The UA SHOULD represent an unformatted <a>NFC tag</a> as an
+           <a>NDEF message</a> containing no <a>NDEF record</a>s, i.e. an empy
+           array for its <a href="#dom-ndefmessage-records">records</a> property.
+        </p>
+      </li>
+      <li>
+        [= list/For each =] <a>NDEF record</a> which is part of |input|, run the
+        following sub-steps:
+        <ol>
+          <li>
+            Let |ndef| be the notation for the current <a>NDEF record</a> with
+            |typeNameField:number| corresponding to the <a>TNF field</a> and
+            |payload:byte sequence| corresponding to the <a>PAYLOAD field</a>
+            data.
+          </li>
+          <li>
+            Let |record:NDEFRecord| be the result of <a>parse an NDEF record</a>
+            on |ndef|.
+          </li>
+          <li>
+             If |record| is not `null`, <a>append</a> |record| to |message|'s
+             records.
+          </li>
+        </ol>
+      </li>
+      <li>
+        If <a href="#nfc-is-suspended">NFC is not suspended</a>, run the
+        <a>dispatch NFC content</a> steps with given |serialNumber|
+        and |message|.
+      </li>
+    </ol>
+    </section>
+
+    <section data-link-for="NFCReadingEvent"><h3>Dispatching NFC content</h3>
+    <p>
+      To <dfn>dispatch NFC content</dfn> given a |serialNumber:serialNumber|
+      of type <a>serialNumber</a>, |message:NDEFMessage|
+      of type <a>NDEFMessage</a>, run these steps:
+    </p>
+    <ol class=algorithm>
+      <li>
+        [= list/For each =] {{NFCReader}} instance |reader:NFCReader| in
+        the <a>activated reader objects</a>, run the following sub-steps:
+        <ol>
+          <li>
+            If |reader|.<a>[[\Id]]</a> is [= dictionary member/present =]
+            and doesn't <a href="#dfn-match-record-identifier-with-url-pattern">match</a>
+            any |record:NDEFRecord|'s id where |record|
+            is an element of |message|, [= iteration/continue =].
+          </li>
+          <li>
+            If |reader|.<a>[[\RecordType]]</a> is [= dictionary member/present =]
+            and it is not equal to any |record|'s recordType where |record|
+            is an element of |message|, [= iteration/continue =].
+          </li>
+          <li>
+            If |reader|.<a>[[\MediaType]]</a> is not `""` and
+            it is not equal to any |record|'s mediaType where |record| is
+            an element of |message|, [= iteration/continue =].
+          </li>
+          <li>
+            <a>Fire an event</a> named "`reading`" at |reader|
+            using <a>NFCReadingEvent</a> with its <a>serialNumber</a> attribute
+            initialized to |serialNumber| and <a>message</a> attribute
+            initialized to |message|.
+          </li>
+        </ol>
+      </li>
+    </ol>
+    </section>
   </section>
 
   <section id="steps-receiving">
-  <h3>Receiving and parsing content</h3>
-  <p>
-    If there are any {{NFCReader}} instances in <a>activated reader objects</a>
-    then UAs MUST listen to <a>NDEF message</a>s.
-  </p>
+  <h3>Parsing content</h3>
 
   <section><h3>Parsing records from bytes</h3>
     To <dfn>parse records from bytes</dfn> given |bytes:byte sequence|,
@@ -3805,7 +4055,8 @@
                 Let |messageEnd:boolean| (<a>ME field</a>) be bit 6 of |header|.
               </li>
               <div class=note>
-                As chunked records are not allowed as sub records, we ignore bit 5 (<a>CF field</a>).
+                As chunked records are not allowed as sub records, ignore bit 5
+                (<a>CF field</a>) is ignored.
               </div>
               <li>
                 Let |shortRecord:boolean| (<a>SR field</a>) be bit 4 of |header|.
@@ -4120,7 +4371,7 @@
           Otherwise,
           <ol>
             <li>
-              Set |record|'s recordType to "`opaque`".
+              Set |record|'s recordType to "`media`".
             </li>
             <li>
               Set |record|'s mediaType to the result of
@@ -4196,7 +4447,7 @@
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm>
         <li>
-          Set |record|'s recordType to "`opaque`".
+          Set |record|'s recordType to "`media`".
         </li>
         <li>
           Set |record|'s mediaType to "`application/octet-stream`".
@@ -4214,100 +4465,6 @@
       </ol>  <!-- parsing NDEF unknown record -->
     </p>
   </section>
-
-  <section><h3>The NFC reading algorithm</h3>
-    When the <a>UA</a> is to <dfn>receive NFC content</dfn> it MUST run the
-    following algorithm:
-    <p class="note">
-       The UA SHOULD represent an unformatted <a>NFC tag</a> as an
-       <a>NDEF message</a> containing a single empty <a>NDEF record</a>.
-    </p>
-    <ol class=algorithm id="parse-ndef">
-      <li>
-        If <a>NFC is suspended</a>, abort these steps.
-      </li>
-      <li>
-        Let |message:NDEFMessage| be a new <a>NDEFMessage</a> object, with
-        |message|'s url set to `null` and
-        |message|'s records set to the empty <a>list</a>.
-      </li>
-      <li>
-        Let |serialNumber:serialNumber| be the device identifier as a series of
-        numbers, or `null` if unavailable.
-      </li>
-      <li>
-        If |serialNumber| is not `null`, set it to the
-        <a>string</a> of U+003A (`:`) concatenating each number represented as
-        <a>ASCII hex digit</a>, in the same order.
-      </li>
-      <li>
-        Let |input| be the notation for the <a>NDEF message</a>
-        which has been received.
-      </li>
-      <li>
-        [= list/For each =] <a>NDEF record</a> which is part of |input|, run the
-        following sub-steps:
-        <ol>
-          <li>
-            Let |ndef| be the notation for the current <a>NDEF record</a> with
-            |typeNameField:number| corresponding to the <a>TNF field</a> and
-            |payload:byte sequence| corresponding to the <a>PAYLOAD field</a> data.
-          </li>
-          <li>
-            Let |record:NDEFRecord| be the result of <a>parse an NDEF record</a> on |ndef|.
-          </li>
-          <li>
-             If |record| is not `null`, <a>append</a> |record| to |message|'s records.
-          </li>
-        </ol>
-      </li>
-      <li>
-        If <a href="#nfc-is-suspended">NFC is not suspended</a> and
-        |message|'s records [= list/is not empty =], run the
-        <a>dispatch NFC content</a> steps with given |serialNumber|
-        and |message|.
-      </li>
-    </ol>
-    </section>
-
-    <section data-link-for="NFCReadingEvent"><h3>Dispatching NFC content</h3>
-    <p>
-      To <dfn>dispatch NFC content</dfn> given a |serialNumber:serialNumber|
-      of type <a>serialNumber</a>, |message:NDEFMessage|
-      of type <a>NDEFMessage</a>, run these steps:
-    </p>
-    <ol class=algorithm>
-      <li>
-        [= list/For each =] {{NFCReader}} instance |reader:NFCReader| in
-        the <a>activated reader objects</a>, run the following sub-steps:
-        <ol>
-          <li>
-            If |reader|.<a>[[\Id]]</a> is [= dictionary member/present =]
-            and doesn't <a href="#dfn-match-record-identifier-with-url-pattern">match</a>
-            any |record:NDEFRecord|'s id where |record|
-            is an element of |message|, [= iteration/continue =].
-          </li>
-          <li>
-            If |reader|.<a>[[\RecordType]]</a> is [= dictionary member/present =]
-            and it is not equal to any |record|'s recordType where |record|
-            is an element of |message|, [= iteration/continue =].
-          </li>
-          <li>
-            If |reader|.<a>[[\MediaType]]</a> is not `""` and
-            it is not equal to any |record|'s mediaType where |record| is
-            an element of |message|, [= iteration/continue =].
-          </li>
-          <li>
-            <a>Fire an event</a> named "`reading`" at |reader|
-            using <a>NFCReadingEvent</a> with its <a>serialNumber</a> attribute
-            initialized to |serialNumber| and <a>message</a> attribute
-            initialized to |message|.
-          </li>
-        </ol>
-      </li>
-    </ol>
-    </section>
-  </section> <!-- receiving content -->
 </section>
 
 <section id="idl-index" class="appendix">
