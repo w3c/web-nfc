@@ -875,9 +875,7 @@
     security, privacy and feature categories, resulting in generic flows as
     follows.
   </p>
-  <section> <h3>Formatting an <a>NFC tag</a></h3>
 
-  </section>
   <section> <h3>Reading an <a>NFC tag</a></h3>
     <ol>
       <li>
@@ -4364,22 +4362,6 @@
     </p>
   </section>
 
-  <section class="informative">
-    <h3>Formatting tags and non-<a>NDEF</a> use cases</h3>
-    <div>
-      Since the current scope of the specification is <a>NDEF</a>, the following
-      constraints apply to the algorithms below:
-      <ol>
-
-      </ol>
-    </div>
-    <p class="note">
-       The UA SHOULD represent an unformatted <a>NFC tag</a> as an
-       <a>NDEF message</a> containing no <a>NDEF record</a>s, i.e. an empy array
-       for its <a href="#dom-ndefmessage-records">records</a> property.
-    </p>
-  </section>
-
   <section><h3>The NFC reading algorithm</h3>
     To receive <a>NDEF</a> content, run the <dfn>NFC reading algorithm</dfn>:
     <ol class=algorithm id="parse-ndef">
@@ -4413,6 +4395,11 @@
         <a>NFC tag</a> that is NDEF-formattable, let |input| be `null`.
         Otherwise, let |input| be the notation for the <a>NDEF message</a>
         which has been received.
+        <p class="note">
+           The UA SHOULD represent an unformatted <a>NFC tag</a> as an
+           <a>NDEF message</a> containing no <a>NDEF record</a>s, i.e. an empy
+           array for its <a href="#dom-ndefmessage-records">records</a> property.
+        </p>
       </li>
       <li>
         [= list/For each =] <a>NDEF record</a> which is part of |input|, run the
