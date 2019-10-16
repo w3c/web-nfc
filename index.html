@@ -1614,6 +1614,7 @@
         readonly attribute NDEFRecordType recordType;
         readonly attribute USVString mediaType;
         readonly attribute USVString id;
+        readonly attribute DataView? data;
 
         USVString? text();
         [NewObject] ArrayBuffer? arrayBuffer();
@@ -1690,6 +1691,9 @@
         instead of <a>record identifier</a>, but the identifier is tied to each record and not
         the message (collection of records), and it may be present when no payload is.
       </div>
+    </p>
+    <p>
+      The <dfn>data</dfn> property represents the <a>[[\PayloadData]]</a> bytes of the <a>NDEF Record</a>.
     </p>
     <p>
       The <dfn>text()</dfn> method, when invoked, MUST return the result of
