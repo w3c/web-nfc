@@ -1097,18 +1097,21 @@
       a text message is written with the value "Hello World".
     </p>
     <pre class="example">
-      const writer = new NFCWriter();
       const reader = new NFCReader();
+      reader.scan();
       reader.onreading = event => {
         const message = event.message;
+
         if (message.records.length == 0 ||     // unformatted tag
             message.records[0].recordType == 'empty' ) {  // empty record
+          const writer = new NFCWriter();
           writer.push({
             records: [{ recordType: "text", data: 'Hello World' }]
           });
           return;
         }
-        for (let record of message.records) {
+
+        for (const record of message.records) {
           switch (record.recordType) {
             case "text":
               console.log(`Text: ${record.text()}`);
@@ -1137,7 +1140,6 @@
           }
         }
       };
-      reader.scan();
     </pre>
   </section>
 
@@ -1227,22 +1229,23 @@
   <section> <h3>Write data to tag and print out existing data</h3>
     <p>
       Pushing data to a tag requires tapping it. If existing data should be
-      read during the same tap, we need to set the ignoreRead
+      read during the same tap, we need to set the <a
+      href="#dom-nfcpushoptions-ignoreread">ignoreRead</a>
       property to `false` for the <a>NFCWriter</a>.
     </p>
     <pre class="example">
       const reader = new NFCReader();
+      reader.scan();
       reader.onreading = event => {
-        for (let record of event.message.records) {
+        for (const record of event.message.records) {
           console.log("Record type:  " + record.recordType);
           console.log("MIME type:    " + record.mediaType);
           console.log("=== data ===\n" + record.text());
         }
       };
-      reader.scan();
 
       const writer = new NFCWriter();
-      writer.push("Pushing data is fun!", {target: "tag", ignoreRead: false});
+      writer.push("Pushing data is fun!", { target: "tag", ignoreRead: false });
     </pre>
   </section>
 
@@ -1253,16 +1256,16 @@
     </p>
     <pre class="example">
       const reader = new NFCReader();
+      const controller = new AbortController();
+
+      reader.scan({ signal: controller.signal });
       reader.onreading = event => {
         console.log("NDEF message read.");
       };
 
-      const controller = new AbortController();
       controller.signal.onabort = event => {
         console.log("We're done waiting for NDEF messages.");
       };
-
-      reader.scan({ signal: controller.signal });
 
       // Stop listening to NDEF messages after 3s.
       setTimeout(() => controller.abort(), 3000);
@@ -1298,9 +1301,7 @@
             }
           ]}
         }
-      ]}).catch(_ => {
-        console.log("Push failed");
-      });
+      ]});
     </pre>
   </section>
 
@@ -1328,6 +1329,7 @@
     </p>
     <pre class="example">
       const reader = new NFCReader();
+      reader.scan({ recordType: "example.com:sp" });
       reader.onreading = event => {
         const socialPost = event.message.records[0];
         if (!socialPost) {
@@ -1362,8 +1364,6 @@
             break;
         }
       };
-
-      reader.scan({ recordType: "example.com:sp"});
     </pre>
   </section>
 
@@ -1395,9 +1395,7 @@
             ]
           }
         }
-      ]}).catch(_ => {
-        console.log("Push failed");
-      });
+      ]});
     </pre>
   </section>
 </section> <!-- Usage examples -->
