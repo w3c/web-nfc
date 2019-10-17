@@ -571,11 +571,11 @@
         in the [[NDEF-TEXT]] specification.
         The <a>TNF field</a> is `1` and the <a>TYPE field</a> is "`T`" (`0x54`).
         The first byte of the <a>PAYLOAD field</a> is a status byte, followed
-        by the ISO/IANA language code in US-ASCII encoding.
+        by the [=language tag=] in US-ASCII encoding.
         The rest of the payload is the actual text, encoded either in UTF-8 or
         UTF-16, as indicated by the status byte as follows:
         <ul>
-          <li>Bits 0 to 5 define the length of the IANA language code.</li>
+          <li>Bits 0 to 5 define the length of the [=language tag=].</li>
           <li>Bit 6 is `0`.</li>
           <li>
             If bit 7 if set, means the payload is encoded in UTF-8, otherwise in
@@ -1597,10 +1597,13 @@
       interface NDEFRecord {
         constructor(NDEFRecordInit recordInit);
 
-        readonly attribute NDEFRecordType recordType;
+        readonly attribute USVString recordType;
         readonly attribute USVString mediaType;
         readonly attribute USVString id;
         readonly attribute DataView? data;
+
+        readonly attribute USVString? encoding;
+        readonly attribute USVString? lang;
 
         USVString? text();
         [NewObject] ArrayBuffer? arrayBuffer();
@@ -1609,9 +1612,12 @@
       };
 
       dictionary NDEFRecordInit {
-        required NDEFRecordType recordType;
+        required USVString recordType;
         USVString mediaType;
         USVString id;
+
+        USVString encoding;
+        USVString lang;
 
         any data;
       };
@@ -1679,6 +1685,30 @@
       </div>
     </p>
     <p>
+      The <dfn>encoding</dfn> attribute represents the
+      [=encoding/name|encoding name=] used for encoding the payload in the
+      case it is textual data.
+    </p>
+    <p>
+      The <dfn>lang</dfn> attribute represents the [=language tag=]
+      of the payload in the case that was encoded.
+    </p>
+    <p>
+      A <dfn>language tag</dfn> is a <a>string</a> that matches the
+      production of a <code>Language-Tag</code> defined in the [[BCP47]]
+      specifications (see the <a href=
+      "https://www.iana.org/assignments/language-subtag-registry">IANA
+      Language Subtag Registry</a> for an authoritative list of possible
+      values). That is, a language range is composed of one or more
+      <dfn>subtags</dfn> that are delimited by a U+002D HYPHEN-MINUS ("-").
+      For example, the '<code>en-AU</code>' language range represents
+      English as spoken in Australia, and '<code>fr-CA</code>' represents
+      French as spoken in Canada. Language tags that meet the validity
+      criteria of [[RFC5646]] section 2.2.9 that can be verified without
+      reference to the IANA Language Subtag Registry are considered
+      structurally valid.
+    </p>
+    <p>
       The <dfn>data</dfn> property represents the <a>[[\PayloadData]]</a> bytes of the <a>NDEF Record</a>.
     </p>
     <p>
@@ -1699,10 +1729,24 @@
     </p>
     <p data-dfn-for="NDEFRecordInit">
       The <dfn>NDEFRecordInit</dfn> dictionary is used to initialize an <a>NDEF record</a>
-      with its type, optional <a>MIME type</a>, <a>record identifier</a> and payload
-      data via the members of
-      <dfn>recordType</dfn>, <dfn>mediaType</dfn>, <dfn>id</dfn>,
-      and <dfn>data</dfn>, respectively. The mapping from data types of an
+      with its <a>record type</a> <dfn>recordType</dfn>, and optional <a>record identifier</a>
+      <dfn>id</dfn> and payload data <dfn>data</dfn>.
+    </p>
+    <p data-dfn-for="NDEFRecordInit">
+      Additionally, there are additional optional fields that are only applicable
+      for certain <a>record types</a>:
+      <ul>
+        <li data-dfn-for="NDEFRecordInit">
+          "<a>media</a>": Optional <a>MIME type</a> <dfn>mediaType</dfn>.
+        </li>
+        <li data-dfn-for="NDEFRecordInit">
+          "<a>text</a>": Optional [=encoding/label|encoding label=] <dfn>encoding</dfn>
+          and [=language tag=] <dfn>lang</dfn>.
+        </li>
+      </ul>
+    </p>
+    <p>
+      The mapping from data types of an
       <a>NDEFRecordInit</a> to <a>NDEF record</a> types is presented
       in the algorithmic steps which handle the data and described in the
       [[[#steps-receiving]]] and [[[#writing-or-pushing-content]]] sections.
@@ -1715,7 +1759,7 @@
         Let |bytes:byte sequence| be |record|.<a>[[\PayloadData]]</a>.
       </li>
       <li>
-        Let |recordType:NDEFRecordType| be the value of |record|'s
+        Let |recordType:record type| be the value of |record|'s
         <a data-link-for="NDEFRecord">recordType</a> attribute.
       </li>
       <li>Switch on |target|:
@@ -1792,16 +1836,12 @@
     </ol>
   </section> <!-- NDEFRecord dictionary -->
 
-  <section data-dfn-for="NDEFRecordType">
-    <h2>The <dfn>NDEFRecordType</dfn> string</h2>
+  <section>
+    <h2>The <dfn>record type</dfn> string</h2>
       <p>
-        This string defines the allowed types for a <a>NDEFRecord</a>. The
-        [[[#data-mapping]]] section describes how
-        <a>NDEFRecordType</a> is mapped to <a>NDEF record</a> types.
+        This string defines the allowed record types for a <a>NDEFRecord</a>. The
+        [[[#data-mapping]]] section describes how it is mapped to <a>NDEF record</a> types.
       </p>
-      <pre class="idl">
-        typedef DOMString NDEFRecordType;
-      </pre>
       <p>
         A set of known standardized values exists, but it is also possible
         for organizations to create their own custom <a>external type</a>s.
@@ -1871,7 +1911,7 @@
           of a parent <a>NDEFRecord</a>, for instance in a <a>smart poster</a>.
           The context of the <a>local type</a> is the parent record whose payload
           is the <a>NDEFMessage</a> to which this record belongs. The value
-          MUST NOT be equal to any other <a>NDEFRecordType</a> strings defined
+          MUST NOT be equal to any other <a>record type</a>s defined
           in this API.
         </dd>
       </dl>
@@ -1900,7 +1940,7 @@
         "`urn:nfc:wkt:T`", but it is stored as "`T`".
       </p>
 
-  </section> <!-- NDEFRecordType enum -->
+  </section>
 
   <section id="data-mapping"><h3>Data mapping</h3>
   <p>
@@ -2541,7 +2581,7 @@
       <pre class="idl">
         dictionary NFCScanOptions {
           USVString id = "";
-          NDEFRecordType recordType;
+          USVString recordType;
           USVString mediaType = "";
           AbortSignal? signal;
         };
@@ -2558,8 +2598,8 @@
       </p>
       <p>
         The <dfn>recordType</dfn> property
-        denotes the enum value which is used for matching the
-        <a href="#idl-def-ndefrecordtype">recordType</a> property of each
+        denotes the string value which is used for matching the
+        <a>record type</a> of each
         <a>NDEFRecord</a> object in an <a>NDEF message</a>.
         If the dictionary member is [= dictionary member/not present =],
         then it will be ignored by the <a href="#steps-listen">NFC listen algorithm</a>.
@@ -3111,23 +3151,34 @@
             </ol>
           </li>
           <li>
-            Let |language:string| be |mimeTypeRecord|'s parameters["`lang`"] if it
-            [= map/exists =], or "`en`".
+            Let |documentLanguage:string| be the [=document element=]'s lang attribute.
           </li>
           <li>
-            Let |charset:string| be |mimeTypeRecord|'s parameters["`charset`"] if it
+            If |documentLanguage| is the empty string, set it to "`en`".
+          </li>
+          <li>
+            Let |language:string| be |record|'s lang if it [= map/exists =],
+            or else to |documentLanguage|.
+          </li>
+          <li>
+            Let |encoding label:string| be |record|'s encoding if it
             [= map/exists =], or "`utf-8`".
           </li>
           <li>
-            If |charset| is not equal to "`utf-8`",
-            [= exception/throw =] a {{TypeError}}.
+            If |encoding label| is not equal to "`utf-8`", "`utf-16`",
+            "`utf-16le`" or "`utf-16be`" [= exception/throw =] a {{TypeError}}.
+          </li>
+          <li>
+            Let |encoding name| be the [=encoding/name|name=]
+            <a data-cite="encoding#concept-encoding-get">obtained</a>
+            from |encoding label|.
           </li>
           <li>
             Let |header:byte| be a <a>byte</a> constructed the following way:
             <ol>
               <li>
-                Set bit `7` to the value `0`
-                (meaning <a>UTF-8 encoding</a>).
+                If |encoding name| is equal to UTF-8, set bit `7` to the value `0`,
+                or else set the value to `1`.
               </li>
               <li>
                 Set bit `6` to the value `0` (reserved).
@@ -3194,11 +3245,6 @@
             Return |ndefRecord|.
           </li>
         </ol>
-      </p>
-      <p class="note">
-        The `lang=` parameter is a non-standard parameter
-        to <a>MIME type</a>s, but it is used in this specification
-        in order to maintain compatibility with [[[NFC-STANDARDS]]].
       </p>
       </section>
 
@@ -4128,6 +4174,12 @@
         Set |record|'s id to |ndef|'s |id:string|.
       </li>
       <li>
+        Set |record|'s lang to `null`.
+      </li>
+      <li>
+        Set |record|'s encoding to `null`.
+      </li>
+      <li>
         If |ndef|'s |typeNameField:number| is `0` (<a>empty record</a>), then set
         |record|'s recordType to "`empty`" and set |record|'s mediaType to `""`.
       </li>
@@ -4200,7 +4252,7 @@
         equal to an empty ordered map.
       </li>
       <li>
-        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set |record|s mediaType to |mimeType|,
+        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set |record|'s mediaType to |mimeType|,
         set |record|.<a>[[\PayloadData]]</a> to `undefined` and return |record|.
       </li>
       <li>
@@ -4214,8 +4266,13 @@
       <li>
         Let |language:string| be the result of running <a>ASCII decode</a>
         on second <a>byte</a> to the |languageLength| + `1` byte, inclusive.
+      </li>
       <li>
-        Set |mimeType|'s parameters["`lang`"] to |language|.
+        Set |record|'s lang to |language|.
+      </li>
+      <li>
+        Set |record|'s encoding be "`utf-8`" if bit `7` ([=MB field=]) of |header|
+        is equal to the value `0`, or else "`utf-16be`".
       </li>
       <li>
         Set |record|'s mediaType to the result of
