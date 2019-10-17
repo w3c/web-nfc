@@ -732,9 +732,6 @@
         short>
       </ndef-record>
     </p>
-    <p class=note>
-      Web NFC has special handling for working with JSON <a>MIME type</a> data.
-    </p>
     </section>
 
     <section>
@@ -1119,11 +1116,12 @@
             case "url":
               console.log(`URL: ${record.text()}`);
               break;
-            case "json":
-              console.log(`JSON: ${record.json().myProperty}`);
-              break;
             case "media":
-              if (record.mediaType.startsWith('image/')) {
+              if (record.mediaType === "application/json") {
+                const decoder = new TextDecoder();
+                console.log(`JSON: ${JSON.parse(decoder.decode(record.data))}`);
+              }
+              else if (record.mediaType.startsWith('image/')) {
                 const blob = new Blob([record.arrayBuffer()], {type: record.mediaType});
 
                 const img = document.createElement("img");
@@ -1131,6 +1129,9 @@
                 img.onload = () => window.URL.revokeObjectURL(this.src);
 
                 document.body.appendChild(img);
+              }
+              else {
+                console.log(`Media not handled`);
               }
               break;
           }
@@ -1158,12 +1159,17 @@
       reader.onreading = async event => {
         console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
 
+        const encoder = new TextEncoder();
         const newMessage = {
           records: [{
             id: "/mypath/mygame/update",
-            recordType: "json",
+            recordType: "media",
             mediaType: "application/json",
-            data: { level: 3, points: 4500, lives: 3 }
+            data: encoder.encode(JSON.stringify({
+              level: 3,
+              points: 4500,
+              lives: 3
+            }))
           }]
         };
         const writer = new NFCWriter();
@@ -1179,37 +1185,40 @@
     </p>
     <pre class="example">
       const reader = new NFCReader();
-
-      reader.addEventListener("reading", event => {
-        for (let record of event.message.records) {
-          if (record.recordType === 'json') {
-            const json = record.json();
-            const article =/[aeio]/.test(json.title) ? "an" : "a";
+      reader.scan({
+        recordType: "media",
+        mediaType: "application/*json"
+      });
+      reader.onreading = event => {
+        const decoder = new TextDecoder();
+        for (const record of event.message.records) {
+          if (record.mediaType === 'application/json') {
+            const json = JSON.parse(decoder.decode(record.data));
+            const article =/^[aeio]/i.test(json.title) ? "an" : "a";
             console.log(`${json.name} is ${article} ${json.title}`);
           }
         }
-      });
-
-      reader.scan({ recordType: "json" });
+      };
 
       const writer = new NFCWriter();
+      const encoder = new TextEncoder();
       writer.push({
         records: [
           {
-            recordType: "json",
+            recordType: "media",
             mediaType: "application/json",
-            data: {
+            data: encoder.encode(JSON.stringify({
               name: "Benny Jensen",
               title: "Banker"
-            }
+            }))
           },
           {
-            recordType: "json",
+            recordType: "media",
             mediaType: "application/json",
-            data: {
+            data: encoder.encode(JSON.stringify({
               name: "Zoey Braun",
               title: "Engineer"
-            }
+            }))
           }]
       });
     </pre>
@@ -1767,7 +1776,7 @@
           <dt>JSON</dt>
           <ol>
             <li>
-              If the |recordType| value is equal to "`json`" or "`media`", then
+              If the |recordType| value is equal to "`media`", then
               return the result of running <a>parse JSON from bytes</a>
               on |bytes|. Re-[= exception/throw =] any exceptions.
             </li>
@@ -1830,11 +1839,6 @@
         <dt>The "<dfn>media</dfn>" string</dt>
         <dd>
           The value representing a <a>MIME type record</a>.
-        </dd>
-        <dt>The "<dfn>json</dfn>" string</dt>
-        <dd>
-          The value representing a <a>MIME type record</a> that has a JSON
-          <a>MIME type</a>.
         </dd>
         <dt>The "<dfn>unknown</dfn>" string</dt>
         <dd>
@@ -1940,15 +1944,6 @@
       <td><a>Well-known type</a> (TNF=1) record with TYPE="`Sp`"</td>
     </tr>
     <tr>
-      <td><dfn>"`json`"</dfn></td>
-      <td><a>JSON MIME type</a></td>
-      <td>
-        [= JSON type =]
-      </td>
-      <td><a>MIME type record</a> (TNF=2) with TYPE= [= JSON type =].
-      </td>
-    </tr>
-    <tr>
       <td><dfn>"`media`"</dfn></td>
       <td>[= MIME type =]</a></td>
       <td>{{ArrayBuffer}}</td>
@@ -2025,16 +2020,6 @@
       <td>""</td>
       <td>
         <a>toRecords()</a> or<br>
-        <a>arrayBuffer()</a>
-      </td>
-    </tr>
-    <tr>
-      <td><a>MIME type record</a> (TNF=2) with TYPE=<a>JSON MIME type</a></td>
-      <td>"`json`"</td>
-      <td>The <a>JSON MIME type</a> used in the NDEF record</td>
-      <td>
-        <a>text()</a> or<br>
-        <a>json()</a> or<br>
         <a>arrayBuffer()</a>
       </td>
     </tr>
@@ -2576,8 +2561,8 @@
         class="example highlight">
         const options = {
           id: "https://www.w3.org/*",  // any path from the domain is accepted
-          recordType: "json",
-          mediaType: "application/*+json"  // any JSON-based MIME type
+          recordType: "media",
+          mediaType: "application/*json"  // any JSON-based MIME type
         }
       </pre>
       <pre
@@ -2947,12 +2932,7 @@
                     {{DOMString}}, then set |record|'s recordType to "`text`".
                   </li>
                   <li>
-                    Otherwise, if the type of |record|'s data is an
-                    {{ArrayBuffer}}, then set |record|'s recordType
-                    to "`media`".
-                  </li>
-                  <li>
-                    Otherwise, set |record|'s recordType to "`json`".
+                    Otherwise, set |record|'s recordType to "`media`".
                   </li>
                 </ol>
               </li>
@@ -2976,12 +2956,6 @@
                   <ul>
                     <li>
                       <a>map a URL to NDEF</a>.
-                    </li>
-                  </ul>
-                  <dt>"`json`"</dt>
-                  <ul>
-                    <li>
-                      <a>map JSON to NDEF</a>.
                     </li>
                   </ul>
                   <dt>"`media`"</dt>
@@ -3286,95 +3260,6 @@
           </li>
         </ol>
       </p>
-      </section>
-
-      <section><h3>Mapping JSON to NDEF</h3>
-      <p>
-        To <dfn>map JSON to NDEF</dfn> given a |record:NDEFRecordInit|,
-        run these steps:
-        <ol class=algorithm>
-          <li>
-            Let |mimeTypeRecord| be the <a>MIME type</a>
-            returned by running <a>parse a MIME type</a> on |record|'s mediaType.
-            <ol>
-              <li>
-                If |mimeTypeRecord| is failure, let |mimeTypeRecord| be a new
-                <a>MIME type record</a> whose type is "`application`", and subtype is "`json`".
-              </li>
-              <li>
-                If |mimeTypeRecord| is not a <a>JSON MIME type</a>,
-                then [= exception/throw =] a
-                {{"SyntaxError"}} {{DOMException}} and abort these steps.
-              </li>
-            </ol>
-          </li>
-          <li>
-            Let |data:byte sequence| be an empty [= byte sequence =].
-            <ol>
-              <li>
-                Let |stream:byte stream| be the resulting
-                <a data-cite="encoding#concept-stream">byte stream</a> of executing
-                <a>serialize JSON to bytes</a> on |record|'s data.
-              </li>
-              <li>
-                <a data-cite="encoding#concept-stream-read">Read</a> bytes from |stream| into
-                |data| until <a data-cite="encoding#concept-stream-read">read</a> returns
-                <a data-cite="encoding#end-of-stream">end-of-stream</a>.
-              </li>
-            </ol>
-          </li>
-          <li>
-            Set |length:unsigned long| to the [=byte sequence/length=]
-            of |data|.
-          </li>
-          <li>
-            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
-            <ol>
-              <li>
-                Set the |ndefRecord|'s <a>TNF field</a> to `2` (<a>MIME type</a>).
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>TYPE field</a> to the result of
-                <a>serialize a MIME type</a> with |mimeTypeRecord| as
-                the input.
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
-              </li>
-              <li>
-                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a> to |data|.
-              </li>
-            </ol>
-          </li>
-          <li>
-            Return |ndefRecord|.
-          </li>
-        </ol>
-      </p>
-      <aside class=note>
-        <p>
-          JavaScript Object Notation aka JSON can be any of the following [[[ECMASCRIPT]]]
-          types: object, array, String, Boolean, Number or null, which covers a lot of
-          the [[[WEBIDL]]] types as listed here: [= JSON type =].
-        </p>
-        <p>
-          Serializing JSON to bytes can result in 0 bytes in some cases, like serializing
-          the following object, which specifies it own
-          <a data-cite="webidl#idl-tojson-operation">toJSON</a> operation:
-
-          <pre class=highlight>
-            class ZeroByteJSON {
-              toJSON() {
-                return undefined;
-              }
-            }
-          </pre>
-
-          This means that the <a>map JSON to NDEF</a> algorithm might result in a
-          <a>NDEF record</a> with no <a>PAYLOAD field</a>.
-        </p>
-      </aside>
       </section>
 
       <section><h3>Mapping binary data to NDEF</h3>
@@ -4354,35 +4239,12 @@
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm>
         <li>
-          Let |mimeType| be the <a>MIME type</a>
-          returned by running <a>parse a MIME type</a>
-          on |ndefRecord|'s <a>TYPE field</a>.
+          Set |record|'s recordType to "`media`".
         </li>
         <li>
-          If |mimeType| is a <a>JSON MIME type</a>, then
-          <ol>
-            <li>
-              Set |record|'s recordType to "`json`".
-            </li>
-            <li>
-              Set |record|'s mediaType to the result of
-              <a>serialize a MIME type</a> with |mimeType| as
-              the input.
-            </li>
-          </ol>
-        </li>
-        <li>
-          Otherwise,
-          <ol>
-            <li>
-              Set |record|'s recordType to "`media`".
-            </li>
-            <li>
-              Set |record|'s mediaType to the result of
-              <a>serialize a MIME type</a> with |mimeType| as
-              the input.
-            </li>
-          </ol>
+          Set |record|'s mediaType to the result of
+          <a>serialize a MIME type</a> with |mimeType| as
+          the input.
         </li>
         <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
