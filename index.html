@@ -424,7 +424,7 @@
       </tr>
       <tr>
         <td>1</td>
-        <td>NFC Forum <a>well-known type</a> record</td>
+        <td>NFC Forum [=well-known type record=]</td>
       </tr>
       <tr>
         <td>2</td>
@@ -538,25 +538,28 @@
       Well-known type records (TNF 1)
     </h4>
     <p>
-      The NFC Forum has standardized a small set of useful record types in
+      The NFC Forum has standardized a small set of useful sub record types in
       [[NFC-RTD]] (Resource Type Definition specifications) called
-      <dfn>well-known type</dfn> records, for instance text, URL, media and
+      <dfn>well-known type</dfn>s, for instance text, URL, media and
       opaque binary data. In addition, there are record types designed for more
       complex interactions, such as smart poster (containing optional embedded
       records for url, text, signature and actions), and handover records.
+    </p>
+    <p>
+      These sub record types can be stored in the <dfn>well-known type record</dfn>.
     </p>
     <div>
       The type information stored in the <a>TYPE field</a> can be of two kinds:
       <ul>
         <li>
-          <dfn>NFC Forum global type</dfn> that are defined and managed by the
+          NFC Forum <dfn>global type</dfn> that are defined and managed by the
           NFC Forum and usually start with uppercase letter.
           Examples: "`T`" for text, "`U`" for URL, "`Sp`" for smart poster,
           "`Sig`" for signature, "`Hc`" for handover carrier, "`Hr`" for
           handover request, "`Hs`" for handover select, etc.
         </li>
         <li>
-          <dfn>NFC Forum local type</dfn> that are defined by the NFC Forum or
+          NFC Forum <dfn>local type</dfn> that are defined by the NFC Forum or
           by an application, within the scope of the local context of another
           record or application and always start with lowercase letter or a
           number. See <a>Smart poster</a> for an example on how local types are
@@ -567,7 +570,7 @@
 
     <section> <h5>Text record</h5>
       <div>
-        The <dfn>Text record</dfn> is a <a>well-known type</a> that is defined
+        The <dfn>Text record</dfn> is a [=well-known type record=] that is defined
         in the [[NDEF-TEXT]] specification.
         The <a>TNF field</a> is `1` and the <a>TYPE field</a> is "`T`" (`0x54`).
         The first byte of the <a>PAYLOAD field</a> is a status byte, followed
@@ -616,18 +619,18 @@
       included, readers SHOULD select only one of them to display.
     </p>
     <p>
-      The type record has <a>NFC Forum local type</a> "`t`" specific to smart
+      The type record has [=local type name=] "`t`" specific to smart
       poster and the <a>PAYLOAD field</a> contains a UTF-8 encoded MIME type for
       the content referred to by the URI record.
     </p>
     <p>
-      The size record has <a>NFC Forum local type</a> "`s`" specific to smart
+      The size record has [=local type name=] "`s`" specific to smart
       poster and the <a>PAYLOAD field</a> contains a 4-byte 32 bit unsigned
       integer that denotes the size of the object referred to by the URL in the
       URI record.
     </p>
     <p>
-      The action record has <a>NFC Forum local type</a> "`act`" specific to
+      The action record has [=local type name=] "`act`" specific to
       smart poster and the <a>PAYLOAD field</a> contains a single byte, whose
       value has the following meaning:
     </p>
@@ -767,7 +770,7 @@
       application specified data types and are defined in [[[NFC-RTD]]].
     </p>
     <p>
-      The external type is a URN with the prefix `"urn:nfc:ext:"` followed by
+      The <dfn>external type</dfn> is a URN with the prefix `"urn:nfc:ext:"` followed by
       the name of the owner domain, adding a colon, then a non-zero type name,
       for instance `"urn:nfc:ext:w3.org:atype"`, stored as `"w3.org:atype"`
       in the <a>TYPE field</a>.
@@ -1755,7 +1758,7 @@
         <a data-link-for="NDEFRecord">recordType</a> attribute.
       </li>
       <li>
-        If the |recordType| value is "`smart-poster`", an <a>external type</a>,
+        If the |recordType| value is "`smart-poster`", or an [=external type name=],
         then return the result of running <a>parse records from bytes</a> on |bytes|.
         Re-[= exception/throw =] any exceptions.
       </li>
@@ -1774,7 +1777,7 @@
       </p>
       <p>
         A set of known standardized values exists, but it is also possible
-        for organizations to create their own custom <a>external type</a>s.
+        for organizations to create their own custom [=external type names=].
       </p>
       <dl>
         <dt>The "<dfn>empty</dfn>" string</dt>
@@ -1805,11 +1808,11 @@
         <dd>
           The value representing an <a>unknown record</a>.
         </dd>
-        <dt>An <dfn>external type</dfn></dt>
+        <dt>An <dfn>external type name</dfn></dt>
         <dd>
           A {{DOMString}} representing a custom type for the
           <a>external type record</a>.
-          The type must follow the <a>external type</a> ABNF.
+          The type must follow the [=external type name=] ABNF.
           <pre class="abnf">
             ext-type             = reg-name ":" custom-type
             custom-type          = 1*(ALPHA / DIGIT / other)
@@ -1819,19 +1822,23 @@
             other                = "(" / ")" / "+" / "," / "-" / ":" / "=" /
                                    "@" / ";" / "$" / "_" / "!" / "*" / "'" / "."
           </pre>
-          The `reg-name` value is a [=host/registrable domain=] owned by the issuing organization, a "`:`" and a type, e.g. "`w3.org:member`".
-          And additional ABNF exists for <a>well-known type</a> records:
+          The `reg-name` value is a [=host/registrable domain=] owned by the issuing
+          organization, a "`:`" and a type, e.g. "`w3.org:member`".
+          And additional ABNF exists for [=well-known type records=]:
           <pre class="abnf">
             wkt-type             = (ALPHA / DIGIT) *(ALPHA / DIGIT / other)
           </pre>
           <p class=note>
-            The [[[NFC-RTD]]] defines every type in the <a>well-known type</a>
-            records and <a>external type records</a> in terms of URNs, but only a subset of the URN is actually stored in the <a>NDEF record</a>'s <a>TYPE field</a>, which corresponds to the above two ABNFs.
+            The [[[NFC-RTD]]] defines every type in the [=well-known type records=]
+            and <a>external type records</a> in terms of URNs, but only a subset of
+            the URN is actually stored in the <a>NDEF record</a>'s <a>TYPE field</a>,
+            which corresponds to the above two ABNFs.
           </p>
         </dd>
-        <dt>A <dfn>local type</dfn></dt>
+        <dt>A <dfn>local type name</dfn></dt>
         <dd>
-          A {{DOMString}} that MUST start with lowercase letter or a number, representing a type for a <a>NFC Forum local type</a>,
+          A {{DOMString}} that MUST start with lowercase letter or a number,
+          representing a type for a NFC Forum [=local type=],
           typically used in a record of an <a>NDEFMessage</a> that is the payload
           of a parent <a>NDEFRecord</a>, for instance in a <a>smart poster</a>.
           The context of the <a>local type</a> is the parent record whose payload
@@ -1846,8 +1853,8 @@
         explicitly represented.
       </p>
       <p>
-        Two <a>well-known type</a>s (including any <a>NFC Forum local type</a>
-        and any <a>NFC Forum global type</a>) MUST be compared character by
+        Two <a>well-known type</a>s (including any NFC Forum <a>local type</a>
+        and any NFC Forum <a>global type</a>) MUST be compared character by
         character in case-sensitive manner.
       </p>
       <p>
@@ -1873,74 +1880,97 @@
     <a>NDEF record</a> types, as used in the [[[#writing-or-pushing-content]]]
     section is as follows:
   </p>
-  <table class="simple">
+  <table class="simple" data-link-for="NDEFRecordInit">
     <tr>
-      <th>NDEFRecordInit recordType</th>
-      <th>NDEFRecordInit mediaType</th>
-      <th>NDEFRecordInit data</th>
-      <th>NDEF record type</th>
+      <th>[=recordType=]</th>
+      <th>[=mediaType=]</th>
+      <th>[=data=]</th>
+      <th><a href="#ndef-record-types">record type</a></th>
+      <th nowrap>[=TNF field=]</th>
+      <th>[=TYPE field=]</th>
     </tr>
     <tr>
       <td><dfn>"`empty`"</dfn></td>
       <td><i>unused</i></td>
       <td><i>unused</i></td>
-      <td><a>Empty record</a> (TNF=0)</td>
+      <td><a>Empty record</a></td>
+      <td>0</td>
+      <td><i>unused</i></td>
     </tr>
     <tr>
       <td><dfn>"`text`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{DOMString}}</td>
-      <td><a>Well-known type</a> (TNF=1) record with TYPE="`T`"</td>
+      <td>[=Well-known type record=]</td>
+      <td>1</td>
+      <td>"`T`"</td>
     </tr>
     <tr>
       <td><dfn>"`url`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{DOMString}}</td>
-      <td><a>Well-known type</a> (TNF=1) record with TYPE="`U`"</td>
+      <td>[=Well-known type record=]</td>
+      <td>1</td>
+      <td>"`U`"</td>
     </tr>
     <tr>
       <td nowrap><dfn>"`smart-poster`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{NDEFMessage}}</td>
-      <td><a>Well-known type</a> (TNF=1) record with TYPE="`Sp`"</td>
+      <td>[=Well-known type record=]</td>
+      <td>1</td>
+      <td>"`Sp`"</td>
+    </tr>
+    <tr>
+      <td><i>[=local type name=]</i></td>
+      <td><i>unused</i></td>
+      <td>
+        {{BufferSource}}
+      </td>
+      <td>[=Local type=] record*</td>
+      <td>1</td>
+      <td>[=local type name=]</td>
     </tr>
     <tr>
       <td><dfn>"`media`"</dfn></td>
       <td>[= MIME type =]</a></td>
       <td>{{BufferSource}}</td>
-      <td><a>MIME type record</a> (TNF=2) with TYPE= [= MIME type =]</td>
+      <td><a>MIME type record</a></td>
+      <td>2</td>
+      <td>[= MIME type =]</td>
     </tr>
     <tr>
       <td nowrap><dfn>"`absolute-url`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{DOMString}} <i>url</i></td>
-      <td><a>Absolute-URL record</a> (TNF=3) with TYPE=<i>url</i></td>
+      <td><a>Absolute-URL record</a></td>
+      <td>3</td>
+      <td>[=Absolute-URL=]</td>
     </tr>
     <tr>
-      <td><i>[= external type =]</i></td>
+      <td><i>[=external type name=]</i></td>
       <td><i>unused</i></td>
       <td>
         {{BufferSource}} or<br>
         {{NDEFMessage}}
       </td>
-      <td><a>External type record</a> (TNF=4) with TYPE= [= external type =]</td>
-    </tr>
-    <tr>
-      <td><i>[= local type =]</i></td>
-      <td><i>unused</i></td>
-      <td>
-        {{BufferSource}}
-      </td>
-      <td><a>External type record</a> (TNF=4) with TYPE= [= local type =] inside
-        the <a>NDEFMessage</a> payload of another record</td>
+      <td><a>External type record</a></td>
+      <td>4</td>
+      <td>[=external type name=]</td>
     </tr>
     <tr>
       <td><dfn>"`unknown`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{BufferSource}}</td>
-      <td><a>unknown record</a> (TNF=5)</td>
+      <td>[=Unknown record=]</td>
+      <td>5</td>
+      <td><i>unused</i></td>
     </tr>
   </table>
+  <p>
+    * A [=local type=] record has to be embedded with the <a>NDEFMessage</a>
+    payload of another record.
+  </p>
   <p>
     The mapping from <a>NDEF record</a> types to <a>NDEFRecord</a>,
     as used for incoming <a>NDEF message</a>s described in the
@@ -1948,52 +1978,72 @@
   </p>
   <table class="simple" data-link-for="NDEFRecord">
     <tr>
-      <th>NDEF record <a>TNF field</a><br> and <a>TYPE field</a></th>
-      <th>NDEFRecord<br> recordType</th>
-      <th>NDEFRecord<br> mediaType</th>
+      <th><a href="#ndef-record-types">record type</a></th>
+      <th nowrap>[=TNF field=]<br></th>
+      <th nowrap>[=TYPE field=]</th>
+      <th>[=recordType=]</th>
+      <th>[=mediaType=]</th>
     </tr>
     <tr>
-      <td><a>Empty record</a> (TNF=0)</td>
+      <td>[=Empty record=]</td>
+      <td>0</td>
+      <td><i>unused</i></td>
       <td>"`empty`"</td>
       <td>""</td>
     </tr>
     <tr>
-      <td><a>Well-known type</a> (TNF=1) record with TYPE="`T`"</td>
+      <td>[=Well-known type record=]</td>
+      <td>1</td>
+      <td>"`T`"</td>
       <td>"`text`"</td>
       <td>"`text/plain`"</td>
     </tr>
     <tr>
-      <td><a>Well-known type</a> (TNF=1) record with TYPE="`U`"</td>
+      <td>[=Well-known type record=]</td>
+      <td>1</td>
+      <td>"`U`"</td>
       <td>"`url`"</td>
       <td>"`text/plain`"</td>
     </tr>
     <tr>
-      <td><a>Well-known type</a> (TNF=1) record with TYPE="`Sp`"</td>
+      <td>[=Well-known type record=]</td>
+      <td>1</td>
+      <td>"`Sp`"</td>
       <td nowrap>"`smart-poster`"</td>
       <td>""</td>
     </tr>
     <tr>
-      <td><a>MIME type record</a> (TNF=2) with TYPE=<a>MIME type</a></td>
+      <td>[=Local type=] record*</td>
+      <td>1</td>
+      <td>[=local type name=]</td>
+      <td>[=local type name=]</td>
+      <td>"`application/octet-stream`"</td>
+    </tr>
+    <tr>
+      <td>[=MIME type record=]</td>
+      <td>2</td>
+      <td>[=MIME type=]</td>
       <td>"`media`"</td>
       <td>The <a>MIME type</a> used in the NDEF record</td>
     </tr>
     <tr>
-      <td><a>Absolute-URL record</a> (TNF=3) with TYPE=<i>url</i></td>
+      <td>[=Absolute-URL record=]</td>
+      <td>3</td>
+      <td>URL</td>
       <td>"`url`"</td>
       <td>""</td>
     </tr>
     <tr>
-      <td><a>External type record</a> (TNF=4) with TYPE=<a>external type</a></td>
-      <td><a>external type</a></td>
+      <td>[=External type record=]</a></td>
+      <td>4</td>
+      <td>[=external type name=]</td>
+      <td>[=external type name=]</td>
       <td>"`application/octet-stream`"</td>
     </tr>
     <tr>
-      <td>Any embedded <a>NDEF record</a> with TYPE=<a>local type</a></td>
-      <td><a>local type</a></td>
-      <td>"`application/octet-stream`"</td>
-    </tr>
-    <tr>
-      <td><a>Unknown record</a> (TNF=5)</td>
+      <td><a>Unknown record</a></td>
+      <td>5</td>
+      <td><i>unused</i></td>
       <td>"`unknown`"</td>
       <td>"`application/octet-stream`"</td>
     </tr>
@@ -2889,7 +2939,7 @@
                       <a>map binary data to NDEF</a>.
                     </li>
                   </ul>
-                  <dt><a>external type</a></dt>
+                  <dt><a>external type name</a></dt>
                   <ul>
                     If |record|'s recordType is an <a>external type</a>,
                     <li>
@@ -2901,7 +2951,7 @@
                       Otherwise, <a>map external data to NDEF</a> given |record|.
                     </li>
                   </ul>
-                  <dt><a>local type</a></dt>
+                  <dt><a>local type name</a></dt>
                   <ul>
                     If |record|'s recordType is a <a>local type</a> and if
                     |record| is a payload to another <a>NDEF</a> record,
@@ -2983,7 +3033,7 @@
         steps:
         <p class="note">
           This is useful when clients specifically want to write text in a
-          <a>well-known type</a> record.
+          [=well-known type record=].
           Other options would be to use the value "`media`"
           with an explicit <a>MIME type</a> text type, which allows for
           better differentiation, e.g. when using "`text/xml`", or
@@ -3087,7 +3137,7 @@
             <ol>
               <li>
                 Set the |ndefRecord|'s <a>TNF field</a> to `1` (
-                <a>well-known type</a> record).
+                [=well-known type record=]).
               </li>
               <li>
                 Set the |ndefRecord|'s <a>TYPE field</a> to "`T`" (`0x54`).
@@ -3173,7 +3223,7 @@
             <ol>
               <li>
                 Set the |ndefRecord|'s <a>TNF field</a> to `1`
-                (<a>well-known type</a> record).
+                ([=well-known type record=]).
               </li>
               <li>
                 Set the |ndefRecord|'s <a>TYPE field</a> to "`U`" (`0x55`).
@@ -3323,7 +3373,7 @@
                 If |record|'s recordType is a standard local type to
                 <a>smart poster</a> or a handover record, then
                 set |ndefRecord|'s <a>TNF field</a> to `1`
-                (<a>well-known type</a> record), otherwise
+                ([=well-known type record=]), otherwise
                 set |ndefRecord|'s <a>TNF field</a> to `4`
                 (<a>external type record</a>).
               </li>
@@ -3954,7 +4004,7 @@
         |record|'s recordType to "`empty`" and set |record|'s mediaType to `""`.
       </li>
       <li>
-        If |ndef|'s |typeNameField| is `1` (<a>well-known type</a> record):
+        If |ndef|'s |typeNameField| is `1` ([=well-known type record=]):
         <ol>
           <li>
             Set |record| to the result of the algorithm below switching on
@@ -4208,7 +4258,7 @@
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm>
         <li>
-          Set |record|'s recordType to "`url`".
+          Set |record|'s recordType to "`absolute-url`".
         </li>
         <li>
           Set |record|'s mediaType to "`text/plain`".
