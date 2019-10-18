@@ -1230,9 +1230,8 @@
   <section> <h3>Write data to tag and print out existing data</h3>
     <p>
       Pushing data to a tag requires tapping it. If existing data should be
-      read during the same tap, we need to set the <a
-      href="#dom-nfcpushoptions-ignoreread">ignoreRead</a>
-      property to `false` for the <a>NFCWriter</a>.
+      read during the same tap, we need to set the [=NFCPushOptions/ignoreRead=]
+      property to `false`.
     </p>
     <pre class="example">
       const reader = new NFCReader();
@@ -1253,8 +1252,7 @@
 
   <section> <h3>Stop listening to NDEF messages</h3>
     <p>
-      Read NDEF messages for 3 seconds by using <a
-      href="#dom-nfcscanoptions-signal">signal</a> in the <a>NFCScanOptions</a>.
+      Read NDEF messages for 3 seconds by using [=NFCScanOptions/signal=].
     </p>
     <pre class="example">
       const reader = new NFCReader();
@@ -2058,7 +2056,7 @@
   </pre>
   <p>
     The <dfn>NDEFMessageSource</dfn> is a union type representing argument types
-    accepted by the <a href="#dom-nfcwriter-push">push()</a> method.
+    accepted by the [=NFCWriter/push()=] method.
   </p>
   <p data-dfn-for="NFCReadingEvent">
     The <dfn>NFCReadingEvent</dfn> is the event being dispatched on new NFC readings.
@@ -2379,13 +2377,12 @@
     <p>
       The <dfn>target</dfn> property
       denotes the intended target for the pending
-      <a href="#dom-nfcwriter-push">push()</a>
+      [=NFCWriter/push()=]
       operation.
     </p>
     <p>
       The <dfn>timeout</dfn> property
-      denotes the timeout for the pending
-      <a href="#dom-nfcwriter-push">push()</a>
+      denotes the timeout for the pending [=NFCWriter/push()=]
       operation expressed in milliseconds. The default value is
       implementation-dependent. The value `Infinity` means there is
       no timeout, i.e. no timer is started. After the |timeout|
@@ -2406,7 +2403,7 @@
     </p>
     <p>
       The <dfn>signal</dfn> property allows to abort
-      the <a href="#dom-nfcwriter-push">push()</a> operation.
+      the [=NFCWriter/push()=] operation.
     </p>
   </section>
 
@@ -2414,7 +2411,7 @@
     <h2>The <dfn>NFCPushTarget</dfn> enum</h2>
     <p>
       This enum defines the set of intended target values for the
-      <a href="#dom-nfcwriter-push">push()</a> operation.
+      [=NFCWriter/push()=] operation.
     </p>
     <pre class="idl">
       enum NFCPushTarget {
@@ -2427,19 +2424,19 @@
       <dt><dfn>tag</dfn></dt>
       <dd>
         The enum value representing the intended target for the
-        <a href="#dom-nfcwriter-push">push()</a> operation to be
+        [=NFCWriter/push()=] operation to be
         a <a>NFC tag</a>.
       </dd>
       <dt><dfn>peer</dfn></dt>
       <dd>
         The enum value representing the intended target for the
-        <a href="#dom-nfcwriter-push">push()</a> operation to be
+        [=NFCWriter/push()=] operation to be
         a <a>NFC peer</a>.
       </dd>
       <dt><dfn>any</dfn></dt>
       <dd>
         The enum value representing the intended target for the
-        <a href="#dom-nfcwriter-push">push()</a> operation to be
+        [=NFCWriter/push()=] operation to be
         a <a>NFC tag</a> or a <a>NFC peer</a>.
       </dd>
     </dl>
@@ -2461,7 +2458,7 @@
       </pre>
       <p>
         The <dfn>signal</dfn> property allows to abort the
-        <a href="#dom-nfcreader-scan">scan()</a> operation.
+        [=NFCReader/scan()=] operation.
       </p>
       <p>
         The <dfn>id</dfn> property
@@ -2480,7 +2477,7 @@
       <p>
         The <dfn>mediaType</dfn> property
         denotes the <a>match pattern</a> which is used for matching the
-        <a href="#dom-ndefrecord-mediatype">mediaType</a> property of each
+        [=NDEFRecord/mediaType=] property of each
         <a>NDEFRecord</a> object in an <a>NDEF message</a>.
         The default value `""` means that no matching is performed.
       </p>
@@ -3772,7 +3769,7 @@
         <p class="note">
            The UA SHOULD represent an unformatted <a>NFC tag</a> as an
            <a>NDEF message</a> containing no <a>NDEF record</a>s, i.e. an empy
-           array for its <a href="#dom-ndefmessage-records">records</a> property.
+           array for its [=NDEFMessage/records=] property.
         </p>
       </li>
       <li>
