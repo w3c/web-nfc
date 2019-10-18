@@ -1890,19 +1890,28 @@
       <td><dfn>"`text`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{DOMString}}</td>
-      <td><a>Well-known type</a> (TNF=1) record with TYPE="`T`"</td>
+      <td><a>Well-known type</a> record (TNF=1) with TYPE="`T`"</td>
     </tr>
     <tr>
       <td><dfn>"`url`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{DOMString}}</td>
-      <td><a>Well-known type</a> (TNF=1) record with TYPE="`U`"</td>
+      <td><a>Well-known type</a> record (TNF=1) with TYPE="`U`"</td>
     </tr>
     <tr>
       <td nowrap><dfn>"`smart-poster`"</dfn></td>
       <td><i>unused</i></td>
       <td>{{NDEFMessage}}</td>
-      <td><a>Well-known type</a> (TNF=1) record with TYPE="`Sp`"</td>
+      <td><a>Well-known type</a> record (TNF=1) with TYPE="`Sp`"</td>
+    </tr>
+    <tr>
+      <td><i>[= local type =]</i></td>
+      <td><i>unused</i></td>
+      <td>
+        {{BufferSource}}
+      </td>
+      <td><a>Well-known type</a> record (TNF=1) with TYPE= [= local type =] inside
+        the <a>NDEFMessage</a> payload of another record</td>
     </tr>
     <tr>
       <td><dfn>"`media`"</dfn></td>
@@ -1924,15 +1933,6 @@
         {{NDEFMessage}}
       </td>
       <td><a>External type record</a> (TNF=4) with TYPE= [= external type =]</td>
-    </tr>
-    <tr>
-      <td><i>[= local type =]</i></td>
-      <td><i>unused</i></td>
-      <td>
-        {{BufferSource}}
-      </td>
-      <td><a>External type record</a> (TNF=4) with TYPE= [= local type =] inside
-        the <a>NDEFMessage</a> payload of another record</td>
     </tr>
     <tr>
       <td><dfn>"`unknown`"</dfn></td>
@@ -1958,19 +1958,24 @@
       <td>""</td>
     </tr>
     <tr>
-      <td><a>Well-known type</a> (TNF=1) record with TYPE="`T`"</td>
+      <td><a>Well-known type</a> record (TNF=1) with TYPE="`T`"</td>
       <td>"`text`"</td>
       <td>"`text/plain`"</td>
     </tr>
     <tr>
-      <td><a>Well-known type</a> (TNF=1) record with TYPE="`U`"</td>
+      <td><a>Well-known type</a> record (TNF=1) with TYPE="`U`"</td>
       <td>"`url`"</td>
       <td>"`text/plain`"</td>
     </tr>
     <tr>
-      <td><a>Well-known type</a> (TNF=1) record with TYPE="`Sp`"</td>
+      <td><a>Well-known type</a> record (TNF=1) with TYPE="`Sp`"</td>
       <td nowrap>"`smart-poster`"</td>
       <td>""</td>
+    </tr>
+    <tr>
+      <td>Embedded <a>record</a> (TNF=1) with TYPE=<a>local type</a></td>
+      <td><a>local type</a></td>
+      <td>"`application/octet-stream`"</td>
     </tr>
     <tr>
       <td><a>MIME type record</a> (TNF=2) with TYPE=<a>MIME type</a></td>
@@ -1985,11 +1990,6 @@
     <tr>
       <td><a>External type record</a> (TNF=4) with TYPE=<a>external type</a></td>
       <td><a>external type</a></td>
-      <td>"`application/octet-stream`"</td>
-    </tr>
-    <tr>
-      <td>Any embedded <a>NDEF record</a> with TYPE=<a>local type</a></td>
-      <td><a>local type</a></td>
       <td>"`application/octet-stream`"</td>
     </tr>
     <tr>
