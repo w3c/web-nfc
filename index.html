@@ -935,8 +935,8 @@
       On the receiving device the UA will dispatch the content to an application
       registered and eligible to handle the content, and if that application is
       a browser which has a {{Document}} of the <a>top-level browsing context</a>
-      <a>visible</a> with active {{NFCReader}},
-      then the content is delivered to the page through the <a>NFCReadingEvent</a>.
+      <a>visible</a> with active {{NDEFReader}},
+      then the content is delivered to the page through the <a>NDEFReadingEvent</a>.
     </p>
   </section>
   <section> <h3>Handover to another wireless connection type</h3>
@@ -1045,7 +1045,7 @@
       and peers.
     </p>
     <pre class="example">
-      const writer = new NFCWriter();
+      const writer = new NDEFWriter();
       writer.push(
         "Hello World"
       ).then(() => {
@@ -1063,7 +1063,7 @@
       and thus, no data is pushed when the user taps a tag.
     </p>
     <pre class="example">
-      const writer = new NFCWriter();
+      const writer = new NDEFWriter();
       writer.push(
         "Text meant for peers only", { target: "peer" }
       ).then(() => {
@@ -1079,7 +1079,7 @@
       In order to push an NDEF record of URL type, simply use NDEFMessage.
     </p>
     <pre class="example">
-      const writer = new NFCWriter();
+      const writer = new NDEFWriter();
       writer.push({
         records: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
       }).then(() => {
@@ -1097,14 +1097,14 @@
       a text message is written with the value "Hello World".
     </p>
     <pre class="example">
-      const reader = new NFCReader();
+      const reader = new NDEFReader();
       reader.scan();
       reader.onreading = event => {
         const message = event.message;
 
         if (message.records.length == 0 ||     // unformatted tag
             message.records[0].recordType == 'empty' ) {  // empty record
-          const writer = new NFCWriter();
+          const writer = new NDEFWriter();
           writer.push({
             records: [{ recordType: "text", data: 'Hello World' }]
           });
@@ -1147,7 +1147,7 @@
   <section> <h3>Save and restore game progress with another device</h3>
     <p>
       Filtering of relevant data sources can be done by the use of
-      the <a>NFCScanOptions</a>. Below we accept the record identifier URL with
+      the <a>NDEFScanOptions</a>. Below we accept the record identifier URL with
       "`/mypath/mygame/`" in its path from "`mygame.com`"
       domain and its subdomains. When we read the data, we immediately update
       the game progress by issueing a push with a custom NDEF data layout.
@@ -1157,7 +1157,7 @@
       whichever one is tapped first.
     </p>
     <pre class="example">
-      const reader = new NFCReader();
+      const reader = new NDEFReader();
       reader.scan({ id: "https://mygame.com/mypath/mygame" });
       reader.onreading = async event => {
         console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
@@ -1175,7 +1175,7 @@
             }))
           }]
         };
-        const writer = new NFCWriter();
+        const writer = new NDEFWriter();
         await writer.push(newMessage);
         console.log("Pushed message");
       };
@@ -1187,7 +1187,7 @@
       Storing and receiving JSON data is easy with serialization and deserialization.
     </p>
     <pre class="example">
-      const reader = new NFCReader();
+      const reader = new NDEFReader();
       reader.scan({
         recordType: "media",
         mediaType: "application/*json"
@@ -1203,7 +1203,7 @@
         }
       };
 
-      const writer = new NFCWriter();
+      const writer = new NDEFWriter();
       const encoder = new TextEncoder();
       writer.push({
         records: [
@@ -1230,11 +1230,11 @@
   <section> <h3>Write data to tag and print out existing data</h3>
     <p>
       Pushing data to a tag requires tapping it. If existing data should be
-      read during the same tap, we need to set the [=NFCPushOptions/ignoreRead=]
+      read during the same tap, we need to set the [=NDEFPushOptions/ignoreRead=]
       property to `false`.
     </p>
     <pre class="example">
-      const reader = new NFCReader();
+      const reader = new NDEFReader();
       reader.scan();
       reader.onreading = event => {
         const decoder = new TextDecoder();
@@ -1245,17 +1245,17 @@
         }
       };
 
-      const writer = new NFCWriter();
+      const writer = new NDEFWriter();
       writer.push("Pushing data is fun!", { target: "tag", ignoreRead: false });
     </pre>
   </section>
 
   <section> <h3>Stop listening to NDEF messages</h3>
     <p>
-      Read NDEF messages for 3 seconds by using [=NFCScanOptions/signal=].
+      Read NDEF messages for 3 seconds by using [=NDEFScanOptions/signal=].
     </p>
     <pre class="example">
-      const reader = new NFCReader();
+      const reader = new NDEFReader();
       const controller = new AbortController();
 
       reader.scan({ signal: controller.signal });
@@ -1274,7 +1274,7 @@
 
   <section> <h3>Push a smart poster message</h3>
     <pre class="example">
-      const writer = new NFCWriter();
+      const writer = new NDEFWriter();
       writer.push({ records: [
         {
           recordType: "smart-poster",
@@ -1328,7 +1328,7 @@
       <a>smart poster</a>, but used in local application context.
     </p>
     <pre class="example">
-      const reader = new NFCReader();
+      const reader = new NDEFReader();
       reader.scan({ recordType: "example.com:sp" });
       reader.onreading = event => {
         const socialPost = event.message.records[0];
@@ -1372,7 +1372,7 @@
       that may even contain an <a>NDEF message</a> as payload.
     </p>
     <pre class="example">
-      const writer = new NFCWriter();
+      const writer = new NDEFWriter();
       writer.push({ records: [
         {
           recordType: "external",
@@ -2002,7 +2002,7 @@
 </section> <!-- Data types and content -->
 
 
-<section> <h2>The NFCReader and NFCWriter objects</h2>
+<section> <h2>The NDEFReader and NDEFWriter objects</h2>
   The objects provide a way for the <a>browsing context</a> to
   use NFC functionality.
   They allow for pushing <a>NDEF message</a>s to <a>NFC tag</a>s
@@ -2013,59 +2013,59 @@
     typedef (DOMString or BufferSource or NDEFMessageInit) NDEFMessageSource;
 
     [SecureContext, Exposed=Window]
-    interface NFCWriter {
+    interface NDEFWriter {
       constructor();
 
-      Promise&lt;void&gt; push(NDEFMessageSource message, optional NFCPushOptions options={});
+      Promise&lt;void&gt; push(NDEFMessageSource message, optional NDEFPushOptions options={});
     };
 
     [SecureContext, Exposed=Window]
-    interface NFCReader : EventTarget {
+    interface NDEFReader : EventTarget {
       constructor();
 
       attribute EventHandler onreading;
       attribute EventHandler onerror;
 
-      void scan(optional NFCScanOptions options={});
+      void scan(optional NDEFScanOptions options={});
     };
 
     [SecureContext, Exposed=Window]
-    interface NFCReadingEvent : Event {
-      constructor(DOMString type, NFCReadingEventInit readingEventInitDict);
+    interface NDEFReadingEvent : Event {
+      constructor(DOMString type, NDEFReadingEventInit readingEventInitDict);
 
       readonly attribute DOMString serialNumber;
       [SameObject] readonly attribute NDEFMessage message;
     };
 
-    dictionary NFCReadingEventInit : EventInit {
+    dictionary NDEFReadingEventInit : EventInit {
       DOMString? serialNumber = "";
       required NDEFMessageInit message;
     };
 
     [SecureContext, Exposed=Window]
-    interface NFCErrorEvent : Event {
-      constructor(DOMString type, NFCErrorEventInit errorEventInitDict);
+    interface NDEFErrorEvent : Event {
+      constructor(DOMString type, NDEFErrorEventInit errorEventInitDict);
 
       readonly attribute DOMException error;
     };
 
-    dictionary NFCErrorEventInit : EventInit {
+    dictionary NDEFErrorEventInit : EventInit {
       required DOMException error;
     };
 
   </pre>
   <p>
     The <dfn>NDEFMessageSource</dfn> is a union type representing argument types
-    accepted by the [=NFCWriter/push()=] method.
+    accepted by the [=NDEFWriter/push()=] method.
   </p>
-  <p data-dfn-for="NFCReadingEvent">
-    The <dfn>NFCReadingEvent</dfn> is the event being dispatched on new NFC readings.
+  <p data-dfn-for="NDEFReadingEvent">
+    The <dfn>NDEFReadingEvent</dfn> is the event being dispatched on new NFC readings.
     The <dfn>serialNumber</dfn> property represents the serial number of
     the device used for anti-collision and identification, or empty string in case none
     is available. The <dfn>message</dfn> is an <a>NDEFMessage</a> object.
   </p>
-  <p data-dfn-for="NFCReadingEventInit">
-    <dfn>NFCReadingEventInit</dfn> is used to initialize a new event with a serial number
+  <p data-dfn-for="NDEFReadingEventInit">
+    <dfn>NDEFReadingEventInit</dfn> is used to initialize a new event with a serial number
     and the <a>NDEFMessageInit</a> data via the <dfn>message</dfn> member.
     If <dfn>serialNumber</dfn> is
     [= dictionary member/not present =] or is `null`,
@@ -2076,22 +2076,22 @@
     have one and some tags even create a random number on each read.
     The serial number usually consists of 4 or 7 numbers, separated by `:`.
   </p>
-  <p data-dfn-for="NFCErrorEvent">
-    The <dfn>NFCErrorEvent</dfn> is the event being dispatched on errors,
+  <p data-dfn-for="NDEFErrorEvent">
+    The <dfn>NDEFErrorEvent</dfn> is the event being dispatched on errors,
     with the {{DOMException}} object as the <dfn>error</dfn>
     attribute.
   </p>
-  <p data-dfn-for="NFCErrorEventInit">
-    <dfn>NFCErrorEventInit</dfn> is used in order to initialize a new
+  <p data-dfn-for="NDEFErrorEventInit">
+    <dfn>NDEFErrorEventInit</dfn> is used in order to initialize a new
     event with a {{DOMException}} data via the <dfn>error</dfn>
     member.
   </p>
   <p>
-    The <dfn>NFCWriter</dfn> is an object used for writing data to NFC devices
+    The <dfn>NDEFWriter</dfn> is an object used for writing data to NFC devices
     such as tags.
   </p>
   <p>
-    An {{NFCWriter}} object has the following <a data-cite=
+    An {{NDEFWriter}} object has the following <a data-cite=
     "ECMASCRIPT#sec-object-internal-methods-and-internal-slots">
     internal slots</a>:
   </p>
@@ -2103,12 +2103,12 @@
       <th>Description (<em>non-normative</em>)</th>
      </tr>
     </thead>
-    <tbody data-link-for="NFCWriter">
+    <tbody data-link-for="NDEFWriter">
      <tr>
       <td><dfn>[[\PushOptions]]</dfn></td>
       <td>`null`</td>
       <td>
-        The {{NFCPushOptions}} value for writer.
+        The {{NDEFPushOptions}} value for writer.
       </td>
      </tr>
      <tr>
@@ -2130,11 +2130,11 @@
   </table>
 
   <p>
-    The <dfn>NFCReader</dfn> is an object used for reading data when a device,
+    The <dfn>NDEFReader</dfn> is an object used for reading data when a device,
     such as a tag, is within the magnetic induction field.
   </p>
   <p>
-    An {{NFCReader}} object has the following <a data-cite=
+    An {{NDEFReader}} object has the following <a data-cite=
     "ECMASCRIPT#sec-object-internal-methods-and-internal-slots">
     internal slots</a>:
   </p>
@@ -2146,51 +2146,51 @@
       <th>Description (<em>non-normative</em>)</th>
      </tr>
     </thead>
-    <tbody data-link-for="NFCScanOptions">
+    <tbody data-link-for="NDEFScanOptions">
      <tr>
       <td><dfn>[[\Id]]</dfn></td>
       <td>An empty <a>string</a>.
       <td>
-        The {{NFCScanOptions}}.<a>id</a> value.
+        The {{NDEFScanOptions}}.<a>id</a> value.
       </td>
      </tr>
      <tr>
       <td><dfn>[[\RecordType]]</dfn></td>
       <td>`undefined`</td>
       <td>
-        The {{NFCScanOptions}}.<a>recordType</a> value.
+        The {{NDEFScanOptions}}.<a>recordType</a> value.
       </td>
      </tr>
      <tr>
       <td><dfn>[[\MediaType]]</dfn></td>
       <td>An empty <a>string</a>.
       <td>
-        The {{NFCScanOptions}}.<a>mediaType</a> value.
+        The {{NDEFScanOptions}}.<a>mediaType</a> value.
       </td>
       </tr>
       <tr>
         <td><dfn>[[\Signal]]</dfn></td>
         <td>`undefined`</td>
         <td>
-          The {{NFCScanOptions}}.<a>signal</a> to abort the operation.
+          The {{NDEFScanOptions}}.<a>signal</a> to abort the operation.
         </td>
       </tr>
     </tbody>
   </table>
 
   <p class="note">
-    Note that the internal slots of {{NFCReader}} come from the
-    |options:NFCScanOptions| passed to <a>NFCReader.scan()</a>.
+    Note that the internal slots of {{NDEFReader}} come from the
+    |options:NDEFScanOptions| passed to <a>NDEFReader.scan()</a>.
     Therefore there is maximum one filter associated with any given
-    {{NFCReader}} object and successive invocations of <a>NFCReader.scan()</a>
-    with new |options:NFCScanOptions| will replace existing filters.
+    {{NDEFReader}} object and successive invocations of <a>NDEFReader.scan()</a>
+    with new |options:NDEFScanOptions| will replace existing filters.
   </p>
   <p>
-    The <dfn data-dfn-for="NFCReader">onreading</dfn> is an {{EventHandler}} which is called to notify
+    The <dfn data-dfn-for="NDEFReader">onreading</dfn> is an {{EventHandler}} which is called to notify
     that new reading is available.
   </p>
   <p>
-    The <dfn data-dfn-for="NFCReader">onerror</dfn> is an {{EventHandler}} which is called to notify
+    The <dfn data-dfn-for="NDEFReader">onerror</dfn> is an {{EventHandler}} which is called to notify
     that an error happened.
   </p>
   <section><h3>NFC state associated with the settings object</h3>
@@ -2223,15 +2223,15 @@
       <td><dfn>[[\ActivatedReaderList]]</dfn></td>
       <td>empty <a>set</a></td>
       <td>
-        A <a>set</a> of {{NFCReader}} instances.
+        A <a>set</a> of {{NDEFReader}} instances.
       </td>
      </tr>
      <tr>
       <td><dfn>[[\PendingPush]]</dfn></td>
       <td>empty</td>
       <td>
-        A &lt;|promise:Promise|, |writer:NFCWriter|&gt; tuple where |promise|
-        holds a pending {{Promise}} and |writer| holds an {{NFCWriter}}.
+        A &lt;|promise:Promise|, |writer:NDEFWriter|&gt; tuple where |promise|
+        holds a pending {{Promise}} and |writer| holds an {{NDEFWriter}}.
       </td>
       </tr>
     </tbody>
@@ -2286,8 +2286,8 @@
     <p>
       The term <dfn id="nfc-suspended">suspended</dfn> refers to NFC
       operations being suspended, which means that no <a>NFC content</a> is
-      pushed by <a>NFCWriter</a>s, and no received <a>NFC content</a> is
-      presented to any {{NFCReader}} while being suspended.
+      pushed by <a>NDEFWriter</a>s, and no received <a>NFC content</a> is
+      presented to any {{NDEFReader}} while being suspended.
     </p>
   </section>
 
@@ -2364,10 +2364,10 @@
   </p>
   </section> <!-- release NFC -->
 
-  <section data-dfn-for="NFCPushOptions"> <h3>The <dfn>NFCPushOptions</dfn> dictionary</h3>
+  <section data-dfn-for="NDEFPushOptions"> <h3>The <dfn>NDEFPushOptions</dfn> dictionary</h3>
     <pre class="idl">
-      dictionary NFCPushOptions {
-        NFCPushTarget target = "any";
+      dictionary NDEFPushOptions {
+        NDEFPushTarget target = "any";
         unrestricted double timeout = Infinity;
         boolean ignoreRead = true;
         boolean overwrite = true;
@@ -2377,12 +2377,12 @@
     <p>
       The <dfn>target</dfn> property
       denotes the intended target for the pending
-      [=NFCWriter/push()=]
+      [=NDEFWriter/push()=]
       operation.
     </p>
     <p>
       The <dfn>timeout</dfn> property
-      denotes the timeout for the pending [=NFCWriter/push()=]
+      denotes the timeout for the pending [=NDEFWriter/push()=]
       operation expressed in milliseconds. The default value is
       implementation-dependent. The value `Infinity` means there is
       no timeout, i.e. no timer is started. After the |timeout|
@@ -2403,18 +2403,18 @@
     </p>
     <p>
       The <dfn>signal</dfn> property allows to abort
-      the [=NFCWriter/push()=] operation.
+      the [=NDEFWriter/push()=] operation.
     </p>
   </section>
 
-  <section data-dfn-for="NFCPushTarget">
-    <h2>The <dfn>NFCPushTarget</dfn> enum</h2>
+  <section data-dfn-for="NDEFPushTarget">
+    <h2>The <dfn>NDEFPushTarget</dfn> enum</h2>
     <p>
       This enum defines the set of intended target values for the
-      [=NFCWriter/push()=] operation.
+      [=NDEFWriter/push()=] operation.
     </p>
     <pre class="idl">
-      enum NFCPushTarget {
+      enum NDEFPushTarget {
         "tag",
         "peer",
         "any"
@@ -2424,32 +2424,32 @@
       <dt><dfn>tag</dfn></dt>
       <dd>
         The enum value representing the intended target for the
-        [=NFCWriter/push()=] operation to be
+        [=NDEFWriter/push()=] operation to be
         a <a>NFC tag</a>.
       </dd>
       <dt><dfn>peer</dfn></dt>
       <dd>
         The enum value representing the intended target for the
-        [=NFCWriter/push()=] operation to be
+        [=NDEFWriter/push()=] operation to be
         a <a>NFC peer</a>.
       </dd>
       <dt><dfn>any</dfn></dt>
       <dd>
         The enum value representing the intended target for the
-        [=NFCWriter/push()=] operation to be
+        [=NDEFWriter/push()=] operation to be
         a <a>NFC tag</a> or a <a>NFC peer</a>.
       </dd>
     </dl>
-  </section> <!-- NFCPushTarget enum -->
+  </section> <!-- NDEFPushTarget enum -->
 
-  <section data-dfn-for="NFCScanOptions">
-    <h3>The <dfn>NFCScanOptions</dfn> dictionary</h3>
+  <section data-dfn-for="NDEFScanOptions">
+    <h3>The <dfn>NDEFScanOptions</dfn> dictionary</h3>
       <p>
         To describe which messages an application is interested in, the
-        <a>NFCScanOptions</a> dictionary is used:
+        <a>NDEFScanOptions</a> dictionary is used:
       </p>
       <pre class="idl">
-        dictionary NFCScanOptions {
+        dictionary NDEFScanOptions {
           USVString id = "";
           USVString recordType;
           USVString mediaType = "";
@@ -2458,7 +2458,7 @@
       </pre>
       <p>
         The <dfn>signal</dfn> property allows to abort the
-        [=NFCReader/scan()=] operation.
+        [=NDEFReader/scan()=] operation.
       </p>
       <p>
         The <dfn>id</dfn> property
@@ -2499,7 +2499,7 @@
           mediaType: "application/octet-stream"
         }
       </pre>
-  </section> <!-- NFCScanOptions -->
+  </section> <!-- NDEFScanOptions -->
 
   <section id="writing-or-pushing-content">
     <h3><dfn>Writing or pushing content</dfn></h3>
@@ -2516,7 +2516,7 @@
     <section><h3>The <strong>push()</strong> method</h3>
       <div id="steps-push">
         The
-        <dfn>NFCWriter.push</dfn> method, when invoked, MUST run the
+        <dfn>NDEFWriter.push</dfn> method, when invoked, MUST run the
         <dfn>push a message</dfn> algorithm:
         <ol class=algorithm>
           <li>
@@ -2526,7 +2526,7 @@
             Let |message:NDEFMessageSource| be the first argument.
           </li>
           <li>
-            Let |options:NFCPushOptions| be the second argument.
+            Let |options:NDEFPushOptions| be the second argument.
           </li>
           <li>
             If there is no underlying <a>NFC Adapter</a>, or if a connection
@@ -2636,7 +2636,7 @@
             Let |p:Promise| be the <a>pending push tuple</a>'s promise.
           </p>
           <li>
-            Let |writer:NFCWriter| be the <a>pending push tuple</a>'s writer.
+            Let |writer:NDEFWriter| be the <a>pending push tuple</a>'s writer.
           </li>
           <li>
             Let |timeout:number| be |writer|.[[\PushOptions]]'s timeout.
@@ -2677,10 +2677,10 @@
             Let |writer| be the <a>pending push tuple</a>'s writer.
           </li>
           <li>
-            Let |options:NFCPushOptions| be |writer|.[[\PushOptions]].
+            Let |options:NDEFPushOptions| be |writer|.[[\PushOptions]].
           </li>
           <li>
-            Let |target:NFCPushTarget| be |options|' target.
+            Let |target:NDEFPushTarget| be |options|' target.
           </li>
           <li>
             If the <a>NFC device</a> in proximity range does not expose
@@ -3387,17 +3387,17 @@
 
   <section> <h3>Listening for content</h3>
     <p>
-      If there are any {{NFCReader}} instances in <a>activated reader objects</a>
+      If there are any {{NDEFReader}} instances in <a>activated reader objects</a>
       then the <a>UA</a> MUST listen to <a>NDEF message</a>s.
     </p>
     <p>
       To listen for <a>NFC content</a>, the client MUST activate an
-      {{NFCReader}} instance by calling <a>NFCReader.scan()</a>. When attaching
+      {{NDEFReader}} instance by calling <a>NDEFReader.scan()</a>. When attaching
       an event listener for the "`reading`" event on it, <a>NFC content</a> is
       accessible to the client.
     </p>
     <p>
-      Each {{NFCReader}} can accept <a>NDEF message</a>s based on
+      Each {{NDEFReader}} can accept <a>NDEF message</a>s based on
       data type, and a record identifier (URL) filters.
     </p>
     <p>
@@ -3531,15 +3531,15 @@
 
     <section> <h3>The <strong>scan()</strong> method</h3>
       <p>
-        Incoming <a>NFC content</a> is matched using {{NFCReader}} instances.
+        Incoming <a>NFC content</a> is matched using {{NDEFReader}} instances.
       </p>
       <p>
-        When the <dfn>NFCReader.scan</dfn> method is invoked, the UA
+        When the <dfn>NDEFReader.scan</dfn> method is invoked, the UA
         MUST run the following
         <dfn id="steps-listen">NFC listen algorithm</dfn>:
         <ol class=algorithm>
           <li>
-            Let |reader:NFCReader| be the {{NFCReader}} instance.
+            Let |reader:NDEFReader| be the {{NDEFReader}} instance.
           </li>
           <li>
             Let |options| be first argument.
@@ -3575,7 +3575,7 @@
               </li>
               <li>
                 <a>Fire an event</a> named "`error`" at |reader|
-                using <a>NFCErrorEvent</a> with its error attribute
+                using <a>NDEFErrorEvent</a> with its error attribute
                 initialized to |e|.
               </li>
               <li>
@@ -3593,7 +3593,7 @@
               </li>
               <li>
                 <a>Fire an event</a> named "`error`" at |reader|
-                using <a>NFCErrorEvent</a> with its error attribute
+                using <a>NDEFErrorEvent</a> with its error attribute
                 initialized to |e|.
               </li>
               <li>
@@ -3609,7 +3609,7 @@
             <a data-cite="dom#abortsignal-abort-algorithms">add the following abort steps</a> to |reader|.<a>[[\Signal]]</a>:
             <ol>
               <li>
-                Remove the {{NFCReader}} instance from the <a>activated reader objects</a>.
+                Remove the {{NDEFReader}} instance from the <a>activated reader objects</a>.
               </li>
               <li>
                 If the <a>activated reader objects</a> [= list/is empty =], then make a request
@@ -3630,7 +3630,7 @@
                   </li>
                   <li>
                     <a>Fire an event</a> named "`error`" at |reader|
-                    using <a>NFCErrorEvent</a> with its error attribute
+                    using <a>NDEFErrorEvent</a> with its error attribute
                     initialized to |e|.
                   </li>
                   <li>
@@ -3651,7 +3651,7 @@
                   </li>
                   <li>
                     <a>Fire an event</a> named "`error`" at |reader|
-                    using <a>NFCErrorEvent</a> with its error attribute
+                    using <a>NDEFErrorEvent</a> with its error attribute
                     initialized to |e|.
                   </li>
                   <li>
@@ -3669,7 +3669,7 @@
                   </li>
                   <li>
                     <a>Fire an event</a> named "`error`" at |reader|
-                    using <a>NFCErrorEvent</a> with its error attribute
+                    using <a>NDEFErrorEvent</a> with its error attribute
                     initialized to |e|.
                   </li>
                   <li>
@@ -3706,7 +3706,7 @@
           <li>
             Otherwise, if the user has earlier denied permission for the calling
             <a>origin</a> for all future calls of
-            <a data-link-for="NFCReader">scan()</a>
+            <a data-link-for="NDEFReader">scan()</a>
             as well, then return `false`.
           </li>
           <li>
@@ -3800,7 +3800,7 @@
     </ol>
     </section>
 
-    <section data-link-for="NFCReadingEvent"><h3>Dispatching NFC content</h3>
+    <section data-link-for="NDEFReadingEvent"><h3>Dispatching NFC content</h3>
     <p>
       To <dfn>dispatch NFC content</dfn> given a |serialNumber:serialNumber|
       of type <a>serialNumber</a>, |message:NDEFMessage|
@@ -3808,7 +3808,7 @@
     </p>
     <ol class=algorithm>
       <li>
-        [= list/For each =] {{NFCReader}} instance |reader:NFCReader| in
+        [= list/For each =] {{NDEFReader}} instance |reader:NDEFReader| in
         the <a>activated reader objects</a>, run the following sub-steps:
         <ol>
           <li>
@@ -3829,7 +3829,7 @@
           </li>
           <li>
             <a>Fire an event</a> named "`reading`" at |reader|
-            using <a>NFCReadingEvent</a> with its <a>serialNumber</a> attribute
+            using <a>NDEFReadingEvent</a> with its <a>serialNumber</a> attribute
             initialized to |serialNumber| and <a>message</a> attribute
             initialized to |message|.
           </li>
