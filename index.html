@@ -1101,7 +1101,7 @@
     </p>
     <pre class="example">
       const reader = new NDEFReader();
-      reader.scan();
+      await reader.scan();
       reader.onreading = event => {
         const message = event.message;
 
@@ -1161,7 +1161,7 @@
     </p>
     <pre class="example">
       const reader = new NDEFReader();
-      reader.scan({ id: "https://mygame.com/mypath/mygame" });
+      await reader.scan({ id: "https://mygame.com/mypath/mygame" });
       reader.onreading = async event => {
         console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
 
@@ -1191,7 +1191,7 @@
     </p>
     <pre class="example">
       const reader = new NDEFReader();
-      reader.scan({
+      await reader.scan({
         recordType: "media",
         mediaType: "application/*json"
       });
@@ -1238,18 +1238,23 @@
     </p>
     <pre class="example">
       const reader = new NDEFReader();
-      reader.scan();
-      reader.onreading = event => {
-        const decoder = new TextDecoder();
-        for (const record of event.message.records) {
-          console.log("Record type:  " + record.recordType);
-          console.log("MIME type:    " + record.mediaType);
-          console.log("=== data ===\n" + decoder.decode(record.data));
-        }
-      };
+      reader.scan().then(() => {
 
-      const writer = new NDEFWriter();
-      writer.push("Pushing data is fun!", { target: "tag", ignoreRead: false });
+        reader.onreading = event => {
+          const decoder = new TextDecoder();
+          for (const record of event.message.records) {
+            console.log("Record type:  " + record.recordType);
+            console.log("MIME type:    " + record.mediaType);
+            console.log("=== data ===\n" + decoder.decode(record.data));
+          }
+        };
+  
+        const writer = new NDEFWriter();
+        return writer.push("Pushing data is fun!", { target: "tag", ignoreRead: false });
+        
+      }).catch(error => {
+        console.log(`Push failed :-( try again: ${error}.`);
+      });
     </pre>
   </section>
 
@@ -1261,7 +1266,7 @@
       const reader = new NDEFReader();
       const controller = new AbortController();
 
-      reader.scan({ signal: controller.signal });
+      await reader.scan({ signal: controller.signal });
       reader.onreading = event => {
         console.log("NDEF message read.");
       };
@@ -1332,7 +1337,7 @@
     </p>
     <pre class="example">
       const reader = new NDEFReader();
-      reader.scan({ recordType: "example.com:sp" });
+      await reader.scan({ recordType: "example.com:sp" });
       reader.onreading = event => {
         const socialPost = event.message.records[0];
         if (!socialPost) {
@@ -2074,9 +2079,8 @@
       constructor();
 
       attribute EventHandler onreading;
-      attribute EventHandler onerror;
 
-      void scan(optional NDEFScanOptions options={});
+      Promise&lt;void&gt; scan(optional NDEFScanOptions options={});
     };
 
     [SecureContext, Exposed=Window]
@@ -2091,18 +2095,6 @@
       DOMString? serialNumber = "";
       required NDEFMessageInit message;
     };
-
-    [SecureContext, Exposed=Window]
-    interface NDEFErrorEvent : Event {
-      constructor(DOMString type, NDEFErrorEventInit errorEventInitDict);
-
-      readonly attribute DOMException error;
-    };
-
-    dictionary NDEFErrorEventInit : EventInit {
-      required DOMException error;
-    };
-
   </pre>
   <p>
     The <dfn>NDEFMessageSource</dfn> is a union type representing argument types
@@ -2125,16 +2117,6 @@
     Though most tags will have a stable unique identifier (UID), not all
     have one and some tags even create a random number on each read.
     The serial number usually consists of 4 or 7 numbers, separated by `:`.
-  </p>
-  <p data-dfn-for="NDEFErrorEvent">
-    The <dfn>NDEFErrorEvent</dfn> is the event being dispatched on errors,
-    with the {{DOMException}} object as the <dfn>error</dfn>
-    attribute.
-  </p>
-  <p data-dfn-for="NDEFErrorEventInit">
-    <dfn>NDEFErrorEventInit</dfn> is used in order to initialize a new
-    event with a {{DOMException}} data via the <dfn>error</dfn>
-    member.
   </p>
   <p>
     The <dfn>NDEFWriter</dfn> is an object used for writing data to NFC devices
@@ -2238,10 +2220,6 @@
   <p>
     The <dfn data-dfn-for="NDEFReader">onreading</dfn> is an {{EventHandler}} which is called to notify
     that new reading is available.
-  </p>
-  <p>
-    The <dfn data-dfn-for="NDEFReader">onerror</dfn> is an {{EventHandler}} which is called to notify
-    that an error happened.
   </p>
   <section><h3>NFC state associated with the settings object</h3>
   <p>
@@ -3589,6 +3567,9 @@
         <dfn id="steps-listen">NFC listen algorithm</dfn>:
         <ol class=algorithm>
           <li>
+            Let |p:Promise| be a new {{Promise}} object.
+          </li>
+          <li>
             Let |reader:NDEFReader| be the {{NDEFReader}} instance.
           </li>
           <li>
@@ -3616,43 +3597,21 @@
             </ol>
           </li>
           <li>
-            If there is no underlying <a>NFC Adapter</a>, or if a connection cannot
-            be established, then
-            <ol>
-              <li>
-                Let |e| be the result of [= exception/create =] a
-                {{"NotSupportedError"}} {{DOMException}}.
-              </li>
-              <li>
-                <a>Fire an event</a> named "`error`" at |reader|
-                using <a>NDEFErrorEvent</a> with its error attribute
-                initialized to |e|.
-              </li>
-              <li>
-                Return.
-              </li>
-            </ol>
+            If there is no underlying <a>NFC Adapter</a>, or if a connection
+            cannot be established, then reject |p| with a
+            {{"NotSupportedError"}} {{DOMException}}
+            and return |p|.
           </li>
           <li>
             If the UA is not allowed to access the underlying <a>NFC Adapter</a>
-            (e.g. a user preference), then
-            <ol>
-              <li>
-                Let |e| be the result of [= exception/create =] a
-                {{"NotReadableError"}} {{DOMException}}.
-              </li>
-              <li>
-                <a>Fire an event</a> named "`error`" at |reader|
-                using <a>NDEFErrorEvent</a> with its error attribute
-                initialized to |e|.
-              </li>
-              <li>
-                Return.
-              </li>
-            </ol>
+            (e.g. a user preference), then reject |p| with a
+            {{"NotReadableError"}} {{DOMException}}
+            and return |p|.
           </li>
           <li>
-            If |reader|.<a>[[\Signal]]</a>'s [= AbortSignal/aborted flag =] is set, then return.
+            If |reader|.<a>[[\Signal]]</a>'s [= AbortSignal/aborted flag =] is
+            set, then reject |p| with a {{"AbortError"}} {{DOMException}}
+            and return |p|.
           </li>
           <li>
             If |reader|.<a>[[\Signal]]</a> is not `null`, then
@@ -3672,60 +3631,24 @@
             <ol>
               <li>
                 If the <a>obtain reading permission</a> steps return
-                `false`, then
-                <ol>
-                  <li>
-                    Let |e:DOMException| be the result of [= exception/create =] a
-                    {{"NotAllowedError"}} {{DOMException}}.
-                  </li>
-                  <li>
-                    <a>Fire an event</a> named "`error`" at |reader|
-                    using <a>NDEFErrorEvent</a> with its error attribute
-                    initialized to |e|.
-                  </li>
-                  <li>
-                    Return.
-                  </li>
-                </ol>
+                `false`, then reject |p| with a
+                {{"NotAllowedError"}} {{DOMException}}
+                and return |p|.
               </li>
               <li>
                 If this is the first listener being set up, then make a request to
                 all <a>NFC adapter</a>s to listen to <a>NDEF message</a>s.
               </li>
               <li>
-                If the request fails, then the UA may run the following sub-steps:
-                <ol>
-                  <li>
-                    Let |e:DOMException| be the result of [= exception/create =] a
-                    {{"NotSupportedError"}} {{DOMException}}.
-                  </li>
-                  <li>
-                    <a>Fire an event</a> named "`error`" at |reader|
-                    using <a>NDEFErrorEvent</a> with its error attribute
-                    initialized to |e|.
-                  </li>
-                  <li>
-                    Return.
-                  </li>
-                </ol>
+                If the request fails, then the UA MAY reject |p| with a
+                {{"NotSupportedError"}} {{DOMException}}
+                and return |p|.
               </li>
               <li>
                 If the |reader|.<a>[[\Id]]</a> is not an empty <a>string</a>
-                and it is not a <a>valid URL pattern</a>, then
-                <ol>
-                  <li>
-                    Let |e:DOMException| be the result of [= exception/create =] a
-                    {{"SyntaxError"}} {{DOMException}}.
-                  </li>
-                  <li>
-                    <a>Fire an event</a> named "`error`" at |reader|
-                    using <a>NDEFErrorEvent</a> with its error attribute
-                    initialized to |e|.
-                  </li>
-                  <li>
-                    Return.
-                  </li>
-                </ol>
+                and it is not a <a>valid URL pattern</a>, then reject |p| with a
+                {{"SyntaxError"}} {{DOMException}}
+                and return |p|.
               </li>
               <li>
                 Add |reader| to the <a>activated reader objects</a>.
