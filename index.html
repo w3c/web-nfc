@@ -1124,7 +1124,7 @@
             case "url":
               console.log(`URL: ${decoder.decode(record.data)}`);
               break;
-            case "media":
+            case "mime":
               if (record.mediaType === "application/json") {
                 console.log(`JSON: ${JSON.parse(decoder.decode(record.data))}`);
               }
@@ -1169,7 +1169,7 @@
         const newMessage = {
           records: [{
             id: "/mypath/mygame/update",
-            recordType: "media",
+            recordType: "mime",
             mediaType: "application/json",
             data: encoder.encode(JSON.stringify({
               level: 3,
@@ -1192,7 +1192,7 @@
     <pre class="example">
       const reader = new NDEFReader();
       await reader.scan({
-        recordType: "media",
+        recordType: "mime",
         mediaType: "application/*json"
       });
       reader.onreading = event => {
@@ -1211,7 +1211,7 @@
       writer.push({
         records: [
           {
-            recordType: "media",
+            recordType: "mime",
             mediaType: "application/json",
             data: encoder.encode(JSON.stringify({
               name: "Benny Jensen",
@@ -1219,7 +1219,7 @@
             }))
           },
           {
-            recordType: "media",
+            recordType: "mime",
             mediaType: "application/json",
             data: encoder.encode(JSON.stringify({
               name: "Zoey Braun",
@@ -1248,10 +1248,10 @@
             console.log("=== data ===\n" + decoder.decode(record.data));
           }
         };
-  
+
         const writer = new NDEFWriter();
         return writer.push("Pushing data is fun!", { target: "tag", ignoreRead: false });
-        
+
       }).catch(error => {
         console.log(`Push failed :-( try again: ${error}.`);
       });
@@ -1395,7 +1395,7 @@
                 data: "Game context given here"
               },
               {
-                recordType: "media",
+                recordType: "mime",
                 mediaType: "image/png"
                 data: getImageBytes(fromURL);
               }
@@ -1736,7 +1736,7 @@
       for certain <a>record types</a>:
       <ul>
         <li data-dfn-for="NDEFRecordInit">
-          "<a>media</a>": Optional <a>MIME type</a> <dfn>mediaType</dfn>.
+          "<a>mime</a>": Optional <a>MIME type</a> <dfn>mediaType</dfn>.
         </li>
         <li data-dfn-for="NDEFRecordInit">
           "<a>text</a>": Optional [=encoding/label|encoding label=] <dfn>encoding</dfn>
@@ -1805,7 +1805,7 @@
         <dd>
           The value representing a <a>absolute-URL record</a>.
         </dd>
-        <dt>The "<dfn>media</dfn>" string</dt>
+        <dt>The "<dfn>mime</dfn>" string</dt>
         <dd>
           The value representing a <a>MIME type record</a>.
         </dd>
@@ -1937,7 +1937,7 @@
       <td>[=local type name=]</td>
     </tr>
     <tr>
-      <td><dfn>"`media`"</dfn></td>
+      <td><dfn>"`mime`"</dfn></td>
       <td>[= MIME type =]</a></td>
       <td>{{BufferSource}}</td>
       <td><a>MIME type record</a></td>
@@ -2028,7 +2028,7 @@
       <td>[=MIME type record=]</td>
       <td>2</td>
       <td>[=MIME type=]</td>
-      <td>"`media`"</td>
+      <td>"`mime`"</td>
       <td>The <a>MIME type</a> used in the NDEF record</td>
     </tr>
     <tr>
@@ -2514,7 +2514,7 @@
         class="example highlight">
         const options = {
           id: "https://www.w3.org/*",  // any path from the domain is accepted
-          recordType: "media",
+          recordType: "mime",
           mediaType: "application/*json"  // any JSON-based MIME type
         }
       </pre>
@@ -2523,7 +2523,7 @@
         class="example highlight">
         const options = {
           id: "https://w3.org/info/restaurant/daily-menu/",
-          recordType: "media",
+          recordType: "mime",
           mediaType: "application/octet-stream"
         }
       </pre>
@@ -2885,7 +2885,7 @@
                     {{DOMString}}, then set |record|'s recordType to "`text`".
                   </li>
                   <li>
-                    Otherwise, set |record|'s recordType to "`media`".
+                    Otherwise, set |record|'s recordType to "`mime`".
                   </li>
                 </ol>
               </li>
@@ -2911,7 +2911,7 @@
                       <a>map a URL to NDEF</a>.
                     </li>
                   </ul>
-                  <dt>"`media`"</dt>
+                  <dt>"`mime`"</dt>
                   <ul>
                     <li>
                       <a>map binary data to NDEF</a>.
@@ -3012,7 +3012,7 @@
         <p class="note">
           This is useful when clients specifically want to write text in a
           [=well-known type record=].
-          Other options would be to use the value "`media`"
+          Other options would be to use the value "`mime`"
           with an explicit <a>MIME type</a> text type, which allows for
           better differentiation, e.g. when using "`text/xml`", or
           "`text/vcard`".
@@ -4154,7 +4154,7 @@
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm>
         <li>
-          Set |record|'s recordType to "`media`".
+          Set |record|'s recordType to "`mime`".
         </li>
         <li>
           Set |record|'s mediaType to the result of
@@ -4228,7 +4228,7 @@
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm>
         <li>
-          Set |record|'s recordType to "`media`".
+          Set |record|'s recordType to "`mime`".
         </li>
         <li>
           Set |record|'s mediaType to "`application/octet-stream`".
