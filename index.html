@@ -1383,12 +1383,12 @@
       const writer = new NDEFWriter();
       writer.push({ records: [
         {
-          recordType: "external",
+          recordType: "example.game:a",
           data: {
             records: [
               {
                 recordType: "url",
-                data: "https://my.org/game/19911"
+                data: "https://example.game/42"
               },
               {
                 recordType: "text",
