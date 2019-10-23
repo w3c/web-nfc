@@ -881,17 +881,17 @@
     <ol>
       <li>
         Reading an <a>NFC tag</a> containing an <a>NDEF message</a>, when the
-        {{Document}} of the <a>top-level browsing context</a> using the Web NFC API
+        {{Document}} of the <a>top-level browsing context</a> using Web NFC
         is <a>visible</a>. For instance, a web page instructs the user
         to tap an NFC tag, and then receives information from the tag.
       </li>
       <li>
         Reading an <a>NFC tag</a> containing other than <a>NDEF message</a>,
-        when the {{Document}} of the <a>top-level browsing context</a> using the
-        Web NFC API is <a>visible</a>.
+        when the {{Document}} of the <a>top-level browsing context</a> using
+        Web NFC is <a>visible</a>.
       </li>
       <li>
-        Reading an <a>NFC tag</a> when no {{Document}} using the Web NFC API is
+        Reading an <a>NFC tag</a> when no {{Document}} using Web NFC is
         <a>visible</a>.
         <p class="note">
           This use case is not supported in this version of the specification.
@@ -964,7 +964,7 @@
       payment using NFC technology.
       In general, touching the device to the point of sales terminal receiver
       area will result in a transaction between the secure element from the
-      device and the point of sales terminal. With the Web NFC API, if the
+      device and the point of sales terminal. With Web NFC, if the
       user navigates to a web site before paying, there may be interaction
       with that site regarding the payment, e.g. the user could get points and
       discounts, or get delivered application or service specific data (e.g.
@@ -1020,7 +1020,7 @@
   </p>
   <p>
     This specification makes a few simplifications in what use cases
-    and data types the Web NFC API can handle:
+    and data types Web NFC can handle:
     <ul>
       <li>
         Expose data types already known to web browsers as
@@ -1412,7 +1412,7 @@
 <section> <h2 id="security">Security and Privacy</h2>
   <p>
     The trust model, attacker model, threat model and possible mitigation
-    proposals for the Web NFC API are presented in the
+    proposals for Web NFC are presented in the
     <a href="http://w3c.github.io/web-nfc/security-privacy.html">
     Security and Privacy</a> document. This section presents the chosen
     security and privacy model through normative requirements to
@@ -1421,7 +1421,7 @@
 
   <section> <h3>Chain of trust</h3>
   <p>
-    Web pages using the Web NFC API are not trusted.
+    Web pages using Web NFC are not trusted.
     This means that the user needs to be aware of exactly what a web page is
     intending to do with NFC at any given moment. Implementations need to
     make sure that when the user authorizes a method of this API, then only that
@@ -1540,7 +1540,7 @@
       <p>
         Since all local content that a web page has access to can be shared with
         NFC, the user needs to be clearly aware about the permissions granted
-        to the web page using the Web NFC API.
+        to the web page using Web NFC.
       </p>
     </section>
     <section> <h4>Store site URL as record identifier when writing data</h4>
