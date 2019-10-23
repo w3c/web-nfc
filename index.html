@@ -3023,7 +3023,7 @@
         </p>
         <ol class=algorithm>
           <li>
-            If the type of a |record|'s data is not a {{DOMString}},
+            If the type of a |record|'s data is not a {{DOMString}} or a {{BufferSource}},
             [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
@@ -3096,16 +3096,30 @@
                 Set position 1 (second <a>byte</a>) to position |languageLength|
                 of |data| to |language|.
               </li>
-              <li>
-                Let |stream:byte stream| be the resulting
-                <a data-cite="encoding#concept-stream">byte stream</a> of
-                running <a>UTF-8 encode</a> on |record|'s data.
-              </li>
-              <li>
-                <a data-cite="encoding#concept-stream-read">Read</a> bytes from |stream| into
-                |data| (from position |languageLength| + 1) until
-                <a data-cite="encoding#concept-stream-read">read</a>
-                returns <a data-cite="encoding#end-of-stream">end-of-stream</a>.
+              <li>Switch on type of a |record|'s data:
+                <dl>
+                  <dt>{{DOMString}}</dt>
+                  <ol>
+                    <li>
+                      Let |stream:byte stream| be the resulting
+                      <a data-cite="encoding#concept-stream">byte stream</a> of
+                      running <a>UTF-8 encode</a> on |record|'s data.
+                    </li>
+                    <li>
+                      <a data-cite="encoding#concept-stream-read">Read</a> bytes from |stream| into
+                      |data| (from position |languageLength| + 1) until
+                      <a data-cite="encoding#concept-stream-read">read</a>
+                      returns <a data-cite="encoding#end-of-stream">end-of-stream</a>.
+                    </li>
+                  </ol>
+                  <dt>{{BufferSource}}</dt>
+                  <ol>
+                    <li>
+                      Set bytes from |record|'s data into |data|
+                      (from position |languageLength| + 1) .
+                    </li>
+                    </ol>
+                </dl>
               </li>
             </ol>
           </li>
