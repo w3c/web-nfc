@@ -562,10 +562,12 @@
         <li>
           <p>
             NFC Forum <dfn>local type</dfn> that are defined by the NFC Forum or
-            by an application, within the scope of the local context of another
-            record or application and always start with lowercase letter or a
-            number. See <a>Smart poster</a> for an example on how local types are
-            used.
+            by an application, and always start with lowercase letter or a
+            number. Those are usually short strings that are unique only within
+            the local context of the containing record. They are used when types
+            meaning doesn't matter outside of the local context of the
+            containing record and when storage usage is a hard constraint. See
+            <a>Smart poster</a> for an example on how local types are used.
           </p>
           <p class=note>
             A [=local type=] is thus defined in terms of a containing record type,
