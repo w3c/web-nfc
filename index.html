@@ -1203,7 +1203,6 @@
     <pre class="example">
       const reader = new NDEFReader();
       await reader.scan({
-        recordType: "mime",
         mediaType: "application/*json"
       });
       reader.onreading = event => {
@@ -1623,7 +1622,7 @@
         constructor(NDEFRecordInit recordInit);
 
         readonly attribute USVString recordType;
-        readonly attribute USVString mediaType;
+        readonly attribute USVString? mediaType;
         readonly attribute USVString id;
         readonly attribute DataView? data;
 
@@ -2008,35 +2007,35 @@
       <td>0</td>
       <td><i>unused</i></td>
       <td>"`empty`"</td>
-      <td>""</td>
+      <td>`undefined`</td>
     </tr>
     <tr>
       <td>[=Well-known type record=]</td>
       <td>1</td>
       <td>"`T`"</td>
       <td>"`text`"</td>
-      <td>"`text/plain`"</td>
+      <td>`undefined`</td>
     </tr>
     <tr>
       <td>[=Well-known type record=]</td>
       <td>1</td>
       <td>"`U`"</td>
       <td>"`url`"</td>
-      <td>"`text/plain`"</td>
+      <td>`undefined`</td>
     </tr>
     <tr>
       <td>[=Well-known type record=]</td>
       <td>1</td>
       <td>"`Sp`"</td>
       <td nowrap>"`smart-poster`"</td>
-      <td>""</td>
+      <td>`undefined`</td>
     </tr>
     <tr>
       <td>[=Local type=] record*</td>
       <td>1</td>
       <td>[=local type name=]</td>
       <td>[=local type name=]</td>
-      <td>"`application/octet-stream`"</td>
+      <td>`undefined`</td>
     </tr>
     <tr>
       <td>[=MIME type record=]</td>
@@ -2050,21 +2049,21 @@
       <td>3</td>
       <td>URL</td>
       <td>"`absolute-url`"</td>
-      <td>""</td>
+      <td>`undefined`</td>
     </tr>
     <tr>
       <td>[=External type record=]</a></td>
       <td>4</td>
       <td>[=external type name=]</td>
       <td>[=external type name=]</td>
-      <td>"`application/octet-stream`"</td>
+      <td>`undefined`</td>
     </tr>
     <tr>
       <td><a>Unknown record</a></td>
       <td>5</td>
       <td><i>unused</i></td>
       <td>"`unknown`"</td>
-      <td>"`application/octet-stream`"</td>
+      <td>`undefined`</td>
     </tr>
   </table>
   </section>
@@ -2528,7 +2527,6 @@
         class="example highlight">
         const options = {
           id: "https://www.w3.org/*",  // any path from the domain is accepted
-          recordType: "mime",
           mediaType: "application/*json"  // any JSON-based MIME type
         }
       </pre>
@@ -2537,7 +2535,6 @@
         class="example highlight">
         const options = {
           id: "https://w3.org/info/restaurant/daily-menu/",
-          recordType: "mime",
           mediaType: "application/octet-stream"
         }
       </pre>
@@ -3035,21 +3032,6 @@
           <li>
             If the type of |record|'s data is not a {{DOMString}} or a {{BufferSource}},
             [= exception/throw =] a {{TypeError}} and abort these steps.
-          </li>
-          <li>
-            Let |mimeTypeRecord| be the <a>MIME type</a>
-            returned by running <a>parse a MIME type</a> on
-            |record|'s mediaType.
-            <ol>
-              <li>
-                If |mimeTypeRecord| is failure, let |mimeTypeRecord| be a new
-                <a>MIME type record</a> whose type is "`text`", and subtype is "`plain`".
-              </li>
-              <li>
-                If |mimeTypeRecord|'s type is not "`text`", then [= exception/throw =] a
-                {{"SyntaxError"}} {{DOMException}} and abort these steps.
-              </li>
-            </ol>
           </li>
           <li>
             Let |documentLanguage:string| be the [=document element=]'s lang attribute.
@@ -3952,7 +3934,7 @@
       </li>
       <li>
         If |ndef|'s |typeNameField:number| is `0` (<a>empty record</a>), then set
-        |record|'s recordType to "`empty`" and set |record|'s mediaType to `""`.
+        |record|'s recordType to "`empty`".
       </li>
       <li>
         If |ndef|'s |typeNameField| is `1` ([=well-known type record=]):
@@ -4023,8 +4005,8 @@
         equal to an empty ordered map.
       </li>
       <li>
-        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set |record|'s mediaType to |mimeType|,
-        set |record|.<a>[[\PayloadData]]</a> to `undefined` and return |record|.
+        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set
+        |record|.<a>[[\PayloadData]]</a> to `undefined` and return |record|.
       </li>
       <li>
         Let |header:byte| be the first <a>byte</a> of |ndefRecord|'s
@@ -4044,11 +4026,6 @@
       <li>
         Set |record|'s encoding be "`utf-8`" if bit `7` ([=MB field=]) of |header|
         is equal to the value `0`, or else "`utf-16be`".
-      </li>
-      <li>
-        Set |record|'s mediaType to the result of
-        <a>serialize a MIME type</a> with |mimeType| as
-        the input.
       </li>
       <li>
         Let |buffer:byte sequence| be the <a>byte sequence</a> of
@@ -4113,9 +4090,6 @@
         Set |record|'s recordType to "`url`".
       </li>
       <li>
-        Set |record|'s mediaType to "`text/plain`".
-      </li>
-      <li>
         If |ndefRecord|'s <a>PAYLOAD field</a> is not present,
         set |record|.<a>[[\PayloadData]]</a> to `undefined` and return |record|.
       </li>
@@ -4155,9 +4129,6 @@
     <ol class=algorithm>
       <li>
         Set |record|'s recordType to "`smart-poster`".
-      </li>
-      <li>
-        Set |record|'s mediaType to "".
       </li>
       <li>
         If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set |record|.<a>[[\PayloadData]]</a> to `undefined` and return |record|.
@@ -4212,9 +4183,6 @@
           Set |record|'s recordType to "`absolute-url`".
         </li>
         <li>
-          Set |record|'s mediaType to "`text/plain`".
-        </li>
-        <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
           |ndefRecords|'s <a>TYPE field</a>.
         </li>
@@ -4232,9 +4200,6 @@
       <ol class=algorithm>
         <li>
           Set |record|'s recordType to the value of |ndefRecord|'s <a>TYPE field</a>.
-        </li>
-        <li>
-          Set |record|'s mediaType to "`application/octet-stream`".
         </li>
         <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
@@ -4257,9 +4222,6 @@
       <ol class=algorithm>
         <li>
           Set |record|'s recordType to "`mime`".
-        </li>
-        <li>
-          Set |record|'s mediaType to "`application/octet-stream`".
         </li>
         <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
