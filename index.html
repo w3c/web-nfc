@@ -1203,7 +1203,6 @@
     <pre class="example">
       const reader = new NDEFReader();
       await reader.scan({
-        recordType: "mime",
         mediaType: "application/*json"
       });
       reader.onreading = event => {
@@ -2528,7 +2527,6 @@
         class="example highlight">
         const options = {
           id: "https://www.w3.org/*",  // any path from the domain is accepted
-          recordType: "mime",
           mediaType: "application/*json"  // any JSON-based MIME type
         }
       </pre>
@@ -2537,7 +2535,6 @@
         class="example highlight">
         const options = {
           id: "https://w3.org/info/restaurant/daily-menu/",
-          recordType: "mime",
           mediaType: "application/octet-stream"
         }
       </pre>
