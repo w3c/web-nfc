@@ -2007,35 +2007,35 @@
       <td>0</td>
       <td><i>unused</i></td>
       <td>"`empty`"</td>
-      <td>`null`</td>
+      <td>`undefined`</td>
     </tr>
     <tr>
       <td>[=Well-known type record=]</td>
       <td>1</td>
       <td>"`T`"</td>
       <td>"`text`"</td>
-      <td>`null`</td>
+      <td>`undefined`</td>
     </tr>
     <tr>
       <td>[=Well-known type record=]</td>
       <td>1</td>
       <td>"`U`"</td>
       <td>"`url`"</td>
-      <td>`null`</td>
+      <td>`undefined`</td>
     </tr>
     <tr>
       <td>[=Well-known type record=]</td>
       <td>1</td>
       <td>"`Sp`"</td>
       <td nowrap>"`smart-poster`"</td>
-      <td>`null`</td>
+      <td>`undefined`</td>
     </tr>
     <tr>
       <td>[=Local type=] record*</td>
       <td>1</td>
       <td>[=local type name=]</td>
       <td>[=local type name=]</td>
-      <td>`null`</td>
+      <td>`undefined`</td>
     </tr>
     <tr>
       <td>[=MIME type record=]</td>
@@ -2049,21 +2049,21 @@
       <td>3</td>
       <td>URL</td>
       <td>"`absolute-url`"</td>
-      <td>`null`</td>
+      <td>`undefined`</td>
     </tr>
     <tr>
       <td>[=External type record=]</a></td>
       <td>4</td>
       <td>[=external type name=]</td>
       <td>[=external type name=]</td>
-      <td>`null`</td>
+      <td>`undefined`</td>
     </tr>
     <tr>
       <td><a>Unknown record</a></td>
       <td>5</td>
       <td><i>unused</i></td>
       <td>"`unknown`"</td>
-      <td>`null`</td>
+      <td>`undefined`</td>
     </tr>
   </table>
   </section>
@@ -3240,6 +3240,16 @@
             If the type of a |record|'s data is not a
             {{BufferSource}}, [= exception/throw =] a {{TypeError}}
             and abort these steps.
+          </li>
+          <li>
+            Let |mimeTypeRecord| be the <a>MIME type</a>
+            returned by running <a>parse a MIME type</a> on |record|'s mediaType.
+            <ol>
+              <li>
+                If |mimeTypeRecord| is failure, let |mimeTypeRecord| be a new
+                <a>MIME type record</a> whose type is "`application`", and subtype is "`octet-stream`".
+              </li>
+            </ol>
           </li>
           <li>
             Set |arrayBuffer| to |record|'s data.
