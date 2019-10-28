@@ -195,7 +195,7 @@
   <p>
     As NFC is based on existing RFID standards, many NFC chipsets support
     reading RFID tags, but some of these are only supported by single
-    vendors and not part of the NFC standards. As such this document
+    vendors and not part of the NFC standards. As such, this document
     specifies ways to interact with the NFC Data Exchange Format (NDEF).
   </p>
 </section> <!-- Introduction -->
@@ -246,7 +246,7 @@
   </section>
   <section> <h3>NFC specific terms</h3>
   <p>
-    <b>NFC</b> stands for Near Field Communications, short-range wireless
+    <b>NFC</b> stands for Near Field Communications, a short-range wireless
     technology operating at 13.56 MHz which enables communication between
     devices at a distance less than 10 cm. The NFC communications protocols and
     data exchange formats, and are based on existing radio-frequency
@@ -312,7 +312,7 @@
     <p>
       In addition to that, the <a>MIFARE Standard</a> specifies a way
       for NDEF to work on top of the older <a>MIFARE Standard</a>, which may
-      be optionally supported by implementors.
+      be optionally supported by implementers.
     </p>
     <p>
       A note about the NDEF mapping can be found here:
@@ -325,7 +325,7 @@
           <dfn>NFC Forum Type 1</dfn>: This tag is based on the ISO/IEC 14443-3A
           (NFC-A). The tags are rewritable and can be
           configured to become read-only. Memory size can be between `96` bytes and
-          `2` Kbytes. Communication speed is `106` kbit/sec. In contract to all other
+          `2` Kbytes. Communication speed is `106` kbit/sec. In contrast to all other
           types, these tags have no anti-collision protection for dealing with multiple
           tags within the NFC field.
         </li>
@@ -358,7 +358,7 @@
           is limited to short distance and may use the <i>Active Communication Mode</i> of
           ISO/IEC 18092 where the sending peer generates the field which balances
           power consumption and improves link stability. Variable memory, up to `64` kbytes.
-          Communiction speed `26.48` kbit/s
+          Communication speed `26.48` kbit/s
         </li>
         <li>
           <dfn>MIFARE Standard</dfn>: This tag, often sold under the brand names MIFARE
@@ -378,7 +378,7 @@
     <p>
       In addition to data types standardized for <a>NDEF record</a>s by the NFC
       Forum, many commercial products such as bus cards, door openers may be based
-      on the <a>MIFARE Standard</a> which require specific NFC chips (same vendor of
+      on the <a>MIFARE Standard</a> which requires specific NFC chips (same vendor of
       card and reader) in order to function.
     </p>
     <p>
@@ -543,7 +543,7 @@
       [[NFC-RTD]] (Resource Type Definition specifications) called
       <dfn>well-known type</dfn>s, for instance text, URL, media and
       opaque binary data. In addition, there are record types designed for more
-      complex interactions, such as smart poster (containing optional embedded
+      complex interactions, such as smart posters (containing optional embedded
       records for url, text, signature and actions), and handover records.
     </p>
     <p>
@@ -571,7 +571,7 @@
           </p>
           <p class=note>
             A [=local type=] is thus defined in terms of a containing record type,
-            and thus don't need any namespacing. For this reason the same local type
+            and thus doesn't need any namespacing. For this reason the same local type
             name can be used within another record type with different meaning and
             different payload type.
           </p>
@@ -970,7 +970,7 @@
       Payment scenarios with Web NFC generally do not refer to supporting
       the payment process itself, but associating the payment status with
       a web page in order to have secondary actions. For instance,
-      the user buys goods in a store, and payments options include contactless
+      the user buys goods in a store, and payment options include contactless
       payment using NFC technology.
       In general, touching the device to the point of sales terminal receiver
       area will result in a transaction between the secure element from the
@@ -1012,7 +1012,7 @@
       </li>
       <li>
         Allow users to write a payload via <a>NDEF record</a>s to compatible
-        devices, such as writeable tags, when they come in range, as
+        devices, such as writable tags, when they come in range, as
         <a>NDEF message</a>s.
       </li>
       <li>
@@ -1164,7 +1164,7 @@
       the <a>NDEFScanOptions</a>. Below we accept the record identifier URL with
       "`/mypath/mygame/`" in its path from "`mygame.com`"
       domain and its subdomains. When we read the data, we immediately update
-      the game progress by issueing a push with a custom NDEF data layout.
+      the game progress by issuing a push with a custom NDEF data layout.
     </p>
     <p>
       The example allows reading and pushing to both peers and tags,
@@ -1881,7 +1881,7 @@
         The binary representation of any <a>well-known type</a> and
         <a>external type</a> MUST be written as a relative URI (RFC 3986),
         omitting the namespace identifier (NID) "`nfc`" and namespace specific
-        string (NSS) "`wkt`" and "`ext`", respecively, i.e. omitting the
+        string (NSS) "`wkt`" and "`ext`", respectively, i.e. omitting the
         "`urn:nfc:wkt:`" and "`urn:nfc:ext:`" prefixes.
         For instance, "`urn:nfc:ext:company.com:a" is stored as "`company.com:a`"
         and the <a>well-known type</a> of a <a>Text record</a> is
@@ -2549,7 +2549,7 @@
       This section describes how to write an <a>NDEF message</a>
       to an <a>NFC tag</a> or how to push it to an <a>NFC peer</a>
       device when it is next time in proximity range before a timer expires.
-      At any time there is at maximum of two
+      At any time there is a maximum of two
       <a>NDEF message</a>s that can be set for pushing for an <a>origin</a>:
       one targeted to <a>NFC tag</a>s and one to <a>NFC peer</a>s, until
       the current message is sent, a timeout happens, or the push is
@@ -2793,7 +2793,7 @@
                 </p>
                 <p class="note">
                   Multiple adapters should be used sequentially by users.
-                  There is very small likelihood that a simultaneous tap
+                  There is very little likelihood that a simultaneous tap
                   will happen on two or multiple different and connected
                   <a>NFC adapter</a>s.
                   If it happens, the user will likely need to repeat the
@@ -3454,7 +3454,7 @@
     </p>
     <p>
       Each {{NDEFReader}} can accept <a>NDEF message</a>s based on
-      data type, and a record identifier (URL) filters.
+      data type, and record identifier (URL) filters.
     </p>
     <p>
       Filtering by a <a>record identifier</a> URL pattern, means that it will
@@ -3769,7 +3769,7 @@
         which has been received.
         <p class="note">
            The UA SHOULD represent an unformatted <a>NFC tag</a> as an
-           <a>NDEF message</a> containing no <a>NDEF record</a>s, i.e. an empy
+           <a>NDEF message</a> containing no <a>NDEF record</a>s, i.e. an empty
            array for its [=NDEFMessage/records=] property.
         </p>
       </li>
@@ -3854,7 +3854,7 @@
         As long as there are unread bytes of |bytes|, run the following sub-steps:
         <ol>
           <li>
-            If remaining length of |bytes| is less than `3`, abort these sub-steps.
+            If the remaining length of |bytes| is less than `3`, abort these sub-steps.
           </li>
           <li>
             If any of the following steps requires reading bytes beyond the
