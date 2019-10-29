@@ -1415,6 +1415,51 @@
       ]});
     </pre>
   </section>
+
+  <section> <h3>Push and read unknown records inside an external record</h3>
+    <p>
+      Unknown type records may be useful inside external type records as
+      developers know what they represent and therefore can avoid specifying the
+      mime type.
+    </p>
+    <pre class="example">
+      const encoder = new TextEncoder();
+      const writer = new NDEFWriter();
+      writer.push({ records: [
+        {
+          recordType: "example.com:shoppingItem", // External record
+          data: {
+            records: [
+              {
+                recordType: "unknown", // Shopping item name
+                data: encoder.encode("Food")
+              },
+              {
+                recordType: "unknown", // Shopping item description
+                data: encoder.encode("Provide nutritional support for an organism.")
+              }
+            ]
+          }
+        }
+      ]});
+    </pre>
+    <pre class="example">
+      const reader = new NDEFReader();
+      reader.scan({ recordType: "example.com:shoppingItem" });
+      reader.onreading = event => {
+        const shoppingItemRecord = event.message.records[0];
+        if (!shoppingItemRecord) {
+          return;
+        }
+
+        const [nameRecord, descriptionRecord] = shoppingItemRecord.toRecords();
+
+        const decoder = new TextDecoder();
+        console.log("Item name: " + decoder.decode(nameRecord.data));
+        console.log("Item description: " + decoder.decode(descriptionRecord.data));
+      };
+    </pre>
+  </section>
 </section> <!-- Usage examples -->
 
 <!-- - - - - - - - - - - - - Security and Privacy - - - - - - - - - - - - - -->
