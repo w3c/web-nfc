@@ -1,5 +1,4 @@
-Web NFC
-=======
+# Web NFC  ![](https://storage.googleapis.com/material-icons/external-assets/v4/icons/svg/ic_nfc_black_24px.svg)
 
 This is the repository for the [Web NFC Community Group](https://www.w3.org/community/web-nfc/) and the [Web NFC](https://w3c.github.io/web-nfc/) API specification.
 
