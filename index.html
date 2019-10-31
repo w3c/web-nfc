@@ -2210,13 +2210,6 @@
         It is initially unset.
       </td>
      </tr>
-     <tr>
-      <td><dfn>[[\PushTimer]]</dfn></td>
-      <td>`null`</td>
-      <td>
-        A timer associated with the writer.
-      </td>
-     </tr>
     </tbody>
   </table>
 
@@ -2378,27 +2371,6 @@
     </p>
   </section>
 
-  <section><h3>Clearing the pending push tuple</h3>
-  <p>
-    To <dfn>clear the pending push tuple</dfn> on an
-    <a>environment settings object</a>, perform the following steps:
-    <ol class=algorithm>
-      <li>
-        If there is no <a>pending push tuple</a> |tuple|, abort these steps.
-      </li>
-      <li>
-        Let |writer| be the <a>pending push tuple</a>'s writer.
-      </li>
-      <li>
-        Stop |writer|.[[\PushTimer]] if active.
-      </li>
-      <li>
-        Clear |tuple|.
-      </li>
-    </ol>
-  </p>
-</section>
-
   <section><h3>Aborting pending push operation</h3>
   <p>
     To attempt to <dfn>abort a pending push operation</dfn> on an
@@ -2455,7 +2427,6 @@
     <pre class="idl">
       dictionary NDEFPushOptions {
         NDEFPushTarget target = "any";
-        unrestricted double timeout = Infinity;
         boolean ignoreRead = true;
         boolean overwrite = true;
         AbortSignal? signal;
@@ -2466,15 +2437,6 @@
       denotes the intended target for the pending
       [=NDEFWriter/push()=]
       operation.
-    </p>
-    <p>
-      The <dfn>timeout</dfn> property
-      denotes the timeout for the pending [=NDEFWriter/push()=]
-      operation expressed in milliseconds. The default value is
-      implementation-dependent. The value `Infinity` means there is
-      no timeout, i.e. no timer is started. After the |timeout|
-      expires, the message set for pushing is cleared, an error is returned,
-      and a new <a>NDEF message</a> can be set for pushing.
     </p>
     <p>
       When the value of the <dfn>ignoreRead</dfn> property is
@@ -2595,8 +2557,7 @@
       At any time there is a maximum of two
       <a>NDEF message</a>s that can be set for pushing for an <a>origin</a>:
       one targeted to <a>NFC tag</a>s and one to <a>NFC peer</a>s, until
-      the current message is sent, a timeout happens, or the push is
-      aborted.
+      the current message is sent or the push is aborted.
     </p>
     <section><h3>The <strong>push()</strong> method</h3>
       <div id="steps-push">
@@ -2653,8 +2614,8 @@
             [=promise/React=] to |p|:
             <ol>
               <li>
-                if |p| was settled (fulfilled or rejected), then run the
-                <a>clear the pending push tuple</a> steps.
+                If |p| was settled (fulfilled or rejected), then clear the
+                <a>pending push tuple</a> if it exists.
               </li>
             </ol>
           </li>
@@ -2696,58 +2657,16 @@
                   Set <a>pending push tuple</a> to (`this`, |p|).
                 </li>
                 <li>
-                  Run the <a>start the push timer</a> steps.
-                </li>
-                <li>
                   Run the <a>start the NFC push</a> steps whenever an
                   <a>NFC device</a> |device| comes within communication range.
                 </li>
                 <p class="note">
-                  If <a>NFC is suspended</a>,
-                  continue waiting until |timer| expires (if set), or
-                  promise is aborted by the user, or until an <a>NFC device</a>
-                  comes within communication range.
+                  If <a>NFC is suspended</a>, continue waiting until promise is
+                  aborted by the user or an <a>NFC device</a> comes within
+                  communication range.
                 </p>
               </ol>
             </li>
-          </li>
-        </ol>
-      </div>
-
-      <div id="steps-push-timer">
-        To <dfn>start the push timer</dfn>, run these steps:
-        <ol class=algorithm>
-          <p>
-            Let |p:Promise| be the <a>pending push tuple</a>'s promise.
-          </p>
-          <li>
-            Let |writer:NDEFWriter| be the <a>pending push tuple</a>'s writer.
-          </li>
-          <li>
-            Let |timeout:number| be |writer|.[[\PushOptions]]'s timeout.
-            <ul>
-              <li>
-                If |timeout| value is `NaN` or negative, reject
-                |p| with a {{TypeError}} and abort these steps.
-              </li>
-              <li>
-                If |timeout| value is not supported by the UA, reject
-                |p| with a {{"NotSupportedError"}}
-                {{DOMException}} and abort these steps.
-              </li>
-              <li>
-                If |timeout| value is equal to `Infinity`, abort these
-                steps.
-              </li>
-            </ul>
-          </li>
-          <li>
-            Start a timer |timer| with the timeout value set to
-            |timeout| and set |writer|.[[\PushTimer]] to |timer|.
-          </li>
-          <li>
-            When |timer| expires, reject |p| with {{"TimeoutError"}}
-            {{DOMException}}.
           </li>
         </ol>
       </div>
@@ -2792,9 +2711,6 @@
           <li>
             In case of success, run the following steps:
             <ol>
-              <li>
-                Stop |writer|.[[\PushTimer]] if active.
-              </li>
               <li>
                 If |device| is an <a>NFC tag</a>,
                 <ul>
