@@ -1446,7 +1446,7 @@
     </pre>
     <pre class="example">
       const reader = new NDEFReader();
-      reader.scan({ recordType: "example.com:shoppingItem" });
+      await reader.scan({ recordType: "example.com:shoppingItem" });
       reader.onreading = event => {
         const shoppingItemRecord = event.message.records[0];
         if (!shoppingItemRecord) {
