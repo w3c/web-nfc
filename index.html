@@ -1053,6 +1053,18 @@
     this specification.
   </p>
 
+  <section><h3>Feature support</h3>
+    <p>
+      Detecting if Web NFC is supported can be done by checking NDEFReader
+      and/or NDEFWriter objects. Note that this does not guarantee that NFC
+      hardware is available.
+    </p>
+    <pre class="example">
+      if ('NDEFReader' in window) { /* ... Scan NDEF Tags */ }
+      if ('NDEFWriter' in window) { /* ... Write NDEF Tags */ }
+    </pre>
+  </section>
+
   <section><h3>Push a text string to either a tag or peer</h3>
     <p>
       Pushing a text string to any kind of device is straightforward.
