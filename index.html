@@ -2137,6 +2137,7 @@
     interface NDEFReader : EventTarget {
       constructor();
 
+      attribute EventHandler onerror;
       attribute EventHandler onreading;
 
       Promise&lt;void&gt; scan(optional NDEFScanOptions options={});
@@ -2272,6 +2273,10 @@
   <p>
     The <dfn data-dfn-for="NDEFReader">onreading</dfn> is an {{EventHandler}} which is called to notify
     that new reading is available.
+  </p>
+  <p>
+    The <dfn data-dfn-for="NDEFReader">onerror</dfn> is an {{EventHandler}}
+    which is called to notify that an error happened during reading.
   </p>
   <section><h3>NFC state associated with the settings object</h3>
   <p>
@@ -3714,12 +3719,21 @@
       </li>
       <li>
         If the <a>NFC device</a> in proximity range does not expose <a>NDEF</a>
-        technology for reading or formatting, abort these steps.
-        <p class="note">
-          This means there is no reading event generated when non-<a>NDEF</a>
-          NFC technology comes in proximity range. This may change in future
-          version of the specification.
-        </p>
+        technology for reading or formatting, run the following sub-steps:
+        <ol>
+          <li>[= list/For each =]
+            {{NDEFReader}} instance |reader:NDEFReader| in the <a>activated reader
+            objects</a>, run the following sub-steps:
+            <ol>
+              <li>
+                <a>Fire an event</a> named "`error`" at |reader|.
+              </li>
+            </ol>
+          </li>
+          <li>
+            Abort these steps.
+          </li>
+        </ol>
       </li>
       <li>
         Let |serialNumber:serialNumber| be the device identifier as a series of
