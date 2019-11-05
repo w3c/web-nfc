@@ -4,7 +4,7 @@
   <title>Web NFC</title>
   <meta charset="UTF-8">
   <link href="https://raw.githubusercontent.com/google/material-design-icons/master/device/2x_web/ic_nfc_black_48dp.png" rel="icon">
-  <script type=module src="ndef-record.js"></script>
+  <script type="module" src="ndef-record.js"></script>
   <script src='https://www.w3.org/Tools/respec/respec-w3c' async class=
   'remove'></script>
   <script class="remove">
@@ -17,8 +17,16 @@
           company: "Intel",
           companyURL: "https://intel.com/",
         },
-        { name: "Zoltan Kis", company: "Intel", companyURL: "https://intel.com/" },
-        { name: "François Beaufort", company: "Google LLC", companyURL: "https://google.com/" },
+        {
+          name: "Zoltan Kis",
+          company: "Intel",
+          companyURL: "https://intel.com/"
+        },
+        {
+          name: "François Beaufort",
+          company: "Google LLC",
+          companyURL: "https://google.com/"
+        },
       ],
       formerEditors: [
         {
@@ -151,7 +159,7 @@
 
 <!-- - - - - - - - - - - - - - -  Introduction  - - - - - - - - - - - - - - -->
 <section class="informative"> <h2>Introduction</h2>
-  <p>
+  <div>
     NFC user scenarios can be grouped as follows:
     <ul>
       <li>
@@ -180,7 +188,7 @@
        </ol>
       </li>
     </ul>
-  </p>
+  </div>
   <p>
     NFC works using magnetic induction, meaning that the reader (an active,
     powered device) will emit a
@@ -263,7 +271,7 @@
     given hardware element (NFC chip). A device may have multiple NFC
     adapters, for instance a built-in one, and one or more attached via USB.
   </p>
-  <p>
+  <div>
     An <dfn>NFC tag</dfn> is a passive NFC device.
     The <a>NFC tag</a> is powered by magnetic induction when an active NFC
     device is in proximity range. An <a>NFC tag</a> contains a single
@@ -273,7 +281,7 @@
       technologies, which require the reader and the tag to be of the same
       manufacturer. Implementations are expected to encapsulate this.
     </p>
-  </p>
+  </div>
   <p>
     An <dfn>NFC peer</dfn> is an active, powered device, which can interact
     with other devices in order to exchange data using NFC.
@@ -320,7 +328,7 @@
       <a href="https://www.nxp.com/docs/en/application-note/AN1305.pdf">
       MIFARE Classic as NFC Type MIFARE Classic Tag</a>
     </p>
-    <p>
+    <div>
       <ol>
         <li>
           <dfn>NFC Forum Type 1</dfn>: This tag is based on the ISO/IEC 14443-3A
@@ -367,7 +375,7 @@
           as defined in ISO/IEC 14443-3:2011, Part 3: Initialization and anticollision).
           The tags are rewritable and can be configured to become read-only. Memory size
           can be between `320` and `4` kbytes. Communication speed is `106` kbit/sec.
-          <p class=note>
+          <p class="note">
             <a>MIFARE Standard</a> is a not an NFC Forum type and can only be read by devices
             using NXP hardware. Support for reading and writing to tags based on the
             <a>MIFARE Standard</a> is thus non-nominative, but the type is included
@@ -375,7 +383,7 @@
           </p>
         </li>
       </ol>
-    </p>
+    </div>
     <p>
       In addition to data types standardized for <a>NDEF record</a>s by the NFC
       Forum, many commercial products such as bus cards, door openers may be based
@@ -399,19 +407,19 @@
     the data is structured, like payload size, whether the data is chunked over
     multiple records etc.
   </p>
-  <p>
+  <div>
     A generic record looks like the following:
     <ndef-record class="ndef"
       header="*,*,*,*,*,*"
       content="*,PAYLOAD LENGTH - 1 (SR) to 4 bytes,ID LENGTH (optional),TYPE (optional),ID (optional),PAYLOAD (optional)">
     </ndef-record>
-  </p>
+  </div>
   <p>
     Only the first three bytes (lines in figure) are mandatory. First the
     header byte, followed by the <a>TYPE LENGTH field</a> and <a>PAYLOAD
     LENGTH field</a>, which may both be zero.
   </p>
-  <p>
+  <div>
     The <dfn>TNF field</dfn> (bit `0-2`, type name format) indicates the format
     of the type name and is often exposed by native NFC software stacks. The
     field can take binary values denoting the following NDEF record payload types:
@@ -453,7 +461,7 @@
         <td>Reserved for future use</td>
       </tr>
     </table>
-  </p>
+  </div>
   <p>
     The <dfn>IL field</dfn> (bit `3`, id length) indicates whether an
     <a>ID LENGTH field</a> is present. If the <a>IL field</a> is `0`, then the
@@ -570,7 +578,7 @@
             containing record and when storage usage is a hard constraint. See
             <a>Smart poster</a> for an example on how local types are used.
           </p>
-          <p class=note>
+          <p class="note">
             A [=local type=] is thus defined in terms of a containing record type,
             and thus doesn't need any namespacing. For this reason the same local type
             name can be used within another record type with different meaning and
@@ -738,7 +746,7 @@
     <h4>
       MIME type records (TNF 2)
     </h4>
-    <p>
+    <div>
       The <dfn>MIME type record</dfn>s are records that store binary
       data with associated <a>MIME type</a>.
       <ndef-record
@@ -746,7 +754,7 @@
         content="*,*,*,SERIALIZED MIME TYPE,*,MIME TYPE PAYLOAD"
         short>
       </ndef-record>
-    </p>
+    </div>
     </section>
 
     <section>
@@ -764,13 +772,13 @@
       will attempt to load the URL in Chrome and it is as such not intended
       for client applications.
     </p>
-    <p>
+    <div>
       <ndef-record
         header="*,*,*,*,*,3 (ABSOLUTE URL)"
         content="*,*,*,ABSOLUTE URL STRING,*,PAYLOAD (optional/ignored)"
         short>
       </ndef-record>
-    </p>
+    </div>
     </section>
 
     <section>
@@ -787,13 +795,13 @@
       for instance `"urn:nfc:ext:w3.org:atype"`, stored as `"w3.org:atype"`
       in the <a>TYPE field</a>.
     </p>
-    <p>
+    <div>
       <ndef-record
         header="*,*,*,*,*,4 (EXTERNAL)"
         content="*,*,*,EXTERNAL TYPE (eg. w3.org:member),*,*"
         short>
       </ndef-record>
-    </p>
+    </div>
     </section>
 
     <section>
@@ -807,13 +815,13 @@
       The [[NFC-NDEF]] specification recommends that <a>NDEF</a> parsers store
       or forward the payload without processing it.
     </p>
-    <p>
+    <div>
       <ndef-record
         header="*,*,*,*,*,5 (UNKNOWN)"
         content="0,*,*,_,*,*"
         short>
       </ndef-record>
-    </p>
+    </div>
   </section>
   <section>
     <h4>
@@ -849,7 +857,7 @@
         </li>
       </ul>
     </div>
-    <p>
+    <div>
       First record:
       <ndef-record
         header="1,0,1,1,0,*"
@@ -870,7 +878,7 @@
         content="0,PAYLOAD LENGTH FOR THIS RECORD,_,_,_,*"
         short>
       </ndef-record>
-    </p>
+    </div>
     <p>
       Any implementation of Web NFC MUST transparently expose chunked records
       as single logical records.
@@ -910,8 +918,9 @@
       </li>
     </ol>
   </section>
+
   <section> <h3>Writing to an <a>NFC tag</a></h3>
-    <p>
+    <div>
       The user opens a web page which can write an <a>NFC tag</a>. The write
       operations may be one of the following:
       <ol>
@@ -933,12 +942,13 @@
           generic tag).
         </li>
       </ol>
-    </p>
+    </div>
     <p class="note">
       Note that an NFC write operation to an <a>NFC tag</a> always involves
       also a read operation.
     </p>
   </section>
+
   <section> <h3>Pushing data to an <a>NFC peer</a> device</h3>
     <p>
       In general, pushing data to another NFC capable device requires that
@@ -954,6 +964,7 @@
       then the content is delivered to the page through the <a>NDEFReadingEvent</a>.
     </p>
   </section>
+
   <section> <h3>Handover to another wireless connection type</h3>
     <p>
       NFC supports handover protocols to Bluetooth or WiFi connectivity for
@@ -966,6 +977,7 @@
       This use case is not supported in this version of the specification.
     </p>
   </section>
+
   <section> <h3>Payment scenarios</h3>
     <p>
       Payment scenarios with Web NFC generally do not refer to supporting
@@ -985,6 +997,7 @@
       This use case is not supported in this version of the specification.
     </p>
   </section>
+
   <section> <h3>Support for multiple NFC adapters</h3>
     <p>
       Users may attach one or more external <a>NFC adapter</a>s to their
@@ -995,7 +1008,8 @@
 </section> <!-- Use Cases -->
 
 <section class="informative"> <h3>Features</h3>
-  <p>High level features for the Web NFC specification include the following:
+  <div>
+    High level features for the Web NFC specification include the following:
     <ol>
       <li>
         Support devices with single or multiple <a>NFC adapter</a>s.
@@ -1028,8 +1042,8 @@
         emulation.
       </li>
     </ol>
-  </p>
-  <p>
+  </div>
+  <div>
     This specification makes a few simplifications in what use cases
     and data types Web NFC can handle:
     <ul>
@@ -1043,7 +1057,7 @@
         exposes only data and control events.
       </li>
     </ul>
-  </p>
+  </div>
 </section> <!-- Features -->
 
 <!-- - - - - - - - - - - - - - Usage Examples - - - - - - - - - - - - - - -->
@@ -1475,171 +1489,6 @@
   </section>
 </section> <!-- Usage examples -->
 
-<!-- - - - - - - - - - - - - Security and Privacy - - - - - - - - - - - - - -->
-<section> <h2 id="security">Security and Privacy</h2>
-  <p>
-    The trust model, attacker model, threat model and possible mitigation
-    proposals for Web NFC are presented in the
-    <a href="http://w3c.github.io/web-nfc/security-privacy.html">
-    Security and Privacy</a> document. This section presents the chosen
-    security and privacy model through normative requirements to
-    implementations.
-  </p>
-
-  <section> <h3>Chain of trust</h3>
-  <p>
-    Web pages using Web NFC are not trusted.
-    This means that the user needs to be aware of exactly what a web page is
-    intending to do with NFC at any given moment. Implementations need to
-    make sure that when the user authorizes a method of this API, then only that
-    action is run, without side effects, and exactly in the context and the
-    number of times the user allows the execution of NFC related operations,
-    according to the algorithmic steps detailed in this specification.
-  </p>
-  <p>
-    The integrity of <a>NFC content</a> SHOULD NOT be trusted when
-    used for implementing security policies, for instance the authenticity of
-    <a>record identifier</a>, unless a <a>prearranged trust relationship</a> exists.
-  </p>
-  <p>
-    Security considerations for media types in general are discussed in
-    [[RFC2048]] and [[RFC2046]].
-  </p>
-  </section>
-
-  <section> <h3>Threats</h3>
-  <p>
-    The main threats are summarized in the
-    <a href="http://w3c.github.io/web-nfc/security-privacy.html#threats-and-possible-solutions">
-    Security and Privacy</a> document.
-  </p>
-  <p>
-    In this specification the following threats are handled with the highest
-    priority:
-    <ul>
-      <li>
-        User data privacy: involuntary sharing of user data (such as location,
-        contacts, personal data, etc) from an NFC-capable device such as a
-        phone, tablet, or PC.
-      </li>
-      <li>
-        Protecting existing <a>NFC tag</a>s from being overwritten by malicious
-        web pages.
-      </li>
-    </ul>
-  </p>
-  </section>
-
-  <section> <h3>Permissions and user prompts</h3>
-  <p>
-    This specification attempts to minimize user prompting and uses implicit
-    security policies to address the
-    <a href="http://w3c.github.io/web-nfc/security-privacy.html#threats-and-possible-solutions">
-    threats</a>.
-    However, this specification does not describe, nor does it
-    mandate specific user prompting policies. The term <a>obtain permission</a>
-    is used for acquiring trust for a given operation.
-  </p>
-  <p class="note">
-    The [[[PERMISSIONS]]] API is suggested to be used by
-    UAs for implementing NFC related [[[PERMISSIONS]]] in order to minimize
-    the need for user prompting.
-  </p>
-  <p>
-    All <a>expressed permission</a>s that are preserved beyond the current
-    browsing session MUST be revocable.
-  </p>
-  </section>
-
-  <section class="informative"> <h3>Security policies</h3>
-    <p>
-      This section summarizes the security policies which are specified as
-      normative requirements in the respective algorithms of this
-      specification.
-    </p>
-    <section> <h4>Secure Context</h4>
-      <p>
-        Only <a>secure contexts</a> are allowed to access <a>NFC content</a>.
-        Browsers may ignore this rule for development purposes only.
-      </p>
-    </section>
-    <section> <h4>Visible document</h4>
-      <p>
-        Web NFC functionality is allowed only for the {{Document}} of the
-        <a>top-level browsing context</a>, which must be
-        <dfn data-cite="PAGE-VISIBILITY#dom-visibilitystate-visible">visible</dfn>.
-      </p>
-      <p>
-        This also means that UAs should block access to the NFC radio if
-        the display is off or the device is locked.
-        For backgrounded web pages, receiving and pushing <a>NFC content</a>
-        must be <a id="#nfc-suspended">suspended</a>.
-      </p>
-    </section>
-    <section> <h4>Permissions controls</h4>
-      <p>
-        Making an <a>NFC tag</a> read-only must <a>obtain permission</a>, or
-        otherwise fail.
-      </p>
-      <p>
-        Setting up listeners for reading <a>NFC content</a> should
-        <a>obtain permission</a>.
-      </p>
-      <p>
-        The process of reading an <a>NDEF message</a> does not need to
-        <a>obtain permission</a>.
-      </p>
-      <p>
-        Pushing <a>NFC content</a> to an <a>NFC peer</a> does not need to
-        <a>obtain permission</a>, but the other rules in this section apply.
-        See the [[[#writing-or-pushing-content]]] section.
-      </p>
-      <p>
-        Pushing an <a>NDEF message</a> to an <a>NFC tag</a> does not need to
-        <a>obtain permission</a>, if the existing <a>NDEF message</a> only
-        contains <a>NDEF record</a>s without <a>ID field</a>s, or with <a>
-        ID field</a>s matching the [=host/registrable domain=] of the
-        <a>current settings object</a>'s origin.
-        Otherwise the UA must <a>obtain permission</a> for pushing
-        <a>NFC content</a> which overwrites existing information.
-        See also the [[[#writing-or-pushing-content]]] section.
-      </p>
-      <p>
-        Since all local content that a web page has access to can be shared with
-        NFC, the user needs to be clearly aware about the permissions granted
-        to the web page using Web NFC.
-      </p>
-    </section>
-    <section> <h4>Store site URL as record identifier when writing data</h4>
-      <p>
-        When pushing an <a>NDEF message</a>, the [= host/registrable domain =],
-        <a data-cite="dom#concept-host-serializer">serialized</a>,
-        of the <a>current settings object</a> must be stored as the <a>record
-        identifier</a> in each top-level <a>NDEF Record</a>.
-      </p>
-    </section>
-    <section> <h4>Warn risk of physical location leak</h4>
-      <p>
-        When listening for and pushing <a>NFC content</a>,
-        the UA may warn the user that the given <a>origin</a> may be able to
-        infer physical location.
-      </p>
-    </section>
-    <section> <h4>Restrict automatic handling</h4>
-      <p>
-        The payload data on <a>NFC content</a> is untrusted, and must not be used
-        by the UA to do automatic handling such as opening a web page
-        with a URL found in an <a>NFC tag</a>, unless the user approves that.
-      </p>
-    </section>
-      <!--p>
-        For Bluetooth and WiFi handover (supported in later versions),
-        the user should have to grant access to the secondary API and must be
-        able to properly understand what they are granting.
-      </p-->
-  </section> <!-- Policies -->
-</section> <!-- Security and Privacy  -->
-
 <!-- - - - - - - - - - - - - Data representation - - - - - - - - - - - - - -->
 <section> <h2>Data Representation</h2>
   <section> <h3>The <dfn>NDEFMessage</dfn> interface</h3>
@@ -1742,7 +1591,7 @@
     <p>
       The <dfn>recordType</dfn> property represents the <a>NDEF record</a> types.
     </p>
-    <p>
+    <div>
       The <dfn>id</dfn> property represents the <a>record identifier</a>, which is an
       absolute or relative URL. The required uniqueness of the identifier is
       guaranteed by the generator, as such only absolute URLs based on the origin
@@ -1757,12 +1606,12 @@
           by a <a>path-absolute-URL string</a>.
         </li>
       </ul>
-      <div class=note>
+      <p class=note>
         The NFC NDEF specifications uses the terms "message identifier" and "payload identifier"
         instead of <a>record identifier</a>, but the identifier is tied to each record and not
         the message (collection of records), and it may be present when no payload is.
-      </div>
-    </p>
+      </p>
+    </div>
     <p>
       The <dfn>encoding</dfn> attribute represents the
       [=encoding/name|encoding name=] used for encoding the payload in the
@@ -1799,7 +1648,7 @@
       with its <a>record type</a> <dfn>recordType</dfn>, and optional <a>record identifier</a>
       <dfn>id</dfn> and payload data <dfn>data</dfn>.
     </p>
-    <p data-dfn-for="NDEFRecordInit">
+    <div data-dfn-for="NDEFRecordInit">
       Additionally, there are additional optional fields that are only applicable
       for certain <a>record types</a>:
       <ul>
@@ -1811,7 +1660,7 @@
           and [=language tag=] <dfn>lang</dfn>.
         </li>
       </ul>
-    </p>
+    </div>
     <p>
       The mapping from data types of an
       <a>NDEFRecordInit</a> to <a>NDEF record</a> types is presented
@@ -2246,7 +2095,7 @@
     <tbody data-link-for="NDEFScanOptions">
      <tr>
       <td><dfn>[[\Id]]</dfn></td>
-      <td>An empty <a>string</a>.
+      <td>An empty <a>string</a>.</td>
       <td>
         The {{NDEFScanOptions}}.<a>id</a> value.
       </td>
@@ -2260,7 +2109,7 @@
      </tr>
      <tr>
       <td><dfn>[[\MediaType]]</dfn></td>
-      <td>An empty <a>string</a>.
+      <td>An empty <a>string</a>.</td>
       <td>
         The {{NDEFScanOptions}}.<a>mediaType</a> value.
       </td>
@@ -2389,7 +2238,7 @@
   </section>
 
   <section><h3>Aborting pending push operation</h3>
-  <p>
+  <div>
     To attempt to <dfn>abort a pending push operation</dfn> on an
     <a>environment settings object</a>, perform the following steps:
     <ol class=algorithm>
@@ -2408,7 +2257,7 @@
         </p>
       </li>
     </ol>
-  </p>
+  </div>
   </section>
 
   <section><h3>Releasing NFC</h3>
@@ -2655,38 +2504,39 @@
                   implementation might be unable to support the requested
                   operation.
                 </p>
-                <li>
-                  Let |output| be the notation for the <a>NDEF message</a>
-                  to be created by UA, as the result of passing
-                  |message| to <a>create NDEF message</a>.
-                  If this throws an exception, reject |p| with that
-                  exception and abort these steps.
-                </li>
-                <li>
-                  Attempt to <a>abort a pending push operation</a>.
-                  <p class="note">
-                    A push replaces all previously configured push operations.
-                  </p>
-                </li>
-                <li>
-                  Set `this`.[[\PushOptions]] to |options|.
-                </li>
-                <li>
-                  Set `this`.[[\PushMessage]] to |output|.
-                </li>
-                <li>
-                  Set <a>pending push tuple</a> to (`this`, |p|).
-                </li>
-                <li>
-                  Run the <a>start the NFC push</a> steps whenever an
-                  <a>NFC device</a> |device| comes within communication range.
-                </li>
+              </li>
+              <li>
+                Let |output| be the notation for the <a>NDEF message</a>
+                to be created by UA, as the result of passing
+                |message| to <a>create NDEF message</a>.
+                If this throws an exception, reject |p| with that
+                exception and abort these steps.
+              </li>
+              <li>
+                Attempt to <a>abort a pending push operation</a>.
+                <p class="note">
+                  A push replaces all previously configured push operations.
+                </p>
+              </li>
+              <li>
+                Set `this`.[[\PushOptions]] to |options|.
+              </li>
+              <li>
+                Set `this`.[[\PushMessage]] to |output|.
+              </li>
+              <li>
+                Set <a>pending push tuple</a> to (`this`, |p|).
+              </li>
+              <li>
+                Run the <a>start the NFC push</a> steps whenever an
+                <a>NFC device</a> |device| comes within communication range.
                 <p class="note">
                   If <a>NFC is suspended</a>, continue waiting until promise is
                   aborted by the user or an <a>NFC device</a> comes within
                   communication range.
                 </p>
-              </ol>
+              </li>
+            </ol>
             </li>
           </li>
         </ol>
@@ -2798,7 +2648,7 @@
     </section>
 
     <section><h3>Obtaining push permission</h3>
-      <p>
+      <div>
         To <dfn>obtain push permission</dfn>, run these steps:
         <ol class=algorithm>
           <li>
@@ -2836,7 +2686,7 @@
             Return `false`.
           </li>
         </ol>
-      </p>
+      </div>
     </section>
   </section> <!-- Writing or pushing content -->
 
@@ -2943,37 +2793,38 @@
                     </li>
                   </ul>
                 </dl>
-                <li>
-                  If |message| is of type {{NDEFMessageInit}} and its
-                  |id:string| is not `null`:
-                  <ul>
-                    <li>
-                      Set |identifier| to the result of invoking
-                      <a>create a record identifier</a> given |id|.
-                      If this throws an exception, re-[= exception/throw =] it.
-                    </li>
-                    <li>
-                      Set |ndef|'s <a>IL field</a> to `1`.
-                    </li>
-                    <li>
-                      Set |ndef|'s <a>ID LENGTH field</a> to the length of |identifier|.
-                    </li>
-                    <li>
-                      Set |ndef|'s <a>ID field</a> to |identifier|.
-                    </li>
-                  </ul>
-                </li>
-                <li>
-                  Add |ndef| to |output|.
-                </li>
-              </li> <!-- converting each record -->
+              </li>
+              <li>
+                If |message| is of type {{NDEFMessageInit}} and its
+                |id:string| is not `null`:
+                <ul>
+                  <li>
+                    Set |identifier| to the result of invoking
+                    <a>create a record identifier</a> given |id|.
+                    If this throws an exception, re-[= exception/throw =] it.
+                  </li>
+                  <li>
+                    Set |ndef|'s <a>IL field</a> to `1`.
+                  </li>
+                  <li>
+                    Set |ndef|'s <a>ID LENGTH field</a> to the length of |identifier|.
+                  </li>
+                  <li>
+                    Set |ndef|'s <a>ID field</a> to |identifier|.
+                  </li>
+                </ul>
+              </li>
+              <li>
+                Add |ndef| to |output|.
+              </li>
+              <!-- converting each record -->
             </ol>
           </li> <!-- converting message -->
         </ol>
       </section>
 
       <section><h3>Mapping empty record to NDEF</h3>
-      <p>
+      <div>
         To <dfn>map empty record to NDEF</dfn> given a |record:NDEFRecordInit|, run
         these steps:
         <ol class=algorithm>
@@ -3000,11 +2851,11 @@
             Return |ndef|.
           </li>
         </ol>
-      </p>
+      </div>
       </section>
 
       <section><h3>Mapping string to NDEF</h3>
-      <p>
+      <div>
         To <dfn>map text to NDEF</dfn> given a |record:NDEFRecordInit|, run these
         steps:
         <p class="note">
@@ -3064,6 +2915,7 @@
               <li>
                 If |languageLength| cannot be stored in 6 bit (|languageLength| > 63),
                 [= exception/throw =] a {{SyntaxError}}.
+              </li>
               <li>
                 Set bit `5` to bit `0` to |languageLength|.
               </li>
@@ -3133,11 +2985,11 @@
             Return |ndefRecord|.
           </li>
         </ol>
-      </p>
+      </div>
       </section>
 
       <section><h3>Mapping URL to NDEF</h3>
-      <p>
+      <div>
         To <dfn>map a URL to NDEF</dfn> given a |record:NDEFRecordInit|, run these
         steps:
         <ol class=algorithm>
@@ -3223,11 +3075,11 @@
             Return |ndefRecord|.
           </li>
         </ol>
-      </p>
+      </div>
       </section>
 
       <section><h3>Mapping binary data to NDEF</h3>
-      <p>
+      <div>
         To <dfn>map binary data to NDEF</dfn> given a |record:NDEFRecordInit|,
         run these steps:
         <ol class=algorithm>
@@ -3279,11 +3131,11 @@
             Return |ndefRecord|.
           </li>
         </ol>
-      </p>
+      </div>
       </section>
 
       <section><h3>Mapping external data to NDEF</h3>
-      <p>
+      <div>
         To <dfn>map external data to NDEF</dfn> given a |record:NDEFRecordInit|,
         run these steps:
         <ol class=algorithm>
@@ -3327,11 +3179,11 @@
             Return |ndefRecord|.
           </li>
         </ol>
-      </p>
+      </div>
       </section>
 
       <section><h3>Mapping local type to NDEF</h3>
-      <p>
+      <div>
         To <dfn>map local type to NDEF</dfn> given a |record:NDEFRecordInit|,
         run these steps:
         <ol class=algorithm>
@@ -3381,11 +3233,11 @@
             Return |ndefRecord|.
           </li>
         </ol>
-      </p>
+      </div>
       </section>
 
       <section><h3>Creating a record identifier</h3>
-      <p>
+      <div>
         To <dfn>create a record identifier</dfn> given URL string |id:string|,
         run these steps:
         <ol class=algorithm>
@@ -3422,7 +3274,7 @@
             Return |identifier|.
           </li>
         </ol>
-      </p>
+      </div>
       </section>
   </section> <!-- creating content -->
 
@@ -3448,7 +3300,7 @@
     </p>
 
     <section> <h3>Match patterns</h3>
-      <p>
+      <div>
         A <dfn>match pattern</dfn> is defined by the following ABNF:
         <pre class="abnf">
           match-pattern  = top-level-type "/" [ tree "." ] subtype [ "+" suffix ] [ ";" parameters ]
@@ -3462,7 +3314,7 @@
         "`application/calendar+json`", but does not match
         "`application/json`". The pattern
         "`*/*json`", on the other hand, matches both.
-      </p>
+      </div>
     </section>
     <section> <h3>URL patterns</h3>
         A <dfn>URL pattern</dfn> is a <a>URL record</a> that can be used to match
@@ -3470,7 +3322,7 @@
         A <dfn>valid URL pattern</dfn> is a valid <a>URL record</a> whose
         [= url/scheme =] component is equal to "`https`".
 
-      <p>
+      <div>
         A <a>URL pattern</a>'s [= url/scheme =], [= url/host =]
         and [= url/path =] components that are used by the
         <a href="#dfn-match-record-identifier-with-url-pattern">URL pattern match algorithm</a>
@@ -3498,7 +3350,7 @@
             </td>
           </tr>
         </table>
-      </p>
+      </div>
 
       <p class="note">
         For example, '`https://mydomain.com/*`' will match
@@ -3574,7 +3426,7 @@
       <p>
         Incoming <a>NFC content</a> is matched using {{NDEFReader}} instances.
       </p>
-      <p>
+      <div>
         When the <dfn>NDEFReader.scan</dfn> method is invoked, the UA
         MUST run the following
         <dfn id="steps-listen">NFC listen algorithm</dfn>:
@@ -3685,8 +3537,8 @@
             </ol>
           </li>
         </ol>
-      </p>
-      <p>
+      </div>
+      <div>
         To <dfn>obtain reading permission</dfn>, run these steps:
         <ol>
           <li>
@@ -3720,7 +3572,7 @@
             Return `true`.
           </li>
         </ol>
-      </p>
+      </div>
     </section>
 
     <section><h3>The NFC reading algorithm</h3>
@@ -3870,13 +3722,14 @@
               <li>
                 If this is the first iteration of these sub-steps and |messageBegin| is `false`,
                 return |records|.
+              </li>
               <li>
                 Let |messageEnd:boolean| (<a>ME field</a>) be bit 6 of |header|.
               </li>
-              <div class=note>
+              <p class=note>
                 As chunked records are not allowed as sub records, ignore bit 5
                 (<a>CF field</a>) is ignored.
-              </div>
+              </p>
               <li>
                 Let |shortRecord:boolean| (<a>SR field</a>) be bit 4 of |header|.
               </li>
@@ -3926,6 +3779,7 @@
           </li>
           <li>
             If |messageEnd| is `true`, abort these sub-steps.
+          </li>
         </ol>
       </li>
       <li>
@@ -3935,7 +3789,7 @@
   </section>
 
   <section><h3>Parsing NDEF records</h3>
-  <p>
+  <div>
     To <dfn>parse an NDEF record</dfn> given |ndef| into a
     |record:NDEFRecord|, run these steps:
     <ol class=algorithm>
@@ -3997,6 +3851,7 @@
         then set |record| to the result of running <a>parse an NDEF external type record</a>
         on |ndef|, or make sure that the underlying platform provides equivalent values
         to the |record| object's properties.
+      </li>
       <li>
         Otherwise, if |ndef|'s |typeNameField| is `5` (<a>unknown record</a>)
         then set |record| to the result of running <a>parse an NDEF unknown record</a>
@@ -4004,11 +3859,11 @@
         to the |record| object's properties.
       </li>
     </ol>
-  </p>
+  </div>
   </section>
 
   <section><h3>Parsing NDEF well-known `T` records</h3>
-  <p>
+  <div>
     To <dfn>parse an NDEF text record</dfn> given a |ndefRecord| into a
     |record:NDEFRecord|, run these steps:
     <ol class=algorithm>
@@ -4054,7 +3909,7 @@
         return |record|.
       </li>
     </ol> <!-- parsing NDEF text record -->
-  </p>
+  </div>
   <aside class="note" data-link-for="NDEFRecord">
     <p>
       The Unicode standard defines multiple encodings like UTF-8, UTF-16 and UTF-32.
@@ -4098,7 +3953,7 @@
   </section>
 
   <section><h3>Parsing NDEF well-known `U` records</h3>
-  <p>
+  <div>
     To <dfn>parse an NDEF URL record</dfn> given a |ndefRecord| into a
     |record:NDEFRecord|, run these steps:
     <ol class=algorithm>
@@ -4135,11 +3990,11 @@
         return |record|.
       </li>
     </ol> <!-- parsing NDEF URL record -->
-  </p>
+  </div>
   </section>
 
   <section><h3>Parsing NDEF well-known `Sp` records</h3>
-  <p>
+  <div>
     To <dfn>parse an NDEF smart-poster record</dfn> given a |ndefRecord| into a
     |record:NDEFRecord|, run these steps:
     <ol class=algorithm>
@@ -4160,11 +4015,11 @@
         return |record|.
       </li>
     </ol>  <!-- parsing NDEF smart-poster record -->
-  </p>
+  </div>
   </section>
 
   <section><h3>Parsing NDEF MIME type records</h3>
-    <p>
+    <div>
       To <dfn>parse an NDEF MIME type record</dfn> given a |ndefRecord| into a
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm>
@@ -4187,11 +4042,11 @@
           return |record|.
         </li>
       </ol> <!-- parsing NDEF MIME type record -->
-    </p>
+    </div>
   </section>
 
   <section><h3>Parsing NDEF absolute-URL records</h3>
-    <p>
+    <div>
       To <dfn>parse an NDEF absolute-URL record</dfn> given a |ndefRecord| into a
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm>
@@ -4209,11 +4064,11 @@
           return |record|.
         </li>
       </ol>  <!-- parsing NDEF absolute URI record -->
-    </p>
+    </div>
   </section>
 
   <section><h3>Parsing NDEF external type records</h3>
-    <p>
+    <div>
       To <dfn>parse an NDEF external type record</dfn> given a |ndefRecord| into a
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm>
@@ -4231,11 +4086,11 @@
           return |record|.
         </li>
       </ol>  <!-- parsing NDEF external type record -->
-    </p>
+    </div>
   </section>
 
   <section><h3>Parsing NDEF unknown type records</h3>
-    <p>
+    <div>
       To <dfn>parse an NDEF unknown record</dfn> given a |ndefRecord| into a
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm>
@@ -4253,9 +4108,175 @@
           return |record|.
         </li>
       </ol>  <!-- parsing NDEF unknown record -->
-    </p>
+    </div>
   </section>
 </section>
+</section>
+
+<!-- - - - - - - - - - - - - Security and Privacy - - - - - - - - - - - - - -->
+<section> <h2 id="security">Security and Privacy</h2>
+  <p>
+    The trust model, attacker model, threat model and possible mitigation
+    proposals for Web NFC are presented in the
+    <a href="http://w3c.github.io/web-nfc/security-privacy.html">
+    Security and Privacy</a> document. This section presents the chosen
+    security and privacy model through normative requirements to
+    implementations.
+  </p>
+
+  <section> <h3>Chain of trust</h3>
+  <p>
+    Web pages using Web NFC are not trusted.
+    This means that the user needs to be aware of exactly what a web page is
+    intending to do with NFC at any given moment. Implementations need to
+    make sure that when the user authorizes a method of this API, then only that
+    action is run, without side effects, and exactly in the context and the
+    number of times the user allows the execution of NFC related operations,
+    according to the algorithmic steps detailed in this specification.
+  </p>
+  <p>
+    The integrity of <a>NFC content</a> SHOULD NOT be trusted when
+    used for implementing security policies, for instance the authenticity of
+    <a>record identifier</a>, unless a <a>prearranged trust relationship</a> exists.
+  </p>
+  <p>
+    Security considerations for media types in general are discussed in
+    [[RFC2048]] and [[RFC2046]].
+  </p>
+  </section>
+
+  <section> <h3>Threats</h3>
+  <p>
+    The main threats are summarized in the
+    <a href="http://w3c.github.io/web-nfc/security-privacy.html#threats-and-possible-solutions">
+    Security and Privacy</a> document.
+  </p>
+  <div>
+    In this specification the following threats are handled with the highest
+    priority:
+    <ul>
+      <li>
+        User data privacy: involuntary sharing of user data (such as location,
+        contacts, personal data, etc) from an NFC-capable device such as a
+        phone, tablet, or PC.
+      </li>
+      <li>
+        Protecting existing <a>NFC tag</a>s from being overwritten by malicious
+        web pages.
+      </li>
+    </ul>
+  </div>
+  </section>
+
+  <section> <h3>Permissions and user prompts</h3>
+  <p>
+    This specification attempts to minimize user prompting and uses implicit
+    security policies to address the
+    <a href="http://w3c.github.io/web-nfc/security-privacy.html#threats-and-possible-solutions">
+    threats</a>.
+    However, this specification does not describe, nor does it
+    mandate specific user prompting policies. The term <a>obtain permission</a>
+    is used for acquiring trust for a given operation.
+  </p>
+  <p class="note">
+    The [[[PERMISSIONS]]] API is suggested to be used by
+    UAs for implementing NFC related [[[PERMISSIONS]]] in order to minimize
+    the need for user prompting.
+  </p>
+  <p>
+    All <a>expressed permission</a>s that are preserved beyond the current
+    browsing session MUST be revocable.
+  </p>
+  </section>
+
+  <section class="informative"> <h3>Security policies</h3>
+    <p>
+      This section summarizes the security policies which are specified as
+      normative requirements in the respective algorithms of this
+      specification.
+    </p>
+    <section> <h4>Secure Context</h4>
+      <p>
+        Only <a>secure contexts</a> are allowed to access <a>NFC content</a>.
+        Browsers may ignore this rule for development purposes only.
+      </p>
+    </section>
+    <section> <h4>Visible document</h4>
+      <p>
+        Web NFC functionality is allowed only for the {{Document}} of the
+        <a>top-level browsing context</a>, which must be
+        <dfn data-cite="PAGE-VISIBILITY#dom-visibilitystate-visible">visible</dfn>.
+      </p>
+      <p>
+        This also means that UAs should block access to the NFC radio if
+        the display is off or the device is locked.
+        For backgrounded web pages, receiving and pushing <a>NFC content</a>
+        must be <a id="#nfc-suspended">suspended</a>.
+      </p>
+    </section>
+    <section> <h4>Permissions controls</h4>
+      <p>
+        Making an <a>NFC tag</a> read-only must <a>obtain permission</a>, or
+        otherwise fail.
+      </p>
+      <p>
+        Setting up listeners for reading <a>NFC content</a> should
+        <a>obtain permission</a>.
+      </p>
+      <p>
+        The process of reading an <a>NDEF message</a> does not need to
+        <a>obtain permission</a>.
+      </p>
+      <p>
+        Pushing <a>NFC content</a> to an <a>NFC peer</a> does not need to
+        <a>obtain permission</a>, but the other rules in this section apply.
+        See the [[[#writing-or-pushing-content]]] section.
+      </p>
+      <p>
+        Pushing an <a>NDEF message</a> to an <a>NFC tag</a> does not need to
+        <a>obtain permission</a>, if the existing <a>NDEF message</a> only
+        contains <a>NDEF record</a>s without <a>ID field</a>s, or with <a>
+        ID field</a>s matching the [=host/registrable domain=] of the
+        <a>current settings object</a>'s origin.
+        Otherwise the UA must <a>obtain permission</a> for pushing
+        <a>NFC content</a> which overwrites existing information.
+        See also the [[[#writing-or-pushing-content]]] section.
+      </p>
+      <p>
+        Since all local content that a web page has access to can be shared with
+        NFC, the user needs to be clearly aware about the permissions granted
+        to the web page using Web NFC.
+      </p>
+    </section>
+    <section> <h4>Store site URL as record identifier when writing data</h4>
+      <p>
+        When pushing an <a>NDEF message</a>, the [= host/registrable domain =],
+        <a data-cite="dom#concept-host-serializer">serialized</a>,
+        of the <a>current settings object</a> must be stored as the <a>record
+        identifier</a> in each top-level <a>NDEF Record</a>.
+      </p>
+    </section>
+    <section> <h4>Warn risk of physical location leak</h4>
+      <p>
+        When listening for and pushing <a>NFC content</a>,
+        the UA may warn the user that the given <a>origin</a> may be able to
+        infer physical location.
+      </p>
+    </section>
+    <section> <h4>Restrict automatic handling</h4>
+      <p>
+        The payload data on <a>NFC content</a> is untrusted, and must not be used
+        by the UA to do automatic handling such as opening a web page
+        with a URL found in an <a>NFC tag</a>, unless the user approves that.
+      </p>
+    </section>
+      <!--p>
+        For Bluetooth and WiFi handover (supported in later versions),
+        the user should have to grant access to the secondary API and must be
+        able to properly understand what they are granting.
+      </p-->
+  </section> <!-- Policies -->
+</section> <!-- Security and Privacy  -->
 
 <section id="idl-index" class="appendix">
   <!-- All the Web IDL will magically appear here -->
@@ -4274,6 +4295,7 @@
     <a href="https://github.com/w3c/nfc">work</a>
     on exposing NFC to the web platform, and for their support for the current
     approach.
+  </p>
 </section>
 
 </body>
