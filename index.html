@@ -1131,6 +1131,28 @@
     </pre>
   </section>
 
+
+  <section> <h3>Handle scanning errors</h3>
+    <p>
+      This example shows what happens when [=NDEFReader/scan=] promise rejects and
+      [=NDEFReader/onerror=] is fired.
+    </p>
+    <pre class="example">
+      const reader = new NDEFReader();
+      reader.scan().then(() => {
+        console.log("Scan started successfully.");
+        reader.onerror = event => {
+          console.log("Error! Cannot read data from NFC tag.");
+        };
+        reader.onreading = event => {
+          console.log("NDEF message read.");
+        };
+      }).catch(error => {
+        console.log(`Scan failed to start :-( try again: ${error}.`);
+      });
+    </pre>
+  </section>
+
   <section> <h3>Read data from tag, and write to empty ones</h3>
     <p>
       This example shows reading various different kinds of data which can be
