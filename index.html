@@ -4083,17 +4083,6 @@
     the NFC Forum introduced [[NDEF-SIGNATURE]].
   </p>
 
-  <!--
-  <p>
-    The trust model, attacker model, threat model and possible mitigation
-    proposals for Web NFC are presented in the
-    <a href="http://w3c.github.io/web-nfc/security-privacy.html">
-    Security and Privacy</a> document. This section presents the chosen
-    security and privacy model through normative requirements to
-    implementations.
-  </p>
-  -->
-
   <section> <h3>Chain of trust</h3>
     <p>
       Web pages using Web NFC are not trusted.
@@ -4135,23 +4124,8 @@
   </section>
 
   <section class="informative"> <h3>Threats</h3>
-    <div>
-      In this specification the following threats are handled with the highest
-      priority:
-      <ul>
-        <li>
-          User data privacy: involuntary sharing of user data (such as location,
-          contacts, personal data, etc) from an NFC-capable device such as a
-          phone, tablet, or PC.
-        </li>
-        <li>
-          Protecting existing <a>NFC tag</a>s from being overwritten by malicious
-          web pages.
-        </li>
-      </ul>
-    </div>
     <p>
-      More examples for potential threats with Web NFC are given below.
+      Potential threats for Web NFC are given below.
     </p>
     <table class="simple" border="1">
       <tr>
@@ -4341,6 +4315,24 @@
       </section>
     </section>
 
+    <section> <h3>Sign NDEF records</h3>
+      <p>
+        When pushing an <a>NDEF message</a>, one, more, or all records MAY be
+        signed using <a>NDEF signature</a>.
+      </p>
+      <p>
+        In order to build a trust chain, a Public Key Infrastructure is also
+        needed for key mananegent.
+      </p>
+    </section>
+
+    <section> <h3>Content identification</h3>
+      <p>
+        Implementations or applications MAY use an identification mechanism for telling apart “Web NFC content" from generic NFC content. Also, a
+        mechanism for conveying implementation specific metadata which is not exposed to applications MAY be implemented.
+      </p>
+    </section>
+
     <!--
     <section> <h3>Store site URL as record identifier when writing data</h3>
       <p>
@@ -4360,25 +4352,6 @@
       </p>
     </section>
     -->
-
-    <section> <h3>Sign NDEF records</h3>
-      <p>
-        When pushing an <a>NDEF message</a>, one, more, or all records MAY be
-        signed using <a>NDEF signature</a>.
-      </p>
-      <p>
-        In order to build a trust chain, a Public Key Infrastructure is also
-        needed for key mananegent.
-      </p>
-    </section>
-
-    <section> <h3>Content identification</h3>
-      <p>
-        Implementations or applications MAY use an identification mechanism for telling apart “Web NFC content" from generic NFC content. Also, a
-        mechanism for conveying implementation specific metadata which is not exposed to applications MAY be implemented.
-      </p>
-    </section>
-
   </section>
 
   <section> <h3>Security policies</h3>
@@ -4439,12 +4412,8 @@
         See also the [[[#writing-or-pushing-content]]] section.
       </p>
       -->
-      <p>
-        Since all local content that a web page has access to can be shared with
-        NFC, the user needs to be clearly aware about the permissions granted
-        to the web page using Web NFC.
-      </p>
     </section>
+
     <section> <h4>Warn risk of physical location leak</h4>
       <p>
         When listening for and pushing <a>NFC content</a>,
@@ -4452,15 +4421,17 @@
         infer physical location.
       </p>
     </section>
+
     <section> <h4>Restrict automatic handling</h4>
       <p>
-        When the payload data on <a>NFC content</a> is untrusted, and MUST NOT
+        When the payload data on <a>NFC content</a> is untrusted, it MUST NOT
         be used by the UA to do automatic handling of the content, such as
         opening a web page with a URL found in an <a>NFC tag</a>, or installing
         an application, or other actions, unless the user approves that.
       </p>
     </section>
-    <section> <h4>Policies for signing <a>NFC content</a></h4>
+
+    <section> <h4>Signing <a>NFC content</a></h4>
       <div>
         For tags signed with <a>NDEF signature</a> version 1.0 ([[NFC-SECURITY]]),
         the signature is applied only to the <a>TYPE field</a>, <a>ID field</a>
@@ -4468,8 +4439,7 @@
         allowing surface to attacks. Version 2.0 of [[NFC-SECURITY]] included
         tag hardware attributes in the signature and allowed for shorter
         certificates.
-        Therefore the following additional policies apply to
-        <a>NDEF signature</a>:
+        Therefore the following additional policies apply:
         <ul>
           <li>
             A <a>smart poster</a> can be trusted only if signed by using
@@ -4488,7 +4458,6 @@
         able to properly understand what they are granting.
       </p-->
   </section> <!-- Policies -->
-
 </section> <!-- Security and Privacy  -->
 
 <section id="idl-index" class="appendix">
