@@ -4077,26 +4077,26 @@
 <section> <h2 id="security">Security and Privacy</h2>
   <p>
     NFC technology involves multiple levels of security. Payments done with NFC
-    are considered to be at least as secure as with payment cards at hardware
-    level, but the whole software stack needs to be security hardened.
-    However, data transfers involve more threats. In order to mitigate these,
-    the NFC Forum introduced [[NDEF-SIGNATURE]].
+    are considered to be secure at hardware level, but the whole software stack
+    needs to be security hardened.
+    However, NFC data transfers involve additional threats. In order to mitigate
+    these, the NFC Forum introduced [[NDEF-SIGNATURE]].
   </p>
 
   <section> <h3>Chain of trust</h3>
     <p>
-      Web pages using Web NFC are not trusted.
-      This means that the user needs to be aware of exactly what a web page is
-      intending to do with NFC at any given moment. Implementations need to
-      make sure that when the user authorizes a method of this API, then only
+      Web sites and applications using Web NFC are not trusted.
+      This means that the user needs to be made aware of what NFC functionality
+      a web page intends to do. Implementations need to
+      make sure that when the user authorizes a method of this API, only
       that action is run, without side effects, and exactly in the context and
       the number of times the user allows the execution of NFC related
       operations, according to the algorithmic steps detailed in this
       specification.
     </p>
     <p>
-      The integrity of <a>NFC content</a> SHOULD NOT be trusted by web pages
-      unless it is encrypted by applications, or a
+      The integrity of <a>NFC content</a> SHOULD NOT be trusted by web sites
+      and applications unless it is encrypted by applications, or a
       <a>prearranged trust relationship</a> exists.
     </p>
     <p>
@@ -4176,8 +4176,7 @@
           The data is considered application specific.
           Implementations need security hardening.
           Involuntary touch is low probability due to short range and critical
-          angle for reading.
-          It’s easier to attack elsewhere (e.g. WiFi and Bluetooth).
+          angle for reading, and due to the focus requirements.
         </td>
       </tr>
       <tr>
@@ -4194,7 +4193,7 @@
       </tr>
       <tr>
         <td>
-          Malicious Web NFC tag could send an arbitrary payload to a website
+          Malicious Web NFC tag payload read by a website may inflict cause
           via a user’s device, along with a user’s existing web credentials.
           The webapp and server would need to treat that payload as completely
           untrusted.
@@ -4209,21 +4208,11 @@
       <tr>
         <td>
           A Web NFC tag could be used for leaking the user’s physical location,
-          <ul>
-            <li>
-              if the reading triggers a user’s device to navigate to a website
-              that can identify the tag and knows the tag's physical location.
-            </li>
-            <li>
-              by sending <a>NFC tag</a>s, either by directly sharing the user
-              location (when the <a>browsing context</a> has access to that),
-              or by sending information that can be used for inferring the
-              location of the user.
-            </li>
-          </ul>
+          if the reading triggers a user’s device to navigate to a website
+          that can identify the tag and knows the tag's physical location.
         </td>
         <td>
-          A Web NFC tag SHOULD NOT ever trigger a user’s device to navigate
+          A NFC tag SHOULD NOT ever trigger a user’s device to navigate
           to a website without asking permission, unless the site has been in
           the foreground or has been brought to the foreground and has been
           granted permission. User agents SHOULD take into account the
@@ -4319,11 +4308,11 @@
     <section> <h3>Sign NDEF records</h3>
       <p>
         When pushing an <a>NDEF message</a>, one, more, or all records MAY be
-        signed using <a>NDEF signature</a>.
+        signed using an <a>NDEF signature</a>.
       </p>
       <p>
         In order to build a trust chain, a Public Key Infrastructure is also
-        needed for key mananegent.
+        needed for key management.
       </p>
     </section>
 
