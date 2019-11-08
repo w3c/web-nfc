@@ -4293,7 +4293,8 @@
             <li>
               For trusting the integrity of the data exchanged via NFC, user
               agents MAY use encrypted <a>NFC content</a> with key management
-              based on Public Key Infrastructure. Key management is out of the scope of Web NFC.
+              based on Public Key Infrastructure.
+              Key management is out of the scope of Web NFC.
               <p class="note">
                 This is different from application level end to end encryption.
                 Key management is then in application domain.
@@ -4328,30 +4329,29 @@
 
     <section> <h3>Content identification</h3>
       <p>
-        Implementations or applications MAY use an identification mechanism for telling apart “Web NFC content" from generic NFC content. Also, a
-        mechanism for conveying implementation specific metadata which is not exposed to applications MAY be implemented.
+        Implementations or applications MAY use an identification mechanism for
+        telling apart “Web NFC content" from generic NFC content. Also, a
+        mechanism for conveying implementation specific metadata which is not
+        exposed to applications MAY be implemented.
       </p>
+      <section> <h4>Store site URL as record identifier when writing data</h4>
+        <p>
+          When pushing an <a>NDEF message</a>, the [= host/registrable domain =],
+          <a data-cite="dom#concept-host-serializer">serialized</a>,
+          of the <a>current settings object</a> MAY be stored as the <a>record
+          identifier</a> in each top-level <a>NDEF Record</a>.
+          This does not make the payload trusted.
+        </p>
+      </section>
+      <section> <h4>Include URI records with registrable domain</h4>
+        <p>
+          When pushing an <a>NDEF message</a>, the [= host/registrable domain =],
+          <a data-cite="dom#concept-host-serializer">serialized</a>,
+          of the <a>current settings object</a> MAY be stored as a signed
+          <a>URI record</a>. This does not make other records trusted.
+        </p>
+      </section>
     </section>
-
-    <!--
-    <section> <h3>Store site URL as record identifier when writing data</h3>
-      <p>
-        When pushing an <a>NDEF message</a>, the [= host/registrable domain =],
-        <a data-cite="dom#concept-host-serializer">serialized</a>,
-        of the <a>current settings object</a> MAY be stored as the <a>record
-        identifier</a> in each top-level <a>NDEF Record</a>. This does not make
-        the payload trusted.
-      </p>
-    </section>
-    <section> <h3>Include URI records with registrable domain</h3>
-      <p>
-        When pushing an <a>NDEF message</a>, the [= host/registrable domain =],
-        <a data-cite="dom#concept-host-serializer">serialized</a>,
-        of the <a>current settings object</a> MAY be stored as a signed
-        <a>URI record</a>. This does not make other records trusted.
-      </p>
-    </section>
-    -->
   </section>
 
   <section> <h3>Security policies</h3>
@@ -4439,24 +4439,35 @@
         allowing surface to attacks. Version 2.0 of [[NFC-SECURITY]] included
         tag hardware attributes in the signature and allowed for shorter
         certificates.
-        Therefore the following additional policies apply:
+        In this version of the specification the following policies are
+        recommended:
         <ul>
           <li>
-            A <a>smart poster</a> can be trusted only if signed by using
+            A <a>smart poster</a> MAY be trusted only if signed by using
             a single <a>NDEF signature</a> record by the same issuer.
           </li>
           <li>
-            An <a>NDEF message</a> can be trusted only if signed by
+            An <a>NDEF message</a> MAY be trusted only if signed by
             a single <a>NDEF signature</a> record by the same issuer.
+          </li>
+          <li>
+            User agents expose <a>NDEF signature</a> records without verifying
+            them. It is applications' responsibility to verify signatures and
+            to sign <a>NFC content</a>.
+            <p class="note">
+              Indication whether <a>NFC content</a> is trusted may be added in
+              future versions. Also, origin policies MAY be applied in order to
+              relax user prompting when a trust chain could be established.
+            </p>
           </li>
         </ul>
       </div>
     </section>
-      <!--p>
-        For Bluetooth and WiFi handover (supported in later versions),
-        the user should have to grant access to the secondary API and must be
-        able to properly understand what they are granting.
-      </p-->
+    <p class="note">
+      For Bluetooth and WiFi handover (supported in later versions),
+      the user should have to grant access to the secondary API and must be
+      able to properly understand what they are granting.
+    </p>
   </section> <!-- Policies -->
 </section> <!-- Security and Privacy  -->
 
