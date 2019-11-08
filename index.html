@@ -2612,10 +2612,6 @@
         To <dfn>obtain push permission</dfn>, run these steps:
         <ol class=algorithm>
           <li>
-            If there is a <a>prearranged trust relationship</a>,
-            return `true`.
-          </li>
-          <li>
             Run the
             <a>query a permission</a> steps for the
             <a>Web NFC permission name</a> until completion.
@@ -3502,10 +3498,6 @@
         To <dfn>obtain reading permission</dfn>, run these steps:
         <ol>
           <li>
-            If there is a <a>prearranged trust relationship</a>,
-            return `true`.
-          </li>
-          <li>
             Otherwise, if the user has earlier denied permission for the calling
             <a>origin</a> for all future calls of
             <a data-link-for="NDEFReader">scan()</a>
@@ -4095,9 +4087,9 @@
       specification.
     </p>
     <p>
-      The integrity of <a>NFC content</a> SHOULD NOT be trusted by web sites
-      and applications unless it is encrypted by applications, or a
-      <a>prearranged trust relationship</a> exists.
+      The integrity of <a>NFC content</a> MAY be trusted by web sites
+      and applications only if encrypted by applications, or if signed
+      with an <a>NDEF signature</a>.
     </p>
     <p>
       Security considerations for media types in general are discussed in
@@ -4229,18 +4221,15 @@
       In order to support security policies concerning Web NFC, the following
       mechanisms are recommended for the implementations.
     </p>
-    <section> <h3><dfn>Obtain permission</dfn></h3>
-      Implementations SHOULD use one or more of the following mechanisms for
-      <dfn>obtaining permission</dfn>.
+    <section> <h3><dfn>Obtaining permission</dfn></h3>
+      Implementations SHOULD use one or more of the following mechanisms to
+      <dfn>obtain permission</dfn>.
       <ul>
         <li>
           A mechanism for obtaining <a>expressed permission</a> of the user.
         </li>
         <li>
           A mechanism for <a>ask for forgiveness</a> policies.
-        </li>
-        <li>
-          A mechanism for <a>prearranged trust relationship</a>.
         </li>
       </ul>
       <section> <h4><dfn>Expressed permission</dfn></h4>
@@ -4265,47 +4254,22 @@
           handle future occurences of the same operation by the same action.
         </p>
       </section>
-      <section> <h4><dfn>Prearranged trust relationship</dfn></h4>
-        <div>
-          A prearranged trust relationship means the UA has already
-          established a trust relationship for a certain operation using a
-          platform specific mechanism, so that an <a>expressed permission</a>
-          from the user is not any more needed. A few examples are given below.
-          <ul>
-            <li>
-              Web apps installed from a store, or web pages installed to home
-              screen (with [[appmanifest]]) MAY be considered trusted by the user
-              agent. In this case the trust concerns the web page and allowed
-              NFC functionality, but does not necessarily also concern the
-              data exchanged through NFC.
-            </li>
-            <li>
-              For trusting the integrity of the data exchanged via NFC, user
-              agents MAY use encrypted <a>NFC content</a> with key management
-              based on Public Key Infrastructure.
-              Key management is out of the scope of Web NFC.
-              <p class="note">
-                This is different from application level end to end encryption.
-                Key management is then in application domain.
-              </p>
-            </li>
-            <li>
-              User agents MAY consider using <a>NDEF signature</a> records for
-              <a>NFC content</a> integrity. When <a>NDEF record</a>s are signed
-              with a site certificate, then that is considered
-              <a>prearranged trust relationship</a> and browser origin policy
-              MAY be applied to relax the security policies in this document,
-              in the case when the user agent wants to minimize or eliminate
-              user prompts involved in obtaining permissions.
-              The signing tools and Public Key Infrastructure for key management
-              are out of scope of Web NFC.
-            </li>
-          </ul>
-        </div>
-      </section>
     </section>
 
-    <section> <h3>Sign NDEF records</h3>
+    <section> <h3>Encrypting <a>NFC content</a></h3>
+      <p>
+        For trusting the integrity of the data exchanged via NFC, user agents
+        MAY use encrypted <a>NFC content</a> with key management based on
+        Public Key Infrastructure (PKI).
+        Key management is out of the scope of Web NFC.
+      </p>
+      <p class="note">
+        This is different from application level end to end encryption.
+        Key management is then in application domain.
+      </p>
+    </section>
+
+    <section> <h3>Signing NDEF records</h3>
       <p>
         When pushing an <a>NDEF message</a>, one, more, or all records MAY be
         signed using an <a>NDEF signature</a>.
@@ -4313,6 +4277,14 @@
       <p>
         In order to build a trust chain, a Public Key Infrastructure is also
         needed for key management.
+      </p>
+      <p>
+        For tags signed with <a>NDEF signature</a> version 1.0 ([[NFC-SECURITY]]),
+        the signature is applied only to the <a>TYPE field</a>, <a>ID field</a>
+        and <a>PAYLOAD field</a>, leaving out the first byte of the NDEF header,
+        allowing surface to attacks. Version 2.0 of [[NFC-SECURITY]] included
+        tag hardware attributes in the signature and allowed for shorter
+        certificates.
       </p>
     </section>
 
@@ -4403,7 +4375,7 @@
       -->
     </section>
 
-    <section> <h4>Warn risk of physical location leak</h4>
+    <section> <h4>Warn about risk of physical location leak</h4>
       <p>
         When listening for and pushing <a>NFC content</a>,
         the UA MAY warn the user that the given <a>origin</a> may be able to
@@ -4422,12 +4394,6 @@
 
     <section> <h4>Signing <a>NFC content</a></h4>
       <div>
-        For tags signed with <a>NDEF signature</a> version 1.0 ([[NFC-SECURITY]]),
-        the signature is applied only to the <a>TYPE field</a>, <a>ID field</a>
-        and <a>PAYLOAD field</a>, leaving out the first byte of the NDEF header,
-        allowing surface to attacks. Version 2.0 of [[NFC-SECURITY]] included
-        tag hardware attributes in the signature and allowed for shorter
-        certificates.
         In this version of the specification the following policies are
         recommended:
         <ul>
