@@ -460,7 +460,8 @@
     encoding and format dictated by value of the <a>TNF field</a>.
   </p>
   <p class="note">
-    The [[[!NFC-RTD]]] requires that the <a>TYPE field</a> names MUST be compared in case-insensitive manner.
+    The [[[!NFC-RTD]]] requires that the <a>TYPE field</a> names MUST be
+    compared in case-insensitive manner.
   </p>
   <p>
     The <dfn>ID LENGTH field</dfn> is an unsigned 8-bit integer that denotes
@@ -849,11 +850,11 @@
 
 <section class="informative"> <h3>Use Cases</h3>
   <p>
-    A few Web NFC user scenarios are described in the
-    <a href="https://w3c.github.io/web-nfc/use-cases.html">Use Cases</a>
-    document. These user scenarios can be grouped by criteria based on
-    security, privacy and feature categories, resulting in generic flows as
-    follows.
+    A few NFC user scenarios have been enumerated
+    <a href="http://www.w3.org/2009/dap/wiki/Near_field_communications_%28NFC%29#Use_cases_submitted_to_DAP_mailing_list">
+    here</a> and in the
+    <a href="https://w3c.github.io/web-nfc/use-cases.html">Web NFC Use Cases</a>
+    document. The basic NFC interactions are the following.
   </p>
 
   <section> <h3>Reading an <a>NFC tag</a></h3>
@@ -865,9 +866,12 @@
         to tap an NFC tag, and then receives information from the tag.
       </li>
       <li>
-        Reading an <a>NFC tag</a> containing other than <a>NDEF message</a>,
-        when the {{Document}} of the <a>top-level browsing context</a> using
-        Web NFC is <a>visible</a>.
+        Reading an <a>NFC tag</a> with non-<a>NDEF</a> technology, e.g. the
+        <a>MIFARE Standard</a>, when the {{Document}} of the <a>top-level
+        browsing context</a> using Web NFC is <a>visible</a>.
+        <p class="note">
+          This use case is not supported in this version of the specification.
+        </p>
       </li>
       <li>
         Reading an <a>NFC tag</a> when no {{Document}} using Web NFC is
@@ -884,6 +888,9 @@
       The user opens a web page which can write an <a>NFC tag</a>. The write
       operations may be one of the following:
       <ol>
+        <li>
+          Writing to a non-formatted <a>NFC tag</a>.
+        </li>
         <li>
           Writing to an empty <a>NFC tag</a>.
         </li>
@@ -1002,21 +1009,6 @@
         emulation.
       </li>
     </ol>
-  </div>
-  <div>
-    This specification makes a few simplifications in what use cases
-    and data types Web NFC can handle:
-    <ul>
-      <li>
-        Expose data types already known to web browsers as
-        <a>MIME type</a>s.
-      </li>
-      <li>Use the web security model.</li>
-      <li>
-        Implementations encapsulate <a>NDEF record</a> handling and the API
-        exposes only data and control events.
-      </li>
-    </ul>
   </div>
 </section> <!-- Features -->
 
@@ -4090,6 +4082,11 @@
       The integrity of <a>NFC content</a> MAY be trusted by web sites
       and applications only if encrypted by applications, or if signed
       with an <a>NDEF signature</a>.
+    </p>
+    <p>
+      For trusting the integrity of the data exchanged via NFC, user agents MAY
+      use encrypted <a>NFC content</a> or an <a>NDEF signature</a>, with key
+      management based on Public Key Infrastructure (PKI).
     </p>
     <p>
       Security considerations for media types in general are discussed in
