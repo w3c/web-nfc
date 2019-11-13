@@ -235,12 +235,12 @@
   <div>
     An <dfn>NFC tag</dfn> is a passive NFC device.
     The <a>NFC tag</a> is powered by magnetic induction when an active NFC
-    device is in proximity range. An <a>NFC tag</a> contains a single
-    <a>NDEF message</a>.
+    device is in proximity range. An <a>NFC tag</a> that supports <a>NDEF</a>
+    contains a single <a>NDEF message</a>.
     <p class="note">
       The way of reading the message may happen through proprietary
       technologies, which require the reader and the tag to be of the same
-      manufacturer. Implementations are expected to encapsulate this.
+      manufacturer. They may also expose an <a>NDEF</a> message.
     </p>
   </div>
   <p>
@@ -4079,19 +4079,46 @@
       specification.
     </p>
     <p>
-      The integrity of <a>NFC content</a> MAY be trusted by web sites
-      and applications only if encrypted by applications, or if signed
-      with an <a>NDEF signature</a>.
+      For trusting the <strong>confidentiality</strong> of the data exchanged
+      via NFC, user agents MAY use encrypted <a>NFC content</a>.
     </p>
     <p>
-      For trusting the integrity of the data exchanged via NFC, user agents MAY
-      use encrypted <a>NFC content</a> or an <a>NDEF signature</a>, with key
-      management based on Public Key Infrastructure (PKI).
+      For trusting the <strong>integrity</strong> of the data exchanged via NFC,
+      user agents MAY use an <a>NDEF signature</a>, with key management based on
+      Public Key Infrastructure (PKI).
     </p>
     <p>
       Security considerations for media types in general are discussed in
       [[RFC2048]] and [[RFC2046]].
     </p>
+  </section>
+
+  <section class="informative"> <h2>Assets</h2>
+    <div>
+      Assets to be protected include the following:
+      <ul>
+        <li>
+          <strong>NFC tag and content</strong>, against data damages caused via
+          Web NFC. This includes Denial of Service attacks against a solution
+          deployed with NFC tags (e.g. a malicious actor destroying tags linked
+          to a solution).
+        </li>
+        <li>
+          <strong>User location</strong> that can be indirectly determined by
+          using NFC by tag content creator, used directly or leaking forward to
+          third parties.
+        </li>
+        <li>
+          <strong>User identity</strong> interacting with a site using Web NFC.
+        </li>
+        <li>
+          <strong>User data</strong> exposed to a web page using Web NFC.
+        </li>
+        <li>
+          <strong>User device</strong> running a web page using Web NFC.
+        </li>
+      </ul>
+    </div>
   </section>
 
   <section class="informative"> <h2>Attacker model</h2>
@@ -4108,10 +4135,14 @@
           phishing user location, causing side actions such as installing
           applications, trigger automated dispatching or other actions.
         </li>
+        <li>
+          malicious user: destroying tags, harming integrity, creating malicious tag and web page.
+        </li>
       </ul>
     </p>
   </section>
 
+<!-- TODO: this section is being rewritten and to be removed later
   <section class="informative"> <h3>Threats</h3>
     <p>
       Potential threats for Web NFC are given below.
@@ -4177,7 +4208,9 @@
           Support for smart posters is not among the main use cases of Web
           NFC; if and when supported, no automatic actions should be allowed,
           the user must be made aware and given the ability to control what is
-          happening during the NFC communication.
+          happening during the NFC communication. For instance: opening content
+          from <a>smart poster</a>, automatic connection to (possibly malicious)
+          WiFi via <a>NFC handover</a>, etc.
         </td>
       </tr>
       <tr>
@@ -4211,6 +4244,167 @@
         </td>
       </tr>
     </table>
+  </section>
+TODO delete -->
+
+  <section class="informative"> <h3>Threats</h3>
+    <p>
+      Potential threats for Web NFC are given below.
+    </p>
+
+    <section> <h4>Fingerprinting and data collection</h4>
+      <dl>
+        <dt><strong>Threat description</strong></dt>
+        <dd>
+          Web page using Web NFC collects user data without user consent and
+          writes it to publicly accessible tags.
+        </dd>
+        <dt><strong>Affected assets</strong></dt>
+        <dd>
+          User data, user identity.
+        </dd>
+        <dt><strong>Actors</strong></dt>
+        <dd>
+          Malicious web page using Web NFC.
+        </dd>
+        <dt><strong>Stakeholders</strong></dt>
+        <dd>
+          Web NFC implementation, browser.
+        </dd>
+        <dt><strong>Mitigation, comments</strong></dt>
+        <dd>
+          The user SHOULD be able to be aware of what data can be shared using
+          NFC from the given web page.
+          Use permissions and user prompts for accessing personal data,
+          minimize user data exposed to NFC.
+        </dd>
+      </dl>
+    </section>
+
+    <section> <h4>Overwriting tags</h4>
+      <dl>
+        <dt><strong>Threat description</strong></dt>
+        <dd>
+          Malicious web page overwrites tags without user consent.
+        </dd>
+        <dt><strong>Affected assets</strong></dt>
+        <dd>
+          NFC tags, NFC content.
+        </dd>
+        <dt><strong>Actors</strong></dt>
+        <dd>
+          Malicious web page.
+        </dd>
+        <dt><strong>Stakeholders</strong></dt>
+        <dd>
+          Browser, Web NFC implementation.
+        </dd>
+        <dt><strong>Mitigation, comments</strong></dt>
+        <dd>
+          Require permission and user prompt needed for writing tags.
+          Or, control what tags can be written by a given web page, for instance
+          a web page can write only a tag which can be connected to its origin.
+          Or, allow overwriting since tags not meant to be written can be
+          protected by making them read only.
+        </dd>
+      </dl>
+    </section>
+
+    <section> <h4>Tag used for attacking user device</h4>
+      <dl>
+        <dt><strong>Threat description</strong></dt>
+        <dd>
+          Malicious tag may be involuntarily or voluntarily read by devices
+          and the data read may constitute an attack vector on the user agent.
+        </dd>
+        <dt><strong>Affected assets</strong></dt>
+        <dd>
+          User device, user data, user identity.
+        </dd>
+        <dt><strong>Actors</strong></dt>
+        <dd>
+          Malicious tag.
+        </dd>
+        <dt><strong>Stakeholders</strong></dt>
+        <dd>
+          Browser, Web NFC implementation.
+        </dd>
+        <dt><strong>Mitigation, comments</strong></dt>
+        <dd>
+          This is a generic problem with all existing NFC tags.
+          The data is considered application specific.
+          Implementations need security hardening.
+          Involuntary touch is low probability due to short range and critical
+          angle for reading, and due to the focus requirements.
+        </dd>
+      </dl>
+    </section>
+
+    <section> <h4>Tag triggering malicious action</h4>
+      <dl>
+        <dt><strong>Threat description</strong></dt>
+        <dd>
+          Malicious smart poster or other tag attempts triggering an action on
+          the device which may be a threat, for instance launching a malicious
+          web site, or opening an image prepared for attacking the device.
+        </dd>
+        <dt><strong>Affected assets</strong></dt>
+        <dd>
+          User device, user data.
+        </dd>
+        <dt><strong>Actors</strong></dt>
+        <dd>
+          Malicious tag.
+        </dd>
+        <dt><strong>Stakeholders</strong></dt>
+        <dd>
+          Web NFC implementation. Browser.
+        </dd>
+        <dt><strong>Mitigation, comments</strong></dt>
+        <dd>
+          Automatic actions for smart posters and other tags should not be
+          allowed. The user must be made aware and given the ability to control
+          what is happening during the NFC communication. For instance, opening
+          content from <a>smart poster</a>, automatic connection to (possibly
+          malicious) WiFi via <a>NFC handover</a>, etc.
+        </dd>
+      </dl>
+    </section>
+
+    <section> <h4>Leaking user location</h4>
+      <dl>
+        <dt><strong>Threat description</strong></dt>
+        <dd>
+          A Web NFC tag could be used for leaking the user’s physical location,
+          if the reading triggers a user’s device to navigate to a website
+          that can identify the tag and knows the tag's physical location.
+        </dd>
+        <dt><strong>Affected assets</strong></dt>
+        <dd>
+          User location.
+        </dd>
+        <dt><strong>Actors</strong></dt>
+        <dd>
+          Malicious web site, malicious tag.
+        </dd>
+        <dt><strong>Stakeholders</strong></dt>
+        <dd>
+          Browser, Web NFC implementation.
+        </dd>
+        <dt><strong>Mitigation, comments</strong></dt>
+        <dd>
+          A NFC tag SHOULD NOT ever trigger a user’s device to navigate
+          to a website without asking permission, unless the site has been in
+          the foreground or has been brought to the foreground and has been
+          granted permission. User agents SHOULD take into account the
+          security and privacy measures listed in the
+          <a href="http://dev.w3.org/geo/api/spec-source.html#security">
+          Geolocation API</a>.
+        </dd>
+      </dl>
+    </section>
+
+
   </section>
 
   <section class="informative"> <h2>Security mechanisms</h2>
@@ -4255,7 +4449,7 @@
 
     <section> <h3>Encrypting <a>NFC content</a></h3>
       <p>
-        For trusting the integrity of the data exchanged via NFC, user agents
+        For trusting the confidentiality of the data exchanged via NFC, user agents
         MAY use encrypted <a>NFC content</a> with key management based on
         Public Key Infrastructure (PKI).
         Key management is out of the scope of Web NFC.
@@ -4268,12 +4462,9 @@
 
     <section> <h3>Signing NDEF records</h3>
       <p>
-        When pushing an <a>NDEF message</a>, one, more, or all records MAY be
-        signed using an <a>NDEF signature</a>.
-      </p>
-      <p>
-        In order to build a trust chain, a Public Key Infrastructure is also
-        needed for key management.
+        For trusting the integrity of the data exchanged via NFC, user agents
+        MAY use an <a>NDEF signature</a> with a Public Key Infrastructure
+        for key management.
       </p>
       <p>
         For tags signed with <a>NDEF signature</a> version 1.0 ([[NFC-SECURITY]]),
