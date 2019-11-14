@@ -4098,25 +4098,26 @@
       Assets to be protected include the following:
       <ul>
         <li>
-          <strong>NDEF message records, including payload and associated metadata
-          </strong> in-transfer and in-storage (when tag is being overwritten via
-          Web NFC triggered action), against data disclosure or data modification.
+          <strong>NDEF message</strong> as a whole,
+          <strong>NDEF records</strong> (including payload and header) in
+          particular, either in-transfer or in-storage state,
+          when they are being overwritten by a Web NFC triggered operation,
+          against data disclosure and data modification.
           This also includes Denial of Service attacks against a solution
           deployed with NFC tags (e.g. a malicious actor destroying tags linked
           to a solution).
         </li>
         <li>
           <strong>User identity or other privacy sensitive attributes</strong>
-          that can be directly or indirectly determined by using NFC by tag
-          content creator or exposed to a web page using Web NFC. They can be
-          used directly or leaking forward to third parties. Examples are user
-          location, user device identifier and user identifier.
+          that can be directly or indirectly determined by using Web NFC, by the
+          <a>NFC content</a> creator by a web site using Web NFC.
+          This data could be used directly or leaked forward to third parties. Examples are user location, device identifiers and user identifiers.
         </li>
         <li>
           <strong>User data</strong> exposed to a web page using Web NFC.
           While web page might collect user data using other means than
-          web NFC protocol, it might embed this data into NDEF records
-          shared via Web NFC.
+          Web NFC, it might embed this data into NDEF records and share via
+          Web NFC.
         </li>
         <li>
           <strong>Integrity of user device</strong>.
@@ -4132,23 +4133,26 @@
       The following attacker patterns have been considered:
       <ul>
         <li>
-          Malicious web page creator: phishing user data, identity or
-          other privacy sensitive attributes, destroying or modifying NFC tags to
-          cause further damage through fake identities and attack vectors;
+          <strong>Malicious web page creator</strong>: phishing user data,
+          identity or other privacy sensitive attributes, destroying or
+          modifying NFC tags to cause further damage through fake identities
+          and attack vectors;
         </li>
         <li>
-          Malicious NFC tag creator: same as malicious web page owner, but
-          it has a possibility to create, delete or modify the NFC tags locally.
+          <strong>Malicious NFC tag creator</strong>: same as malicious web page
+          owner, but it has a possibility to create, delete or modify the NFC
+          tags locally.
           As a result can compromise integrity of user device, cause data
           injection, redirect to malicious web page, phishing user location,
-          causing side actions such as installing applications, trigger automated
-          dispatching or other actions.
+          causing side actions such as installing applications, trigger
+          automated dispatching or other actions.
         </li>
         <li>
-          Malicious MitM user: any MitM-style attack between a legitimate Web
-          NFC frontend and a user device using Web NFC interfaces. Also includes
-          attempts to interact with a legitimate web page exposing Web NFC
-          frontend by presenting modified or replayed NDEF records.
+          <strong>Malicious MitM user</strong>: any MitM (man in the middle)
+          style attack between Web NFC implementation and an <a>NFC adapter</a>
+          in a user device. A
+          Also includes attempts to interact with a web site using Web NFC
+          by presenting modified or replayed NDEF records.
         </li>
       </ul>
     </p>
@@ -4270,8 +4274,8 @@ TODO delete -->
         <dd>
           Malicious web page collects user data, identity or other privacy
           sensitive attributes (such as location) without user consent and
-          exposes it to third parties (writing it to NFC tags, sending to other
-          web NFC providers, etc.)
+          exposes it to third parties (writing it to NFC tags, pushing to NFC
+          peers).
         </dd>
         <dt><strong>Affected assets</strong></dt>
         <dd>
@@ -4304,8 +4308,8 @@ TODO delete -->
         <dd>
           An NFC tag is being modified without user consent.
           This might enable further attacks using a malicious tag
-          or can be a Denial of Service attack to make a tag
-          unusable by other users.
+          or can be a Denial of Service attack to make one or more tags
+          unusable.
         </dd>
         <dt><strong>Affected assets</strong></dt>
         <dd>
@@ -4313,7 +4317,7 @@ TODO delete -->
         </dd>
         <dt><strong>Actors</strong></dt>
         <dd>
-          Malicious web page creator, malicious MitM user.
+          Malicious web page creator, malicious MitM (man in the middle) user.
         </dd>
         <dt><strong>Mitigation, comments</strong></dt>
         <dd>
@@ -4323,6 +4327,57 @@ TODO delete -->
           Or, allow overwriting since tags not meant to be written can be
           protected by making them read only.
           Use <a>NDEF signature</a> to detect a modification of NFC tags.
+        </dd>
+      </dl>
+    </section>
+
+    <section> <h4>NDEF record modification in-transit</h4>
+      <dl>
+        <dt><strong>Threat description</strong></dt>
+        <dd>
+          <a>NDEF record</a>s transferred between Web NFC and the
+          <a>NFC adapter</a> and user device are modified to cause various
+          MitM attacks or Denial of Service.
+        </dd>
+        <dt><strong>Affected assets</strong></dt>
+        <dd>
+          <a>NDEF record</a>s in-transfer.
+        </dd>
+        <dt><strong>Actors</strong></dt>
+        <dd>
+          Malicious MitM user.
+        </dd>
+        <dt><strong>Mitigation, comments</strong></dt>
+        <dd>
+          Use <a>NDEF signature</a>s to protect the NFC tag payload
+          and metadata. Additionally, harden the platform stack and
+          communication between the web NFC frontend and backend.
+          This thhreat is out of scope for Web NFC implementations.
+        </dd>
+      </dl>
+    </section>
+
+    <section> <h4>NDEF record payload disclosure</h4>
+      <dl>
+        <dt><strong>Threat description</strong></dt>
+        <dd>
+          Confidential payload of <a>NDEF record</a> in-storage (stored
+          on a NFC tag) or in-transfer between Web NFC and the
+          <a>NFC adapter</a> are read by unauthorized parties.
+        </dd>
+        <dt><strong>Affected assets</strong></dt>
+        <dd>
+          Confidential NDEF message payload in-transfer and in-storage.
+        </dd>
+        <dt><strong>Actors</strong></dt>
+        <dd>
+          Malicious MitM user, malicious web page creator.
+        </dd>
+        <dt><strong>Mitigation, comments</strong></dt>
+        <dd>
+          To ensure confidentiality, use payload encryption and secure
+          communication for data exchange, authentication and authorization
+          between Web NFC and <a>NFC adapter</a>s.
         </dd>
       </dl>
     </section>
@@ -4339,7 +4394,7 @@ TODO delete -->
         </dd>
         <dt><strong>Affected assets</strong></dt>
         <dd>
-          Integrity of user device, all other web NFC assets.
+          Integrity of user device, all other Web NFC assets.
         </dd>
         <dt><strong>Actors</strong></dt>
         <dd>
@@ -4362,60 +4417,7 @@ TODO delete -->
         </dd>
       </dl>
     </section>
-
-    <section> <h4>NDEF record modification in-transit</h4>
-      <dl>
-        <dt><strong>Threat description</strong></dt>
-        <dd>
-          <a>NDEF record</a>s transferred between the web NFC frontend/backend
-          and user device are modified to cause various MitM attacks or
-          Denial of Service.
-        </dd>
-        <dt><strong>Affected assets</strong></dt>
-        <dd>
-          NDEF message records, including payload and associated metadata
-          in-transfer.
-        </dd>
-        <dt><strong>Actors</strong></dt>
-        <dd>
-          Malicious MitM user.
-        </dd>
-        <dt><strong>Mitigation, comments</strong></dt>
-        <dd>
-          Use <a>NDEF signature</a>s to protect the NFC tag payload
-          and metadata. Additionally, harden the platform stack and
-          communication between the web NFC frontend and backend.
-        </dd>
-      </dl>
-    </section>
-
-    <section> <h4>NDEF record payload disclosure</h4>
-      <dl>
-        <dt><strong>Threat description</strong></dt>
-        <dd>
-          Confidential payload of <a>NDEF record</a> in-storage (stored
-          on a NFC tag) or in-transfer between Web NFC and the
-          <a>NFC adapter</a> are read by unauthorized parties.
-        </dd>
-        <dt><strong>Affected assets</strong></dt>
-        <dd>
-          Confidential NDEF message payload
-          in-transfer and in-storage.
-        </dd>
-        <dt><strong>Actors</strong></dt>
-        <dd>
-          Malicious MitM user, malicious web page creator.
-        </dd>
-        <dt><strong>Mitigation, comments</strong></dt>
-        <dd>
-          Use encryption for the payload and secure communication
-          protocols for data exchange, authentication and authorization
-          mechanisms between the web NFC page and NFC tag.
-        </dd>
-      </dl>
-    </section>
   </section>
-
 
   <section class="informative"> <h2>Security mechanisms</h2>
     <p>
