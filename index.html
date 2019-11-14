@@ -4092,30 +4092,36 @@
       [[RFC2048]] and [[RFC2046]].
     </p>
   </section>
-
+  
   <section class="informative"> <h2>Assets</h2>
     <div>
       Assets to be protected include the following:
       <ul>
         <li>
-          <strong>NFC tag and content</strong>, against data damages caused via
-          Web NFC. This includes Denial of Service attacks against a solution
+          <strong>NDEF message records, including payload and associated metadata
+          </strong> in-transfer and in-storage (when tag is being overwritten via
+          Web NFC triggered action), against data disclosure or data modification.
+          This also includes Denial of Service attacks against a solution
           deployed with NFC tags (e.g. a malicious actor destroying tags linked
           to a solution).
         </li>
         <li>
-          <strong>User location</strong> that can be indirectly determined by
-          using NFC by tag content creator, used directly or leaking forward to
-          third parties.
-        </li>
-        <li>
-          <strong>User identity</strong> interacting with a site using Web NFC.
+          <strong>User identity or other privacy sensitive attributes</strong>
+          that can be directly or indirectly determined by using NFC by tag
+          content creator or exposed to a web page using Web NFC. They can be
+          used directly or leaking forward to third parties. Examples are user
+          location, user device identifier and user identifier.
         </li>
         <li>
           <strong>User data</strong> exposed to a web page using Web NFC.
+          While web page might collect user data using other means than 
+          web NFC protocol, it might embed this data into NDFE records 
+          shared via web NFC protocol. 
         </li>
         <li>
-          <strong>User device</strong> running a web page using Web NFC.
+          <strong>Integrity of user device</strong>.
+          A read of an NFC tag might result in a user device compromise
+          that can further lead to loss of other web NFC or platform assets. 
         </li>
       </ul>
     </div>
@@ -4126,21 +4132,27 @@
       The following attacker patterns have been considered:
       <ul>
         <li>
-          malicious web page: phishing user data or location, destroying tags,
-          modifying an NFC tag to cause indirect damage through fake identities
-          and attack vectors;
+          Malicious web page creator: phishing user data, identity or 
+          other privacy sensitive attributes, destroying or modifying NFC tags to 
+          cause further damage through fake identities and attack vectors;
         </li>
         <li>
-          malicious tag: data injection, redirect to malicious web page,
-          phishing user location, causing side actions such as installing
-          applications, trigger automated dispatching or other actions.
+          Malicious NFC tag creator: same as malicious web page owner, but
+          it has a possibility to create, delete or modify the NFC tags locally. 
+          As a result can compromise integrity of user device, cause data
+          injection, redirect to malicious web page, phishing user location, 
+          causing side actions such as installing applications, trigger automated
+          dispatching or other actions.
         </li>
         <li>
-          malicious user: destroying tags, harming integrity, creating malicious tag and web page.
+          Malicious MitM user: any MitM-style attack between a legitimate Web NFC frontend
+          and a user device using Web NFC interfaces. Also includes attempts to interact
+          with a legitimate web page exposing Web NFC frontend by presenting modified or
+          replayed NDFE records.
         </li>
       </ul>
     </p>
-  </section>
+  </section> 
 
 <!-- TODO: this section is being rewritten and to be removed later
   <section class="informative"> <h3>Threats</h3>
@@ -4247,7 +4259,7 @@
   </section>
 TODO delete -->
 
-  <section class="informative"> <h3>Threats</h3>
+ <section class="informative"> <h3>Threats</h3>
     <p>
       Potential threats for Web NFC are given below.
     </p>
@@ -4256,20 +4268,18 @@ TODO delete -->
       <dl>
         <dt><strong>Threat description</strong></dt>
         <dd>
-          Web page using Web NFC collects user data without user consent and
-          writes it to publicly accessible tags.
+          Malicious web page collects user data, identity or other privacy
+          sensitive attributes (such as location) without user consent and
+          exposes it to third parties (writing it to NFC tags, sending to other
+          web NFC providers, etc.)
         </dd>
         <dt><strong>Affected assets</strong></dt>
         <dd>
-          User data, user identity.
+          User data, user identity or other privacy sensitive attributes
         </dd>
         <dt><strong>Actors</strong></dt>
         <dd>
-          Malicious web page using Web NFC.
-        </dd>
-        <dt><strong>Stakeholders</strong></dt>
-        <dd>
-          Web NFC implementation, browser.
+          Malicious web page owner using Web NFC, malicious tag owner. 
         </dd>
         <dt><strong>Mitigation, comments</strong></dt>
         <dd>
@@ -4277,122 +4287,6 @@ TODO delete -->
           NFC from the given web page.
           Use permissions and user prompts for accessing personal data,
           minimize user data exposed to NFC.
-        </dd>
-      </dl>
-    </section>
-
-    <section> <h4>Overwriting tags</h4>
-      <dl>
-        <dt><strong>Threat description</strong></dt>
-        <dd>
-          Malicious web page overwrites tags without user consent.
-        </dd>
-        <dt><strong>Affected assets</strong></dt>
-        <dd>
-          NFC tags, NFC content.
-        </dd>
-        <dt><strong>Actors</strong></dt>
-        <dd>
-          Malicious web page.
-        </dd>
-        <dt><strong>Stakeholders</strong></dt>
-        <dd>
-          Browser, Web NFC implementation.
-        </dd>
-        <dt><strong>Mitigation, comments</strong></dt>
-        <dd>
-          Require permission and user prompt needed for writing tags.
-          Or, control what tags can be written by a given web page, for instance
-          a web page can write only a tag which can be connected to its origin.
-          Or, allow overwriting since tags not meant to be written can be
-          protected by making them read only.
-        </dd>
-      </dl>
-    </section>
-
-    <section> <h4>Tag used for attacking user device</h4>
-      <dl>
-        <dt><strong>Threat description</strong></dt>
-        <dd>
-          Malicious tag may be involuntarily or voluntarily read by devices
-          and the data read may constitute an attack vector on the user agent.
-        </dd>
-        <dt><strong>Affected assets</strong></dt>
-        <dd>
-          User device, user data, user identity.
-        </dd>
-        <dt><strong>Actors</strong></dt>
-        <dd>
-          Malicious tag.
-        </dd>
-        <dt><strong>Stakeholders</strong></dt>
-        <dd>
-          Browser, Web NFC implementation.
-        </dd>
-        <dt><strong>Mitigation, comments</strong></dt>
-        <dd>
-          This is a generic problem with all existing NFC tags.
-          The data is considered application specific.
-          Implementations need security hardening.
-          Involuntary touch is low probability due to short range and critical
-          angle for reading, and due to the focus requirements.
-        </dd>
-      </dl>
-    </section>
-
-    <section> <h4>Tag triggering malicious action</h4>
-      <dl>
-        <dt><strong>Threat description</strong></dt>
-        <dd>
-          Malicious smart poster or other tag attempts triggering an action on
-          the device which may be a threat, for instance launching a malicious
-          web site, or opening an image prepared for attacking the device.
-        </dd>
-        <dt><strong>Affected assets</strong></dt>
-        <dd>
-          User device, user data.
-        </dd>
-        <dt><strong>Actors</strong></dt>
-        <dd>
-          Malicious tag.
-        </dd>
-        <dt><strong>Stakeholders</strong></dt>
-        <dd>
-          Web NFC implementation. Browser.
-        </dd>
-        <dt><strong>Mitigation, comments</strong></dt>
-        <dd>
-          Automatic actions for smart posters and other tags should not be
-          allowed. The user must be made aware and given the ability to control
-          what is happening during the NFC communication. For instance, opening
-          content from <a>smart poster</a>, automatic connection to (possibly
-          malicious) WiFi via <a>NFC handover</a>, etc.
-        </dd>
-      </dl>
-    </section>
-
-    <section> <h4>Leaking user location</h4>
-      <dl>
-        <dt><strong>Threat description</strong></dt>
-        <dd>
-          A Web NFC tag could be used for leaking the user’s physical location,
-          if the reading triggers a user’s device to navigate to a website
-          that can identify the tag and knows the tag's physical location.
-        </dd>
-        <dt><strong>Affected assets</strong></dt>
-        <dd>
-          User location.
-        </dd>
-        <dt><strong>Actors</strong></dt>
-        <dd>
-          Malicious web site, malicious tag.
-        </dd>
-        <dt><strong>Stakeholders</strong></dt>
-        <dd>
-          Browser, Web NFC implementation.
-        </dd>
-        <dt><strong>Mitigation, comments</strong></dt>
-        <dd>
           A NFC tag SHOULD NOT ever trigger a user’s device to navigate
           to a website without asking permission, unless the site has been in
           the foreground or has been brought to the foreground and has been
@@ -4404,8 +4298,126 @@ TODO delete -->
       </dl>
     </section>
 
+    <section> <h4>NFC tag modification</h4>
+      <dl>
+        <dt><strong>Threat description</strong></dt>
+        <dd>
+          An NFC tag is being modified without user consent.
+          This might enable further attacks using a malicious tag
+          or can be a Denial of Service attack to make a tag
+          unusable by other users. 
+        </dd>
+        <dt><strong>Affected assets</strong></dt>
+        <dd>
+          NDEF message records, including payload and associated metadata
+          in-storage.
+        </dd>
+        <dt><strong>Actors</strong></dt>
+        <dd>
+          Malicious web page creator, malicious MitM user.
+        </dd>
+        <dt><strong>Mitigation, comments</strong></dt>
+        <dd>
+          Require permission and user prompt needed for writing tags.
+          Or, control what tags can be written by a given web page, for instance
+          a web page can write only a tag which can be connected to its origin.
+          Or, allow overwriting since tags not meant to be written can be
+          protected by making them read only.
+          Use NDFE signature to detect a modification of NFC tags. 
+        </dd>
+      </dl>
+    </section>
 
+    <section> <h4>Active attack via malicious NFC tag</h4>
+      <dl>
+        <dt><strong>Threat description</strong></dt>
+        <dd>
+          Malicious tag may be involuntarily or voluntarily read by devices
+          and the data read may constitute an attack vector on the user agent.
+          For example it can attempt to trigger an action on
+          the device which may be a threat, for instance launching a malicious
+          web site, or opening an image prepared for attacking the device.
+        </dd>
+        <dt><strong>Affected assets</strong></dt>
+        <dd>
+          Integrity of user device, all other web NFC assets.
+        </dd>
+        <dt><strong>Actors</strong></dt>
+        <dd>
+          Malicious tag creator.
+        </dd>
+        <dt><strong>Mitigation, comments</strong></dt>
+        <dd>
+          This is a generic problem with all existing NFC tags.
+          The data is considered application specific.
+          Implementations need security hardening.
+          Involuntary touch is low probability due to short range and critical
+          angle for reading, and due to the focus requirements.
+          Automatic actions for smart posters and other tags should not be
+          allowed. The user must be made aware and given the ability to control
+          what is happening during the NFC communication. For instance, opening
+          content from <a>smart poster</a>, automatic connection to (possibly
+          malicious) WiFi via <a>NFC handover</a>, etc.
+          Do no allow actions from untrusted NFC tags, trust can be established
+          via the NDFE signature check. 
+        </dd>
+      </dl>
+    </section>
+
+    <section> <h4>NDFE record modification in-transit</h4>
+      <dl>
+        <dt><strong>Threat description</strong></dt>
+        <dd>
+          NDFE records transferred between the web NFC frontend/backend and 
+          user device are modified to cause various MitM attacks or
+          Denial of Service.
+        </dd>
+        <dt><strong>Affected assets</strong></dt>
+        <dd>
+          NDEF message records, including payload and associated metadata
+          in-transfer.
+        </dd>
+        <dt><strong>Actors</strong></dt>
+        <dd>
+          Malicious MitM user.
+        </dd>
+        <dt><strong>Mitigation, comments</strong></dt>
+        <dd>
+          Use NDFE signatures to protect the NFC tag payload
+          and metadata. Additionally, harden the platform stack and 
+          communication between the web NFC frontend and backend. 
+        </dd>
+      </dl>
+    </section>
+    
+    <section> <h4>NDFE record payload disclosure</h4>
+      <dl>
+        <dt><strong>Threat description</strong></dt>
+        <dd>
+          Confidential payload of NDFE records in-storage (stored 
+          on a NFC tag) or in-transfer between the web NFC
+          frontend/backend and user device
+          are read by unauthorized parties. 
+        </dd>
+        <dt><strong>Affected assets</strong></dt>
+        <dd>
+          Confidential NDEF message payload 
+          in-transfer and in-storage.
+        </dd>
+        <dt><strong>Actors</strong></dt>
+        <dd>
+          Malicious MitM user, malicious web page creator.
+        </dd>
+        <dt><strong>Mitigation, comments</strong></dt>
+        <dd>
+          Use encryption for the payload and secure communication
+          protocols for data exchange, authentication and authorization
+          mechanisms between the web NFC page and NFC tag.
+        </dd>
+      </dl>
+    </section>    
   </section>
+
 
   <section class="informative"> <h2>Security mechanisms</h2>
     <p>
