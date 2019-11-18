@@ -4088,7 +4088,7 @@
       Public Key Infrastructure (PKI).
     </p>
     <p>
-      Security considerations for media types in general are discussed in
+      Security considerations for MIME types in general are discussed in
       [[RFC2048]] and [[RFC2046]].
     </p>
   </section>
@@ -4136,7 +4136,7 @@
           <strong>Malicious web page creator</strong>: phishing user data,
           identity or other privacy sensitive attributes, destroying or
           modifying NFC tags to cause further damage through fake identities
-          and attack vectors;
+          and attack vectors.
         </li>
         <li>
           <strong>Malicious NFC tag creator</strong>: same as malicious web page
@@ -4352,7 +4352,7 @@ TODO delete -->
           Use <a>NDEF signature</a>s to protect the NFC tag payload
           and metadata. Additionally, harden the platform stack and
           communication between the web NFC frontend and backend.
-          This thhreat is out of scope for Web NFC implementations.
+          This threat is out of scope for Web NFC implementations.
         </dd>
       </dl>
     </section>
@@ -4553,7 +4553,7 @@ TODO delete -->
         <a>obtain permission</a>.
       </p>
       <p>
-        Pushing <a>NFC content</a> to an <a>NFC peer</a> SHOULD
+        Pushing <a>NFC content</a> to an <a>NFC peer</a> MUST
         <a>obtain permission</a>.
         See the [[[#writing-or-pushing-content]]] section.
       </p>
@@ -4599,7 +4599,9 @@ TODO delete -->
         <ul>
           <li>
             A <a>smart poster</a> MAY be trusted only if signed by using
-            a single <a>NDEF signature</a> record by the same issuer.
+            a single <a>NDEF signature</a> record by the same issuer and
+            it is either the first record in a message, or it is preceded by
+            another <a>NDEF signature</a>.
           </li>
           <li>
             An <a>NDEF message</a> MAY be trusted only if signed by
