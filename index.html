@@ -1552,7 +1552,7 @@
 
         readonly attribute USVString recordType;
         readonly attribute USVString? mediaType;
-        readonly attribute USVString id;
+        readonly attribute USVString? id;
         readonly attribute DataView? data;
 
         readonly attribute USVString? encoding;
@@ -2719,15 +2719,46 @@
           |message:NDEFMessageSource| run these steps:
         </p>
         <ol class=algorithm id="create-web-nfc-message">
-          <li>
-            If the |message:NDEFMessageSource| parameter is not of type defined
-            by the <a>NDEFMessageSource</a> union, throw a {{TypeError}} and
-            abort these steps.
-          </li>
-          <li>
-            If the |message:NDEFMessageSource| parameter is of
-            <a>NDEFMessageInit</a> type, and |message|'s records
-            [= list/is empty =], throw a {{TypeError}} and abort these steps.
+          <li>Switch on |message:NDEFMessageSource|'s type:
+            <dl>
+              <dt>{{DOMString}}</dt>
+              <ul>
+                <li>
+                  Let |textRecord| be an <a>NDEFrecord</a> initialized with its
+                  |recordType| set to "`text/plain`" and |data| set to |message|.
+                </li>
+                <li>
+                  Set |message|'s records to a list of records that contain only
+                  |textRecord|.
+                </li>
+              </ul>
+              <dt>{{BufferSource}}</dt>
+              <ul>
+                  <li>
+                    Let |mimeRecord| be an <a>NDEFrecord</a> initialized with its
+                    |recordType| set to "`mime`", |data| set to |message|, and
+                    |mediaType| set to "`application/octet-stream`".
+                  </li>
+                  <li>
+                    Set |message|'s records to a list of records that contain only
+                    |mimeRecord|.
+                  </li>
+              </ul>
+              <dt>{{NDEFMessageInit}}</dt>
+              <ul>
+                <li>
+                  If |message|'s records [= list/is empty =], throw a
+                  {{TypeError}} and abort these steps.
+                </li>
+              </ul>
+              <dt>unmatched type</dt>
+              <ul>
+                <li>
+                  [= exception/throw =] a {{TypeError}} and abort these steps.
+                </li>
+              </ul>
+            </dl>
+            </dl>
           </li>
           <li>
             Let |output| be the notation for the <a>NDEF message</a>
@@ -2817,8 +2848,7 @@
                 </dl>
               </li>
               <li>
-                If |message| is of type {{NDEFMessageInit}} and its
-                |id:string| is not `null`:
+                If |record|'s |id| is not `null`:
                 <ul>
                   <li>
                     Set |identifier| to the result of invoking
