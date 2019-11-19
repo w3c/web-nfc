@@ -4295,23 +4295,16 @@
   </section>
 
   <section class="informative"> <h2>Security mechanisms for implementations</h2>
-    <p>
-      In order to support security policies concerning Web NFC, the following
-      mechanisms are recommended for implementations.
-    </p>
     <section> <h3><dfn>Obtaining permission</dfn></h3>
       <p>
-        Implementations SHOULD use one or more of the following mechanisms to
-        <a>obtain permission</a>, for instance an explicit permission given
-        by the user. The [[[PERMISSIONS]]] API is suggested to be used by UAs
+        Implementations SHOULD use a mechanism to <a>obtain permission</a>,
+        for instance an explicit permission given by the user.
+        The [[[PERMISSIONS]]] API is suggested to be used by UAs
         for implementing NFC related permissions.
       </p>
     </section>
   </section>
   <section class="informative"> <h2>Security mechanisms for applications</h2>
-    <p>
-      The following mechanisms are recommended to be used by applications.
-    </p>
     <section> <h3>Encrypting <a>NFC content</a></h3>
       <p>
         For trusting the confidentiality of the data exchanged via NFC,
@@ -4358,7 +4351,7 @@
     <section> <h4>Secure Context</h4>
       <p>
         Only <a>secure contexts</a> are allowed to access <a>NFC content</a>.
-        Browsers may ignore this rule for development purposes only.
+        Browsers MAY ignore this rule for development purposes only.
       </p>
     </section>
 
@@ -4440,11 +4433,13 @@
         </ul>
       </div>
     </section>
+    <!-- TODO: add later
     <p class="note">
       For Bluetooth and WiFi handover (supported in later versions),
       the user should have to grant access to the secondary API and must be
       able to properly understand what they are granting.
     </p>
+    -->
   </section> <!-- Policies -->
 </section> <!-- Security and Privacy  -->
 
