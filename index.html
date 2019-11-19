@@ -2706,8 +2706,10 @@
                   |recordType| set to "`text`" and |data| set to |message|.
                 </li>
                 <li>
-                  Set |message|'s records to a list of records that contain only
-                  |textRecord|.
+                  Let |records| be the list « |textRecord| ».
+                </li>
+                <li>
+                  Set |message|'s records to |records|.
                 </li>
               </ul>
               <dt>{{BufferSource}}</dt>
@@ -2718,8 +2720,10 @@
                     |mediaType| set to "`application/octet-stream`".
                   </li>
                   <li>
-                    Set |message|'s records to a list of records that contain only
-                    |mimeRecord|.
+                    Let |records| be the list « |mimeRecord| ».
+                  </li>
+                  <li>
+                    Set |message|'s records to |records|.
                   </li>
               </ul>
               <dt>{{NDEFMessageInit}}</dt>
