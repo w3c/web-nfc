@@ -2725,7 +2725,7 @@
               <ul>
                 <li>
                   Let |textRecord| be an <a>NDEFrecord</a> initialized with its
-                  |recordType| set to "`text/plain`" and |data| set to |message|.
+                  |recordType| set to "`text`" and |data| set to |message|.
                 </li>
                 <li>
                   Set |message|'s records to a list of records that contain only
@@ -2848,7 +2848,7 @@
                 </dl>
               </li>
               <li>
-                If |record|'s |id| is not `null`:
+                If |record|'s |id| is not `undefined`:
                 <ul>
                   <li>
                     Set |identifier| to the result of invoking
