@@ -2161,6 +2161,51 @@
     according to the algorithmic steps described in this specification.
   </section>
 
+  <section><h3>Obtaining permission</h3>
+    <p>
+      The
+      <a href="https://www.w3.org/TR/permissions/#dictdef-permissiondescriptor">
+      <dfn>Web NFC permission name</dfn></a> is
+      <a href="https://github.com/w3c/permissions/issues/47">defined</a> as
+      "`nfc`".
+    </p>
+    <div>
+      To <dfn>obtain permission</dfn>, run these steps:
+      <ol class=algorithm>
+        <li>
+          Run the
+          <a>query a permission</a> steps for the
+          <a>Web NFC permission name</a> until completion.
+          <ol>
+            <li>
+              If it resolved with {{PermissionState["granted"]}}
+              (i.e. permission has been granted to the <a>origin</a> and
+              <a>global object</a> using the [[[PERMISSIONS]]] API),
+              return `true`.
+            </li>
+            <li>
+              Otherwise, if it resolved with {{PermissionState["prompt"]}}, then optionally
+              <a data-lt="request permission to use">request permission</a>
+              from the user for the <a>Web NFC permission name</a>.
+              If that is granted, return `true`.
+              <p class="issue">
+                The <a data-lt="request permission to use">request permission</a>
+                steps are not yet clearly defined.
+                At this point the UA asks the user about the policy to be used
+                with the <a>Web NFC permission name</a> for the given
+                <a>origin</a> and <a>global object</a>, if the user grants permission,
+                return `true`.
+              </p>
+            </li>
+          </ol>
+        </li>
+        <li>
+          Return `false`.
+        </li>
+      </ol>
+    </div>
+  </section>
+
   <section><h3>Handling visibility change</h3>
     <p>
       When the user agent determines that the
@@ -2555,7 +2600,7 @@
                     If |idHost| is `null`, or different than the
                     <a data-cite="url#concept-host-serializer">
                     serialized host</a> of the <a>current settings object</a>'s
-                    origin, and the <a>obtain push permission</a> steps return
+                    origin, and the <a>obtain permission</a> steps return
                     `false`, then reject |p| with {{"NotAllowedError"}}
                     {{DOMException}} and abort these steps.
                   </li>
@@ -2594,44 +2639,6 @@
                 When the transfer has completed, resolve |p|.
               </li>
             </ol>
-          </li>
-        </ol>
-      </div>
-    </section>
-
-    <section><h3>Obtaining push permission</h3>
-      <div>
-        To <dfn>obtain push permission</dfn>, run these steps:
-        <ol class=algorithm>
-          <li>
-            Run the
-            <a>query a permission</a> steps for the
-            <a>Web NFC permission name</a> until completion.
-            <ol>
-              <li>
-                If it resolved with {{PermissionState["granted"]}}
-                (i.e. an <a>expressed permission</a> has been granted
-                to the <a>origin</a> and <a>global object</a> using
-                the [[[PERMISSIONS]]] API), return `true`.
-              </li>
-              <li>
-                Otherwise, if it resolved with {{PermissionState["prompt"]}}, then optionally
-                <a data-lt="request permission to use">request permission</a>
-                from the user for the <a>Web NFC permission name</a>.
-                If that is granted, return `true`.
-                <p class="issue">
-                  The <a data-lt="request permission to use">request permission</a>
-                  steps are not yet clearly defined.
-                  At this point the UA asks the user about the policy to be used
-                  with the <a>Web NFC permission name</a> for the given
-                  <a>origin</a> and <a>global object</a>, if the user grants permission,
-                  return `true`.
-                </p>
-              </li>
-            </ol>
-          </li>
-          <li>
-            Return `false`.
           </li>
         </ol>
       </div>
@@ -3447,7 +3454,7 @@
             Run the following steps <a>in parallel</a>:
             <ol>
               <li>
-                If the <a>obtain reading permission</a> steps return
+                If the <a>obtain permission</a> steps return
                 `false`, then reject |p| with a
                 {{"NotAllowedError"}} {{DOMException}}
                 and return |p|.
@@ -3483,37 +3490,6 @@
                 <a>NFC reading algorithm</a>.
               </li>
             </ol>
-          </li>
-        </ol>
-      </div>
-      <div>
-        To <dfn>obtain reading permission</dfn>, run these steps:
-        <ol>
-          <li>
-            Otherwise, if the user has earlier denied permission for the calling
-            <a>origin</a> for all future calls of
-            <a data-link-for="NDEFReader">scan()</a>
-            as well, then return `false`.
-          </li>
-          <li>
-            Otherwise, UAs SHOULD <a>ask for forgiveness</a> with relevant
-            information displayed to the user.
-            <p class="note">
-              The <a>ask for forgiveness</a> interaction
-              might show choices like "block now" or "block forever", etc.
-              If the user has chosen to "block forever" the given
-              <a>origin</a>, it is the responsibility of the UA to remember
-              these user choices for each <a>origin</a>, regardless of which
-              <a>NFC adapter</a> is used, and consult them on later invocations.
-            </p>
-            <p class="note">
-             In this step UAs are advised to notify users about
-             that reading <a>NFC content</a> may indirectly reveal the physical
-             location of the user.
-            </p>
-          </li>
-          <li>
-            Return `true`.
           </li>
         </ol>
       </div>
@@ -4079,13 +4055,17 @@
       specification.
     </p>
     <p>
+      Web NFC does not sign <a>NFC content</a>. Using <a>NDEF signature</a> and
+      key management is application domain.
+    </p>
+    <p>
       For trusting the <strong>confidentiality</strong> of the data exchanged
-      via NFC, user agents MAY use encrypted <a>NFC content</a>.
+      via NFC, applications may use encrypted <a>NFC content</a>.
     </p>
     <p>
       For trusting the <strong>integrity</strong> of the data exchanged via NFC,
-      user agents MAY use an <a>NDEF signature</a>, with key management based on
-      Public Key Infrastructure (PKI).
+      applications may use an <a>NDEF signature</a>, with key management based
+      on Public Key Infrastructure (PKI).
     </p>
     <p>
       Security considerations for MIME types in general are discussed in
@@ -4150,121 +4130,16 @@
         <li>
           <strong>Malicious MitM user</strong>: any MitM (man in the middle)
           style attack between Web NFC implementation and an <a>NFC adapter</a>
-          in a user device. A
-          Also includes attempts to interact with a web site using Web NFC
-          by presenting modified or replayed NDEF records.
+          in a user device, including attempts to interact with a web site using
+          Web NFC by presenting modified or replayed NDEF records.
         </li>
       </ul>
     </p>
   </section>
 
-<!-- TODO: this section is being rewritten and to be removed later
   <section class="informative"> <h3>Threats</h3>
     <p>
-      Potential threats for Web NFC are given below.
-    </p>
-    <table class="simple" border="1">
-      <tr>
-        <th><strong>Threat</strong></th>
-        <th><strong>Comments, possible mitigation</strong></th>
-      </tr>
-      <tr>
-        <td>
-          Web page using the Web NFC API collects user data without the
-          consent of the user.
-        </td>
-        <td>
-          The user SHOULD be able to be aware of what data can be shared using
-          NFC from the given web page.
-          Use permissions and user prompts for accessing personal data,
-          minimize user data exposed to NFC.
-        </td>
-      </tr>
-      <tr>
-        <td>Malicious web page overwrites tags without user consent.</td>
-        <td>
-          Make sure the write is additive to previous content.
-          Or, require permission and user prompt needed for writing tags.
-          Or, control what tags can be written by a given web page, for instance
-          a web page can write only a tag which can be connected to its origin.
-          Or, allow overwriting since tags not meant to be written can be
-          protected by making them read only.
-        </td>
-      </tr>
-      <tr>
-        <td>
-          Malicious web page writes sensitive user data to tags and peer
-          devices.
-        </td>
-        <td>
-          The user should be able to be aware of what data can be shared using
-          NFC from the given web page.
-          Use permission/user prompt for writing tags and peers.
-        </td>
-      </tr>
-      <tr>
-        <td>
-          Malicious tag may be involuntarily or voluntarily read by devices
-          and the data read may constitute an attack vector on the user agent.
-        </td>
-        <td>
-          This is a generic problem with all existing NFC tags.
-          The data is considered application specific.
-          Implementations need security hardening.
-          Involuntary touch is low probability due to short range and critical
-          angle for reading, and due to the focus requirements.
-        </td>
-      </tr>
-      <tr>
-        <td>
-          Malicious smart poster tag attempts triggering an action on the
-          device which may be a threat.
-        </td>
-        <td>
-          Support for smart posters is not among the main use cases of Web
-          NFC; if and when supported, no automatic actions should be allowed,
-          the user must be made aware and given the ability to control what is
-          happening during the NFC communication. For instance: opening content
-          from <a>smart poster</a>, automatic connection to (possibly malicious)
-          WiFi via <a>NFC handover</a>, etc.
-        </td>
-      </tr>
-      <tr>
-        <td>
-          Malicious Web NFC tag payload read by a website may inflict cause
-          via a user’s device, along with a user’s existing web credentials.
-          The webapp and server would need to treat that payload as completely
-          untrusted.
-        </td>
-        <td>
-          Suggest rules for handling payload safely, provide best-practice
-          methods for doing so, provide a sanitization/validation function.
-          Payload MAY be even cryptographically signed before writing it to a
-          tag so the contents could later be verified.
-        </td>
-      </tr>
-      <tr>
-        <td>
-          A Web NFC tag could be used for leaking the user’s physical location,
-          if the reading triggers a user’s device to navigate to a website
-          that can identify the tag and knows the tag's physical location.
-        </td>
-        <td>
-          A NFC tag SHOULD NOT ever trigger a user’s device to navigate
-          to a website without asking permission, unless the site has been in
-          the foreground or has been brought to the foreground and has been
-          granted permission. User agents SHOULD take into account the
-          security and privacy measures listed in the
-          <a href="http://dev.w3.org/geo/api/spec-source.html#security">
-          Geolocation API</a>.
-        </td>
-      </tr>
-    </table>
-  </section>
-TODO delete -->
-
- <section class="informative"> <h3>Threats</h3>
-    <p>
+      An introduction to NFC security is found <a href="https://resources.infosecinstitute.com/near-field-communication-nfc-technology-vulnerabilities-and-principal-attack-schema/">here</a>.
       Potential threats for Web NFC are given below.
     </p>
 
@@ -4419,56 +4294,30 @@ TODO delete -->
     </section>
   </section>
 
-  <section class="informative"> <h2>Security mechanisms</h2>
+  <section class="informative"> <h2>Security mechanisms for implementations</h2>
     <p>
       In order to support security policies concerning Web NFC, the following
-      mechanisms are recommended for the implementations.
+      mechanisms are recommended for implementations.
     </p>
     <section> <h3><dfn>Obtaining permission</dfn></h3>
-      Implementations SHOULD use one or more of the following mechanisms to
-      <dfn>obtain permission</dfn>.
-      <ul>
-        <li>
-          A mechanism for obtaining <a>expressed permission</a> of the user.
-        </li>
-        <li>
-          A mechanism for <a>ask for forgiveness</a> policies.
-        </li>
-      </ul>
-      <section> <h4><dfn>Expressed permission</dfn></h4>
-        <p>
-          Denotes an explicit permission given by the user.
-          The [[[PERMISSIONS]]] API is suggested to be used by
-          UAs for implementing NFC related permissions in order to minimize
-          the need for user prompting.
-        </p>
-        <p>
-          The
-          <a href="https://www.w3.org/TR/permissions/#dictdef-permissiondescriptor">
-          <dfn>Web NFC permission name</dfn></a> is
-          <a href="https://github.com/w3c/permissions/issues/47">defined</a> as
-          "`nfc`".
-        </p>
-      </section>
-      <section> <h4><dfn>Ask for forgiveness</dfn></h4>
-        <p>
-          Denotes an unobtrusive way to notify the user about an ongoing operation
-          with a possible action to cancel or undo the operation, and to
-          handle future occurences of the same operation by the same action.
-        </p>
-      </section>
+      <p>
+        Implementations SHOULD use one or more of the following mechanisms to
+        <a>obtain permission</a>, for instance an explicit permission given
+        by the user. The [[[PERMISSIONS]]] API is suggested to be used by UAs
+        for implementing NFC related permissions.
+      </p>
     </section>
-
+  </section>
+  <section class="informative"> <h2>Security mechanisms for applications</h2>
+    <p>
+      The following mechanisms are recommended to be used by applications.
+    </p>
     <section> <h3>Encrypting <a>NFC content</a></h3>
       <p>
-        For trusting the confidentiality of the data exchanged via NFC, user agents
-        MAY use encrypted <a>NFC content</a> with key management based on
-        Public Key Infrastructure (PKI).
+        For trusting the confidentiality of the data exchanged via NFC,
+        applications may use encrypted <a>NFC content</a> with key management
+        based on Public Key Infrastructure (PKI).
         Key management is out of the scope of Web NFC.
-      </p>
-      <p class="note">
-        This is different from application level end to end encryption.
-        Key management is then in application domain.
       </p>
     </section>
 
@@ -4486,40 +4335,24 @@ TODO delete -->
         tag hardware attributes in the signature and allowed for shorter
         certificates.
       </p>
+      <p>
+        An <a>NDEF signature</a> covers the preceding records until another
+        <a>NDEF signature</a> or the beginning of the <a>NDEF message</a> is
+        reached.
+      </p>
+      <p>
+        In order to mitigate <a href="https://www.researchgate.net/publication/224227216_Security_Vulnerabilities_of_the_NDEF_Signature_Record_Type">
+        known vulnerabilities</a> of <a>NDEF signature</a>, it is recommended
+        that applications always sign a full <a>NDEF message</a> with a single
+        <a>NDEF signature</a>.
+      </p>
     </section>
 
-    <section> <h3>Content identification</h3>
-      <p>
-        Implementations or applications MAY use an identification mechanism for
-        telling apart “Web NFC content" from generic NFC content. Also, a
-        mechanism for conveying implementation specific metadata which is not
-        exposed to applications MAY be implemented.
-      </p>
-      <section> <h4>Store site URL as record identifier when writing data</h4>
-        <p>
-          When pushing an <a>NDEF message</a>, the [= host/registrable domain =],
-          <a data-cite="dom#concept-host-serializer">serialized</a>,
-          of the <a>current settings object</a> MAY be stored as the <a>record
-          identifier</a> in each top-level <a>NDEF Record</a>.
-          This does not make the payload trusted.
-        </p>
-      </section>
-      <section> <h4>Include URI records with registrable domain</h4>
-        <p>
-          When pushing an <a>NDEF message</a>, the [= host/registrable domain =],
-          <a data-cite="dom#concept-host-serializer">serialized</a>,
-          of the <a>current settings object</a> MAY be stored as a signed
-          <a>URI record</a>. This does not make other records trusted.
-        </p>
-      </section>
-    </section>
   </section>
 
   <section> <h3>Security policies</h3>
     <p>
-      This section summarizes the security policies which are specified as
-      normative requirements in the respective algorithms of this
-      specification.
+      This section lists the normative security policies for implementations.
     </p>
 
     <section> <h4>Secure Context</h4>
@@ -4558,21 +4391,9 @@ TODO delete -->
         See the [[[#writing-or-pushing-content]]] section.
       </p>
       <p>
-        All <a>expressed permission</a>s that are preserved beyond the current
+        All permission that are preserved beyond the current
         browsing session MUST be revocable.
       </p>
-      <!--
-      <p>
-        Pushing an <a>NDEF message</a> to an <a>NFC tag</a> does not need to
-        <a>obtain permission</a>, if the existing <a>NDEF message</a> only
-        contains <a>NDEF record</a>s without <a>ID field</a>s, or with <a>
-        ID field</a>s matching the [=host/registrable domain=] of the
-        <a>current settings object</a>'s origin.
-        Otherwise the UA must <a>obtain permission</a> for pushing
-        <a>NFC content</a> which overwrites existing information.
-        See also the [[[#writing-or-pushing-content]]] section.
-      </p>
-      -->
     </section>
 
     <section> <h4>Warn about risk of physical location leak</h4>
@@ -4594,8 +4415,7 @@ TODO delete -->
 
     <section> <h4>Signing <a>NFC content</a></h4>
       <div>
-        In this version of the specification the following policies are
-        recommended:
+        The following policies are recommended to be implemented by applications.
         <ul>
           <li>
             A <a>smart poster</a> MAY be trusted only if signed by using
