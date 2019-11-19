@@ -4213,6 +4213,8 @@
           <a>NDEF record</a>s transferred between Web NFC and the
           <a>NFC adapter</a> and user device are modified to cause various
           MitM attacks or Denial of Service.
+          Also, <a>NDEF signature</a> records can be removed or
+          replaced along with changed content.
         </dd>
         <dt><strong>Affected assets</strong></dt>
         <dd>
@@ -4224,10 +4226,10 @@
         </dd>
         <dt><strong>Mitigation, comments</strong></dt>
         <dd>
-          Use <a>NDEF signature</a>s to protect the NFC tag payload
-          and metadata. Additionally, harden the platform stack and
-          communication between the web NFC frontend and backend.
           This threat is out of scope for Web NFC implementations.
+          Applications can use <a>NDEF signature</a>s and appropriate tools
+          (signature algorithm, certificates, security policies) to protect the
+          <a>NFC content</a>. Additionally, harden the platform stack.
         </dd>
       </dl>
     </section>
@@ -4337,7 +4339,8 @@
         In order to mitigate <a href="https://www.researchgate.net/publication/224227216_Security_Vulnerabilities_of_the_NDEF_Signature_Record_Type">
         known vulnerabilities</a> of <a>NDEF signature</a>, it is recommended
         that applications always sign a full <a>NDEF message</a> with a single
-        <a>NDEF signature</a>.
+        <a>NDEF signature</a>, and use the right tool chain and security
+        policies for creating and verifying signatures.
       </p>
     </section>
 
@@ -4424,11 +4427,15 @@
             User agents expose <a>NDEF signature</a> records without verifying
             them. It is applications' responsibility to verify signatures and
             to sign <a>NFC content</a>.
-            <p class="note">
-              Indication whether <a>NFC content</a> is trusted may be added in
-              future versions. Also, origin policies MAY be applied in order to
-              relax user prompting when a trust chain could be established.
-            </p>
+          </li>
+          <li>
+            Applications SHOULD use appropriate signature algorithms,
+            certificates and security policies for <a>NDEF signature</a>
+            creation and verification. Also, take into account the known
+            attacks agains <a>NDEF signature</a>s, for instance removing
+            <a>NDEF signature</a>, replacing <a>NDEF signature</a> along with
+             modifying the <a>NFC content</a>, reordering records by changing
+             the record <a>PAYLOAD LENGTH field</a>, etc.
           </li>
         </ul>
       </div>
