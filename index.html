@@ -892,7 +892,7 @@
           Writing to a non-formatted <a>NFC tag</a>.
         </li>
         <li>
-          Writing to an empty <a>NFC tag</a>.
+          Writing to an empty, but formatted <a>NFC tag</a>.
         </li>
         <li>
           Writing to an <a>NFC tag</a> which already contains a
@@ -4091,11 +4091,12 @@
           <strong>User identity or other privacy sensitive attributes</strong>
           that can be directly or indirectly determined by using Web NFC, by the
           <a>NFC content</a> creator by a web site using Web NFC.
-          This data could be used directly or leaked forward to third parties. Examples are user location, device identifiers and user identifiers.
+          This data could be used directly or leaked forward to third parties.
+          Examples are user location, device identifiers and user identifiers.
         </li>
         <li>
           <strong>User data</strong> exposed to a web page using Web NFC.
-          While web page might collect user data using other means than
+          While a web page might collect user data using other means than
           Web NFC, it might embed this data into NDEF records and share via
           Web NFC.
         </li>
@@ -4128,7 +4129,7 @@
           automated dispatching or other actions.
         </li>
         <li>
-          <strong>Malicious MitM user</strong>: any MitM (man in the middle)
+          <strong>Malicious man-in-the-middle (MITM) user</strong>: any MITM
           style attack between Web NFC implementation and an <a>NFC adapter</a>
           in a user device, including attempts to interact with a web site using
           Web NFC by presenting modified or replayed NDEF records.
@@ -4192,7 +4193,7 @@
         </dd>
         <dt><strong>Actors</strong></dt>
         <dd>
-          Malicious web page creator, malicious MitM (man in the middle) user.
+          Malicious web page creator, malicious user.
         </dd>
         <dt><strong>Mitigation, comments</strong></dt>
         <dd>
@@ -4212,7 +4213,7 @@
         <dd>
           <a>NDEF record</a>s transferred between Web NFC and the
           <a>NFC adapter</a> and user device are modified to cause various
-          MitM attacks or Denial of Service.
+          man-in-the-middle attacks or denial-of-service (DoS) attacks.
           Also, <a>NDEF signature</a> records can be removed or
           replaced along with changed content.
         </dd>
@@ -4222,7 +4223,7 @@
         </dd>
         <dt><strong>Actors</strong></dt>
         <dd>
-          Malicious MitM user.
+          Malicious man-in-the-middle user.
         </dd>
         <dt><strong>Mitigation, comments</strong></dt>
         <dd>
@@ -4248,7 +4249,7 @@
         </dd>
         <dt><strong>Actors</strong></dt>
         <dd>
-          Malicious MitM user, malicious web page creator.
+          Malicious man-in-the-middle user, malicious web page creator.
         </dd>
         <dt><strong>Mitigation, comments</strong></dt>
         <dd>
