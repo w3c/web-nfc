@@ -1083,6 +1083,28 @@
     </pre>
   </section>
 
+
+  <section> <h3>Handle scanning errors</h3>
+    <p>
+      This example shows what happens when [=NDEFReader/scan=] promise rejects and
+      [=NDEFReader/onerror=] is fired.
+    </p>
+    <pre class="example">
+      const reader = new NDEFReader();
+      reader.scan().then(() => {
+        console.log("Scan started successfully.");
+        reader.onerror = event => {
+          console.log("Error! Cannot read data from the NFC tag. Try a different one?");
+        };
+        reader.onreading = event => {
+          console.log("NDEF message read.");
+        };
+      }).catch(error => {
+        console.log(`Error! Scan failed to start: ${error}.`);
+      });
+    </pre>
+  </section>
+
   <section> <h3>Read data from tag, and write to empty ones</h3>
     <p>
       This example shows reading various different kinds of data which can be
@@ -1482,7 +1504,7 @@
 
         readonly attribute USVString recordType;
         readonly attribute USVString? mediaType;
-        readonly attribute USVString id;
+        readonly attribute USVString? id;
         readonly attribute DataView? data;
 
         readonly attribute USVString? encoding;
@@ -1866,35 +1888,35 @@
       <td>0</td>
       <td><i>unused</i></td>
       <td>"`empty`"</td>
-      <td>`undefined`</td>
+      <td>`null`</td>
     </tr>
     <tr>
       <td>[=Well-known type record=]</td>
       <td>1</td>
       <td>"`T`"</td>
       <td>"`text`"</td>
-      <td>`undefined`</td>
+      <td>`null`</td>
     </tr>
     <tr>
       <td>[=Well-known type record=]</td>
       <td>1</td>
       <td>"`U`"</td>
       <td>"`url`"</td>
-      <td>`undefined`</td>
+      <td>`null`</td>
     </tr>
     <tr>
       <td>[=Well-known type record=]</td>
       <td>1</td>
       <td>"`Sp`"</td>
       <td nowrap>"`smart-poster`"</td>
-      <td>`undefined`</td>
+      <td>`null`</td>
     </tr>
     <tr>
       <td>[=Local type=] record*</td>
       <td>1</td>
       <td>[=local type name=]</td>
       <td>[=local type name=]</td>
-      <td>`undefined`</td>
+      <td>`null`</td>
     </tr>
     <tr>
       <td>[=MIME type record=]</td>
@@ -1908,21 +1930,21 @@
       <td>3</td>
       <td>URL</td>
       <td>"`absolute-url`"</td>
-      <td>`undefined`</td>
+      <td>`null`</td>
     </tr>
     <tr>
       <td>[=External type record=]</a></td>
       <td>4</td>
       <td>[=external type name=]</td>
       <td>[=external type name=]</td>
-      <td>`undefined`</td>
+      <td>`null`</td>
     </tr>
     <tr>
       <td><a>Unknown record</a></td>
       <td>5</td>
       <td><i>unused</i></td>
       <td>"`unknown`"</td>
-      <td>`undefined`</td>
+      <td>`null`</td>
     </tr>
   </table>
   </section>
@@ -2652,15 +2674,50 @@
           |message:NDEFMessageSource| run these steps:
         </p>
         <ol class=algorithm id="create-web-nfc-message">
-          <li>
-            If the |message:NDEFMessageSource| parameter is not of type defined
-            by the <a>NDEFMessageSource</a> union, throw a {{TypeError}} and
-            abort these steps.
-          </li>
-          <li>
-            If the |message:NDEFMessageSource| parameter is of
-            <a>NDEFMessageInit</a> type, and |message|'s records
-            [= list/is empty =], throw a {{TypeError}} and abort these steps.
+          <li>Switch on |message:NDEFMessageSource|'s type:
+            <dl>
+              <dt>{{DOMString}}</dt>
+              <ul>
+                <li>
+                  Let |textRecord| be an <a>NDEFrecord</a> initialized with its
+                  |recordType| set to "`text`" and |data| set to |message|.
+                </li>
+                <li>
+                  Let |records| be the list « |textRecord| ».
+                </li>
+                <li>
+                  Set |message|'s records to |records|.
+                </li>
+              </ul>
+              <dt>{{BufferSource}}</dt>
+              <ul>
+                  <li>
+                    Let |mimeRecord| be an <a>NDEFrecord</a> initialized with its
+                    |recordType| set to "`mime`", |data| set to |message|, and
+                    |mediaType| set to "`application/octet-stream`".
+                  </li>
+                  <li>
+                    Let |records| be the list « |mimeRecord| ».
+                  </li>
+                  <li>
+                    Set |message|'s records to |records|.
+                  </li>
+              </ul>
+              <dt>{{NDEFMessageInit}}</dt>
+              <ul>
+                <li>
+                  If |message|'s records [= list/is empty =], throw a
+                  {{TypeError}} and abort these steps.
+                </li>
+              </ul>
+              <dt>unmatched type</dt>
+              <ul>
+                <li>
+                  [= exception/throw =] a {{TypeError}} and abort these steps.
+                </li>
+              </ul>
+            </dl>
+            </dl>
           </li>
           <li>
             Let |output| be the notation for the <a>NDEF message</a>
@@ -2750,8 +2807,7 @@
                 </dl>
               </li>
               <li>
-                If |message| is of type {{NDEFMessageInit}} and its
-                |id:string| is not `null`:
+                If |record|'s |id| is not `undefined`:
                 <ul>
                   <li>
                     Set |identifier| to the result of invoking
@@ -3631,7 +3687,7 @@
             remaining length of |bytes|, return |records|.
           </li>
           <li>
-            Let |ndef| be the notation for the current <a>NDEF record</a>
+            Let |ndef| be the notation for the current <a>NDEF record</a>.
           </li>
           <li>
             Let |header:byte| be the next byte of |bytes|.
@@ -3723,8 +3779,15 @@
         Set |record|'s encoding to `null`.
       </li>
       <li>
-        If |ndef|'s |typeNameField:number| is `0` (<a>empty record</a>), then set
-        |record|'s recordType to "`empty`".
+        If |ndef|'s |typeNameField:number| is `0` (<a>empty record</a>):
+        <ol>
+          <li>
+            Set |record|'s recordType to "`empty`".
+          </li>
+          <li>
+            Set |record|'s mediaType to `null`.
+          </li>
+        </ol>
       </li>
       <li>
         If |ndef|'s |typeNameField| is `1` ([=well-known type record=]):
@@ -3791,9 +3854,7 @@
         Set |record|'s recordType to "`text`".
       </li>
       <li>
-        Let |mimeType| be a <a>MIME type</a>
-        with type "`text`", subtype "`plain`" and parameters
-        equal to an empty ordered map.
+        Set |record|'s mediaType to `null`.
       </li>
       <li>
         If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set
@@ -3881,6 +3942,9 @@
         Set |record|'s recordType to "`url`".
       </li>
       <li>
+        Set |record|'s mediaType to `null`.
+      </li>
+      <li>
         If |ndefRecord|'s <a>PAYLOAD field</a> is not present,
         set |record|.<a>[[\PayloadData]]</a> to `undefined` and return |record|.
       </li>
@@ -3920,6 +3984,9 @@
     <ol class=algorithm>
       <li>
         Set |record|'s recordType to "`smart-poster`".
+      </li>
+      <li>
+        Set |record|'s mediaType to `null`.
       </li>
       <li>
         If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set |record|.<a>[[\PayloadData]]</a> to `undefined` and return |record|.
@@ -3974,6 +4041,9 @@
           Set |record|'s recordType to "`absolute-url`".
         </li>
         <li>
+          Set |record|'s mediaType to `null`.
+        </li>
+        <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
           |ndefRecords|'s <a>TYPE field</a>.
         </li>
@@ -3996,6 +4066,9 @@
           Set |record|'s recordType to the value of |ndefRecord|'s <a>TYPE field</a>.
         </li>
         <li>
+          Set |record|'s mediaType to `null`.
+        </li>
+        <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
           |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise `undefined`.
         </li>
@@ -4016,6 +4089,9 @@
       <ol class=algorithm>
         <li>
           Set |record|'s recordType to "`unknown`".
+        </li>
+        <li>
+          Set |record|'s mediaType to `null`.
         </li>
         <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
