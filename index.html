@@ -896,13 +896,7 @@
         </li>
         <li>
           Writing to an <a>NFC tag</a> which already contains a
-          <a>NDEF message</a> with a different <a>record identifier</a>
-          (i.e. overwriting a web-specific tag).
-        </li>
-        <li>
-          Writing to an <a>NFC tag</a> which already contains a
-          <a>NDEF message</a> with the same <a>record identifier</a>
-          (i.e. updating own tag).
+          <a>NDEF message</a>.
         </li>
         <li>
           Writing to other, writable <a>NFC tag</a>s (i.e. overwriting a
@@ -1162,10 +1156,9 @@
   <section> <h3>Save and restore game progress with another device</h3>
     <p>
       Filtering of relevant data sources can be done by the use of
-      the <a>NDEFScanOptions</a>. Below we accept the record identifier URL with
-      "`/mypath/mygame/`" in its path from "`mygame.com`"
-      domain and its subdomains. When we read the data, we immediately update
-      the game progress by issuing a push with a custom NDEF data layout.
+      the <a>NDEFScanOptions</a>. Below we use a custom record identifier so
+      that when we read the data, we immediately update the game progress by
+      issuing a push with a custom NDEF data layout.
     </p>
     <p>
       The example allows reading and pushing to both peers and tags,
@@ -1173,14 +1166,14 @@
     </p>
     <pre class="example">
       const reader = new NDEFReader();
-      await reader.scan({ id: "https://mygame.com/mypath/mygame" });
+      await reader.scan({ id: "my-game-progress" });
       reader.onreading = async event => {
         console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
 
         const encoder = new TextEncoder();
         const newMessage = {
           records: [{
-            id: "/mypath/mygame/update",
+            id: "my-game-progress",
             recordType: "mime",
             mediaType: "application/json",
             data: encoder.encode(JSON.stringify({
@@ -1566,20 +1559,9 @@
       The <dfn>recordType</dfn> property represents the <a>NDEF record</a> types.
     </p>
     <div>
-      The <dfn>id</dfn> property represents the <a>record identifier</a>, which is an
-      absolute or relative URL. The required uniqueness of the identifier is
-      guaranteed by the generator, as such only absolute URLs based on the origin
-      of the browsing content can be written using this specification.
-      <ul>
-        <li>
-          The <dfn>record identifier host</dfn> is a <a data-cite="url#concept-host-serializer">
-          serialized host</a>.
-        </li>
-        <li>
-          The <dfn>record identifier</dfn> is a <a>record identifier host</a>, optionally followed
-          by a <a>path-absolute-URL string</a>.
-        </li>
-      </ul>
+      The <dfn>id</dfn> property represents the <dfn>record identifier</dfn>. The
+      required uniqueness of the identifier is guaranteed only by the generator,
+      not by this specification.
       <p class=note>
         The NFC NDEF specifications uses the terms "message identifier" and "payload identifier"
         instead of <a>record identifier</a>, but the identifier is tied to each record and not
@@ -2384,7 +2366,7 @@
       </p>
       <pre class="idl">
         dictionary NDEFScanOptions {
-          USVString id = "";
+          USVString id;
           USVString recordType;
           USVString mediaType = "";
           AbortSignal? signal;
@@ -2396,9 +2378,11 @@
       </p>
       <p>
         The <dfn>id</dfn> property
-        denotes the <a>URL pattern</a> which is used for matching the
-        <a>record identifier</a> of individual <a>NDEF Record</a>s which are being read.
-        The default value `""` means that no matching is performed.
+        denotes the string value which is used for matching the
+        <a>record identifier</a> of each
+        <a>NDEFRecord</a> object in an <a>NDEF message</a>.
+        If the dictionary member is [= dictionary member/not present =],
+        then it will be ignored by the <a href="#steps-listen">NFC listen algorithm</a>.
       </p>
       <p>
         The <dfn>recordType</dfn> property
@@ -2416,18 +2400,17 @@
         The default value `""` means that no matching is performed.
       </p>
       <pre
-        title="Filter accepting only JSON content from https://www.w3.org"
+        title="Filter accepting only JSON content"
         class="example highlight">
         const options = {
-          id: "https://www.w3.org/*",  // any path from the domain is accepted
           mediaType: "application/*json"  // any JSON-based MIME type
         }
       </pre>
       <pre
-        title="Filter which only accepts binary content from a given path for w3 domain and its subdomains"
+        title="Filter which only accepts binary content for a custom record identifier"
         class="example highlight">
         const options = {
-          id: "https://w3.org/info/restaurant/daily-menu/",
+          id: "my-restaurant-daily-menu",
           mediaType: "application/octet-stream"
         }
       </pre>
@@ -2614,18 +2597,6 @@
                     If yes, then reject |p| with a {{"NotAllowedError"}}
                     {{DOMException}} and return |p|.
                   </li>
-                  <li>
-                    Let |idHost| be the <a>record identifier host</a> of the
-                    tag.
-                  </li>
-                  <li>
-                    If |idHost| is `null`, or different than the
-                    <a data-cite="url#concept-host-serializer">
-                    serialized host</a> of the <a>current settings object</a>'s
-                    origin, and the <a>obtain permission</a> steps return
-                    `false`, then reject |p| with {{"NotAllowedError"}}
-                    {{DOMException}} and abort these steps.
-                  </li>
                 </ul>
               </li>
               <li>
@@ -2810,9 +2781,7 @@
                 If |record|'s |id| is not `undefined`:
                 <ul>
                   <li>
-                    Set |identifier| to the result of invoking
-                    <a>create a record identifier</a> given |id|.
-                    If this throws an exception, re-[= exception/throw =] it.
+                    Let |identifier| be |record|'s |id|.
                   </li>
                   <li>
                     Set |ndef|'s <a>IL field</a> to `1`.
@@ -3247,48 +3216,6 @@
       </div>
       </section>
 
-      <section><h3>Creating a record identifier</h3>
-      <div>
-        To <dfn>create a record identifier</dfn> given URL string |id:string|,
-        run these steps:
-        <ol class=algorithm>
-          <li>
-            Let |origin| be the <a>current settings object</a>'s origin.
-          </li>
-          <li>
-            Let |host| be |origin|'s host,
-            <a data-cite="url#concept-host-serializer">serialized</a>.
-          </li>
-          <li>
-            Let |urlRecord| be the result of
-            <a data-lt="url parser">parsing</a> |id| with "`https://`" + |host| as the base URL.
-          </li>
-          <li>
-            If any of the following cases matches, [= exception/throw =] a
-            {{TypeError}} and abort these steps:
-            <ul>
-              <li>
-                If |urlRecord| is failure.
-              </li>
-              <li>
-                If |urlRecord|'s protocol is not equal to `"https:`".
-              </li>
-              <li>
-                If |urlRecord|'s host doesn't end with |host|'s [=host/registrable domain=].
-              </li>
-            </ul>
-          </li>
-          <li>
-            Let |identifier| be |urlRecord|, <a data-cite="dom#concept-url-serializer">serialized</a>.
-          </li>
-          <li>
-            Return |identifier|.
-          </li>
-        </ol>
-      </div>
-      </section>
-  </section> <!-- creating content -->
-
   <section> <h3>Listening for content</h3>
     <p>
       If there are any {{NDEFReader}} instances in <a>activated reader objects</a>
@@ -3302,12 +3229,7 @@
     </p>
     <p>
       Each {{NDEFReader}} can accept <a>NDEF message</a>s based on
-      data type, and record identifier (URL) filters.
-    </p>
-    <p>
-      Filtering by a <a>record identifier</a> URL pattern, means that it will
-      be matched against the URLs found in the <a>NDEF record</a>s' <a>ID field</a>,
-      thus the presence of such is required.
+      data type, and record identifier filters.
     </p>
 
     <section> <h3>Match patterns</h3>
@@ -3326,111 +3248,6 @@
         "`application/json`". The pattern
         "`*/*json`", on the other hand, matches both.
       </div>
-    </section>
-    <section> <h3>URL patterns</h3>
-        A <dfn>URL pattern</dfn> is a <a>URL record</a> that can be used to match
-        the optional <a>record identifier</a> of every <a>NDEF record</a> <a>ID field</a>.
-        A <dfn>valid URL pattern</dfn> is a valid <a>URL record</a> whose
-        [= url/scheme =] component is equal to "`https`".
-
-      <div>
-        A <a>URL pattern</a>'s [= url/scheme =], [= url/host =]
-        and [= url/path =] components that are used by the
-        <a href="#dfn-match-record-identifier-with-url-pattern">URL pattern match algorithm</a>
-        have the following matching rules:
-
-        <table class="simple">
-          <tr>
-            <th><strong>URL pattern component</strong></th>
-            <th><strong>Matching rule for record identifier</strong></th>
-          </tr>
-          <tr>
-            <td>[= url/host =]</td>
-            <td>
-              exact match or ends with (<a>URL pattern</a>'s
-              [= url/host =] prepended
-              with "`.`").
-            </td>
-          </tr>
-          <tr>
-            <td>[= url/path =]</td>
-            <td>
-              If <a>URL pattern</a>'s path is "`/*`", match any
-              <a>record identifier</a> path. Otherwise, begins with <a>URL pattern</a>'s
-              [= url/path =].
-            </td>
-          </tr>
-        </table>
-      </div>
-
-      <p class="note">
-        For example, '`https://mydomain.com/*`' will match
-        '`https://service.mydomain.com/myapp/`' and
-        '`https://info.mydomain.com/general/`', while
-        '`https://app.mydomain.com/contacts`' will match
-        '`https://app.mydomain.com/contacts`' and
-        '`https://app.mydomain.com/contacts/all`'
-
-        The '`*`' is a valid character for the URL path component,
-        therefore,
-        '`https://www.mydomain.com/*`' pattern will match both
-        '`https://www.mydomain.com/*`' and
-        '`https://www.mydomain.com/service`' URLs.
-      </p>
-    </section>
-
-    <section> <h3>URL pattern match algorithm</h3>
-        To <dfn>match record identifier with URL pattern</dfn> for a given
-        <a>record identifier</a> and <a>URL pattern</a>, run
-        these steps:
-        <ol class=algorithm>
-          <li>
-            Let |raw id| be a <a>record identifier</a> passed to this algorithm.
-          </li>
-          <li>
-            Let |raw pattern| be a <a>URL pattern</a> passed to this algorithm.
-          </li>
-          <li>
-            If |raw id| and |raw pattern| are empty <a>string</a>s,
-            return `true`.
-          </li>
-          <li>
-            Let |id| be the result of running the
-            <a>basic URL parser</a> on |raw id|.
-          </li>
-          <li>
-            If |id| is failure, return `false`.
-          </li>
-          <li>
-            Let |pattern| be the result of running the
-            <a>basic URL parser</a> on |raw pattern|.
-          </li>
-          <li>
-            If |pattern| is failure, return `false`.
-          </li>
-          <li>
-            Let |subdomain pattern| be the result of prepending "`.`"
-            to |pattern|'s [= url/host =].
-          </li>
-          <li>
-            If |id|'s [= url/host =] does not end with
-            |subdomain pattern| and |id|'s
-            [= url/host =] is not equal to |pattern|'s
-            [= url/host =], return `false`.
-          </li>
-          <li>
-            If |pattern|'s [= url/path =] is equal to
-            "`/*`", return `true`.
-          </li>
-          <li>
-            If |id|'s [= url/path =] begins with
-            |pattern|'s [= url/path =],
-            return `true`.
-          </li>
-          <li>
-            Otherwise, return `false`.
-          </li>
-        </ol>
     </section>
 
     <section> <h3>The <strong>scan()</strong> method</h3>
@@ -3460,7 +3277,7 @@
               </li>
               <li>
                 Otherwise, if |key| equals "`id`", set
-                |reader|.<a>[[\Id]]</a> to |value|, prepended with "`https://`".
+                |reader|.<a>[[\Id]]</a> to |value|.
               </li>
               <li>
                 Otherwise, if |key| equals "`recordType`", set
@@ -3522,12 +3339,6 @@
               <li>
                 If the request fails, then the UA MAY reject |p| with a
                 {{"NotSupportedError"}} {{DOMException}}
-                and return |p|.
-              </li>
-              <li>
-                If the |reader|.<a>[[\Id]]</a> is not an empty <a>string</a>
-                and it is not a <a>valid URL pattern</a>, then reject |p| with a
-                {{"SyntaxError"}} {{DOMException}}
                 and return |p|.
               </li>
               <li>
@@ -3640,8 +3451,7 @@
         <ol>
           <li>
             If |reader|.<a>[[\Id]]</a> is [= dictionary member/present =]
-            and doesn't <a href="#dfn-match-record-identifier-with-url-pattern">match</a>
-            any |record:NDEFRecord|'s id where |record|
+            and it is not equal to any |record|'s id where |record|
             is an element of |message|, [= iteration/continue =].
           </li>
           <li>
