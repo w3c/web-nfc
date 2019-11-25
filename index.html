@@ -1518,40 +1518,6 @@
         any data;
       };
     </pre>
-
-    <p>
-      A <a>NDEFRecord</a> object has the following <a data-cite=
-      "ECMASCRIPT#sec-object-internal-methods-and-internal-slots">internal slots</a>:
-    </p>
-    <table class="simple">
-      <thead>
-        <tr>
-          <th>
-            Internal slot
-          </th>
-          <th>
-            Initial value
-          </th>
-          <th>
-            Description (<em>non-normative</em>)
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <dfn>[[\PayloadData]]</dfn>
-          </td>
-          <td>
-            Empty <a>byte sequence</a>.
-          </td>
-          <td>
-            A <a>byte sequence</a> representing the whole or a subset of the
-            <a>PAYLOAD field</a> data.
-          </td>
-        </tr>
-      </tbody>
-    </table>
     <p>
       The <dfn>mediaType</dfn> property represents the <a>MIME type</a> of
       the <a>NDEF record</a> payload.
@@ -1594,11 +1560,11 @@
       structurally valid.
     </p>
     <p>
-      The <dfn>data</dfn> property represents the <a>[[\PayloadData]]</a> bytes of the <a>NDEF Record</a>.
+      The <dfn>data</dfn> property represents the <a>PAYLOAD field</a> data.
     </p>
     <p>
       The <dfn>toRecords()</dfn> method, when invoked, MUST return the result of
-      running <a>convert NDEFRecord.[[\PayloadData]] bytes</a> with the <a>NDEF Record</a>.
+      running <a>convert NDEFRecord.data bytes</a> with the <a>NDEF Record</a>.
     </p>
     <p data-dfn-for="NDEFRecordInit">
       The <dfn>NDEFRecordInit</dfn> dictionary is used to initialize an <a>NDEF record</a>
@@ -1625,16 +1591,16 @@
       [[[#steps-receiving]]] and [[[#writing-or-pushing-content]]] sections.
     </p>
     <p>
-      To <dfn>convert NDEFRecord.[[\PayloadData]] bytes</dfn>
+      To <dfn>convert NDEFRecord.data bytes</dfn>
       given a |record:NDEFRecord|, run these steps:
     </p>
-    <ol class=algorithm>
+    <ol class=algorithm data-link-for="NDEFRecord">
       <li>
-        Let |bytes:byte sequence| be |record|.<a>[[\PayloadData]]</a>.
+        Let |bytes:byte sequence| be the value of record's <a>data</a> attribute.
       </li>
       <li>
         Let |recordType:record type| be the value of |record|'s
-        <a data-link-for="NDEFRecord">recordType</a> attribute.
+        <a>recordType</a> attribute.
       </li>
       <li>
         If the |recordType| value is "`smart-poster`", or an [=external type name=],
@@ -2068,7 +2034,8 @@
       <td><dfn>[[\MediaType]]</dfn></td>
       <td>An empty <a>string</a>.</td>
       <td>
-        The {{NDEFScanOptions}}.<a>mediaType</a> value.
+        The {{NDEFScanOptions}}.<a href="dom-ndefrecord-mediatype">mediaType</a>
+        value.
       </td>
       </tr>
       <tr>
@@ -2700,25 +2667,25 @@
             |message|'s records, run the following steps, or make sure
             that the underlying platform provides equivalent values to
             |ndef|:
-            <ol>
+            <ol data-link-for="NDEFRecordInit">
               <li>
-                If |record|'s recordType is `undefined`:
+                If |record|'s <a>recordType</a> is `undefined`:
                 <ol> <!-- guess type and mediaType from data -->
                   <li>
-                    If |record|'s data is `undefined`, reject |promise|
+                    If |record|'s <a>data</a> is `undefined`, reject |promise|
                     a {{TypeError}} and abort these steps.
                   </li>
                   <li>
-                    Otherwise, if the type of |record|'s data is
-                    {{DOMString}}, then set |record|'s recordType to "`text`".
+                    Otherwise, if the type of |record|'s <a>data</a> is
+                    {{DOMString}}, then set |record|'s <a>recordType</a> to "`text`".
                   </li>
                   <li>
-                    Otherwise, set |record|'s recordType to "`mime`".
+                    Otherwise, set |record|'s <a>recordType</a> to "`mime`".
                   </li>
                 </ol>
               </li>
               <li>Let |ndef| be the result of passing |record| to the algorithm
-                below switching on |record|'s recordType. If the algorithm throws
+                below switching on |record|'s <a>recordType</a>. If the algorithm throws
                 an exception |e|, reject |promise| with |e| and abort these steps.
                 <dl>
                   <dt>"`empty`"</dt>
@@ -2747,11 +2714,11 @@
                   </ul>
                   <dt><a>external type name</a></dt>
                   <ul>
-                    If |record|'s recordType is an <a>external type</a>,
+                    If |record|'s <a>recordType</a> is an <a>external type</a>,
                     <li>
-                      If |record|'s data is of type {{NDEFMessageInit}}, then
+                      If |record|'s <a>data</a> is of type {{NDEFMessageInit}}, then
                       return the result of running the
-                      <a>create NDEF message</a> given |record|'s data.
+                      <a>create NDEF message</a> given |record|'s <a>data</a>.
                     </li>
                     <li>
                       Otherwise, <a>map external data to NDEF</a> given |record|.
@@ -2759,12 +2726,12 @@
                   </ul>
                   <dt><a>local type name</a></dt>
                   <ul>
-                    If |record|'s recordType is a <a>local type</a> and if
+                    If |record|'s <a>recordType</a> is a <a>local type</a> and if
                     |record| is a payload to another <a>NDEF</a> record,
                     <li>
-                      If |record|'s data is of type {{NDEFMessageInit}}, then
+                      If |record|'s <a>data</a> is of type {{NDEFMessageInit}}, then
                       return the result of running the
-                      <a>create NDEF message</a> given |record|'s data.
+                      <a>create NDEF message</a> given |record|'s <a>data</a>.
                     </li>
                     <li>
                       Otherwise, <a>map local type to NDEF</a> given |record|.
@@ -2779,10 +2746,10 @@
                 </dl>
               </li>
               <li>
-                If |record|'s |id| is not `undefined`:
+                If |record|'s <a>id</a> is not `undefined`:
                 <ul>
                   <li>
-                    Let |identifier| be |record|'s |id|.
+                    Let |identifier| be |record|'s <a>id</a>.
                   </li>
                   <li>
                     Set |ndef|'s <a>IL field</a> to `1`.
@@ -2808,9 +2775,9 @@
       <div>
         To <dfn>map empty record to NDEF</dfn> given a |record:NDEFRecordInit|, run
         these steps:
-        <ol class=algorithm>
+        <ol class=algorithm  data-link-for="NDEFRecordInit">
           <li>
-            If |record|'s |mediaType| is not `undefined`, [= exception/throw =]
+            If |record|'s <a>mediaType</a> is not `undefined`, [= exception/throw =]
             a {{TypeError}} and abort these steps.
           </li>
           <li>
@@ -2847,13 +2814,13 @@
           better differentiation, e.g. when using "`text/xml`", or
           "`text/vcard`".
         </p>
-        <ol class=algorithm>
+        <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
-            If |record|'s |mediaType| is not `undefined`, [= exception/throw =]
+            If |record|'s <a>mediaType</a> is not `undefined`, [= exception/throw =]
             a {{TypeError}} and abort these steps.
           </li>
           <li>
-            If the type of |record|'s data is not a {{DOMString}} or a {{BufferSource}},
+            If the type of |record|'s <a>data</a> is not a {{DOMString}} or a {{BufferSource}},
             [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
@@ -2863,11 +2830,11 @@
             If |documentLanguage| is the empty string, set it to "`en`".
           </li>
           <li>
-            Let |language:string| be |record|'s lang if it [= map/exists =],
+            Let |language:string| be |record|'s <a>lang</a> if it [= map/exists =],
             or else to |documentLanguage|.
           </li>
           <li>
-            Let |encoding label:string| be |record|'s encoding if it
+            Let |encoding label:string| be |record|'s <a>encoding</a> if it
             [= map/exists =], or "`utf-8`".
           </li>
           <li>
@@ -2912,14 +2879,14 @@
                 Set position 1 (second <a>byte</a>) to position |languageLength|
                 of |data| to |language|.
               </li>
-              <li>Switch on the type of |record|'s data:
+              <li>Switch on the type of |record|'s <a>data</a>:
                 <dl>
                   <dt>{{DOMString}}</dt>
                   <ol>
                     <li>
                       Let |stream:byte stream| be the resulting
                       <a data-cite="encoding#concept-stream">byte stream</a> of
-                      running <a>UTF-8 encode</a> on |record|'s data.
+                      running <a>UTF-8 encode</a> on |record|'s <a>data</a>.
                     </li>
                     <li>
                       <a data-cite="encoding#concept-stream-read">Read</a> bytes from |stream| into
@@ -2931,7 +2898,7 @@
                   <dt>{{BufferSource}}</dt>
                   <ol>
                     <li>
-                      Set bytes from |record|'s data into |data|
+                      Set bytes from |record|'s <a>data</a> into |data|
                       (from position |languageLength| + 1) .
                     </li>
                     </ol>
@@ -2973,18 +2940,18 @@
       <div>
         To <dfn>map a URL to NDEF</dfn> given a |record:NDEFRecordInit|, run these
         steps:
-        <ol class=algorithm>
+        <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
-            If |record|'s |mediaType| is not `undefined`, [= exception/throw =]
+            If |record|'s <a>mediaType</a> is not `undefined`, [= exception/throw =]
             a {{TypeError}} and abort these steps.
           </li>
           <li>
-            If |record|'s data is not a {{DOMString}},
+            If |record|'s <a>data</a> is not a {{DOMString}},
             [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
             Let |url:URL| be the result of
-            <a data-lt="url parser">parsing</a> |record|'s data.
+            <a data-lt="url parser">parsing</a> |record|'s <a>data</a>.
           </li>
           <li>
             If |url| is failure, [= exception/throw =] a
@@ -3063,15 +3030,16 @@
       <div>
         To <dfn>map binary data to NDEF</dfn> given a |record:NDEFRecordInit|,
         run these steps:
-        <ol class=algorithm>
+        <ol class=algorithm data-link-for="NDEFRecord">
           <li>
-            If the type of a |record|'s data is not a
+            If the type of a |record|'s <a>data</a> is not a
             {{BufferSource}}, [= exception/throw =] a {{TypeError}}
             and abort these steps.
           </li>
           <li>
             Let |mimeTypeRecord| be the <a>MIME type</a>
-            returned by running <a>parse a MIME type</a> on |record|'s mediaType.
+            returned by running <a>parse a MIME type</a> on
+            |record|'s <a>mediaType</a>.
             <ol>
               <li>
                 If |mimeTypeRecord| is failure, let |mimeTypeRecord| be a new
@@ -3080,7 +3048,7 @@
             </ol>
           </li>
           <li>
-            Set |arrayBuffer| to |record|'s data.
+            Set |arrayBuffer| to |record|'s <a>data</a>.
           </li>
           <li>
             Set |length:unsigned long| to |arrayBuffer|.[[\ArrayBufferByteLength]].
@@ -3119,18 +3087,18 @@
       <div>
         To <dfn>map external data to NDEF</dfn> given a |record:NDEFRecordInit|,
         run these steps:
-        <ol class=algorithm>
+        <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
-            If |record|'s |mediaType| is not `undefined`, [= exception/throw =]
+            If |record|'s <a>mediaType</a> is not `undefined`, [= exception/throw =]
             a {{TypeError}} and abort these steps.
           </li>
           <li>
-            If the type of a |record|'s data is not a
+            If the type of a |record|'s <a>data</a> is not a
             {{BufferSource}}, [= exception/throw =] a {{TypeError}}
             and abort these steps.
           </li>
           <li>
-            Set |arrayBuffer| to |record|'s data.
+            Set |arrayBuffer| to |record|'s <a>data</a>.
           </li>
           <li>
             Set |length:unsigned long| to |arrayBuffer|.[[\ArrayBufferByteLength]].
@@ -3146,7 +3114,8 @@
                 Set |ndefRecord|'s <a>TNF field</a> to `4` (<a>external type record</a>).
               </li>
               <li>
-                Set the |ndefRecord|'s <a>TYPE field</a> to |record|'s recordType.
+                Set the |ndefRecord|'s <a>TYPE field</a> to |record|'s
+                <a>recordType</a>.
               </li>
               <li>
                 Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
@@ -3167,18 +3136,18 @@
       <div>
         To <dfn>map local type to NDEF</dfn> given a |record:NDEFRecordInit|,
         run these steps:
-        <ol class=algorithm>
+        <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
-            If |record|'s |mediaType| is not `undefined`, [= exception/throw =]
+            If |record|'s <a>mediaType</a> is not `undefined`, [= exception/throw =]
             a {{TypeError}} and abort these steps.
           </li>
           <li>
-            If the type of a |record|'s data is not a
+            If the type of a |record|'s <a>data</a> is not a
             {{BufferSource}}, [= exception/throw =] a {{TypeError}}
             and abort these steps.
           </li>
           <li>
-            Set |arrayBuffer| to |record|'s data.
+            Set |arrayBuffer| to |record|'s <a>data</a>.
           </li>
           <li>
             Set |length:unsigned long| to |arrayBuffer|.[[\ArrayBufferByteLength]].
@@ -3191,10 +3160,11 @@
             be created by the UA.
             <ol>
               <li>
-                Set the |ndefRecord|'s <a>TYPE field</a> to |record|'s recordType.
+                Set the |ndefRecord|'s <a>TYPE field</a> to |record|'s
+                <a>recordType</a>.
               </li>
               <li>
-                If |record|'s recordType is a standard local type to
+                If |record|'s <a>recordType</a> is a standard local type to
                 <a>smart poster</a> or a handover record, then
                 set |ndefRecord|'s <a>TNF field</a> to `1`
                 ([=well-known type record=]), otherwise
@@ -3452,17 +3422,20 @@
         <ol>
           <li>
             If |reader|.<a>[[\Id]]</a> is [= dictionary member/present =]
-            and it is not equal to any |record|'s id where |record|
+            and it is not equal to any |record|'s
+            <a href="#dom-ndefrecord-id">id</a> where |record|
             is an element of |message|, [= iteration/continue =].
           </li>
           <li>
             If |reader|.<a>[[\RecordType]]</a> is [= dictionary member/present =]
-            and it is not equal to any |record|'s recordType where |record|
+            and it is not equal to any |record|'s
+            <a href="#dom-ndefrecord-recordtype">recordType</a> where |record|
             is an element of |message|, [= iteration/continue =].
           </li>
           <li>
             If |reader|.<a>[[\MediaType]]</a> is not `""` and
-            it is not equal to any |record|'s mediaType where |record| is
+            it is not equal to any |record|'s
+            <a href="#dom-ndefrecord-mediatype">mediaType</a> where |record| is
             an element of |message|, [= iteration/continue =].
           </li>
           <li>
@@ -3579,24 +3552,25 @@
   <div>
     To <dfn>parse an NDEF record</dfn> given |ndef| into a
     |record:NDEFRecord|, run these steps:
-    <ol class=algorithm>
+    <ol class=algorithm data-link-for="NDEFRecord">
       <li>
-        Set |record|'s id to |ndef|'s |id:string|.
+        Set |record|'s <a>id</a> to |ndef|'s |id:string|.
       </li>
       <li>
-        Set |record|'s lang to `null`.
+        Set |record|'s <a>lang</a> to `null`.
       </li>
       <li>
-        Set |record|'s encoding to `null`.
+        Set |record|'s <a>encoding</a> to `null`.
       </li>
       <li>
-        If |ndef|'s |typeNameField:number| is `0` (<a>empty record</a>):
+        If |ndef|'s |typeNameField:number| (<a>TNF field</a>) is `0`
+        (<a>empty record</a>):
         <ol>
           <li>
-            Set |record|'s recordType to "`empty`".
+            Set |record|'s <a>recordType</a> to "`empty`".
           </li>
           <li>
-            Set |record|'s mediaType to `null`.
+            Set |record|'s <a>mediaType</a> to `null`.
           </li>
         </ol>
       </li>
@@ -3660,16 +3634,16 @@
   <div>
     To <dfn>parse an NDEF text record</dfn> given a |ndefRecord| into a
     |record:NDEFRecord|, run these steps:
-    <ol class=algorithm>
+    <ol class=algorithm data-link-for="NDEFRecord">
       <li>
-        Set |record|'s recordType to "`text`".
+        Set |record|'s <a>recordType</a> to "`text`".
       </li>
       <li>
-        Set |record|'s mediaType to `null`.
+        Set |record|'s <a>mediaType</a> to `null`.
       </li>
       <li>
         If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set
-        |record|.<a>[[\PayloadData]]</a> to `undefined` and return |record|.
+        |record|'s <a>data</a> to `null` and return |record|.
       </li>
       <li>
         Let |header:byte| be the first <a>byte</a> of |ndefRecord|'s
@@ -3684,18 +3658,18 @@
         on second <a>byte</a> to the |languageLength| + `1` byte, inclusive.
       </li>
       <li>
-        Set |record|'s lang to |language|.
+        Set |record|'s <a>lang</a> to |language|.
       </li>
       <li>
-        Set |record|'s encoding be "`utf-8`" if bit `7` ([=MB field=]) of |header|
-        is equal to the value `0`, or else "`utf-16be`".
+        Set |record|'s <a>encoding</a> be "`utf-8`" if bit `7` ([=MB field=]) of
+        |header| is equal to the value `0`, or else "`utf-16be`".
       </li>
       <li>
         Let |buffer:byte sequence| be the <a>byte sequence</a> of
         |ndefRecords|'s <a>PAYLOAD field</a>.
       </li>
       <li>
-        Set |record|.<a>[[\PayloadData]]</a> to |buffer|.
+        Set |record|'s <a>data</a> to |buffer|.
       </li>
       <li>
         return |record|.
@@ -3748,16 +3722,16 @@
   <div>
     To <dfn>parse an NDEF URL record</dfn> given a |ndefRecord| into a
     |record:NDEFRecord|, run these steps:
-    <ol class=algorithm>
+    <ol class=algorithm data-link-for="NDEFRecord">
       <li>
-        Set |record|'s recordType to "`url`".
+        Set |record|'s <a>recordType</a> to "`url`".
       </li>
       <li>
-        Set |record|'s mediaType to `null`.
+        Set |record|'s <a>mediaType</a> to `null`.
       </li>
       <li>
         If |ndefRecord|'s <a>PAYLOAD field</a> is not present,
-        set |record|.<a>[[\PayloadData]]</a> to `undefined` and return |record|.
+        set |record|'s <a>data</a> to `null` and return |record|.
       </li>
       <li>
         Let |buffer:byte sequence| be the <a>byte sequence</a> of
@@ -3774,12 +3748,13 @@
             Let |prefixString:string| be the <a>byte sequence</a> value corresponding to the value of |prefixByte|.
           </li>
           <li>
-            Set |record|.<a>[[\PayloadData]]</a> to |prefixString| appended to |buffer|.
+            Set |record|'s <a>data</a> to |prefixString| appended to |buffer|.
           </li>
         </ol>
       </li>
       <li>
-        Otherwise, if there is no match for |prefixByte|, set |record|.<a>[[\PayloadData]]</a> to |buffer|.
+        Otherwise, if there is no match for |prefixByte|, set
+        |record|'s <a>data</a> to |buffer|.
       </li>
       <li>
         return |record|.
@@ -3792,22 +3767,23 @@
   <div>
     To <dfn>parse an NDEF smart-poster record</dfn> given a |ndefRecord| into a
     |record:NDEFRecord|, run these steps:
-    <ol class=algorithm>
+    <ol class=algorithm data-link-for="NDEFRecord">
       <li>
-        Set |record|'s recordType to "`smart-poster`".
+        Set |record|'s <a>recordType</a> to "`smart-poster`".
       </li>
       <li>
-        Set |record|'s mediaType to `null`.
+        Set |record|'s <a>mediaType</a> to `null`.
       </li>
       <li>
-        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set |record|.<a>[[\PayloadData]]</a> to `undefined` and return |record|.
+        If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set
+        |record|'s <a>data</a> to `null` and return |record|.
       </li>
       <li>
         Let |buffer:byte sequence| be the <a>byte sequence</a> of
         |ndefRecords|'s <a>PAYLOAD field</a>.
       </li>
       <li>
-        Set |record|.<a>[[\PayloadData]]</a> to |buffer|.
+        Set |record|'s <a>data</a> to |buffer|.
       </li>
       <li>
         return |record|.
@@ -3820,13 +3796,13 @@
     <div>
       To <dfn>parse an NDEF MIME type record</dfn> given a |ndefRecord| into a
       |record:NDEFRecord|, run these steps:
-      <ol class=algorithm>
+      <ol class=algorithm data-link-for="NDEFRecord">
         <li>
-          Set |record|'s recordType to "`mime`".
+          Set |record|'s <a>recordType</a> to "`mime`".
         </li>
         <li>
-          Set |record|'s mediaType to the result of
-          <a>serialize a MIME type</a> with |mimeType| as
+          Set |record|'s <a>mediaType</a> to the
+          result of <a>serialize a MIME type</a> with |mimeType| as
           the input.
         </li>
         <li>
@@ -3834,7 +3810,7 @@
           |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise `undefined`.
         </li>
         <li>
-          Set |record|.<a>[[\PayloadData]]</a> to |buffer|.
+          Set |record|'s <a>data</a> to |buffer|.
         </li>
         <li>
           return |record|.
@@ -3847,19 +3823,19 @@
     <div>
       To <dfn>parse an NDEF absolute-URL record</dfn> given a |ndefRecord| into a
       |record:NDEFRecord|, run these steps:
-      <ol class=algorithm>
+      <ol class=algorithm data-link-for="NDEFRecord">
         <li>
-          Set |record|'s recordType to "`absolute-url`".
+          Set |record|'s <a>recordType</a> to "`absolute-url`".
         </li>
         <li>
-          Set |record|'s mediaType to `null`.
+          Set |record|'s <a>mediaType</a> to `null`.
         </li>
         <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
           |ndefRecords|'s <a>TYPE field</a>.
         </li>
         <li>
-          Set |record|.<a>[[\PayloadData]]</a> to |buffer|.
+          Set |record|'s <a>data</a> to |buffer|.
         </li>
         <li>
           return |record|.
@@ -3872,19 +3848,20 @@
     <div>
       To <dfn>parse an NDEF external type record</dfn> given a |ndefRecord| into a
       |record:NDEFRecord|, run these steps:
-      <ol class=algorithm>
+      <ol class=algorithm data-link-for="NDEFRecord">
         <li>
-          Set |record|'s recordType to the value of |ndefRecord|'s <a>TYPE field</a>.
+          Set |record|'s <a>recordType</a> to the
+          value of |ndefRecord|'s <a>TYPE field</a>.
         </li>
         <li>
-          Set |record|'s mediaType to `null`.
+          Set |record|'s <a>mediaType</a> to `null`.
         </li>
         <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
           |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise `undefined`.
         </li>
         <li>
-          Set |record|.<a>[[\PayloadData]]</a> to |buffer|.
+          Set |record|'s <a>data</a> to |buffer|.
         </li>
         <li>
           return |record|.
@@ -3897,19 +3874,19 @@
     <div>
       To <dfn>parse an NDEF unknown record</dfn> given a |ndefRecord| into a
       |record:NDEFRecord|, run these steps:
-      <ol class=algorithm>
+      <ol class=algorithm data-link-for="NDEFRecord">
         <li>
-          Set |record|'s recordType to "`unknown`".
+          Set |record|'s <a>recordType</a> to "`unknown`".
         </li>
         <li>
-          Set |record|'s mediaType to `null`.
+          Set |record|'s <a>mediaType</a> to `null`.
         </li>
         <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
           |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise `undefined`.
         </li>
         <li>
-          Set |record|.<a>[[\PayloadData]]</a> to |buffer|.
+          Set |record|'s <a>data</a> to |buffer|.
         </li>
         <li>
           return |record|.
