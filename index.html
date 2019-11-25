@@ -1156,9 +1156,10 @@
   <section> <h3>Save and restore game progress with another device</h3>
     <p>
       Filtering of relevant data sources can be done by the use of
-      the <a>NDEFScanOptions</a>. Below we use a custom record identifier so
-      that when we read the data, we immediately update the game progress by
-      issuing a push with a custom NDEF data layout.
+      the <a>NDEFScanOptions</a>. Below we use the custom record identifier
+      "`my-game-progress`" as a relative URL so that when we read the data, we
+      immediately update the game progress by issuing a push with a custom NDEF
+      data layout.
     </p>
     <p>
       The example allows reading and pushing to both peers and tags,
