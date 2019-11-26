@@ -511,44 +511,23 @@
     <p>
       The NFC Forum has standardized a small set of useful sub record types in
       [[NFC-RTD]] (Resource Type Definition specifications) called
-      <dfn>well-known type</dfn>s, for instance text, URL, media and
-      opaque binary data. In addition, there are record types designed for more
+      <dfn>well-known type record</dfn>s, for instance text, URL, media and others.
+      In addition, there are record types designed for more
       complex interactions, such as smart posters (containing optional embedded
       records for url, text, signature and actions), and handover records.
     </p>
     <p>
-      These sub record types can be stored in the <dfn>well-known type record</dfn>.
+      The type information stored in the <a>TYPE field</a> of
+      <a>well-known type records</a> can be of two kinds: global or local type.
     </p>
-    <div>
-      The type information stored in the <a>TYPE field</a> can be of two kinds:
-      <ul>
-        <li>
-          NFC Forum <dfn>global type</dfn> that are defined and managed by the
-          NFC Forum and usually start with uppercase letter.
-          Examples: "`T`" for text, "`U`" for URL, "`Sp`" for smart poster,
-          "`Sig`" for signature, "`Hc`" for handover carrier, "`Hr`" for
-          handover request, "`Hs`" for handover select, etc.
-        </li>
-        <li>
-          <p>
-            NFC Forum <dfn>local type</dfn> that are defined by the NFC Forum or
-            by an application, and always start with lowercase letter or a
-            number. Those are usually short strings that are unique only within
-            the local context of the containing record. They are used when types
-            meaning doesn't matter outside of the local context of the
-            containing record and when storage usage is a hard constraint. See
-            <a>Smart poster</a> for an example on how local types are used.
-          </p>
-          <p class="note">
-            A [=local type=] is thus defined in terms of a containing record type,
-            and thus doesn't need any namespacing. For this reason the same local type
-            name can be used within another record type with different meaning and
-            different payload type.
-          </p>
-        </li>
-      </ul>
-    </div>
-
+    <section><h4>Well-known global types</h4>
+      <p>
+        NFC Forum <dfn>global type</dfn> that are defined and managed by the
+        NFC Forum and usually start with uppercase letter.
+        Examples: "`T`" for text, "`U`" for URL, "`Sp`" for smart poster,
+        "`Sig`" for signature, "`Hc`" for handover carrier, "`Hr`" for
+        handover request, "`Hs`" for handover select, etc.
+      </p>
     <section> <h5>Text record</h5>
       <div>
         The <dfn>Text record</dfn> is a [=well-known type record=] that is defined
@@ -700,8 +679,26 @@
       <a href="https://github.com/w3c/web-nfc/issues/364">issue</a>.
     </p>
     </section>
+    </section> <!-- well-known global types -->
 
-    </section>  <!-- Well-known types -->
+    <section><h4>Well-known local types</h4>
+      <p>
+        NFC Forum <dfn>local type</dfn> that are defined by the NFC Forum or
+        by an application, and always start with lowercase letter or a
+        number. Those are usually short strings that are unique only within
+        the local context of the containing record. They are used when types
+        meaning doesn't matter outside of the local context of the
+        containing record and when storage usage is a hard constraint. See
+        <a>Smart poster</a> for an example on how local types are used.
+      </p>
+      <p class="note">
+        A [=local type=] is thus defined in terms of a containing record type,
+        and thus doesn't need any namespacing. For this reason the same local
+        type name can be used within another record type with different meaning
+        and different payload type.
+      </p>
+    </section>
+    </section>  <!-- Well-known (TNF 1) types -->
 
     <section>
     <h4>
@@ -1701,22 +1698,22 @@
         explicitly represented.
       </p>
       <p>
-        Two <a>well-known type</a>s (including any NFC Forum <a>local type</a>
-        and any NFC Forum <a>global type</a>) MUST be compared character by
-        character in case-sensitive manner.
+        Two <a>well-known type records</a> (including any NFC Forum
+        <a>local type</a> and any NFC Forum <a>global type</a>) MUST be compared
+        character by character in case-sensitive manner.
       </p>
       <p>
         Two external types MUST be compared character by character, in
         case-insensitive manner.
       </p>
       <p>
-        The binary representation of any <a>well-known type</a> and
+        The binary representation of any <a>well-known type record</a> and
         <a>external type</a> MUST be written as a relative URI (RFC 3986),
         omitting the namespace identifier (NID) "`nfc`" and namespace specific
         string (NSS) "`wkt`" and "`ext`", respectively, i.e. omitting the
         "`urn:nfc:wkt:`" and "`urn:nfc:ext:`" prefixes.
         For instance, "`urn:nfc:ext:company.com:a" is stored as "`company.com:a`"
-        and the <a>well-known type</a> of a <a>Text record</a> is
+        and the <a>well-known type records</a> of a <a>Text record</a> is
         "`urn:nfc:wkt:T`", but it is stored as "`T`".
       </p>
 
