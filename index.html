@@ -1567,9 +1567,10 @@
       running <a>convert NDEFRecord.data bytes</a> with the <a>NDEF Record</a>.
     </p>
     <p data-dfn-for="NDEFRecordInit">
-      The <dfn>NDEFRecordInit</dfn> dictionary is used to initialize an <a>NDEF record</a>
-      with its <a>record type</a> <dfn>recordType</dfn>, and optional <a>record identifier</a>
-      <dfn>id</dfn> and payload data <dfn>data</dfn>.
+      The <dfn>NDEFRecordInit</dfn> dictionary is used to initialize an
+      <a>NDEF record</a> with its <a>record type</a> <dfn>recordType</dfn>, and
+      optional <a>record identifier</a> <dfn>id</dfn> and
+      payload data <dfn>data</dfn>.
     </p>
     <div data-dfn-for="NDEFRecordInit">
       Additionally, there are additional optional fields that are only applicable
@@ -1579,8 +1580,8 @@
           "<a>mime</a>": Optional <a>MIME type</a> <dfn>mediaType</dfn>.
         </li>
         <li data-dfn-for="NDEFRecordInit">
-          "<a>text</a>": Optional [=encoding/label|encoding label=] <dfn>encoding</dfn>
-          and [=language tag=] <dfn>lang</dfn>.
+          "<a>text</a>": Optional [=encoding/label|encoding label=]
+          <dfn>encoding</dfn> and [=language tag=] <dfn>lang</dfn>.
         </li>
       </ul>
     </div>
@@ -1618,7 +1619,8 @@
     <h2>The <dfn>record type</dfn> string</h2>
       <p>
         This string defines the allowed record types for a <a>NDEFRecord</a>. The
-        [[[#data-mapping]]] section describes how it is mapped to <a>NDEF record</a> types.
+        [[[#data-mapping]]] section describes how it is mapped to
+        <a>NDEF record</a> types.
       </p>
       <p>
         A set of known standardized values exists, but it is also possible
@@ -1627,7 +1629,8 @@
       <dl>
         <dt>The "<dfn>empty</dfn>" string</dt>
         <dd>
-          The value representing <a href="#empty-ndef-record-tnf-0">empty</a> <a>NDEFRecord</a>.
+          The value representing <a href="#empty-ndef-record-tnf-0">empty</a>
+          <a>NDEFRecord</a>.
         </dd>
         <dt>The "<dfn>text</dfn>" string</dt>
         <dd>
@@ -2056,8 +2059,8 @@
     with new |options:NDEFScanOptions| will replace existing filters.
   </p>
   <p>
-    The <dfn data-dfn-for="NDEFReader">onreading</dfn> is an {{EventHandler}} which is called to notify
-    that new reading is available.
+    The <dfn data-dfn-for="NDEFReader">onreading</dfn> is an {{EventHandler}}
+    which is called to notify that new reading is available.
   </p>
   <p>
     The <dfn data-dfn-for="NDEFReader">onerror</dfn> is an {{EventHandler}}
@@ -2107,19 +2110,24 @@
     </tbody>
   </table>
   <p>
-    The <dfn>activated reader objects</dfn> is the value of the <a>[[\ActivatedReaderList]]</a> internal slot.
+    The <dfn>activated reader objects</dfn> is the value of the
+    <a>[[\ActivatedReaderList]]</a> internal slot.
   </p>
   <p>
-    The <dfn>pending push tuple</dfn> is the value of the <a>[[\PendingPush]]</a> internal slot.
+    The <dfn>pending push tuple</dfn> is the value of the
+    <a>[[\PendingPush]]</a> internal slot.
   </p>
   <p>
-    <dfn id="nfc-is-suspended">NFC is suspended</dfn> if the <a>[[\Suspended]]</a> internal slot is `true`.
+    <dfn id="nfc-is-suspended">NFC is suspended</dfn> if the
+    <a>[[\Suspended]]</a> internal slot is `true`.
   </p>
   <p>
-    To <dfn id="suspend-nfc">suspend NFC</dfn>, set the <a>[[\Suspended]]</a> internal slot to `true`.
+    To <dfn id="suspend-nfc">suspend NFC</dfn>, set the <a>[[\Suspended]]</a>
+    internal slot to `true`.
   </p>
   <p>
-    To <dfn id="resume-nfc">resume NFC</dfn>, set the <a>[[\Suspended]]</a> internal slot to `false`.
+    To <dfn id="resume-nfc">resume NFC</dfn>, set the <a>[[\Suspended]]</a>
+    internal slot to `false`.
   </p>
   <p class="note">
     Internal slots are used only as a notation in this specification, and
@@ -2156,7 +2164,8 @@
               return `true`.
             </li>
             <li>
-              Otherwise, if it resolved with {{PermissionState["prompt"]}}, then optionally
+              Otherwise, if it resolved with {{PermissionState["prompt"]}},
+              then optionally
               <a data-lt="request permission to use">request permission</a>
               from the user for the <a>Web NFC permission name</a>.
               If that is granted, return `true`.
@@ -2165,8 +2174,8 @@
                 steps are not yet clearly defined.
                 At this point the UA asks the user about the policy to be used
                 with the <a>Web NFC permission name</a> for the given
-                <a>origin</a> and <a>global object</a>, if the user grants permission,
-                return `true`.
+                <a>origin</a> and <a>global object</a>, if the user grants
+                permission, return `true`.
               </p>
             </li>
           </ol>
@@ -2253,12 +2262,14 @@
     </li>
   </ol>
   <p>
-    The UA must <a>release NFC</a> given the document's <a>relevant settings object</a> as
-    additional <a>unloading document cleanup steps</a>.
+    The UA must <a>release NFC</a> given the document's
+    <a>relevant settings object</a> as additional
+    <a>unloading document cleanup steps</a>.
   </p>
   </section> <!-- release NFC -->
 
-  <section data-dfn-for="NDEFPushOptions"> <h3>The <dfn>NDEFPushOptions</dfn> dictionary</h3>
+  <section data-dfn-for="NDEFPushOptions">
+    <h3>The <dfn>NDEFPushOptions</dfn> dictionary</h3>
     <pre class="idl">
       dictionary NDEFPushOptions {
         NDEFPushTarget target = "any";
@@ -2350,7 +2361,8 @@
         <a>record identifier</a> of each
         <a>NDEFRecord</a> object in an <a>NDEF message</a>.
         If the dictionary member is [= dictionary member/not present =],
-        then it will be ignored by the <a href="#steps-listen">NFC listen algorithm</a>.
+        then it will be ignored by the
+        <a href="#steps-listen">NFC listen algorithm</a>.
       </p>
       <p>
         The <dfn>recordType</dfn> property
@@ -2358,7 +2370,8 @@
         <a>record type</a> of each
         <a>NDEFRecord</a> object in an <a>NDEF message</a>.
         If the dictionary member is [= dictionary member/not present =],
-        then it will be ignored by the <a href="#steps-listen">NFC listen algorithm</a>.
+        then it will be ignored by the
+        <a href="#steps-listen">NFC listen algorithm</a>.
       </p>
       <p>
         The <dfn>mediaType</dfn> property
@@ -2429,7 +2442,8 @@
           </li>
           <li>
             If the algorithm is not <a>triggered by user activation</a>, then
-            reject |p| with a {{"NotAllowedError"}} {{DOMException}} and return |p|.
+            reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
+            return |p|.
           </li>
           <li>
             Let |signal:AbortSignal| be the |options|’ dictionary member
@@ -2677,7 +2691,8 @@
                   </li>
                   <li>
                     Otherwise, if the type of |record|'s <a>data</a> is
-                    {{DOMString}}, then set |record|'s <a>recordType</a> to "`text`".
+                    {{DOMString}}, then set |record|'s <a>recordType</a> to
+                    "`text`".
                   </li>
                   <li>
                     Otherwise, set |record|'s <a>recordType</a> to "`mime`".
@@ -2685,8 +2700,9 @@
                 </ol>
               </li>
               <li>Let |ndef| be the result of passing |record| to the algorithm
-                below switching on |record|'s <a>recordType</a>. If the algorithm throws
-                an exception |e|, reject |promise| with |e| and abort these steps.
+                below switching on |record|'s <a>recordType</a>. If the
+                algorithm throws an exception |e|, reject |promise| with |e|
+                and abort these steps.
                 <dl>
                   <dt>"`empty`"</dt>
                   <ul>
@@ -2716,8 +2732,8 @@
                   <ul>
                     If |record|'s <a>recordType</a> is an <a>external type</a>,
                     <li>
-                      If |record|'s <a>data</a> is of type {{NDEFMessageInit}}, then
-                      return the result of running the
+                      If |record|'s <a>data</a> is of type {{NDEFMessageInit}},
+                      then return the result of running the
                       <a>create NDEF message</a> given |record|'s <a>data</a>.
                     </li>
                     <li>
@@ -2729,8 +2745,8 @@
                     If |record|'s <a>recordType</a> is a <a>local type</a> and if
                     |record| is a payload to another <a>NDEF</a> record,
                     <li>
-                      If |record|'s <a>data</a> is of type {{NDEFMessageInit}}, then
-                      return the result of running the
+                      If |record|'s <a>data</a> is of type {{NDEFMessageInit}},
+                      then return the result of running the
                       <a>create NDEF message</a> given |record|'s <a>data</a>.
                     </li>
                     <li>
@@ -2755,7 +2771,8 @@
                     Set |ndef|'s <a>IL field</a> to `1`.
                   </li>
                   <li>
-                    Set |ndef|'s <a>ID LENGTH field</a> to the length of |identifier|.
+                    Set |ndef|'s <a>ID LENGTH field</a> to the length of
+                    |identifier|.
                   </li>
                   <li>
                     Set |ndef|'s <a>ID field</a> to |identifier|.
@@ -2773,12 +2790,12 @@
 
       <section><h3>Mapping empty record to NDEF</h3>
       <div>
-        To <dfn>map empty record to NDEF</dfn> given a |record:NDEFRecordInit|, run
-        these steps:
-        <ol class=algorithm  data-link-for="NDEFRecordInit">
+        To <dfn>map empty record to NDEF</dfn> given a |record:NDEFRecordInit|,
+        run these steps:
+        <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
-            If |record|'s <a>mediaType</a> is not `undefined`, [= exception/throw =]
-            a {{TypeError}} and abort these steps.
+            If |record|'s <a>mediaType</a> is not `undefined`,
+            [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
             Let |ndef| be the notation for the <a>NDEF record</a> to
@@ -2804,8 +2821,8 @@
 
       <section><h3>Mapping string to NDEF</h3>
       <div>
-        To <dfn>map text to NDEF</dfn> given a |record:NDEFRecordInit|, run these
-        steps:
+        To <dfn>map text to NDEF</dfn> given a |record:NDEFRecordInit|, run
+        these steps:
         <p class="note">
           This is useful when clients specifically want to write text in a
           [=well-known type record=].
@@ -2816,15 +2833,17 @@
         </p>
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
-            If |record|'s <a>mediaType</a> is not `undefined`, [= exception/throw =]
-            a {{TypeError}} and abort these steps.
-          </li>
-          <li>
-            If the type of |record|'s <a>data</a> is not a {{DOMString}} or a {{BufferSource}},
+            If |record|'s <a>mediaType</a> is not `undefined`,
             [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
-            Let |documentLanguage:string| be the [=document element=]'s lang attribute.
+            If the type of |record|'s <a>data</a> is not a {{DOMString}} or a
+            {{BufferSource}}, [= exception/throw =] a {{TypeError}} and abort
+            these steps.
+          </li>
+          <li>
+            Let |documentLanguage:string| be the [=document element=]'s
+            <a>lang</a> attribute.
           </li>
           <li>
             If |documentLanguage| is the empty string, set it to "`en`".
@@ -2850,8 +2869,8 @@
             Let |header:byte| be a <a>byte</a> constructed the following way:
             <ol>
               <li>
-                If |encoding name| is equal to UTF-8, set bit `7` to the value `0`,
-                or else set the value to `1`.
+                If |encoding name| is equal to UTF-8, set bit `7` to the value
+                `0`, or else set the value to `1`.
               </li>
               <li>
                 Set bit `6` to the value `0` (reserved).
@@ -2861,8 +2880,8 @@
                 |language| <a>string</a>.
               </li>
               <li>
-                If |languageLength| cannot be stored in 6 bit (|languageLength| > 63),
-                [= exception/throw =] a {{SyntaxError}}.
+                If |languageLength| cannot be stored in 6 bit
+                (|languageLength| > 63), [= exception/throw =] a {{SyntaxError}}.
               </li>
               <li>
                 Set bit `5` to bit `0` to |languageLength|.
@@ -2889,9 +2908,9 @@
                       running <a>UTF-8 encode</a> on |record|'s <a>data</a>.
                     </li>
                     <li>
-                      <a data-cite="encoding#concept-stream-read">Read</a> bytes from |stream| into
-                      |data| (from position |languageLength| + 1) until
-                      <a data-cite="encoding#concept-stream-read">read</a>
+                      <a data-cite="encoding#concept-stream-read">Read</a> bytes
+                      from |stream| into |data| (from position |languageLength| + 1)
+                      until <a data-cite="encoding#concept-stream-read">read</a>
                       returns <a data-cite="encoding#end-of-stream">end-of-stream</a>.
                     </li>
                   </ol>
@@ -2925,7 +2944,8 @@
                 Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
               </li>
               <li>
-                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a> to |data|.
+                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a>
+                to |data|.
               </li>
             </ol>
           </li>
@@ -2938,12 +2958,12 @@
 
       <section><h3>Mapping URL to NDEF</h3>
       <div>
-        To <dfn>map a URL to NDEF</dfn> given a |record:NDEFRecordInit|, run these
-        steps:
+        To <dfn>map a URL to NDEF</dfn> given a |record:NDEFRecordInit|, run
+        these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
-            If |record|'s <a>mediaType</a> is not `undefined`, [= exception/throw =]
-            a {{TypeError}} and abort these steps.
+            If |record|'s <a>mediaType</a> is not `undefined`,
+            [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
             If |record|'s <a>data</a> is not a {{DOMString}},
@@ -2958,8 +2978,8 @@
             {{TypeError}} and abort these steps.
           </li>
           <li>
-            Let |serializedURL:string| be <a data-cite="url#concept-url-serializer">serialization</a>
-            of |url|.
+            Let |serializedURL:string| be
+            <a data-cite="url#concept-url-serializer">serialization</a> of |url|.
           </li>
           <li>
             Match the URI prefixes as defined in [[[NFC-STANDARDS]]],
@@ -2990,8 +3010,9 @@
                 running <a>UTF-8 encode</a> on |shortenedURL|.
               </li>
               <li>
-                <a data-cite="encoding#concept-stream-read">Read</a> bytes from |stream| into
-                |data| (from position 1) until <a data-cite="encoding#concept-stream-read">read</a>
+                <a data-cite="encoding#concept-stream-read">Read</a> bytes from
+                |stream| into |data| (from position 1) until
+                <a data-cite="encoding#concept-stream-read">read</a>
                 returns <a data-cite="encoding#end-of-stream">end-of-stream</a>.
               </li>
             </ol>
@@ -3015,7 +3036,8 @@
                 Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
               </li>
               <li>
-                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a> to |data|.
+                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a>
+                to |data|.
               </li>
             </ol>
           </li>
@@ -3043,7 +3065,8 @@
             <ol>
               <li>
                 If |mimeTypeRecord| is failure, let |mimeTypeRecord| be a new
-                <a>MIME type record</a> whose type is "`application`", and subtype is "`octet-stream`".
+                <a>MIME type record</a> whose type is "`application`", and
+                subtype is "`octet-stream`".
               </li>
             </ol>
           </li>
@@ -3072,7 +3095,8 @@
                 Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
               </li>
               <li>
-                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a> to |data|.
+                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a>
+                to |data|.
               </li>
             </ol>
           </li>
@@ -3089,8 +3113,8 @@
         run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
-            If |record|'s <a>mediaType</a> is not `undefined`, [= exception/throw =]
-            a {{TypeError}} and abort these steps.
+            If |record|'s <a>mediaType</a> is not `undefined`,
+            [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
             If the type of a |record|'s <a>data</a> is not a
@@ -3111,7 +3135,8 @@
             be created by the UA.
             <ol>
               <li>
-                Set |ndefRecord|'s <a>TNF field</a> to `4` (<a>external type record</a>).
+                Set |ndefRecord|'s <a>TNF field</a> to `4`
+                (<a>external type record</a>).
               </li>
               <li>
                 Set the |ndefRecord|'s <a>TYPE field</a> to |record|'s
@@ -3121,7 +3146,8 @@
                 Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
               </li>
               <li>
-                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a> to |data|.
+                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a>
+                to |data|.
               </li>
             </ol>
           </li>
@@ -3138,8 +3164,8 @@
         run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
-            If |record|'s <a>mediaType</a> is not `undefined`, [= exception/throw =]
-            a {{TypeError}} and abort these steps.
+            If |record|'s <a>mediaType</a> is not `undefined`,
+            [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
             If the type of a |record|'s <a>data</a> is not a
@@ -3274,7 +3300,8 @@
           </li>
           <li>
             If the algorithm is not <a>triggered by user activation</a>, then
-            reject |p| with a {{"NotAllowedError"}} {{DOMException}} and return |p|.
+            reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
+            return |p|.
           </li>
           <li>
             If |reader|.<a>[[\Signal]]</a>'s [= AbortSignal/aborted flag =] is
@@ -3283,14 +3310,17 @@
           </li>
           <li>
             If |reader|.<a>[[\Signal]]</a> is not `null`, then
-            <a data-cite="dom#abortsignal-abort-algorithms">add the following abort steps</a> to |reader|.<a>[[\Signal]]</a>:
+            <a data-cite="dom#abortsignal-abort-algorithms">add the following
+            abort steps</a> to |reader|.<a>[[\Signal]]</a>:
             <ol>
               <li>
-                Remove the {{NDEFReader}} instance from the <a>activated reader objects</a>.
+                Remove the {{NDEFReader}} instance from the
+                <a>activated reader objects</a>.
               </li>
               <li>
-                If the <a>activated reader objects</a> [= list/is empty =], then make a request
-                to stop listening to <a>NDEF message</a>s on all <a>NFC adapter</a>s.
+                If the <a>activated reader objects</a> [= list/is empty =],
+                then make a request to stop listening to <a>NDEF message</a>s
+                on all <a>NFC adapter</a>s.
               </li>
             </ol>
           </li>
@@ -3304,8 +3334,8 @@
                 and return |p|.
               </li>
               <li>
-                If this is the first listener being set up, then make a request to
-                all <a>NFC adapter</a>s to listen to <a>NDEF message</a>s.
+                If this is the first listener being set up, then make a request
+                to all <a>NFC adapter</a>s to listen to <a>NDEF message</a>s.
               </li>
               <li>
                 If the request fails, then the UA MAY reject |p| with a
@@ -3316,12 +3346,12 @@
                 Add |reader| to the <a>activated reader objects</a>.
               </li>
               <li>
-                If the {{Document}} of the <a>top-level browsing context</a> is not
-                <a>visible</a> (e.g. the user navigated
-                to another page), then the registered <a>activated reader objects</a>
-                still SHOULD continue to exist, but SHOULD become paused, i.e. the UA
-                SHOULD NOT check and use them until the {{Document}} is
-                <a>visible</a> again.
+                If the {{Document}} of the <a>top-level browsing context</a> is
+                not <a>visible</a> (e.g. the user navigated
+                to another page), then the registered
+                <a>activated reader objects</a> still SHOULD continue to exist,
+                but SHOULD become paused, i.e. the UA SHOULD NOT check and use
+                them until the {{Document}} is <a>visible</a> again.
               </li>
               <li>
                 Whenever the <a>UA</a> detects NFC technology, run the
@@ -3344,8 +3374,8 @@
         technology for reading or formatting, run the following sub-steps:
         <ol>
           <li>[= list/For each =]
-            {{NDEFReader}} instance |reader:NDEFReader| in the <a>activated reader
-            objects</a>, run the following sub-steps:
+            {{NDEFReader}} instance |reader:NDEFReader| in the
+            <a>activated reader objects</a>, run the following sub-steps:
             <ol>
               <li>
                 <a>Fire an event</a> named "`error`" at |reader|.
@@ -3461,10 +3491,12 @@
         Let |records| be the empty list.
       </li>
       <li>
-        As long as there are unread bytes of |bytes|, run the following sub-steps:
+        As long as there are unread bytes of |bytes|, run the following
+        sub-steps:
         <ol>
           <li>
-            If the remaining length of |bytes| is less than `3`, abort these sub-steps.
+            If the remaining length of |bytes| is less than `3`, abort these
+            sub-steps.
           </li>
           <li>
             If any of the following steps requires reading bytes beyond the
@@ -3477,10 +3509,12 @@
             Let |header:byte| be the next byte of |bytes|.
             <ol>
               <li>
-                Let |messageBegin:boolean| (<a>MB field</a>) be the left most bit (bit 7) of |header|.
+                Let |messageBegin:boolean| (<a>MB field</a>) be the left most
+                bit (bit 7) of |header|.
               </li>
               <li>
-                If this is the first iteration of these sub-steps and |messageBegin| is `false`,
+                If this is the first iteration of these sub-steps and
+                |messageBegin| is `false`,
                 return |records|.
               </li>
               <li>
@@ -3497,7 +3531,8 @@
                 Let |hasIdLength:boolean| (<a>IL field</a>) be bit 3 of |header|.
               </li>
               <li>
-                Let |ndef|'s |typeNameField:number| (<a>TNF field</a>) be the integer value of bit 2-0 of |header|.
+                Let |ndef|'s |typeNameField:number| (<a>TNF field</a>) be the
+                integer value of bit 2-0 of |header|.
               </li>
             </ol>
           </li>
@@ -3507,10 +3542,12 @@
           </li>
           <li>
             If |shortRecord| is `true`, let |payloadLength:number|
-            be the integer value of next byte (<a>PAYLOAD LENGTH field</a>) of |bytes|.
+            be the integer value of next byte (<a>PAYLOAD LENGTH field</a>) of
+            |bytes|.
           </li>
           <li>
-            Otherwise, let |payloadLength| be the integer value of the next 4 bytes of |bytes|.
+            Otherwise, let |payloadLength| be the integer value of the next 4
+            bytes of |bytes|.
           </li>
           <li>
             If |hasIdLength| is `true`, let |idLength:number| be
@@ -3519,20 +3556,21 @@
           </li>
           <li>
             If |typeLength| > 0, let |ndef|'s |type:string| be result of
-            running <a>UTF-8 decode</a> on the next |typeLength| (<a>TYPE field</a>) bytes,
-            orelse let |type| be the empty string.
+            running <a>UTF-8 decode</a> on the next |typeLength|
+            (<a>TYPE field</a>) bytes, or else let |type| be the empty string.
           </li>
           <li>
             If |idLength| > 0, let |ndef|'s |id:string| be result of
-            running <a>UTF-8 decode</a> on the next |idLength| (<a>ID field</a>) bytes,
-            orelse let |ndef|'s |id| be the empty string.
+            running <a>UTF-8 decode</a> on the next |idLength| (<a>ID field</a>)
+            bytes, or else let |ndef|'s |id| be the empty string.
           </li>
           <li>
-            Let |ndef|'s |payload| be the <a>byte sequence</a> of the last |payloadLength|
-            (<a>PAYLOAD field</a>) bytes, which may be `0` bytes.
+            Let |ndef|'s |payload| be the <a>byte sequence</a> of the last
+            |payloadLength| (<a>PAYLOAD field</a>) bytes, which may be `0` bytes.
           </li>
           <li>
-            Let |record:NDEFRecord| be the result of <a>parse an NDEF record</a> on |ndef|.
+            Let |record:NDEFRecord| be the result of <a>parse an NDEF record</a>
+            on |ndef|.
           </li>
           <li>
             If |record| is not `null`, <a>append</a> |record| to |records|.
@@ -3610,21 +3648,23 @@
         values to the |record| object's properties.
       </li>
       <li>
-        Otherwise, if |ndef|'s |typeNameField| is `3` (<a>absolute-URL record</a>), then
-        set |record| to the result of running <a>parse an NDEF absolute-URL record</a>
-        on |ndef|.
+        Otherwise, if |ndef|'s |typeNameField| is `3` (<a>absolute-URL record</a>),
+        then set |record| to the result of running
+        <a>parse an NDEF absolute-URL record</a> on |ndef|.
       </li>
       <li>
         Otherwise, if |ndef|'s |typeNameField| is `4` (<a>external type record</a>),
-        then set |record| to the result of running <a>parse an NDEF external type record</a>
-        on |ndef|, or make sure that the underlying platform provides equivalent values
-        to the |record| object's properties.
+        then set |record| to the result of running
+        <a>parse an NDEF external type record</a> on |ndef|, or make sure that
+        the underlying platform provides equivalent values to the |record|
+        object's properties.
       </li>
       <li>
         Otherwise, if |ndef|'s |typeNameField| is `5` (<a>unknown record</a>)
-        then set |record| to the result of running <a>parse an NDEF unknown record</a>
-        on |ndef|, or make sure that the underlying platform provides equivalent values
-        to the |record| object's properties.
+        then set |record| to the result of running
+        <a>parse an NDEF unknown record</a> on |ndef|, or make sure that the
+        underlying platform provides equivalent values to the |record| object's
+        properties.
       </li>
     </ol>
   </div>
@@ -3742,10 +3782,13 @@
         |buffer|.
       </li>
       <li>
-        If the value of |prefixByte| matches the URL expansion codes in the [[[NFC-STANDARDS]]] URI Record Type Definition specification, Section 3.2.2, Table 3, then
+        If the value of |prefixByte| matches the URL expansion codes in the
+        [[[NFC-STANDARDS]]] URI Record Type Definition specification,
+        Section 3.2.2, Table 3, then
         <ol>
           <li>
-            Let |prefixString:string| be the <a>byte sequence</a> value corresponding to the value of |prefixByte|.
+            Let |prefixString:string| be the <a>byte sequence</a> value
+            corresponding to the value of |prefixByte|.
           </li>
           <li>
             Set |record|'s <a>data</a> to |prefixString| appended to |buffer|.
@@ -3807,7 +3850,8 @@
         </li>
         <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
-          |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise `undefined`.
+          |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise
+          `undefined`.
         </li>
         <li>
           Set |record|'s <a>data</a> to |buffer|.
@@ -3821,8 +3865,8 @@
 
   <section><h3>Parsing NDEF absolute-URL records</h3>
     <div>
-      To <dfn>parse an NDEF absolute-URL record</dfn> given a |ndefRecord| into a
-      |record:NDEFRecord|, run these steps:
+      To <dfn>parse an NDEF absolute-URL record</dfn> given a |ndefRecord| into
+      a |record:NDEFRecord|, run these steps:
       <ol class=algorithm data-link-for="NDEFRecord">
         <li>
           Set |record|'s <a>recordType</a> to "`absolute-url`".
@@ -3846,8 +3890,8 @@
 
   <section><h3>Parsing NDEF external type records</h3>
     <div>
-      To <dfn>parse an NDEF external type record</dfn> given a |ndefRecord| into a
-      |record:NDEFRecord|, run these steps:
+      To <dfn>parse an NDEF external type record</dfn> given a |ndefRecord| into
+      a |record:NDEFRecord|, run these steps:
       <ol class=algorithm data-link-for="NDEFRecord">
         <li>
           Set |record|'s <a>recordType</a> to the
@@ -3858,7 +3902,8 @@
         </li>
         <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
-          |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise `undefined`.
+          |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise
+          `undefined`.
         </li>
         <li>
           Set |record|'s <a>data</a> to |buffer|.
@@ -3883,7 +3928,8 @@
         </li>
         <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
-          |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise `undefined`.
+          |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise
+          `undefined`.
         </li>
         <li>
           Set |record|'s <a>data</a> to |buffer|.
