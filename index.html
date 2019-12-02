@@ -1491,6 +1491,8 @@
       <a>NDEFRecord</a> interface:
     </p>
     <pre class="idl">
+      typedef (DOMString or BufferSource or NDEFMessageInit) NDEFRecordDataSource;
+
       [Exposed=Window]
       interface NDEFRecord {
         constructor(NDEFRecordInit recordInit);
@@ -1514,7 +1516,7 @@
         USVString encoding;
         USVString lang;
 
-        any data;
+        NDEFRecordDataSource data;
       };
     </pre>
     <p>
@@ -1766,7 +1768,7 @@
     <tr>
       <td nowrap><dfn>"`smart-poster`"</dfn></td>
       <td><i>unused</i></td>
-      <td>{{NDEFMessage}}</td>
+      <td>{{NDEFMessageInit}}</td>
       <td>[=Well-known type record=]</td>
       <td>1</td>
       <td>"`Sp`"</td>
@@ -1802,7 +1804,7 @@
       <td><i>unused</i></td>
       <td>
         {{BufferSource}} or<br>
-        {{NDEFMessage}}
+        {{NDEFMessageInit}}
       </td>
       <td><a>External type record</a></td>
       <td>4</td>
