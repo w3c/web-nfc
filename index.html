@@ -2739,9 +2739,8 @@
                   </ul>
                   <dt><a>external type name</a></dt>
                   <ul>
-                    If |record|'s <a>recordType</a> qualifies as an
-                    <a>external type</a>,
-                    <!-- TODO: factor out as algorithm??? -->
+                    If running <a>validate external type</a> given |record|'s
+                    <a>recordType</a> returns `true`,
                     <li>
                       If |record|'s <a>data</a> is of type {{NDEFMessageInit}},
                       then return the result of running the
@@ -2754,9 +2753,8 @@
                   <dt><a>local type name</a></dt>
                   <ul>
                     If |record| is a payload to another <a>NDEF</a> record, and
-                    if |record|'s <a>recordType</a> qualifies as a
-                    <a>local type</a>,
-                    <!-- TODO: factor out as algorithm??? -->
+                    if running <a>validate local type</a> given |record|'s
+                    <a>recordType</a> returns `true`,
                     <li>
                       If |record|'s <a>data</a> is of type {{NDEFMessageInit}},
                       then return the result of running the
@@ -2804,6 +2802,57 @@
               <!-- converting each record -->
             </ol>
           </li> <!-- converting message -->
+        </ol>
+      </section>
+
+      <section><h3>Validating external type</h3>
+        <p>
+          To <dfn>validate external type</dfn> given a |input:USVString| run
+          these steps:
+        </p>
+        <ol class=algorithm id="validate-external-type">
+          <li>
+            If |input| is not a {{USVString}} or its length exceeds 255 bytes,
+            return `false` and terminate these steps.
+          </li>
+          <li>
+            Split |input| by the last occurence of semicolon '`:`' into |domain|
+            (from the beginning until the semicolon) and |type| (from the
+            semicolon to the end).
+          </li>
+          <li>
+            If |type| is empty, let |type| be |input|.
+          </li>
+          <li>
+            If |domain| starts with "`urn:nfc:ext:`", strip that off.
+          </li>
+          <li>
+            If |domain| is not empty and does not match the
+            <a href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin-effective-domain">effective domain of
+            the origin</a>, return `false`.
+          </li>
+          <li>
+            Return `true`.
+          </li>
+        </ol>
+      </section>
+
+      <section><h3>Validating local type</h3>
+        <p>
+          To <dfn>validate local type</dfn> given a |input:USVString| run
+          these steps:
+        </p>
+        <ol class=algorithm id="validate-local-type">
+          <li>
+            If |input| is not a {{USVString}} or its length exceeds 255 bytes,
+            return `false` and terminate these steps.
+          </li>
+          <li>
+            If |input| does not start with a lowercase letter or a number,
+            return `false`.
+          <li>
+            Return `true`.
+          </li>
         </ol>
       </section>
 
