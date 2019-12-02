@@ -577,8 +577,8 @@
       record and an action record.
     </p>
     <p>
-      Icon records are <a>MIME type record</a>s. If multiple icon records are
-      included, readers SHOULD select only one of them to display.
+      <dfn>Icon record</dfn>s are <a>MIME type record</a>s. If multiple icon
+      records are included, readers SHOULD select only one of them to display.
     </p>
     <p>
       The type record has [=local type name=] "`t`" specific to smart
@@ -1296,19 +1296,27 @@
               data: "https://my.org/content/19911"
             },
             {
-              recordType: "t", // smart poster type, a local type to Sp
-              data: "image/gif"
-            },
-            {
-              recordType: "text",
+              recordType: "t",  // title, a standard local type to Sp
               data: "Funny dance"
             },
             {
-              recordType: "s",  // size, a local type to Sp
+              recordType: "s",  // size, a standard local type to Sp
               data: 4096  // byte size of the content at the URL above
             },
             {
-              recordType: "act",  // action, a local type to Sp
+              // icon record for Sp, identified by media type
+              mediaType: "image/png",
+              // recordType will be set to "mime" by the implementation
+              data: getImageBytes(fromURL1);
+            },
+            {
+              // another icon record for Sp, identified by media type
+              mediaType: "image/jpg",
+              recordType: "i", // non-standard local type
+              data: getImageBytes(fromURL2);
+            },
+            {
+              recordType: "act",  // action, a standard local type to Sp
               data: 0  // do the action, in this case open in the browser
             }
           ]}
@@ -1321,8 +1329,8 @@
     <p>
       External type records can be used to create application defined records.
       These records may contain an <a>NDEF message</a> as payload,
-      with its own <a>NDEF records</a>, including local types that are used in
-      the context of the application.
+      with its own <a>NDEF records</a>, including <a>local types</a> that are
+      used in the context of the application.
     </p>
     <p>
       Note that the <a>smart poster</a> record type also contains an
@@ -1336,8 +1344,8 @@
     <p>
       This example shows how to read an external record for social posts,
       which contains an <a>NDEF message</a>, containing a text record and
-      a record with the local type "act" (action), with definition borrowed from
-      <a>smart poster</a>, but used in local application context.
+      a record with the <a>local type</a> "act" (action), with definition
+      borrowed from <a>smart poster</a>, but used in local application context.
     </p>
     <pre class="example">
       const reader = new NDEFReader();
@@ -2731,7 +2739,9 @@
                   </ul>
                   <dt><a>external type name</a></dt>
                   <ul>
-                    If |record|'s <a>recordType</a> is an <a>external type</a>,
+                    If |record|'s <a>recordType</a> qualifies as an
+                    <a>external type</a>,
+                    <!-- TODO: factor out as algorithm??? -->
                     <li>
                       If |record|'s <a>data</a> is of type {{NDEFMessageInit}},
                       then return the result of running the
@@ -2743,8 +2753,10 @@
                   </ul>
                   <dt><a>local type name</a></dt>
                   <ul>
-                    If |record|'s <a>recordType</a> is a <a>local type</a> and if
-                    |record| is a payload to another <a>NDEF</a> record,
+                    If |record| is a payload to another <a>NDEF</a> record, and
+                    if |record|'s <a>recordType</a> qualifies as a
+                    <a>local type</a>,
+                    <!-- TODO: factor out as algorithm??? -->
                     <li>
                       If |record|'s <a>data</a> is of type {{NDEFMessageInit}},
                       then return the result of running the
@@ -2757,7 +2769,13 @@
                   <dt>unmatched type</dt>
                   <ul>
                     <li>
-                      [= exception/throw =] a {{TypeError}}
+                      If |record| is a payload to another <a>NDEF</a> record,
+                      and |record|'s <a>mediaType</a> is and image or video
+                      type that qualifies for an <a>icon record</a> in a
+                      <a>smart poster</a>, then <a>map binary data to NDEF</a>.
+                    </li>
+                    <li>
+                      Otherwise, [= exception/throw =] a {{TypeError}}
                     </li>
                   </ul>
                 </dl>
@@ -3165,10 +3183,6 @@
         run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
-            If |record|'s <a>mediaType</a> is not `undefined`,
-            [= exception/throw =] a {{TypeError}} and abort these steps.
-          </li>
-          <li>
             If the type of a |record|'s <a>data</a> is not a
             {{BufferSource}}, [= exception/throw =] a {{TypeError}}
             and abort these steps.
@@ -3187,16 +3201,17 @@
             be created by the UA.
             <ol>
               <li>
-                Set the |ndefRecord|'s <a>TYPE field</a> to |record|'s
-                <a>recordType</a>.
+                Set |ndefRecord|'s <a>TNF field</a> to `1`
+                ([=well-known type record=]).
               </li>
               <li>
-                If |record|'s <a>recordType</a> is a standard local type to
-                <a>smart poster</a> or a handover record, then
-                set |ndefRecord|'s <a>TNF field</a> to `1`
-                ([=well-known type record=]), otherwise
-                set |ndefRecord|'s <a>TNF field</a> to `4`
-                (<a>external type record</a>).
+                If |record|'s <a>mediaType</a> is not `undefined`,
+                Set |ndefRecord|'s <a>TYPE field</a> to "`mime`", representing
+                an <a>icon record</a> in a <a>smart poster</a>.
+              </li>
+              <li>
+                Otherwise, set |ndefRecord|'s <a>TYPE field</a> to |record|'s
+                <a>recordType</a>, representing the <a>local type</a> name.
               </li>
               <li>
                 Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
