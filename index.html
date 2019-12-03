@@ -519,17 +519,38 @@
     <p>
       The type information stored in the <a>TYPE field</a> of
       <a>well-known type records</a> can be of two kinds:
-      <a href="well-known-global-types">global types</a>
-      and <a href="#well-known-local-types">local types</a>.
+      <a href="#well-known-local-types">local types</a>
+      and <a href="#well-known-global-types">global types</a>
     </p>
+
+    <section><h4>Well-known local types</h4>
+      <p>
+        NFC Forum <dfn>local type</dfn> that are defined by the NFC Forum or
+        by an application, and always start with lowercase letter or a
+        number. Those are usually short strings that are unique only within
+        the local context of the containing record. They are used when types
+        meaning doesn't matter outside of the local context of the
+        containing record and when storage usage is a hard constraint. See
+        <a>Smart poster</a> for an example on how local types are used.
+      </p>
+      <p class="note">
+        A [=local type=] is thus defined in terms of a containing record type,
+        and thus doesn't need any namespacing. For this reason the same local
+        type name can be used within another record type with different meaning
+        and different payload type.
+      </p>
+    </section>
+    </section>  <!-- Well-known (TNF 1) types -->
+
     <section><h4>Well-known global types</h4>
       <p>
-        NFC Forum <dfn>global type</dfn> that are defined and managed by the
+        NFC Forum <dfn>global type</dfn>s are defined and managed by the
         NFC Forum and usually start with uppercase letter.
         Examples: "`T`" for text, "`U`" for URL, "`Sp`" for smart poster,
         "`Sig`" for signature, "`Hc`" for handover carrier, "`Hr`" for
         handover request, "`Hs`" for handover select, etc.
       </p>
+
     <section> <h5>Text record</h5>
       <div>
         The <dfn>Text record</dfn> is a [=well-known type record=] that is defined
@@ -568,75 +589,89 @@
     </section>
 
     <section> <h5>Smart poster record</h5>
-    <p>
-      <dfn>Smart poster</dfn> is defined in [[NDEF-SMARTPOSTER]] as an NDEF
-      record that contains an <a>NDEF message</a> as payload, which may contain
-      several records: a mandatory <a>URI record</a> that refers to a content,
-      and additional optional records related to the content: a title record
-      (a <a>Text record</a>), one or more icon records, a type record, a size
-      record and an action record.
-    </p>
-    <p>
-      <dfn>Icon record</dfn>s are <a>MIME type record</a>s. If multiple icon
-      records are included, readers SHOULD select only one of them to display.
-    </p>
-    <p>
-      The type record has [=local type name=] "`t`" specific to smart
-      poster and the <a>PAYLOAD field</a> contains a UTF-8 encoded MIME type for
-      the content referred to by the URI record.
-    </p>
-    <p>
-      The size record has [=local type name=] "`s`" specific to smart
-      poster and the <a>PAYLOAD field</a> contains a 4-byte 32 bit unsigned
-      integer that denotes the size of the object referred to by the URL in the
-      URI record.
-    </p>
-    <p>
-      The action record has [=local type name=] "`act`" specific to
-      smart poster and the <a>PAYLOAD field</a> contains a single byte, whose
-      value has the following meaning:
-    </p>
-    <table class="simple">
-      <tr>
-        <th><strong>Value</strong></th>
-        <th><strong>Description</strong></th>
-      </tr>
-      <tr>
-        <td>0</td>
-        <td>Do the action</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Save for later</td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>Open for editing</td>
-      </tr>
-      <tr>
-        <td>3..0xFF</td>
-        <td>Reserved for future use</td>
-      </tr>
-    </table>
-    <p>
-      The action record is optional and there is no default action on the smart
-      poster content if the action record is missing.
-    </p>
-    <p class="note">
-      At the time of NDEF standardization the value `0` ("do the action") was
-      meant for use cases like send an SMS, make a call or launch browser.
-      Similarly, the value `1`, ("save the content for later processing") was
-      meant for use cases like store the SMS in inbox, save the URL in
-      bookmarks, or save the phone number to contacts. Also, the value `2`
-      ("open for editing") was meant to open the smart poster content with a
-      default application for editing.
-    </p>
-    <p>
-      Implementations don't need to implement any standardized behavior for the
-      actions defined here. In this API it's up to the applications what actions
-      they define (that may include the use cases above). However, Web NFC
-      just provides the values.
-    </p>
+    <div>
+      <dfn>Smart poster</dfn> is defined in [[NDEF-SMARTPOSTER]] to describe a
+      given Web content as an NDEF record that contains an <a>NDEF message</a>
+      as payload, including the following records:
+      <ul>
+        <li>
+          A single mandatory <a>URI record</a> that refers to the
+          <a>smart poster</a> content.
+        </li>,
+        <li>
+          Zero or more <a>Text records</a> that act as a <dfn>title record</dfn>
+          related to the content. When there are more than one title records
+          present, they MUST be with different <a>language tags</a>.
+          Applications SHOULD select one <a>title record</a> for presentation
+          to the end user.
+        </li>
+        <li>
+          Zero or more <a>MIME type records</a> that act as <dfn>icon record</dfn>
+          related to the content. The <a>MIME type</a> is usually "`image/jpg`",
+          "`image/png`", "`image/gif`", or even "`video/mpeg`".
+          Applications SHOULD select one <a>icon record</a> for presentation
+          to the end user.
+        </li>
+        <li>
+          One optional <dfn>type record</dfn> that has a [=local type name=]
+          "`t`" specific to <a>smart poster</a> and the <a>PAYLOAD field</a>
+          contains a UTF-8 encoded MIME type for the content referred to by the
+          <a>URI record</a>.
+        </li>
+        <li>
+          One optional <dfn>size record</dfn> that has [=local type name=] "`s`"
+          specific to <a>smart poster</a> and the <a>PAYLOAD field</a> contains
+          a 4-byte 32 bit unsigned integer that denotes the size of the object
+          referred to by the URL in the <a>URI record</a> of the
+          <a>smart poster</a>.
+        </li>
+        <li>
+          One optional <dfn>action record</dfn> that has a [=local type name=]
+          "`act`" specific to <a>smart poster</a> and the <a>PAYLOAD field</a>
+          contains a single byte, whose value has the following meaning:
+          <table class="simple">
+            <tr>
+              <th><strong>Value</strong></th>
+              <th><strong>Description</strong></th>
+            </tr>
+            <tr>
+              <td>0</td>
+              <td>Do the action</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>Save for later</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Open for editing</td>
+            </tr>
+            <tr>
+              <td>3..0xFF</td>
+              <td>Reserved for future use</td>
+            </tr>
+          </table>
+          There is no default action on the <a>smart poster</a> content if the
+          <a>action record</a> is missing.
+          <p class="note">
+            At the time of NDEF standardization the value `0` ("do the action") was
+            meant for use cases like send an SMS, make a call or launch browser.
+            Similarly, the value `1`, ("save the content for later processing") was
+            meant for use cases like store the SMS in inbox, save the URL in
+            bookmarks, or save the phone number to contacts. Also, the value `2`
+            ("open for editing") was meant to open the smart poster content with a
+            default application for editing.
+          </p>
+          <p>
+            Implementations don't need to implement any standardized behavior for the
+            actions defined here. In this API it's up to the applications what actions
+            they define (that may include the use cases above). However, Web NFC
+            just provides the values.
+          </p>
+        </li>
+      </ul>
+    </div>
+
     <div>
       The example below shows a smart poster record that embeds a text and a
       URL record.
@@ -682,25 +717,6 @@
     </p>
     </section>
     </section> <!-- well-known global types -->
-
-    <section><h4>Well-known local types</h4>
-      <p>
-        NFC Forum <dfn>local type</dfn> that are defined by the NFC Forum or
-        by an application, and always start with lowercase letter or a
-        number. Those are usually short strings that are unique only within
-        the local context of the containing record. They are used when types
-        meaning doesn't matter outside of the local context of the
-        containing record and when storage usage is a hard constraint. See
-        <a>Smart poster</a> for an example on how local types are used.
-      </p>
-      <p class="note">
-        A [=local type=] is thus defined in terms of a containing record type,
-        and thus doesn't need any namespacing. For this reason the same local
-        type name can be used within another record type with different meaning
-        and different payload type.
-      </p>
-    </section>
-    </section>  <!-- Well-known (TNF 1) types -->
 
     <section>
     <h4>
@@ -1287,37 +1303,41 @@
   <section> <h3>Push a smart poster message</h3>
     <pre class="example">
       const writer = new NDEFWriter();
+      const encoder = new TextEncoder();
       writer.push({ records: [
         {
-          recordType: "smart-poster",
+          recordType: "smart-poster",  // Sp
           data: { records: [
             {
-              recordType: "url",
+              recordType: "url",  // URL record for the Sp content
               data: "https://my.org/content/19911"
             },
             {
-              recordType: "t",  // title, a standard local type to Sp
+              recordType: "text",  // title record for the Sp content
               data: "Funny dance"
             },
             {
-              recordType: "s",  // size, a standard local type to Sp
-              data: 4096  // byte size of the content at the URL above
+              recordType: "t",  // type record, a local type to Sp
+              data: encoder.encode("image/gif") // MIME type of the Sp content
             },
             {
-              // icon record for Sp, identified by media type
+              recordType: "s",  // size record, a local type to Sp
+              data: new Uint32Array([4096]) // byte size of Sp content
+            },
+            {
+              recordType: "act",  // action record, a local type to Sp
+              // do the action, in this case open in the browser
+              data: new Uint8Array([0])
+            },
+            {
+              recordType: "mime" // icon record, a MIME type record
               mediaType: "image/png",
-              // recordType will be set to "mime" by the implementation
-              data: getImageBytes(fromURL1);
+              data: await (await fetch("icon1.png")).arrayBuffer()
             },
             {
-              // another icon record for Sp, identified by media type
+              recordType: "mime" // another icon record
               mediaType: "image/jpg",
-              recordType: "i", // non-standard local type
-              data: getImageBytes(fromURL2);
-            },
-            {
-              recordType: "act",  // action, a standard local type to Sp
-              data: 0  // do the action, in this case open in the browser
+              data: await (await fetch("icon2.jpg")).arrayBuffer()
             }
           ]}
         }
@@ -2767,13 +2787,7 @@
                   <dt>unmatched type</dt>
                   <ul>
                     <li>
-                      If |record| is a payload to another <a>NDEF</a> record,
-                      and |record|'s <a>mediaType</a> is and image or video
-                      type that qualifies for an <a>icon record</a> in a
-                      <a>smart poster</a>, then <a>map binary data to NDEF</a>.
-                    </li>
-                    <li>
-                      Otherwise, [= exception/throw =] a {{TypeError}}
+                      [= exception/throw =] a {{TypeError}} and abort these steps.
                     </li>
                   </ul>
                 </dl>
@@ -3232,6 +3246,10 @@
         run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
+            If |record|'s <a>mediaType</a> is not `undefined`,
+            [= exception/throw =] a {{TypeError}} and abort these steps.
+          </li>
+          <li>
             If the type of a |record|'s <a>data</a> is not a
             {{BufferSource}}, [= exception/throw =] a {{TypeError}}
             and abort these steps.
@@ -3254,12 +3272,7 @@
                 ([=well-known type record=]).
               </li>
               <li>
-                If |record|'s <a>mediaType</a> is not `undefined`,
-                Set |ndefRecord|'s <a>TYPE field</a> to "`mime`", representing
-                an <a>icon record</a> in a <a>smart poster</a>.
-              </li>
-              <li>
-                Otherwise, set |ndefRecord|'s <a>TYPE field</a> to |record|'s
+                Set |ndefRecord|'s <a>TYPE field</a> to |record|'s
                 <a>recordType</a>, representing the <a>local type</a> name.
               </li>
               <li>
