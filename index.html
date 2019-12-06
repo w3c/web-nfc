@@ -3072,23 +3072,23 @@
           <li>
             <ol>
               <li>
-                Set the |ndefRecord|'s <a>TNF field</a> to `1` (
+                Set the |ndef|'s <a>TNF field</a> to `1` (
                 [=well-known type record=]).
               </li>
               <li>
-                Set the |ndefRecord|'s <a>TYPE field</a> to "`T`" (`0x54`).
+                Set the |ndef|'s <a>TYPE field</a> to "`T`" (`0x54`).
               </li>
               <li>
-                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
+                Set the |ndef|'s <a>PAYLOAD LENGTH field</a> to |length|.
               </li>
               <li>
-                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a>
+                If |length| > `0`, set the |ndef|'s <a>PAYLOAD field</a>
                 to |data|.
               </li>
             </ol>
           </li>
           <li>
-            Return |ndefRecord|.
+            Return |ndef|.
           </li>
         </ol>
       </div>
@@ -3096,8 +3096,8 @@
 
     <section><h3>Mapping URL to NDEF</h3>
       <div>
-        To <dfn>map a URL to NDEF</dfn> given a |record:NDEFRecordInit|, run
-        these steps:
+        To <dfn>map a URL to NDEF</dfn> given a |record:NDEFRecordInit| and
+        |ndef|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
@@ -3160,27 +3160,21 @@
             of |data|.
           </li>
           <li>
-            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
-            <ol>
-              <li>
-                Set the |ndefRecord|'s <a>TNF field</a> to `1`
-                ([=well-known type record=]).
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>TYPE field</a> to "`U`" (`0x55`).
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
-              </li>
-              <li>
-                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a>
-                to |data|.
-              </li>
-            </ol>
+            Set the |ndef|'s <a>TNF field</a> to `1`
+            ([=well-known type record=]).
           </li>
           <li>
-            Return |ndefRecord|.
+            Set the |ndef|'s <a>TYPE field</a> to "`U`" (`0x55`).
+          </li>
+          <li>
+            Set the |ndef|'s <a>PAYLOAD LENGTH field</a> to |length|.
+          </li>
+          <li>
+            If |length| > `0`, set the |ndef|'s <a>PAYLOAD field</a>
+            to |data|.
+          </li>
+          <li>
+            Return |ndef|.
           </li>
         </ol>
       </div>
@@ -3188,8 +3182,8 @@
 
     <section><h3>Mapping binary data to NDEF</h3>
       <div>
-        To <dfn>map binary data to NDEF</dfn> given a |record:NDEFRecordInit|,
-        run these steps:
+        To <dfn>map binary data to NDEF</dfn> given a |record:NDEFRecordInit|
+        and |ndef|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecord">
           <li>
             If the type of a |record|'s <a>data</a> is not a
@@ -3218,28 +3212,22 @@
             Set |data:byte sequence| to |arrayBuffer|.[[\ArrayBufferData]].
           </li>
           <li>
-            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
-            <ol>
-              <li>
-                Set the |ndefRecord|'s <a>TNF field</a> to `2` (<a>MIME type</a>).
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>TYPE field</a> to the result of
-                <a>serialize a MIME type</a> with |mimeTypeRecord| as
-                the input.
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
-              </li>
-              <li>
-                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a>
-                to |data|.
-              </li>
-            </ol>
+            Set the |ndef|'s <a>TNF field</a> to `2` (<a>MIME type</a>).
           </li>
           <li>
-            Return |ndefRecord|.
+            Set the |ndef|'s <a>TYPE field</a> to the result of
+            <a>serialize a MIME type</a> with |mimeTypeRecord| as
+            the input.
+          </li>
+          <li>
+            Set the |ndef|'s <a>PAYLOAD LENGTH field</a> to |length|.
+          </li>
+          <li>
+            If |length| > `0`, set the |ndef|'s <a>PAYLOAD field</a>
+            to |data|.
+          </li>
+          <li>
+            Return |ndef|.
           </li>
         </ol>
       </div>
@@ -3247,8 +3235,8 @@
 
     <section><h3>Mapping external data to NDEF</h3>
       <div>
-        To <dfn>map external data to NDEF</dfn> given a |record:NDEFRecordInit|,
-        run these steps:
+        To <dfn>map external data to NDEF</dfn> given a |record:NDEFRecordInit|
+        and |ndef|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
@@ -3269,28 +3257,22 @@
             Set |data:byte sequence| to |arrayBuffer|.[[\ArrayBufferData]].
           </li>
           <li>
-            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
-            <ol>
-              <li>
-                Set |ndefRecord|'s <a>TNF field</a> to `4`
-                (<a>external type record</a>).
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>TYPE field</a> to |record|'s
-                <a>recordType</a>.
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
-              </li>
-              <li>
-                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a>
-                to |data|.
-              </li>
-            </ol>
+            Set |ndef|'s <a>TNF field</a> to `4`
+            (<a>external type record</a>).
           </li>
           <li>
-            Return |ndefRecord|.
+            Set the |ndef|'s <a>TYPE field</a> to |record|'s
+            <a>recordType</a>.
+          </li>
+          <li>
+            Set the |ndef|'s <a>PAYLOAD LENGTH field</a> to |length|.
+          </li>
+          <li>
+            If |length| > `0`, set the |ndef|'s <a>PAYLOAD field</a>
+            to |data|.
+          </li>
+          <li>
+            Return |ndef|.
           </li>
         </ol>
       </div>
@@ -3298,8 +3280,8 @@
 
     <section><h3>Mapping local type to NDEF</h3>
       <div>
-        To <dfn>map local type to NDEF</dfn> given a |record:NDEFRecordInit|,
-        run these steps:
+        To <dfn>map local type to NDEF</dfn> given a |record:NDEFRecordInit| and
+        |ndef|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
@@ -3320,28 +3302,22 @@
             Set |data:byte sequence| to |arrayBuffer|.[[\ArrayBufferData]].
           </li>
           <li>
-            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
-            <ol>
-              <li>
-                Set |ndefRecord|'s <a>TNF field</a> to `1`
-                ([=well-known type record=]).
-              </li>
-              <li>
-                Set |ndefRecord|'s <a>TYPE field</a> to |record|'s
-                <a>recordType</a>, representing the <a>local type</a> name.
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
-              </li>
-              <li>
-                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a>
-                to |data|.
-              </li>
-            </ol>
+            Set |ndef|'s <a>TNF field</a> to `1`
+            ([=well-known type record=]).
           </li>
           <li>
-            Return |ndefRecord|.
+            Set |ndef|'s <a>TYPE field</a> to |record|'s
+            <a>recordType</a>, representing the <a>local type</a> name.
+          </li>
+          <li>
+            Set the |ndef|'s <a>PAYLOAD LENGTH field</a> to |length|.
+          </li>
+          <li>
+            If |length| > `0`, set the |ndef|'s <a>PAYLOAD field</a>
+            to |data|.
+          </li>
+          <li>
+            Return |ndef|.
           </li>
         </ol>
       </div>
