@@ -597,7 +597,7 @@
         <li>
           A single mandatory <a>URI record</a> that refers to the
           <a>smart poster</a> content.
-        </li>,
+        </li>
         <li>
           Zero or more <a>Text records</a> that act as a <dfn>title record</dfn>
           related to the content. When there are more than one title records
@@ -2649,285 +2649,289 @@
     </section>
   </section> <!-- Writing or pushing content -->
 
-  <section> <h3> Creating content</h3>
-      <section><h3>Creating NDEF message</h3>
-        <p>
-          To <dfn>create NDEF message</dfn> given a
-          |source:NDEFMessageSource| run these steps:
-        </p>
-        <ol class=algorithm id="create-web-nfc-message">
-          <li>Switch on |source:NDEFMessageSource|'s type:
-            <dl>
-              <dt>{{DOMString}}</dt>
-              <ul>
+  <section><h3>Creating NDEF message</h3>
+    <div>
+      To <dfn>create NDEF message</dfn> given a
+      |source:NDEFMessageSource| run these steps:
+      <ol class=algorithm id="create-web-nfc-message">
+        <li>Switch on |source:NDEFMessageSource|'s type:
+          <dl>
+            <dt>{{DOMString}}</dt>
+            <ul>
+              <li>
+                Let |textRecord| be an <a>NDEFrecord</a> initialized with its
+                |recordType| set to "`text`" and |data| set to |source|.
+              </li>
+              <li>
+                Let |records| be the list « |textRecord| ».
+              </li>
+              <li>
+                Set |source|'s records to |records|.
+              </li>
+            </ul>
+            <dt>{{BufferSource}}</dt>
+            <ul>
                 <li>
-                  Let |textRecord| be an <a>NDEFrecord</a> initialized with its
-                  |recordType| set to "`text`" and |data| set to |source|.
+                  Let |mimeRecord| be an <a>NDEFrecord</a> initialized with its
+                  |recordType| set to "`mime`", |data| set to |source|, and
+                  |mediaType| set to "`application/octet-stream`".
                 </li>
                 <li>
-                  Let |records| be the list « |textRecord| ».
+                  Let |records| be the list « |mimeRecord| ».
                 </li>
                 <li>
                   Set |source|'s records to |records|.
                 </li>
-              </ul>
-              <dt>{{BufferSource}}</dt>
-              <ul>
-                  <li>
-                    Let |mimeRecord| be an <a>NDEFrecord</a> initialized with its
-                    |recordType| set to "`mime`", |data| set to |source|, and
-                    |mediaType| set to "`application/octet-stream`".
-                  </li>
-                  <li>
-                    Let |records| be the list « |mimeRecord| ».
-                  </li>
-                  <li>
-                    Set |source|'s records to |records|.
-                  </li>
-              </ul>
-              <dt>{{NDEFMessageInit}}</dt>
-              <ul>
-                <li>
-                  If |source|'s records [= list/is empty =], throw a
-                  {{TypeError}} and abort these steps.
-                </li>
-              </ul>
-              <dt>unmatched type</dt>
-              <ul>
-                <li>
-                  [= exception/throw =] a {{TypeError}} and abort these steps.
-                </li>
-              </ul>
-            </dl>
-            </dl>
-          </li>
-          <li>
-            Let |output| be the notation for the <a>NDEF message</a>
-            to be created by the UA as a result of these steps.
-          </li>
-          <li>
-            [= list/For each =] |record:NDEFRecordInit| in the <a>list</a>
-            |source|'s records, run the following steps, or make sure
-            that the underlying platform provides equivalent values to
-            |ndef|:
-            <ol data-link-for="NDEFRecordInit">
+            </ul>
+            <dt>{{NDEFMessageInit}}</dt>
+            <ul>
               <li>
-                If |record|'s <a>recordType</a> is `undefined`:
-                <ol> <!-- guess type and mediaType from data -->
-                  <li>
-                    If |record|'s <a>data</a> is `undefined`, reject |promise|
-                    a {{TypeError}} and abort these steps.
-                  </li>
-                  <li>
-                    Otherwise, if the type of |record|'s <a>data</a> is
-                    {{DOMString}}, then set |record|'s <a>recordType</a> to
-                    "`text`".
-                  </li>
-                  <li>
-                    Otherwise, set |record|'s <a>recordType</a> to "`mime`".
-                  </li>
-                </ol>
+                If |source|'s records [= list/is empty =], throw a
+                {{TypeError}} and abort these steps.
               </li>
+            </ul>
+            <dt>unmatched type</dt>
+            <ul>
               <li>
-                Let |ndef| be the result of passing |record| to the algorithm
-                below switching on |record|'s <a>recordType</a>. If the
-                algorithm throws an exception |e|, reject |promise| with |e|
-                and abort these steps.
-                <dl>
-                  <dt>"`empty`"</dt>
-                  <ul>
-                    <li>
-                      <a>map empty record to NDEF</a>.
-                    </li>
-                  </ul>
-                  <dt>"`text`"</dt>
-                  <ul>
-                    <li>
-                      <a>map text to NDEF</a>.
-                    </li>
-                  </ul>
-                  <dt>"`url`"</dt>
-                  <ul>
-                    <li>
-                      <a>map a URL to NDEF</a>.
-                    </li>
-                  </ul>
-                  <dt>"`mime`"</dt>
-                  <ul>
-                    <li>
-                      <a>map binary data to NDEF</a>.
-                    </li>
-                  </ul>
-                  <dt>unmatched type</dt>
-                  <ul>
-                    <li>
-                    <dl>
-                      <dt>Check for <a>external type</a>.</dt>
-                      Let |name:string| be the result of running the
-                      <a>validate external type</a> steps on |record|'s
-                      <a>recordType</a>. If |name| is `false`, continue with
-                      the next step. Otherwise,
-                      <ul>
-                        <li>
-                          Let |record|'s <a>recordType</a> be |name:string|.
-                        </li>
-                        <li>
-                          If |record|'s <a>data</a> is of type
-                          {{NDEFMessageInit}}, then return the result of running
-                          the <a>create NDEF message</a> given |record|'s
-                          <a>data</a>.
-                        </li>
-                        <li>
-                          Otherwise, <a>map external data to NDEF</a> given |record|.
-                        </li>
-                      </ul>
-                    </dl>
-                    </li>
-                    <li>
-                    <dl>
-                      <dt>Check for <a>local type</a>.</dt>
-                      If |record| is a payload to another <a>NDEF record</a>,
-                      run the <a>validate local type</a> steps on |record|'s
-                      <a>recordType</a>. If this returns `false`, continue with
-                      the next step. Otherwise,
-                      <ul>
-                        <li>
-                          If |record|'s <a>data</a> is of type
-                          {{NDEFMessageInit}}, then return the result of running
-                          the <a>create NDEF message</a> given |record|'s
-                          <a>data</a>.
-                        </li>
-                        <li>
-                          Otherwise, <a>map local type to NDEF</a> given
-                          |record|.
-                        </li>
-                      </ul>
-                     </dl>
-                     </li>
-                    <li>
-                      Otherwise, [= exception/throw =] a {{TypeError}} and abort
-                      these steps.
-                    </li>
-                  </ul>
-                </dl>
+                [= exception/throw =] a {{TypeError}} and abort these steps.
               </li>
-              <li>
-                If |record|'s <a>id</a> is not `undefined`:
-                <ul>
-                  <li>
-                    Let |identifier| be |record|'s <a>id</a>.
-                  </li>
-                  <li>
-                    Set |ndef|'s <a>IL field</a> to `1`.
-                  </li>
-                  <li>
-                    Set |ndef|'s <a>ID LENGTH field</a> to the length of
-                    |identifier|.
-                  </li>
-                  <li>
-                    Set |ndef|'s <a>ID field</a> to |identifier|.
-                  </li>
-                </ul>
-              </li>
-              <li>
-                Add |ndef| to |output|.
-              </li>
-              <!-- converting each record -->
-            </ol>
-          </li> <!-- converting message -->
-        </ol>
-      </section>
+            </ul>
+          </dl>
+        </li>
+        <li>
+          Let |output| be the notation for the <a>NDEF message</a>
+          to be created by the UA as a result of these steps.
+        </li>
+        <li>
+          [= list/For each =] |record:NDEFRecordInit| in the <a>list</a>
+          |source|'s records, run the following steps:
+          <ol>
+            <li>
+              Let |ndef| be the result of running <a>create NDEF record</a>
+              given |record:NDEFRecordInit|, or make sure the underlying
+              platform provides equivalent values to |ndef|.
+              If the algorithm throws an exception |e|, reject |promise| with
+              |e| and abort these steps.
+            </li>
+            <li>
+              Add |ndef| to |output|.
+            </li>
+          </ol>
+        </li>
+        <li>
+          Return |output|.
+        </li>
+      </ol>
+    </div>
 
-      <section><h3>Validating external type</h3>
-        <p>
-          The [[NFC-RTD]] specifies that external types MUST contain
-          the domain name of the issuing organization, a a colon and a type
-          name that is at least one character long.
-        </p>
-        <p>
-          The [[NFC-RTD]] specifies to omit the URN prefix “`urn:nfc:ext:`”
-          in the binary encoding of external type records, therefore
-          applications SHOULD NOT specify that when creating
-          <a>external type records</a>.
-        </p>
-        <p>
-          When the domain name is not provided, by default Web NFC uses the
-          <a href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin-effective-domain">
-          effective domain of the origin</a> as domain name in external type
-          names when <a href="#mapping-external-data-to-ndef">creating external type records</a>. Therefore, applications MAY specify only the
-          colon and the external type name.
-        </p>
-        <p class="note">
-          The [[NFC-RTD]] mandates that external type names are represented
-          with the URN prefix “`urn:nfc:ext:`”, e.g. when reading
-          <a>NDEF messages</a>. However, since <a>external type records</a> are
-          distinguished by having the <a>TNF FIELD</a> set to `0x04`, there is
-          no risk seen for type name clashing. Also, there are
-          <a href="https://www.w3.org/2001/tag/doc/URNsAndRegistries-50.html">
-          W3C TAG recommendations</a> to avoid using URNs in the Web.
-          Therefore, Web NFC does not use the URN prefix neither when reading
-          or writing <a>NDEF messages</a>, but requires the leading colon ('`:`')
-          before the type name.
-        </p>
-        <p>
-          To <dfn>validate external type</dfn> given a |input:USVString| run
-          these steps:
-        </p>
-        <ol class=algorithm id="validate-external-type">
-          <li>
-            If |input:string| is not a {{USVString}} or it is empty, or its
-            length exceeds 255 bytes, or it contains white spaces,
-            return `false`.
-          </li>
-          <li>
-            If |input| does not start with colon ('`:`'), return |input|.
-            <p class="issue">
-              Validating domain name needs an algorithm.
-            </p>
-          </li>
-          <li>
-            If |input| starts with colon ('`:`'), let |domain:string| be the
-            <a data-cite="url#concept-url-serializer">serialization</a> of the
-            <a href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin-effective-domain">effective domain of
-            the origin</a>.
-          </li>
-          <li>
-            Return |domain| concatenated with |input|.
-          </li>
-        </ol>
-      </section>
-
-      <section><h3>Validating local type</h3>
-        <p>
-          To <dfn>validate local type</dfn> given a |input:USVString| run
-          these steps:
-        </p>
-        <ol class=algorithm id="validate-local-type">
-          <li>
-            If |input| is not a {{USVString}} or its length exceeds 255 bytes,
-            return `false` and terminate these steps.
-          </li>
-          <li>
-            If |input| does not start with a lowercase letter or a number,
-            return `false`.
-          <li>
-            Return `true`.
-          </li>
-        </ol>
-      </section>
-
-      <section><h3>Mapping empty record to NDEF</h3>
+    <section><h3>Creating NDEF record</h3>
       <div>
-        To <dfn>map empty record to NDEF</dfn> given a |record:NDEFRecordInit|,
-        run these steps:
+        To <dfn>create NDEF record</dfn> given |record:NDEFRecordInit|, run
+        these steps:
+        <ol data-link-for="NDEFRecordInit">
+          <li>
+            If |record|'s <a>recordType</a> is `undefined`:
+            <ol> <!-- guess type and mediaType from data -->
+              <li>
+                If |record|'s <a>data</a> is `undefined`, reject |promise|
+                a {{TypeError}} and abort these steps.
+              </li>
+              <li>
+                Otherwise, if the type of |record|'s <a>data</a> is
+                {{DOMString}}, then set |record|'s <a>recordType</a> to
+                "`text`".
+              </li>
+              <li>
+                Otherwise, set |record|'s <a>recordType</a> to "`mime`".
+              </li>
+            </ol>
+          </li>
+          <li>
+            Let |ndef| be the representation of an <a>NDEF record</a> to be
+            created by the UA.
+          </li>
+          <li>
+            If |record|'s <a>id</a> is not `undefined`:
+            <ul>
+              <li>
+                Let |identifier| be |record|'s <a>id</a>.
+              </li>
+              <li>
+                Set |ndef|'s <a>IL field</a> to `1`.
+              </li>
+              <li>
+                Set |ndef|'s <a>ID LENGTH field</a> to the length of
+                |identifier|.
+              </li>
+              <li>
+                Set |ndef|'s <a>ID field</a> to |identifier|.
+              </li>
+            </ul>
+          </li>
+          <li>
+            Switching on |record|'s <a>recordType</a>, pass |record| and |ndef|
+            to one of the following algorithms and return the result.
+            If the algorithm throws an exception |e|, reject |promise| with |e|
+            and abort these steps.
+            <dl>
+              <dt>"`empty`"</dt>
+              <ul>
+                <li>
+                  Return <a>map empty record to NDEF</a> given |record| and |ndef|.
+                </li>
+              </ul>
+              <dt>"`text`"</dt>
+              <ul>
+                <li>
+                  Return <a>map text to NDEF</a> given |record| and |ndef|.
+                </li>
+              </ul>
+              <dt>"`url`"</dt>
+              <ul>
+                <li>
+                  Return <a>map a URL to NDEF</a> given |record| and |ndef|.
+                </li>
+              </ul>
+              <dt>"`mime`"</dt>
+              <ul>
+                <li>
+                  Return <a>map binary data to NDEF</a> given |record| and |ndef|.
+                </li>
+              </ul>
+              <!-- TODO: "smart-poster", "absolute-url" -->
+            </dl>
+          </li>
+          <li>
+            Let |name:string| be the result of running the
+            <a>validate external type</a> steps on |record|'s
+            <a>recordType</a>. If |name| is not `false`,
+            <ul>
+              <li>
+                Let |record|'s <a>recordType</a> be |name:string|.
+              </li>
+              <li>
+                If |record|'s <a>data</a> is of type
+                {{NDEFMessageInit}}, then return the result of running
+                the <a>create NDEF message</a> given |record|'s
+                <a>data</a>.
+              </li>
+              <li>
+                Otherwise, return <a>map external data to NDEF</a> given
+                |record| and |ndef|.
+              </li>
+            </ul>
+          </li>
+          <li>
+            If |record| is a payload to another <a>NDEF record</a> and if
+            running the <a>validate local type</a> steps on |record|'s
+            <a>recordType</a> returns `true`,
+            <ul>
+              <li>
+                If |record|'s <a>data</a> is of type
+                {{NDEFMessageInit}}, then return the result of running
+                the <a>create NDEF message</a> given |record|'s
+                <a>data</a>.
+              </li>
+              <li>
+                Otherwise, return the result of running
+                <a>map local type to NDEF</a> given |record| and |ndef|.
+              </li>
+            </ul>
+          </li>
+          <li>
+            Otherwise, [= exception/throw =] a {{TypeError}} and abort
+            these steps.
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section><h3>Validating external type</h3>
+      <p>
+        The [[NFC-RTD]] specifies that external types MUST contain
+        the domain name of the issuing organization, a a colon and a type
+        name that is at least one character long.
+      </p>
+      <p>
+        The [[NFC-RTD]] specifies to omit the URN prefix “`urn:nfc:ext:`”
+        in the binary encoding of external type records, therefore
+        applications SHOULD NOT specify that when creating
+        <a>external type records</a>.
+      </p>
+      <p>
+        When the domain name is not provided, by default Web NFC uses the
+        <a href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin-effective-domain">
+        effective domain of the origin</a> as domain name in external type
+        names when <a href="#mapping-external-data-to-ndef">creating external type records</a>. Therefore, applications MAY specify only the
+        colon and the external type name.
+      </p>
+      <p class="note">
+        The [[NFC-RTD]] mandates that external type names are represented
+        with the URN prefix “`urn:nfc:ext:`”, e.g. when reading
+        <a>NDEF messages</a>. However, since <a>external type records</a> are
+        distinguished by having the <a>TNF FIELD</a> set to `0x04`, there is
+        no risk seen for type name clashing. Also, there are
+        <a href="https://www.w3.org/2001/tag/doc/URNsAndRegistries-50.html">
+        W3C TAG recommendations</a> to avoid using URNs in the Web.
+        Therefore, Web NFC does not use the URN prefix neither when reading
+        or writing <a>NDEF messages</a>, but requires the leading colon ('`:`')
+        before the type name.
+      </p>
+      <p>
+        To <dfn>validate external type</dfn> given a |input:USVString| run
+        these steps:
+      </p>
+      <ol class=algorithm id="validate-external-type">
+        <li>
+          If |input:string| is not a {{USVString}} or it is empty, or its
+          length exceeds 255 bytes, or it contains white spaces,
+          return `false`.
+        </li>
+        <li>
+          If |input| does not start with colon ('`:`'), return |input|.
+          <p class="issue">
+            Validating domain name needs an algorithm.
+          </p>
+        </li>
+        <li>
+          If |input| starts with colon ('`:`'), let |domain:string| be the
+          <a data-cite="url#concept-url-serializer">serialization</a> of the
+          <a href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin-effective-domain">effective domain of
+          the origin</a>.
+        </li>
+        <li>
+          Return |domain| concatenated with |input|.
+        </li>
+      </ol>
+    </section>
+
+    <section><h3>Validating local type</h3>
+      <p>
+        To <dfn>validate local type</dfn> given a |input:USVString| run
+        these steps:
+      </p>
+      <ol class=algorithm id="validate-local-type">
+        <li>
+          If |input| is not a {{USVString}} or its length exceeds 255 bytes,
+          return `false` and terminate these steps.
+        </li>
+        <li>
+          If |input| does not start with a lowercase letter or a number,
+          return `false`.
+        <li>
+          Return `true`.
+        </li>
+      </ol>
+    </section>
+
+    <section><h3>Mapping empty record to NDEF</h3>
+      <div>
+        To <dfn>map empty record to NDEF</dfn> given a |record:NDEFRecordInit|
+        and |ndef|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
             [= exception/throw =] a {{TypeError}} and abort these steps.
-          </li>
-          <li>
-            Let |ndef| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
           </li>
           <li>Set the
             |ndef|'s <a>TNF field</a> to `0` (<a>empty record</a>).
@@ -2945,12 +2949,12 @@
           </li>
         </ol>
       </div>
-      </section>
+    </section>
 
-      <section><h3>Mapping string to NDEF</h3>
+    <section><h3>Mapping string to NDEF</h3>
       <div>
-        To <dfn>map text to NDEF</dfn> given a |record:NDEFRecordInit|, run
-        these steps:
+        To <dfn>map text to NDEF</dfn> given a |record:NDEFRecordInit| and
+        |ndef|, run these steps:
         <p class="note">
           This is useful when clients specifically want to write text in a
           [=well-known type record=].
@@ -3058,8 +3062,6 @@
             of |data|.
           </li>
           <li>
-            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
             <ol>
               <li>
                 Set the |ndefRecord|'s <a>TNF field</a> to `1` (
@@ -3082,9 +3084,9 @@
           </li>
         </ol>
       </div>
-      </section>
+    </section>
 
-      <section><h3>Mapping URL to NDEF</h3>
+    <section><h3>Mapping URL to NDEF</h3>
       <div>
         To <dfn>map a URL to NDEF</dfn> given a |record:NDEFRecordInit|, run
         these steps:
@@ -3174,9 +3176,9 @@
           </li>
         </ol>
       </div>
-      </section>
+    </section>
 
-      <section><h3>Mapping binary data to NDEF</h3>
+    <section><h3>Mapping binary data to NDEF</h3>
       <div>
         To <dfn>map binary data to NDEF</dfn> given a |record:NDEFRecordInit|,
         run these steps:
@@ -3233,9 +3235,9 @@
           </li>
         </ol>
       </div>
-      </section>
+    </section>
 
-      <section><h3>Mapping external data to NDEF</h3>
+    <section><h3>Mapping external data to NDEF</h3>
       <div>
         To <dfn>map external data to NDEF</dfn> given a |record:NDEFRecordInit|,
         run these steps:
@@ -3284,9 +3286,9 @@
           </li>
         </ol>
       </div>
-      </section>
+    </section>
 
-      <section><h3>Mapping local type to NDEF</h3>
+    <section><h3>Mapping local type to NDEF</h3>
       <div>
         To <dfn>map local type to NDEF</dfn> given a |record:NDEFRecordInit|,
         run these steps:
@@ -3335,7 +3337,8 @@
           </li>
         </ol>
       </div>
-      </section>
+    </section>
+  </section>
 
   <section> <h3>Listening for content</h3>
     <p>
