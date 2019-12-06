@@ -2800,6 +2800,10 @@
             [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
+            If |record|'s <a>id</a> is not `undefined`,
+            [= exception/throw =] a {{TypeError}} and abort these steps.
+          </li>
+          <li>
             Let |ndef| be the notation for the <a>NDEF record</a> to
             be created by the UA.
           </li>
