@@ -526,10 +526,10 @@
     <section><h4>Well-known local types</h4>
       <p>
         NFC Forum <dfn>local type</dfn> that are defined by the NFC Forum or
-        by an application, and always start with lowercase letter or a
+        by an application, and always start with lowercase character or a
         number. Those are usually short strings that are unique only within
-        the local context of the containing record. They are used when types
-        meaning doesn't matter outside of the local context of the
+        the local context of the containing record. They are used when the
+        meaning of the types doesn't matter outside of the local context of the
         containing record and when storage usage is a hard constraint. See
         <a>Smart poster</a> for an example on how local types are used.
       </p>
@@ -655,9 +655,9 @@
           <a>action record</a> is missing.
           <p class="note">
             At the time of NDEF standardization the value `0` ("do the action") was
-            meant for use cases like send an SMS, make a call or launch browser.
+            intended for use cases like send an SMS, make a call or launch browser.
             Similarly, the value `1`, ("save the content for later processing") was
-            meant for use cases like store the SMS in inbox, save the URL in
+            intended for use cases like store the SMS in inbox, save the URL in
             bookmarks, or save the phone number to contacts. Also, the value `2`
             ("open for editing") was meant to open the smart poster content with a
             default application for editing.
@@ -1067,7 +1067,7 @@
     <pre class="example">
       const writer = new NDEFWriter();
       writer.push(
-        "Text meant for peers only", { target: "peer" }
+        "Text intended for peers only", { target: "peer" }
       ).then(() => {
         console.log("Message pushed.");
       }).catch(_ => {
@@ -2512,10 +2512,10 @@
                 <p class="note">
                   The UA might abort message push at this point. The reasons
                   for termination are implementation details. For example, the
-                  user could have has set a preference to allow a given origin
-                  only to read, write, or push data to peers. Also, the
-                  implementation might be unable to support the requested
-                  operation.
+                  user could have has set a preference to allow a given
+                  <a>origin</a> only to read, write, or push data to peers.
+                  Also, the implementation might be unable to support the
+                  requested operation.
                 </p>
               </li>
               <li>
@@ -2860,13 +2860,14 @@
       </p>
       <p>
         When the domain name is not provided, by default Web NFC uses the
-        <a href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin-effective-domain">
-        effective domain of the origin</a> as domain name in external type
-        names when <a href="#mapping-external-data-to-ndef">creating external type records</a>. Therefore, applications MAY specify only the
-        colon and the external type name.
+        <a data-cite="html">effective domain</a> of the {{Document/origin}} as
+        domain name in external type names when
+        <a href="#mapping-external-data-to-ndef">
+        creating external type records</a>. Therefore, applications MAY specify
+        only the colon and the external type name.
       </p>
       <p class="note">
-        The [[NFC-RTD]] mandates that external type names are represented
+        The [[NFC-RTD]] requires that external type names are represented
         with the URN prefix “`urn:nfc:ext:`”, e.g. when reading
         <a>NDEF messages</a>. However, since <a>external type records</a> are
         distinguished by having the <a>TNF FIELD</a> set to `0x04`, there is
@@ -2896,8 +2897,7 @@
         <li>
           If |input| starts with colon ('`:`'), let |domain:string| be the
           <a data-cite="url#concept-url-serializer">serialization</a> of the
-          <a href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin-effective-domain">effective domain of
-          the origin</a>.
+          <a data-cite="html">effective domain</a> of the {{Document/origin}}.
         </li>
         <li>
           Return |domain| concatenated with |input|.
@@ -4220,7 +4220,8 @@
         <dd>
           Require permission and user prompt needed for writing tags.
           Or, control what tags can be written by a given web page, for instance
-          a web page can write only a tag which can be connected to its origin.
+          a web page can write only a tag which can be connected to its
+          <a>origin</a>.
           Or, allow overwriting since tags not meant to be written can be
           protected by making them read only.
           Use <a>NDEF signature</a> to detect a modification of NFC tags.
