@@ -545,7 +545,7 @@
     <section><h4>Well-known global types</h4>
       <p>
         NFC Forum <dfn>global type</dfn>s are defined and managed by the
-        NFC Forum and usually start with uppercase letter.
+        NFC Forum and usually start with uppercase character.
         Examples: "`T`" for text, "`U`" for URL, "`Sp`" for smart poster,
         "`Sig`" for signature, "`Hc`" for handover carrier, "`Hr`" for
         handover request, "`Hs`" for handover select, etc.
@@ -591,7 +591,7 @@
     <section> <h5>Smart poster record</h5>
     <div>
       <dfn>Smart poster</dfn> is defined in [[NDEF-SMARTPOSTER]] to describe a
-      given Web content as an NDEF record that contains an <a>NDEF message</a>
+      given web content as an NDEF record that contains an <a>NDEF message</a>
       as payload, including the following records:
       <ul>
         <li>
@@ -600,7 +600,7 @@
         </li>
         <li>
           Zero or more <a>Text records</a> that act as a <dfn>title record</dfn>
-          related to the content. When there are more than one title records
+          related to the content. When there are more than one title record
           present, they MUST be with different <a>language tags</a>.
           Applications SHOULD select one <a>title record</a> for presentation
           to the end user.
@@ -1714,7 +1714,7 @@
         </dd>
         <dt>A <dfn>local type name</dfn></dt>
         <dd>
-          A {{DOMString}} that MUST start with lowercase letter or a number,
+          A {{DOMString}} that MUST start with lowercase character or a number,
           representing a type for a NFC Forum [=local type=],
           typically used in a record of an <a>NDEFMessage</a> that is the payload
           of a parent <a>NDEFRecord</a>, for instance in a <a>smart poster</a>.
@@ -2849,7 +2849,7 @@
     <section><h3>Validating external type</h3>
       <p>
         The [[NFC-RTD]] specifies that external types MUST contain
-        the domain name of the issuing organization, a a colon and a type
+        the domain name of the issuing organization, a colon and a type
         name that is at least one character long.
       </p>
       <p>
@@ -2913,10 +2913,10 @@
       <ol class=algorithm id="validate-local-type">
         <li>
           If |input| is not a {{USVString}} or its length exceeds 255 bytes,
-          return `false` and terminate these steps.
+          return `false` and abort these steps.
         </li>
         <li>
-          If |input| does not start with a lowercase letter or a number,
+          If |input| does not start with a lowercase character or a number,
           return `false`.
         <li>
           Return `true`.
@@ -2936,10 +2936,6 @@
           <li>
             If |record|'s <a>id</a> is not `undefined`,
             [= exception/throw =] a {{TypeError}} and abort these steps.
-          </li>
-          <li>
-            Let |ndef| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
           </li>
           <li>Set the
             |ndef|'s <a>TNF field</a> to `0` (<a>empty record</a>).
