@@ -511,43 +511,45 @@
     <p>
       The NFC Forum has standardized a small set of useful sub record types in
       [[NFC-RTD]] (Resource Type Definition specifications) called
-      <dfn>well-known type</dfn>s, for instance text, URL, media and
-      opaque binary data. In addition, there are record types designed for more
+      <dfn>well-known type record</dfn>s, for instance text, URL, media and others.
+      In addition, there are record types designed for more
       complex interactions, such as smart posters (containing optional embedded
       records for url, text, signature and actions), and handover records.
     </p>
     <p>
-      These sub record types can be stored in the <dfn>well-known type record</dfn>.
+      The type information stored in the <a>TYPE field</a> of
+      <a>well-known type records</a> can be of two kinds:
+      <a href="#well-known-local-types">local types</a>
+      and <a href="#well-known-global-types">global types</a>
     </p>
-    <div>
-      The type information stored in the <a>TYPE field</a> can be of two kinds:
-      <ul>
-        <li>
-          NFC Forum <dfn>global type</dfn> that are defined and managed by the
-          NFC Forum and usually start with uppercase letter.
-          Examples: "`T`" for text, "`U`" for URL, "`Sp`" for smart poster,
-          "`Sig`" for signature, "`Hc`" for handover carrier, "`Hr`" for
-          handover request, "`Hs`" for handover select, etc.
-        </li>
-        <li>
-          <p>
-            NFC Forum <dfn>local type</dfn> that are defined by the NFC Forum or
-            by an application, and always start with lowercase letter or a
-            number. Those are usually short strings that are unique only within
-            the local context of the containing record. They are used when types
-            meaning doesn't matter outside of the local context of the
-            containing record and when storage usage is a hard constraint. See
-            <a>Smart poster</a> for an example on how local types are used.
-          </p>
-          <p class="note">
-            A [=local type=] is thus defined in terms of a containing record type,
-            and thus doesn't need any namespacing. For this reason the same local type
-            name can be used within another record type with different meaning and
-            different payload type.
-          </p>
-        </li>
-      </ul>
-    </div>
+
+    <section><h4>Well-known local types</h4>
+      <p>
+        NFC Forum <dfn>local type</dfn> that are defined by the NFC Forum or
+        by an application, and always start with lowercase character or a
+        number. Those are usually short strings that are unique only within
+        the local context of the containing record. They are used when the
+        meaning of the types doesn't matter outside of the local context of the
+        containing record and when storage usage is a hard constraint. See
+        <a>Smart poster</a> for an example on how local types are used.
+      </p>
+      <p class="note">
+        A [=local type=] is thus defined in terms of a containing record type,
+        and thus doesn't need any namespacing. For this reason the same local
+        type name can be used within another record type with different meaning
+        and different payload type.
+      </p>
+    </section>
+    </section>  <!-- Well-known (TNF 1) types -->
+
+    <section><h4>Well-known global types</h4>
+      <p>
+        NFC Forum <dfn>global type</dfn>s are defined and managed by the
+        NFC Forum and usually start with uppercase character.
+        Examples: "`T`" for text, "`U`" for URL, "`Sp`" for smart poster,
+        "`Sig`" for signature, "`Hc`" for handover carrier, "`Hr`" for
+        handover request, "`Hs`" for handover select, etc.
+      </p>
 
     <section> <h5>Text record</h5>
       <div>
@@ -587,75 +589,89 @@
     </section>
 
     <section> <h5>Smart poster record</h5>
-    <p>
-      <dfn>Smart poster</dfn> is defined in [[NDEF-SMARTPOSTER]] as an NDEF
-      record that contains an <a>NDEF message</a> as payload, which may contain
-      several records: a mandatory <a>URI record</a> that refers to a content,
-      and additional optional records related to the content: a title record
-      (a <a>Text record</a>), one or more icon records, a type record, a size
-      record and an action record.
-    </p>
-    <p>
-      Icon records are <a>MIME type record</a>s. If multiple icon records are
-      included, readers SHOULD select only one of them to display.
-    </p>
-    <p>
-      The type record has [=local type name=] "`t`" specific to smart
-      poster and the <a>PAYLOAD field</a> contains a UTF-8 encoded MIME type for
-      the content referred to by the URI record.
-    </p>
-    <p>
-      The size record has [=local type name=] "`s`" specific to smart
-      poster and the <a>PAYLOAD field</a> contains a 4-byte 32 bit unsigned
-      integer that denotes the size of the object referred to by the URL in the
-      URI record.
-    </p>
-    <p>
-      The action record has [=local type name=] "`act`" specific to
-      smart poster and the <a>PAYLOAD field</a> contains a single byte, whose
-      value has the following meaning:
-    </p>
-    <table class="simple">
-      <tr>
-        <th><strong>Value</strong></th>
-        <th><strong>Description</strong></th>
-      </tr>
-      <tr>
-        <td>0</td>
-        <td>Do the action</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Save for later</td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>Open for editing</td>
-      </tr>
-      <tr>
-        <td>3..0xFF</td>
-        <td>Reserved for future use</td>
-      </tr>
-    </table>
-    <p>
-      The action record is optional and there is no default action on the smart
-      poster content if the action record is missing.
-    </p>
-    <p class="note">
-      At the time of NDEF standardization the value `0` ("do the action") was
-      meant for use cases like send an SMS, make a call or launch browser.
-      Similarly, the value `1`, ("save the content for later processing") was
-      meant for use cases like store the SMS in inbox, save the URL in
-      bookmarks, or save the phone number to contacts. Also, the value `2`
-      ("open for editing") was meant to open the smart poster content with a
-      default application for editing.
-    </p>
-    <p>
-      Implementations don't need to implement any standardized behavior for the
-      actions defined here. In this API it's up to the applications what actions
-      they define (that may include the use cases above). However, Web NFC
-      just provides the values.
-    </p>
+    <div>
+      <dfn>Smart poster</dfn> is defined in [[NDEF-SMARTPOSTER]] to describe a
+      given web content as an NDEF record that contains an <a>NDEF message</a>
+      as payload, including the following records:
+      <ul>
+        <li>
+          A single mandatory <a>URI record</a> that refers to the
+          <a>smart poster</a> content.
+        </li>
+        <li>
+          Zero or more <a>Text records</a> that act as a <dfn>title record</dfn>
+          related to the content. When there are more than one title record
+          present, they MUST be with different <a>language tags</a>.
+          Applications SHOULD select one <a>title record</a> for presentation
+          to the end user.
+        </li>
+        <li>
+          Zero or more <a>MIME type records</a> that act as <dfn>icon record</dfn>
+          related to the content. The <a>MIME type</a> is usually "`image/jpg`",
+          "`image/png`", "`image/gif`", or even "`video/mpeg`".
+          Applications SHOULD select one <a>icon record</a> for presentation
+          to the end user.
+        </li>
+        <li>
+          One optional <dfn>type record</dfn> that has a [=local type name=]
+          "`t`" specific to <a>smart poster</a> and the <a>PAYLOAD field</a>
+          contains a UTF-8 encoded MIME type for the content referred to by the
+          <a>URI record</a>.
+        </li>
+        <li>
+          One optional <dfn>size record</dfn> that has [=local type name=] "`s`"
+          specific to <a>smart poster</a> and the <a>PAYLOAD field</a> contains
+          a 4-byte 32 bit unsigned integer that denotes the size of the object
+          referred to by the URL in the <a>URI record</a> of the
+          <a>smart poster</a>.
+        </li>
+        <li>
+          One optional <dfn>action record</dfn> that has a [=local type name=]
+          "`act`" specific to <a>smart poster</a> and the <a>PAYLOAD field</a>
+          contains a single byte, whose value has the following meaning:
+          <table class="simple">
+            <tr>
+              <th><strong>Value</strong></th>
+              <th><strong>Description</strong></th>
+            </tr>
+            <tr>
+              <td>0</td>
+              <td>Do the action</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>Save for later</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Open for editing</td>
+            </tr>
+            <tr>
+              <td>3..0xFF</td>
+              <td>Reserved for future use</td>
+            </tr>
+          </table>
+          There is no default action on the <a>smart poster</a> content if the
+          <a>action record</a> is missing.
+          <p class="note">
+            At the time of NDEF standardization the value `0` ("do the action") was
+            intended for use cases like send an SMS, make a call or launch browser.
+            Similarly, the value `1`, ("save the content for later processing") was
+            intended for use cases like store the SMS in inbox, save the URL in
+            bookmarks, or save the phone number to contacts. Also, the value `2`
+            ("open for editing") was meant to open the smart poster content with a
+            default application for editing.
+          </p>
+          <p>
+            Implementations don't need to implement any standardized behavior for the
+            actions defined here. In this API it's up to the applications what actions
+            they define (that may include the use cases above). However, Web NFC
+            just provides the values.
+          </p>
+        </li>
+      </ul>
+    </div>
+
     <div>
       The example below shows a smart poster record that embeds a text and a
       URL record.
@@ -700,8 +716,7 @@
       <a href="https://github.com/w3c/web-nfc/issues/364">issue</a>.
     </p>
     </section>
-
-    </section>  <!-- Well-known types -->
+    </section> <!-- well-known global types -->
 
     <section>
     <h4>
@@ -1052,7 +1067,7 @@
     <pre class="example">
       const writer = new NDEFWriter();
       writer.push(
-        "Text meant for peers only", { target: "peer" }
+        "Text intended for peers only", { target: "peer" }
       ).then(() => {
         console.log("Message pushed.");
       }).catch(_ => {
@@ -1288,29 +1303,41 @@
   <section> <h3>Push a smart poster message</h3>
     <pre class="example">
       const writer = new NDEFWriter();
+      const encoder = new TextEncoder();
       writer.push({ records: [
         {
-          recordType: "smart-poster",
+          recordType: "smart-poster",  // Sp
           data: { records: [
             {
-              recordType: "url",
+              recordType: "url",  // URL record for the Sp content
               data: "https://my.org/content/19911"
             },
             {
-              recordType: "t", // smart poster type, a local type to Sp
-              data: "image/gif"
-            },
-            {
-              recordType: "text",
+              recordType: "text",  // title record for the Sp content
               data: "Funny dance"
             },
             {
-              recordType: "s",  // size, a local type to Sp
-              data: 4096  // byte size of the content at the URL above
+              recordType: "t",  // type record, a local type to Sp
+              data: encoder.encode("image/gif") // MIME type of the Sp content
             },
             {
-              recordType: "act",  // action, a local type to Sp
-              data: 0  // do the action, in this case open in the browser
+              recordType: "s",  // size record, a local type to Sp
+              data: new Uint32Array([4096]) // byte size of Sp content
+            },
+            {
+              recordType: "act",  // action record, a local type to Sp
+              // do the action, in this case open in the browser
+              data: new Uint8Array([0])
+            },
+            {
+              recordType: "mime" // icon record, a MIME type record
+              mediaType: "image/png",
+              data: await (await fetch("icon1.png")).arrayBuffer()
+            },
+            {
+              recordType: "mime" // another icon record
+              mediaType: "image/jpg",
+              data: await (await fetch("icon2.jpg")).arrayBuffer()
             }
           ]}
         }
@@ -1322,8 +1349,8 @@
     <p>
       External type records can be used to create application defined records.
       These records may contain an <a>NDEF message</a> as payload,
-      with its own <a>NDEF records</a>, including local types that are used in
-      the context of the application.
+      with its own <a>NDEF records</a>, including <a>local types</a> that are
+      used in the context of the application.
     </p>
     <p>
       Note that the <a>smart poster</a> record type also contains an
@@ -1337,8 +1364,8 @@
     <p>
       This example shows how to read an external record for social posts,
       which contains an <a>NDEF message</a>, containing a text record and
-      a record with the local type "act" (action), with definition borrowed from
-      <a>smart poster</a>, but used in local application context.
+      a record with the <a>local type</a> "act" (action), with definition
+      borrowed from <a>smart poster</a>, but used in local application context.
     </p>
     <pre class="example">
       const reader = new NDEFReader();
@@ -1687,7 +1714,7 @@
         </dd>
         <dt>A <dfn>local type name</dfn></dt>
         <dd>
-          A {{DOMString}} that MUST start with lowercase letter or a number,
+          A {{DOMString}} that MUST start with lowercase character or a number,
           representing a type for a NFC Forum [=local type=],
           typically used in a record of an <a>NDEFMessage</a> that is the payload
           of a parent <a>NDEFRecord</a>, for instance in a <a>smart poster</a>.
@@ -1703,22 +1730,22 @@
         explicitly represented.
       </p>
       <p>
-        Two <a>well-known type</a>s (including any NFC Forum <a>local type</a>
-        and any NFC Forum <a>global type</a>) MUST be compared character by
-        character in case-sensitive manner.
+        Two <a>well-known type records</a> (including any NFC Forum
+        <a>local type</a> and any NFC Forum <a>global type</a>) MUST be compared
+        character by character in case-sensitive manner.
       </p>
       <p>
         Two external types MUST be compared character by character, in
         case-insensitive manner.
       </p>
       <p>
-        The binary representation of any <a>well-known type</a> and
+        The binary representation of any <a>well-known type record</a> and
         <a>external type</a> MUST be written as a relative URI (RFC 3986),
         omitting the namespace identifier (NID) "`nfc`" and namespace specific
         string (NSS) "`wkt`" and "`ext`", respectively, i.e. omitting the
         "`urn:nfc:wkt:`" and "`urn:nfc:ext:`" prefixes.
         For instance, "`urn:nfc:ext:company.com:a" is stored as "`company.com:a`"
-        and the <a>well-known type</a> of a <a>Text record</a> is
+        and the <a>well-known type records</a> of a <a>Text record</a> is
         "`urn:nfc:wkt:T`", but it is stored as "`T`".
       </p>
 
@@ -2485,10 +2512,10 @@
                 <p class="note">
                   The UA might abort message push at this point. The reasons
                   for termination are implementation details. For example, the
-                  user could have has set a preference to allow a given origin
-                  only to read, write, or push data to peers. Also, the
-                  implementation might be unable to support the requested
-                  operation.
+                  user could have has set a preference to allow a given
+                  <a>origin</a> only to read, write, or push data to peers.
+                  Also, the implementation might be unable to support the
+                  requested operation.
                 </p>
               </li>
               <li>
@@ -2622,178 +2649,285 @@
     </section>
   </section> <!-- Writing or pushing content -->
 
-  <section> <h3> Creating content</h3>
-      <section><h3>Creating NDEF message</h3>
-        <p>
-          To <dfn>create NDEF message</dfn> given a
-          |message:NDEFMessageSource| run these steps:
-        </p>
-        <ol class=algorithm id="create-web-nfc-message">
-          <li>Switch on |message:NDEFMessageSource|'s type:
-            <dl>
-              <dt>{{DOMString}}</dt>
-              <ul>
-                <li>
-                  Let |textRecord| be an <a>NDEFrecord</a> initialized with its
-                  |recordType| set to "`text`" and |data| set to |message|.
-                </li>
-                <li>
-                  Let |records| be the list « |textRecord| ».
-                </li>
-                <li>
-                  Set |message|'s records to |records|.
-                </li>
-              </ul>
-              <dt>{{BufferSource}}</dt>
-              <ul>
-                  <li>
-                    Let |mimeRecord| be an <a>NDEFrecord</a> initialized with its
-                    |recordType| set to "`mime`", |data| set to |message|, and
-                    |mediaType| set to "`application/octet-stream`".
-                  </li>
-                  <li>
-                    Let |records| be the list « |mimeRecord| ».
-                  </li>
-                  <li>
-                    Set |message|'s records to |records|.
-                  </li>
-              </ul>
-              <dt>{{NDEFMessageInit}}</dt>
-              <ul>
-                <li>
-                  If |message|'s records [= list/is empty =], throw a
-                  {{TypeError}} and abort these steps.
-                </li>
-              </ul>
-              <dt>unmatched type</dt>
-              <ul>
-                <li>
-                  [= exception/throw =] a {{TypeError}} and abort these steps.
-                </li>
-              </ul>
-            </dl>
-            </dl>
-          </li>
-          <li>
-            Let |output| be the notation for the <a>NDEF message</a>
-            to be created by the UA as a result of these steps.
-          </li>
-          <li>
-            [= list/For each =] |record:NDEFRecordInit| in the <a>list</a>
-            |message|'s records, run the following steps, or make sure
-            that the underlying platform provides equivalent values to
-            |ndef|:
-            <ol data-link-for="NDEFRecordInit">
+  <section><h3>Creating NDEF message</h3>
+    <div>
+      To <dfn>create NDEF message</dfn> given a
+      |source:NDEFMessageSource| run these steps:
+      <ol class=algorithm id="create-web-nfc-message">
+        <li>Switch on |source:NDEFMessageSource|'s type:
+          <dl>
+            <dt>{{DOMString}}</dt>
+            <ul>
               <li>
-                If |record|'s <a>recordType</a> is `undefined`:
-                <ol> <!-- guess type and mediaType from data -->
-                  <li>
-                    If |record|'s <a>data</a> is `undefined`, reject |promise|
-                    a {{TypeError}} and abort these steps.
-                  </li>
-                  <li>
-                    Otherwise, if the type of |record|'s <a>data</a> is
-                    {{DOMString}}, then set |record|'s <a>recordType</a> to
-                    "`text`".
-                  </li>
-                  <li>
-                    Otherwise, set |record|'s <a>recordType</a> to "`mime`".
-                  </li>
-                </ol>
-              </li>
-              <li>Let |ndef| be the result of passing |record| to the algorithm
-                below switching on |record|'s <a>recordType</a>. If the
-                algorithm throws an exception |e|, reject |promise| with |e|
-                and abort these steps.
-                <dl>
-                  <dt>"`empty`"</dt>
-                  <ul>
-                    <li>
-                      <a>map empty record to NDEF</a>.
-                    </li>
-                  </ul>
-                  <dt>"`text`"</dt>
-                  <ul>
-                    <li>
-                      <a>map text to NDEF</a>.
-                    </li>
-                  </ul>
-                  <dt>"`url`"</dt>
-                  <ul>
-                    <li>
-                      <a>map a URL to NDEF</a>.
-                    </li>
-                  </ul>
-                  <dt>"`mime`"</dt>
-                  <ul>
-                    <li>
-                      <a>map binary data to NDEF</a>.
-                    </li>
-                  </ul>
-                  <dt><a>external type name</a></dt>
-                  <ul>
-                    If |record|'s <a>recordType</a> is an <a>external type</a>,
-                    <li>
-                      If |record|'s <a>data</a> is of type {{NDEFMessageInit}},
-                      then return the result of running the
-                      <a>create NDEF message</a> given |record|'s <a>data</a>.
-                    </li>
-                    <li>
-                      Otherwise, <a>map external data to NDEF</a> given |record|.
-                    </li>
-                  </ul>
-                  <dt><a>local type name</a></dt>
-                  <ul>
-                    If |record|'s <a>recordType</a> is a <a>local type</a> and if
-                    |record| is a payload to another <a>NDEF</a> record,
-                    <li>
-                      If |record|'s <a>data</a> is of type {{NDEFMessageInit}},
-                      then return the result of running the
-                      <a>create NDEF message</a> given |record|'s <a>data</a>.
-                    </li>
-                    <li>
-                      Otherwise, <a>map local type to NDEF</a> given |record|.
-                    </li>
-                  </ul>
-                  <dt>unmatched type</dt>
-                  <ul>
-                    <li>
-                      [= exception/throw =] a {{TypeError}}
-                    </li>
-                  </ul>
-                </dl>
+                Let |textRecord| be an <a>NDEFrecord</a> initialized with its
+                |recordType| set to "`text`" and |data| set to |source|.
               </li>
               <li>
-                If |record|'s <a>id</a> is not `undefined`:
-                <ul>
-                  <li>
-                    Let |identifier| be |record|'s <a>id</a>.
-                  </li>
-                  <li>
-                    Set |ndef|'s <a>IL field</a> to `1`.
-                  </li>
-                  <li>
-                    Set |ndef|'s <a>ID LENGTH field</a> to the length of
-                    |identifier|.
-                  </li>
-                  <li>
-                    Set |ndef|'s <a>ID field</a> to |identifier|.
-                  </li>
-                </ul>
+                Let |records| be the list « |textRecord| ».
               </li>
               <li>
-                Add |ndef| to |output|.
+                Set |source|'s records to |records|.
               </li>
-              <!-- converting each record -->
-            </ol>
-          </li> <!-- converting message -->
-        </ol>
-      </section>
+            </ul>
+            <dt>{{BufferSource}}</dt>
+            <ul>
+                <li>
+                  Let |mimeRecord| be an <a>NDEFrecord</a> initialized with its
+                  |recordType| set to "`mime`", |data| set to |source|, and
+                  |mediaType| set to "`application/octet-stream`".
+                </li>
+                <li>
+                  Let |records| be the list « |mimeRecord| ».
+                </li>
+                <li>
+                  Set |source|'s records to |records|.
+                </li>
+            </ul>
+            <dt>{{NDEFMessageInit}}</dt>
+            <ul>
+              <li>
+                If |source|'s records [= list/is empty =], throw a
+                {{TypeError}} and abort these steps.
+              </li>
+            </ul>
+            <dt>unmatched type</dt>
+            <ul>
+              <li>
+                [= exception/throw =] a {{TypeError}} and abort these steps.
+              </li>
+            </ul>
+          </dl>
+        </li>
+        <li>
+          Let |output| be the notation for the <a>NDEF message</a>
+          to be created by the UA as a result of these steps.
+        </li>
+        <li>
+          [= list/For each =] |record:NDEFRecordInit| in the <a>list</a>
+          |source|'s records, run the following steps:
+          <ol>
+            <li>
+              Let |ndef| be the result of running <a>create NDEF record</a>
+              given |record:NDEFRecordInit|, or make sure the underlying
+              platform provides equivalent values to |ndef|.
+              If the algorithm throws an exception |e|, reject |promise| with
+              |e| and abort these steps.
+            </li>
+            <li>
+              Add |ndef| to |output|.
+            </li>
+          </ol>
+        </li>
+        <li>
+          Return |output|.
+        </li>
+      </ol>
+    </div>
 
-      <section><h3>Mapping empty record to NDEF</h3>
+    <section><h3>Creating NDEF record</h3>
       <div>
-        To <dfn>map empty record to NDEF</dfn> given a |record:NDEFRecordInit|,
-        run these steps:
+        To <dfn>create NDEF record</dfn> given |record:NDEFRecordInit|, run
+        these steps:
+        <ol data-link-for="NDEFRecordInit">
+          <li>
+            If |record|'s <a>recordType</a> is `undefined`:
+            <ol> <!-- guess type and mediaType from data -->
+              <li>
+                If |record|'s <a>data</a> is `undefined`, reject |promise|
+                a {{TypeError}} and abort these steps.
+              </li>
+              <li>
+                Otherwise, if the type of |record|'s <a>data</a> is
+                {{DOMString}}, then set |record|'s <a>recordType</a> to
+                "`text`".
+              </li>
+              <li>
+                Otherwise, set |record|'s <a>recordType</a> to "`mime`".
+              </li>
+            </ol>
+          </li>
+          <li>
+            Let |ndef| be the representation of an <a>NDEF record</a> to be
+            created by the UA.
+          </li>
+          <li>
+            If |record|'s <a>id</a> is not `undefined`:
+            <ul>
+              <li>
+                Let |identifier| be |record|'s <a>id</a>.
+              </li>
+              <li>
+                Set |ndef|'s <a>IL field</a> to `1`.
+              </li>
+              <li>
+                Set |ndef|'s <a>ID LENGTH field</a> to the length of
+                |identifier|.
+              </li>
+              <li>
+                Set |ndef|'s <a>ID field</a> to |identifier|.
+              </li>
+            </ul>
+          </li>
+          <li>
+            Switching on |record|'s <a>recordType</a>, pass |record| and |ndef|
+            to one of the following algorithms and return the result.
+            If the algorithm throws an exception |e|, reject |promise| with |e|
+            and abort these steps.
+            <dl>
+              <dt>"`empty`"</dt>
+              <ul>
+                <li>
+                  Return <a>map empty record to NDEF</a> given |record| and |ndef|.
+                </li>
+              </ul>
+              <dt>"`text`"</dt>
+              <ul>
+                <li>
+                  Return <a>map text to NDEF</a> given |record| and |ndef|.
+                </li>
+              </ul>
+              <dt>"`url`"</dt>
+              <ul>
+                <li>
+                  Return <a>map a URL to NDEF</a> given |record| and |ndef|.
+                </li>
+              </ul>
+              <dt>"`mime`"</dt>
+              <ul>
+                <li>
+                  Return <a>map binary data to NDEF</a> given |record| and |ndef|.
+                </li>
+              </ul>
+              <!-- TODO: "smart-poster", "absolute-url" -->
+            </dl>
+          </li>
+          <li>
+            Let |name:string| be the result of running the
+            <a>validate external type</a> steps on |record|'s
+            <a>recordType</a>. If |name| is not `false`,
+            <ul>
+              <li>
+                Let |record|'s <a>recordType</a> be |name:string|.
+              </li>
+              <li>
+                If |record|'s <a>data</a> is of type
+                {{NDEFMessageInit}}, then return the result of running
+                the <a>create NDEF message</a> given |record|'s
+                <a>data</a>.
+              </li>
+              <li>
+                Otherwise, return <a>map external data to NDEF</a> given
+                |record| and |ndef|.
+              </li>
+            </ul>
+          </li>
+          <li>
+            If |record| is a payload to another <a>NDEF record</a> and if
+            running the <a>validate local type</a> steps on |record|'s
+            <a>recordType</a> returns `true`,
+            <ul>
+              <li>
+                If |record|'s <a>data</a> is of type
+                {{NDEFMessageInit}}, then return the result of running
+                the <a>create NDEF message</a> given |record|'s
+                <a>data</a>.
+              </li>
+              <li>
+                Otherwise, return the result of running
+                <a>map local type to NDEF</a> given |record| and |ndef|.
+              </li>
+            </ul>
+          </li>
+          <li>
+            Otherwise, [= exception/throw =] a {{TypeError}} and abort
+            these steps.
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section><h3>Validating external type</h3>
+      <p>
+        The [[NFC-RTD]] specifies that external types MUST contain
+        the domain name of the issuing organization, a colon and a type
+        name that is at least one character long.
+      </p>
+      <p>
+        The [[NFC-RTD]] specifies to omit the URN prefix “`urn:nfc:ext:`”
+        in the binary encoding of external type records, therefore
+        applications SHOULD NOT specify that when creating
+        <a>external type records</a>.
+      </p>
+      <p>
+        When the domain name is not provided, by default Web NFC uses the
+        <a data-cite="html">effective domain</a> of the {{Document/origin}} as
+        domain name in external type names when
+        <a href="#mapping-external-data-to-ndef">
+        creating external type records</a>. Therefore, applications MAY specify
+        only the colon and the external type name.
+      </p>
+      <p class="note">
+        The [[NFC-RTD]] requires that external type names are represented
+        with the URN prefix “`urn:nfc:ext:`”, e.g. when reading
+        <a>NDEF messages</a>. However, since <a>external type records</a> are
+        distinguished by having the <a>TNF FIELD</a> set to `0x04`, there is
+        no risk seen for type name clashing. Also, there are
+        <a href="https://www.w3.org/2001/tag/doc/URNsAndRegistries-50.html">
+        W3C TAG recommendations</a> to avoid using URNs in the Web.
+        Therefore, Web NFC does not use the URN prefix neither when reading
+        or writing <a>NDEF messages</a>, but requires the leading colon ('`:`')
+        before the type name.
+      </p>
+      <p>
+        To <dfn>validate external type</dfn> given a |input:USVString| run
+        these steps:
+      </p>
+      <ol class=algorithm id="validate-external-type">
+        <li>
+          If |input:string| is not a {{USVString}} or it is empty, or its
+          length exceeds 255 bytes, or it contains white spaces,
+          return `false`.
+        </li>
+        <li>
+          If |input| does not start with colon ('`:`'), return |input|.
+          <p class="issue">
+            Validating domain name needs an algorithm.
+          </p>
+        </li>
+        <li>
+          If |input| starts with colon ('`:`'), let |domain:string| be the
+          <a data-cite="url#concept-url-serializer">serialization</a> of the
+          <a data-cite="html">effective domain</a> of the {{Document/origin}}.
+        </li>
+        <li>
+          Return |domain| concatenated with |input|.
+        </li>
+      </ol>
+    </section>
+
+    <section><h3>Validating local type</h3>
+      <p>
+        To <dfn>validate local type</dfn> given a |input:USVString| run
+        these steps:
+      </p>
+      <ol class=algorithm id="validate-local-type">
+        <li>
+          If |input| is not a {{USVString}} or its length exceeds 255 bytes,
+          return `false` and abort these steps.
+        </li>
+        <li>
+          If |input| does not start with a lowercase character or a number,
+          return `false`.
+        <li>
+          Return `true`.
+        </li>
+      </ol>
+    </section>
+
+    <section><h3>Mapping empty record to NDEF</h3>
+      <div>
+        To <dfn>map empty record to NDEF</dfn> given a |record:NDEFRecordInit|
+        and |ndef|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
@@ -2802,10 +2936,6 @@
           <li>
             If |record|'s <a>id</a> is not `undefined`,
             [= exception/throw =] a {{TypeError}} and abort these steps.
-          </li>
-          <li>
-            Let |ndef| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
           </li>
           <li>Set the
             |ndef|'s <a>TNF field</a> to `0` (<a>empty record</a>).
@@ -2823,12 +2953,12 @@
           </li>
         </ol>
       </div>
-      </section>
+    </section>
 
-      <section><h3>Mapping string to NDEF</h3>
+    <section><h3>Mapping string to NDEF</h3>
       <div>
-        To <dfn>map text to NDEF</dfn> given a |record:NDEFRecordInit|, run
-        these steps:
+        To <dfn>map text to NDEF</dfn> given a |record:NDEFRecordInit| and
+        |ndef|, run these steps:
         <p class="note">
           This is useful when clients specifically want to write text in a
           [=well-known type record=].
@@ -2936,36 +3066,34 @@
             of |data|.
           </li>
           <li>
-            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
             <ol>
               <li>
-                Set the |ndefRecord|'s <a>TNF field</a> to `1` (
+                Set the |ndef|'s <a>TNF field</a> to `1` (
                 [=well-known type record=]).
               </li>
               <li>
-                Set the |ndefRecord|'s <a>TYPE field</a> to "`T`" (`0x54`).
+                Set the |ndef|'s <a>TYPE field</a> to "`T`" (`0x54`).
               </li>
               <li>
-                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
+                Set the |ndef|'s <a>PAYLOAD LENGTH field</a> to |length|.
               </li>
               <li>
-                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a>
+                If |length| > `0`, set the |ndef|'s <a>PAYLOAD field</a>
                 to |data|.
               </li>
             </ol>
           </li>
           <li>
-            Return |ndefRecord|.
+            Return |ndef|.
           </li>
         </ol>
       </div>
-      </section>
+    </section>
 
-      <section><h3>Mapping URL to NDEF</h3>
+    <section><h3>Mapping URL to NDEF</h3>
       <div>
-        To <dfn>map a URL to NDEF</dfn> given a |record:NDEFRecordInit|, run
-        these steps:
+        To <dfn>map a URL to NDEF</dfn> given a |record:NDEFRecordInit| and
+        |ndef|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
@@ -3028,36 +3156,30 @@
             of |data|.
           </li>
           <li>
-            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
-            <ol>
-              <li>
-                Set the |ndefRecord|'s <a>TNF field</a> to `1`
-                ([=well-known type record=]).
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>TYPE field</a> to "`U`" (`0x55`).
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
-              </li>
-              <li>
-                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a>
-                to |data|.
-              </li>
-            </ol>
+            Set the |ndef|'s <a>TNF field</a> to `1`
+            ([=well-known type record=]).
           </li>
           <li>
-            Return |ndefRecord|.
+            Set the |ndef|'s <a>TYPE field</a> to "`U`" (`0x55`).
+          </li>
+          <li>
+            Set the |ndef|'s <a>PAYLOAD LENGTH field</a> to |length|.
+          </li>
+          <li>
+            If |length| > `0`, set the |ndef|'s <a>PAYLOAD field</a>
+            to |data|.
+          </li>
+          <li>
+            Return |ndef|.
           </li>
         </ol>
       </div>
-      </section>
+    </section>
 
-      <section><h3>Mapping binary data to NDEF</h3>
+    <section><h3>Mapping binary data to NDEF</h3>
       <div>
-        To <dfn>map binary data to NDEF</dfn> given a |record:NDEFRecordInit|,
-        run these steps:
+        To <dfn>map binary data to NDEF</dfn> given a |record:NDEFRecordInit|
+        and |ndef|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecord">
           <li>
             If the type of a |record|'s <a>data</a> is not a
@@ -3086,37 +3208,31 @@
             Set |data:byte sequence| to |arrayBuffer|.[[\ArrayBufferData]].
           </li>
           <li>
-            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
-            <ol>
-              <li>
-                Set the |ndefRecord|'s <a>TNF field</a> to `2` (<a>MIME type</a>).
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>TYPE field</a> to the result of
-                <a>serialize a MIME type</a> with |mimeTypeRecord| as
-                the input.
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
-              </li>
-              <li>
-                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a>
-                to |data|.
-              </li>
-            </ol>
+            Set the |ndef|'s <a>TNF field</a> to `2` (<a>MIME type</a>).
           </li>
           <li>
-            Return |ndefRecord|.
+            Set the |ndef|'s <a>TYPE field</a> to the result of
+            <a>serialize a MIME type</a> with |mimeTypeRecord| as
+            the input.
+          </li>
+          <li>
+            Set the |ndef|'s <a>PAYLOAD LENGTH field</a> to |length|.
+          </li>
+          <li>
+            If |length| > `0`, set the |ndef|'s <a>PAYLOAD field</a>
+            to |data|.
+          </li>
+          <li>
+            Return |ndef|.
           </li>
         </ol>
       </div>
-      </section>
+    </section>
 
-      <section><h3>Mapping external data to NDEF</h3>
+    <section><h3>Mapping external data to NDEF</h3>
       <div>
-        To <dfn>map external data to NDEF</dfn> given a |record:NDEFRecordInit|,
-        run these steps:
+        To <dfn>map external data to NDEF</dfn> given a |record:NDEFRecordInit|
+        and |ndef|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
@@ -3137,37 +3253,31 @@
             Set |data:byte sequence| to |arrayBuffer|.[[\ArrayBufferData]].
           </li>
           <li>
-            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
-            <ol>
-              <li>
-                Set |ndefRecord|'s <a>TNF field</a> to `4`
-                (<a>external type record</a>).
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>TYPE field</a> to |record|'s
-                <a>recordType</a>.
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
-              </li>
-              <li>
-                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a>
-                to |data|.
-              </li>
-            </ol>
+            Set |ndef|'s <a>TNF field</a> to `4`
+            (<a>external type record</a>).
           </li>
           <li>
-            Return |ndefRecord|.
+            Set the |ndef|'s <a>TYPE field</a> to |record|'s
+            <a>recordType</a>.
+          </li>
+          <li>
+            Set the |ndef|'s <a>PAYLOAD LENGTH field</a> to |length|.
+          </li>
+          <li>
+            If |length| > `0`, set the |ndef|'s <a>PAYLOAD field</a>
+            to |data|.
+          </li>
+          <li>
+            Return |ndef|.
           </li>
         </ol>
       </div>
-      </section>
+    </section>
 
-      <section><h3>Mapping local type to NDEF</h3>
+    <section><h3>Mapping local type to NDEF</h3>
       <div>
-        To <dfn>map local type to NDEF</dfn> given a |record:NDEFRecordInit|,
-        run these steps:
+        To <dfn>map local type to NDEF</dfn> given a |record:NDEFRecordInit| and
+        |ndef|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
@@ -3188,36 +3298,27 @@
             Set |data:byte sequence| to |arrayBuffer|.[[\ArrayBufferData]].
           </li>
           <li>
-            Let |ndefRecord| be the notation for the <a>NDEF record</a> to
-            be created by the UA.
-            <ol>
-              <li>
-                Set the |ndefRecord|'s <a>TYPE field</a> to |record|'s
-                <a>recordType</a>.
-              </li>
-              <li>
-                If |record|'s <a>recordType</a> is a standard local type to
-                <a>smart poster</a> or a handover record, then
-                set |ndefRecord|'s <a>TNF field</a> to `1`
-                ([=well-known type record=]), otherwise
-                set |ndefRecord|'s <a>TNF field</a> to `4`
-                (<a>external type record</a>).
-              </li>
-              <li>
-                Set the |ndefRecord|'s <a>PAYLOAD LENGTH field</a> to |length|.
-              </li>
-              <li>
-                If |length| > `0`, set the |ndefRecord|'s <a>PAYLOAD field</a>
-                to |data|.
-              </li>
-            </ol>
+            Set |ndef|'s <a>TNF field</a> to `1`
+            ([=well-known type record=]).
           </li>
           <li>
-            Return |ndefRecord|.
+            Set |ndef|'s <a>TYPE field</a> to |record|'s
+            <a>recordType</a>, representing the <a>local type</a> name.
+          </li>
+          <li>
+            Set the |ndef|'s <a>PAYLOAD LENGTH field</a> to |length|.
+          </li>
+          <li>
+            If |length| > `0`, set the |ndef|'s <a>PAYLOAD field</a>
+            to |data|.
+          </li>
+          <li>
+            Return |ndef|.
           </li>
         </ol>
       </div>
-      </section>
+    </section>
+  </section>
 
   <section> <h3>Listening for content</h3>
     <p>
@@ -4115,7 +4216,8 @@
         <dd>
           Require permission and user prompt needed for writing tags.
           Or, control what tags can be written by a given web page, for instance
-          a web page can write only a tag which can be connected to its origin.
+          a web page can write only a tag which can be connected to its
+          <a>origin</a>.
           Or, allow overwriting since tags not meant to be written can be
           protected by making them read only.
           Use <a>NDEF signature</a> to detect a modification of NFC tags.
