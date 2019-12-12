@@ -2470,11 +2470,6 @@
             {{DOMException}} and return |p|.
           </li>
           <li>
-            If the algorithm is not <a>triggered by user activation</a>, then
-            reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
-            return |p|.
-          </li>
-          <li>
             Let |signal:AbortSignal| be the |options|’ dictionary member
             of the same name if present, or `null` otherwise.
           </li>
@@ -3404,11 +3399,6 @@
             (e.g. a user preference), then reject |p| with a
             {{"NotReadableError"}} {{DOMException}}
             and return |p|.
-          </li>
-          <li>
-            If the algorithm is not <a>triggered by user activation</a>, then
-            reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
-            return |p|.
           </li>
           <li>
             If |reader|.<a>[[\Signal]]</a>'s [= AbortSignal/aborted flag =] is
