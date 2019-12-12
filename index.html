@@ -1369,25 +1369,20 @@
     </p>
     <pre class="example">
       const reader = new NDEFReader();
-      await reader.scan({ recordType: "example.com:sp" });
+      await reader.scan({ recordType: "example.com:smart-poster" });
       reader.onreading = event => {
-        const socialPost = event.message.records[0];
-        if (!socialPost) {
-          return;
-        }
+        const smartPosterRecord = event.message.records.find(
+          record => record.type == "example.com:smart-poster"
+        );
 
-        let action;
-        let text = "";
+        let action, text;
 
-        const decoder = new TextDecoder();
-        for (let record of socialPost.toRecords()) {
-          switch (record.recordType) {
-            case "text":
-              text = decoder.decode(record.data);
-              break;
-            case "act":
-              action = record.data.getUint8(0);
-              break;
+        for (const record of smartPosterRecord.toRecords()) {
+          if (record.recordType == "text") {
+            const decoder = new TextDecoder(record.encoding);
+            text = decoder.decode(record.data);
+          } else if (record.recordType == "act") {
+            action = record.data.getUint8(0);
           }
         }
 
