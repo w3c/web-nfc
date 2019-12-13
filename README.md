@@ -8,6 +8,7 @@ This is the repository for the [Web NFC Community Group](https://www.w3.org/comm
 * [Web NFC Specification](https://w3c.github.io/web-nfc/)
 * [Web NFC Use Cases](https://w3c.github.io/web-nfc/#use-cases)
 * [Web NFC Security and Privacy Considerations](https://w3c.github.io/web-nfc/#security-and-privacy)
+* [Web NFC Security and Privacy Questionnaire](https://github.com/w3c/web-nfc/blob/gh-pages/security-privacy-questionnaire.md)
 * [Web NFC Community Group Charter](https://w3c.github.io/web-nfc/charter/)
 
 ## Code of conduct
