@@ -1371,13 +1371,13 @@
       const reader = new NDEFReader();
       await reader.scan({ recordType: "example.com:smart-poster" });
       reader.onreading = event => {
-        const smartPosterRecord = event.message.records.find(
+        const externalRecord = event.message.records.find(
           record => record.type == "example.com:smart-poster"
         );
 
         let action, text;
 
-        for (const record of smartPosterRecord.toRecords()) {
+        for (const record of externalRecord.toRecords()) {
           if (record.recordType == "text") {
             const decoder = new TextDecoder(record.encoding);
             text = decoder.decode(record.data);
