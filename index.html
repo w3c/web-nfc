@@ -768,9 +768,9 @@
     </p>
     <p>
       The <dfn>external type</dfn> is a URN with the prefix `"urn:nfc:ext:"` followed by
-      the name of the owner domain, adding a colon, then a non-zero type name,
-      for instance `"urn:nfc:ext:w3.org:atype"`, stored as `"w3.org:atype"`
-      in the <a>TYPE field</a>.
+      the name of the owner domain, adding a `U+003A` (`:`), then a non-zero
+      type name, for instance `"urn:nfc:ext:w3.org:atype"`, stored as
+      `"w3.org:atype"` in the <a>TYPE field</a>.
     </p>
     <div>
       <ndef-record
@@ -1629,7 +1629,8 @@
         <a>recordType</a> attribute.
       </li>
       <li>
-        If the |recordType| value is "`smart-poster`", or an [=external type name=],
+        If the |recordType| value is "`smart-poster`", or if running
+        <a>validate external type</a> on |recordType| returns `true`,
         then return the result of running <a>parse records from bytes</a> on |bytes|.
         Re-[= exception/throw =] any exceptions.
       </li>
@@ -1648,8 +1649,8 @@
         <a>NDEF record</a> types.
       </p>
       <p>
-        A set of known standardized values exists, but it is also possible
-        for organizations to create their own custom [=external type names=].
+        A standardized <dfn>well known type name</dfn> can be one of the
+        following:
       </p>
       <dl>
         <dt>The "<dfn>empty</dfn>" string</dt>
@@ -1681,45 +1682,25 @@
         <dd>
           The value representing an <a>unknown record</a>.
         </dd>
-        <dt>An <dfn>external type name</dfn></dt>
-        <dd>
-          A {{DOMString}} representing a custom type for the
-          <a>external type record</a>.
-          The type must follow the [=external type name=] ABNF.
-          <pre class="abnf">
-            ext-type             = reg-name ":" custom-type
-            custom-type          = 1*(ALPHA / DIGIT / other)
-
-            DIGIT                = %x30-39
-            ALPHA                = %x41-5A / %x61-7A   ; A-Z / a-z
-            other                = "(" / ")" / "+" / "," / "-" / ":" / "=" /
-                                   "@" / ";" / "$" / "_" / "!" / "*" / "'" / "."
-          </pre>
-          The `reg-name` value is a [=host/registrable domain=] owned by the issuing
-          organization, a "`:`" and a type, e.g. "`w3.org:member`".
-          And additional ABNF exists for [=well-known type records=]:
-          <pre class="abnf">
-            wkt-type             = (ALPHA / DIGIT) *(ALPHA / DIGIT / other)
-          </pre>
-          <p class=note>
-            The [[[NFC-RTD]]] defines every type in the [=well-known type records=]
-            and <a>external type records</a> in terms of URNs, but only a subset of
-            the URN is actually stored in the <a>NDEF record</a>'s <a>TYPE field</a>,
-            which corresponds to the above two ABNFs.
-          </p>
-        </dd>
-        <dt>A <dfn>local type name</dfn></dt>
-        <dd>
-          A {{DOMString}} that MUST start with lowercase character or a number,
-          representing a type for a NFC Forum [=local type=],
-          typically used in a record of an <a>NDEFMessage</a> that is the payload
-          of a parent <a>NDEFRecord</a>, for instance in a <a>smart poster</a>.
-          The context of the <a>local type</a> is the parent record whose payload
-          is the <a>NDEFMessage</a> to which this record belongs. The value
-          MUST NOT be equal to any other <a>record type</a>s defined
-          in this API.
-        </dd>
       </dl>
+      <p>
+        In addition to [=well known type names=] it is also possible for
+        organizations to create a custom <dfn>external type name</dfn>
+        which is a string consisting of a domain name and a custom type name,
+        separated by a colon `U+003A` (`:`).
+      </p>
+      <p>
+        Applications MAY also use a <dfn>local type name</dfn>, which is a
+        string that MUST start with lowercase character or a number,
+        representing a type for a NFC Forum [=local type=]. It is
+        typically used in a record of an <a>NDEFMessage</a> that is the payload
+        of a parent <a>NDEFRecord</a>, for instance in a <a>smart poster</a>.
+        The context of the <a>local type</a> is the parent record whose payload
+        is the <a>NDEFMessage</a> to which this record belongs. The value
+        MUST NOT be equal to any other <a>record type</a>s defined
+        in this API, including other [=local type names=] and
+        [=external type names=].
+      </p>
       <p>
         Any implementation of Web NFC MUST transparently expose chunked records
         as single logical records, therefore <a>unchanged record</a>s are not
@@ -2793,13 +2774,9 @@
             </dl>
           </li>
           <li>
-            Let |name:string| be the result of running the
-            <a>validate external type</a> steps on |record|'s
-            <a>recordType</a>. If |name| is not `false`,
+            If running <a>validate external type</a> on |record|'s
+            <a>recordType</a> returns `true`,
             <ul>
-              <li>
-                Let |record|'s <a>recordType</a> be |name:string|.
-              </li>
               <li>
                 If |record|'s <a>data</a> is of type
                 {{NDEFMessageInit}}, then return the result of running
@@ -2838,24 +2815,17 @@
     </section>
 
     <section><h3>Validating external type</h3>
-      <p>
+      <div>
         The [[NFC-RTD]] specifies that external types MUST contain
-        the domain name of the issuing organization, a colon and a type
-        name that is at least one character long.
-      </p>
+        the domain name of the issuing organization, a colon `U+003A` (`:`)
+        and a type name that is at least one character long, for instance
+        "`w3.org:member`".
+      </div>
       <p>
-        The [[NFC-RTD]] specifies to omit the URN prefix “`urn:nfc:ext:`”
-        in the binary encoding of external type records, therefore
-        applications SHOULD NOT specify that when creating
-        <a>external type records</a>.
-      </p>
-      <p>
-        When the domain name is not provided, by default Web NFC uses the
-        <a data-cite="html">effective domain</a> of the {{Document/origin}} as
-        domain name in external type names when
-        <a href="#mapping-external-data-to-ndef">
-        creating external type records</a>. Therefore, applications MAY specify
-        only the colon and the external type name.
+        The [[NFC-RTD]] specifies the URN prefix “`urn:nfc:ext:`” as well, but
+        it is not written, i.e. it is not used in the binary encoding of
+        <a>external type records</a>, therefore Web NFC applications SHOULD NOT
+        specify the URN prefix when creating <a>external type records</a>.
       </p>
       <p class="note">
         The [[NFC-RTD]] requires that external type names are represented
@@ -2866,32 +2836,58 @@
         <a href="https://www.w3.org/2001/tag/doc/URNsAndRegistries-50.html">
         W3C TAG recommendations</a> to avoid using URNs in the Web.
         Therefore, Web NFC does not use the URN prefix neither when reading
-        or writing <a>NDEF messages</a>, but requires the leading colon ('`:`')
-        before the type name.
+        or writing <a>NDEF messages</a>.
       </p>
       <p>
-        To <dfn>validate external type</dfn> given a |input:USVString| run
+        To <dfn>validate external type</dfn> given |input:USVString|, run
         these steps:
       </p>
       <ol class=algorithm id="validate-external-type">
         <li>
           If |input:string| is not a {{USVString}} or it is empty, or its
-          length exceeds 255 bytes, or it contains white spaces,
-          return `false`.
+          length exceeds 255 bytes, return `false`.
         </li>
         <li>
-          If |input| does not start with colon ('`:`'), return |input|.
-          <p class="issue">
-            Validating domain name needs an algorithm.
-          </p>
+          Let  |colonIndex| be the last occurrence of `U+003A` (`:`) in |input|.
+          If a `U+003A` (`:`) is not found, return `false`.
         </li>
         <li>
-          If |input| starts with colon ('`:`'), let |domain:string| be the
-          <a data-cite="url#concept-url-serializer">serialization</a> of the
-          <a data-cite="html">effective domain</a> of the {{Document/origin}}.
+          Let |domain| be the part of |input| preceding |colonIndex|,
+          and |type| be the part following |colonIndex|.
         </li>
         <li>
-          Return |domain| concatenated with |input|.
+          Run the following sub-steps of
+          <a href="https://url.spec.whatwg.org/#host-parsing">host parsing</a>
+          on |domain|:
+          <ul>
+            <li>
+              Let |asciiDomain| be the result of running
+              <a href="https://url.spec.whatwg.org/#concept-domain-to-ascii">
+              domain to ASCII</a> on |domain|.
+            </li>
+            <li>
+              If |asciiDomain| is failure, return `false`.
+            </li>
+            <li>
+              If |asciiDomain| contains a
+              <a href="https://url.spec.whatwg.org/#forbidden-host-code-point">
+              forbidden host code point</a>, return `false`.
+            </li>
+          </ul>
+        </li>
+        <li>
+          If |type| is empty, return `false`.
+        </li>
+        <li>
+          If |type| contains [=code points=] that are not
+          [=ASCII alphanumeric=], or `U+0024` (`$`), `U+0027` (`'`),
+          `U+0028` `LEFT PARENTHESIS` (`(`), `U+0029` `RIGHT PARENTHESIS` (`)`),
+          `U+002A` (`*`), `U+002B` (`+`), `U+002C` (`,`), `U+002D` (`-`),
+          `U+002E` (`.`), `U+003B` (`;`), `U+003D` (`=`), `U+0040` (`@`),
+          `U+005F` (`_`), return `false`.
+        </li>
+        <li>
+          Return `true`.
         </li>
       </ol>
     </section>
@@ -3816,7 +3812,7 @@
     <p>
       The Unicode standard defines multiple encodings like UTF-8, UTF-16 and UTF-32.
       UTF-8 is the preferred encoding on the web, and it has the advantage
-      that it is endianness agnostic, as code points are represented in single bytes.
+      that it is endianness agnostic, as [=code points=] are represented in single bytes.
     </p>
     <p>
       The NDEF text records allow the text to be encoded as either UTF-8 or UTF-16.
@@ -3830,7 +3826,7 @@
     </p>
     <p>
       For UTF-16, byte order matters as it might differ between reading and writing
-      due to each code point spanning two bytes. For this reason UTF-16 encoded text
+      due to each [=code point=] spanning two bytes. For this reason UTF-16 encoded text
       usually contains a byte order mark (also known as BOM) which is written as
       `0xFEFF`. This means that if the byte order differs between host machine and
       NDEF, then the value will be read back as `0xFFFE`, indicating that the byte
