@@ -3,7 +3,7 @@
 Authors:
 - Kenneth Christiansen
 - Zoltan Kis
-- Francois Beauforts
+- Francois Beaufort
 
 Participate
 - https://github.com/w3c/web-nfc/issues/ 
