@@ -2910,9 +2910,8 @@
           return `false`.
         </li>
         <li>
-          If |input| is equal to any other <a>record type</a>s defined
-          in this API, including other [=local type names=] or
-          [=external type names=], return `false`.
+          If |input| is equal to the <a>record type</a> of any <a>NDEF record</a>
+          defined in its containing <a>NDEF message</a>, return `false`.
         </li>
         <li>
           Return `true`.
