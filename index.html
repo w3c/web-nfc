@@ -245,7 +245,7 @@
     </p>
   </div>
   <p>
-    An <dfn>NFC peer</dfn> is an active, powered device, which can interact
+    An <dfn>NFC peer</dfn> is an active, powered device which can interact
     with other devices in order to exchange data using NFC.
   </p>
   <p>
@@ -378,7 +378,7 @@
   <p>
     Only the first three bytes (lines in figure) are mandatory. First the
     header byte, followed by the <a>TYPE LENGTH field</a> and <a>PAYLOAD
-    LENGTH field</a>, which may both be zero.
+    LENGTH field</a>, both of which may be zero.
   </p>
   <div>
     The <dfn>TNF field</dfn> (bit `0-2`, type name format) indicates the format
@@ -947,7 +947,7 @@
       NFC supports handover protocols to Bluetooth or WiFi connectivity for
       the purpose of larger volume data transfer. The user touches another
       NFC capable device, and as a result configuration data is sent for a
-      new Bluetooth or WiFi connection, which is then established between the
+      new Bluetooth or WiFi connection which is then established between the
       devices.
     </p>
     <p class="note">
@@ -1685,7 +1685,7 @@
       </dl>
       <p>
         In addition to [=well known type names=] it is also possible for
-        organizations to create a custom <dfn>external type name</dfn>
+        organizations to create a custom <dfn>external type name</dfn>,
         which is a string consisting of a domain name and a custom type name,
         separated by a colon `U+003A` (`:`).
       </p>
@@ -3830,13 +3830,12 @@
     </p>
     <p>
       The data transmission order and thus the byte order of NDEF is
-      defined as big endian (BE) in [[[NFC-NDEF]]], which means that everything is read
-      back with big endian byte ordering.
+      defined as big endian (BE) in [[[NFC-NDEF]]], which means that everything is read back with big endian byte ordering.
     </p>
     <p>
       For UTF-16, byte order matters as it might differ between reading and writing
       due to each [=code point=] spanning two bytes. For this reason UTF-16 encoded text
-      usually contains a byte order mark (also known as BOM) which is written as
+      usually contains a byte order mark (also known as BOM), which is written as
       `0xFEFF`. This means that if the byte order differs between host machine and
       NDEF, then the value will be read back as `0xFFFE`, indicating that the byte
       order should be swapped. The [[[ENCODING]]] differentiates UTF-16 as UTF-16BE
@@ -4210,7 +4209,7 @@
         <dd>
           Require permission and user prompt needed for writing tags.
           Or, control what tags can be written by a given web page, for instance
-          a web page can write only a tag which can be connected to its
+          a web page can write only a tag that can be connected to its
           <a>origin</a>.
           Or, allow overwriting since tags not meant to be written can be
           protected by making them read only.
@@ -4279,7 +4278,7 @@
           Malicious tag may be involuntarily or voluntarily read by devices
           and the data read may constitute an attack vector on the user agent.
           For example it can attempt to trigger an action on
-          the device which may be a threat, for instance launching a malicious
+          the device, which may be a threat, for instance launching a malicious
           web site, or opening an image prepared for attacking the device.
         </dd>
         <dt><strong>Affected assets</strong></dt>
