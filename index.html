@@ -1696,10 +1696,9 @@
         typically used in a record of an <a>NDEFMessage</a> that is the payload
         of a parent <a>NDEFRecord</a>, for instance in a <a>smart poster</a>.
         The context of the <a>local type</a> is the parent record whose payload
-        is the <a>NDEFMessage</a> to which this record belongs. The value
-        MUST NOT be equal to any other <a>record type</a>s defined
-        in this API, including other [=local type names=] and
-        [=external type names=].
+        is the <a>NDEFMessage</a> to which this record belongs and the
+        <a>local type name</a> SHOULD NOT conflict with any other type names
+        used in that context.
       </p>
       <p>
         Any implementation of Web NFC MUST transparently expose chunked records
@@ -2909,6 +2908,12 @@
         <li>
           If |input| does not start with a lowercase character or a number,
           return `false`.
+        </li>
+        <li>
+          If |input| is equal to any other <a>record type</a>s defined
+          in this API, including other [=local type names=] or
+          [=external type names=], return `false`.
+        </li>
         <li>
           Return `true`.
         </li>
