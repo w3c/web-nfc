@@ -2848,12 +2848,17 @@
           length exceeds 255 bytes, return `false`.
         </li>
         <li>
-          Let  |colonIndex| be the last occurrence of `U+003A` (`:`) in |input|.
-          If a `U+003A` (`:`) is not found, return `false`.
+          Let |domain| be the |input| from the start of |input| up to but
+          excluding the last occurrence of U+003A (`:`), or `null` if that is
+          not found.
         </li>
         <li>
-          Let |domain| be the part of |input| preceding |colonIndex|,
-          and |type| be the part following |colonIndex|.
+          Let |type| be the |input| after the last occurrence, if any, of
+          `U+003A` (`:`) up to the end of |input|, or `null` if that is
+          not found.
+        </li>
+        <li>
+          If |domain| or |type| is `null`, return `false`.
         </li>
         <li>
           Run the following sub-steps of
