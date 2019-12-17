@@ -768,7 +768,7 @@
     </p>
     <p>
       The <dfn>external type</dfn> is a URN with the prefix `"urn:nfc:ext:"` followed by
-      the name of the owner domain, adding a `U+003A` (`:`), then a non-zero
+      the name of the owner [=domain=], adding a `U+003A` (`:`), then a non-zero
       type name, for instance `"urn:nfc:ext:w3.org:atype"`, stored as
       `"w3.org:atype"` in the <a>TYPE field</a>.
     </p>
@@ -1686,7 +1686,7 @@
       <p>
         In addition to [=well known type names=] it is also possible for
         organizations to create a custom <dfn>external type name</dfn>,
-        which is a string consisting of a domain name and a custom type name,
+        which is a string consisting of a [=domain=] name and a custom type name,
         separated by a colon `U+003A` (`:`).
       </p>
       <p>
@@ -2816,7 +2816,7 @@
     <section><h3>Validating external type</h3>
       <div>
         The [[NFC-RTD]] specifies that external types MUST contain
-        the domain name of the issuing organization, a colon `U+003A` (`:`)
+        the [=domain=] name of the issuing organization, a colon `U+003A` (`:`)
         and a type name that is at least one character long, for instance
         "`w3.org:member`".
       </div>
@@ -4065,7 +4065,7 @@
     </p>
     <p>
       Web NFC does not sign <a>NFC content</a>. Using <a>NDEF signature</a> and
-      key management is application domain.
+      key management is the responsibility of the application.
     </p>
     <p>
       For trusting the <strong>confidentiality</strong> of the data exchanged
