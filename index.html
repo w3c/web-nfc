@@ -3422,13 +3422,12 @@
             </ol>
           </li>
           <li>
-            Run the following steps <a>in parallel</a>:
+            Return |p| and run the following steps <a>in parallel</a>:
             <ol>
               <li>
-                If the <a>obtain permission</a> steps return
-                `false`, then reject |p| with a
-                {{"NotAllowedError"}} {{DOMException}}
-                and return |p|.
+                If the <a>obtain permission</a> steps return `false`, then
+                reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
+                abort these steps.
               </li>
               <li>
                 If this is the first listener being set up, then make a request
@@ -3436,8 +3435,7 @@
               </li>
               <li>
                 If the request fails, then the UA MAY reject |p| with a
-                {{"NotSupportedError"}} {{DOMException}}
-                and return |p|.
+                {{"NotSupportedError"}} {{DOMException}} and abort these steps.
               </li>
               <li>
                 Add |reader| to the <a>activated reader objects</a>.
@@ -3453,6 +3451,9 @@
               <li>
                 Whenever the <a>UA</a> detects NFC technology, run the
                 <a>NFC reading algorithm</a>.
+              </li>
+              <li>
+                Resolve |p|.
               </li>
             </ol>
           </li>
