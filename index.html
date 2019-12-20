@@ -3551,35 +3551,40 @@
             [= list/For each =] |record:NDEFRecord| in |message:NDEFMessage|,
             <ol>
               <li>
-                Let |matched| be `undefined`.
+                Let |matched:boolean| be `false`.
               </li>
               <li>
                 If |reader|.<a>[[\Id]]</a> is not `""` and is not equal to
                 |record|'s <a href="#dom-ndefrecord-id">id</a>,
-                [= iteration/continue =] with the next record.
+                [= iteration/continue =].
                 If it is equal, set |matched| to `true`.
               </li>
               <li>
                 If |reader|.<a>[[\RecordType]]</a> is
                 [= dictionary member/present =] and it is not equal to
                 |record|'s <a href="#dom-ndefrecord-recordtype">recordType</a>,
-                [= iteration/continue =] with the next record.
-                If it is equal and if |matched| is `undefined`, set |matched|
-                to `true`.
+                [= iteration/continue =].
+                If it is equal, set |matched| to `true`.
               </li>
               <li>
                 If |reader|.<a>[[\MediaType]]</a> is not `""` and is not equal
                 to |record|'s <a href="#dom-ndefrecord-mediatype">mediaType</a>,
-                [= iteration/continue =] with the next record.
-                If it is equal and if |matched| is `undefined`, set |matched|
-                to `true`.
+                [= iteration/continue =].
+                If it is equal, set |matched| to `true`.
               </li>
               <li>
-                If |matched| is `true`, <a>fire an event</a> named "`reading`"
-                at |reader| using <a>NDEFReadingEvent</a> with its
-                <a>serialNumber</a> attribute initialized to |serialNumber| and
-                <a>message</a> attribute initialized to |message| and
-                [= iteration/continue =] with the next reader.
+                If |matched| is `true`,
+                <ol>
+                  <li>
+                    <a>fire an event</a> named "`reading`"
+                    at |reader| using <a>NDEFReadingEvent</a> with its
+                    <a>serialNumber</a> attribute initialized to |serialNumber|
+                    and <a>message</a> attribute initialized to |message|.
+                  </li>
+                  <li>
+                    [= iteration/Break =].
+                  </li>
+                </ol>
               </li>
             </ol>
           </li>
