@@ -3430,14 +3430,6 @@
                 abort these steps.
               </li>
               <li>
-                If this is the first listener being set up, then make a request
-                to all <a>NFC adapter</a>s to listen to <a>NDEF message</a>s.
-              </li>
-              <li>
-                If the request fails, then the UA MAY reject |p| with a
-                {{"NotSupportedError"}} {{DOMException}} and abort these steps.
-              </li>
-              <li>
                 Add |reader| to the <a>activated reader objects</a>.
               </li>
               <li>
