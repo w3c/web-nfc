@@ -1488,7 +1488,7 @@
       <a>NDEFMessage</a> interface:
     </p>
     <pre class="idl">
-      [Exposed=Window]
+      [SecureContext, Exposed=Window]
       interface NDEFMessage {
         constructor(NDEFMessageInit messageInit);
         readonly attribute FrozenArray&lt;NDEFRecord&gt; records;
@@ -1517,7 +1517,7 @@
     <pre class="idl">
       typedef (DOMString or BufferSource or NDEFMessageInit) NDEFRecordDataSource;
 
-      [Exposed=Window]
+      [SecureContext, Exposed=Window]
       interface NDEFRecord {
         constructor(NDEFRecordInit recordInit);
 
