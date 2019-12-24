@@ -1632,7 +1632,6 @@
         If the |recordType| value is "`smart-poster`", or if running
         <a>validate external type</a> on |recordType| returns `true`,
         then return the result of running <a>parse records from bytes</a> on |bytes|.
-        Re-[= exception/throw =] any exceptions.
       </li>
       <li>
         Otherwise, [= exception/throw =] a
@@ -3598,12 +3597,13 @@
         sub-steps:
         <ol>
           <li>
-            If the remaining length of |bytes| is less than `3`, abort these
-            sub-steps.
+            If the remaining length of |bytes| is less than `3`, return `null`
+            and abort these sub-steps.
           </li>
           <li>
             If any of the following steps requires reading bytes beyond the
-            remaining length of |bytes|, return |records|.
+            remaining length of |bytes|, return `null` and abort these
+            sub-steps.
           </li>
           <li>
             Let |ndef| be the notation for the current <a>NDEF record</a>.
@@ -3617,8 +3617,8 @@
               </li>
               <li>
                 If this is the first iteration of these sub-steps and
-                |messageBegin| is `false`,
-                return |records|.
+                |messageBegin| is `false`, return `null` and abort these
+                sub-steps.
               </li>
               <li>
                 Let |messageEnd:boolean| (<a>ME field</a>) be bit 6 of |header|.
