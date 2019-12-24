@@ -3318,7 +3318,8 @@
   <section> <h3>Listening for content</h3>
     <p>
       If there are any {{NDEFReader}} instances in <a>activated reader objects</a>
-      then the <a>UA</a> MUST listen to <a>NDEF message</a>s.
+      then the <a>UA</a> MUST listen to <a>NDEF message</a>s on all connected
+      NFC adapters.
     </p>
     <p>
       To listen for <a>NFC content</a>, the client MUST activate an
@@ -3428,14 +3429,6 @@
                 If the <a>obtain permission</a> steps return `false`, then
                 reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
                 abort these steps.
-              </li>
-              <li>
-                If this is the first listener being set up, then make a request
-                to all <a>NFC adapter</a>s to listen to <a>NDEF message</a>s.
-              </li>
-              <li>
-                If the request fails, then the UA MAY reject |p| with a
-                {{"NotSupportedError"}} {{DOMException}} and abort these steps.
               </li>
               <li>
                 Add |reader| to the <a>activated reader objects</a>.
