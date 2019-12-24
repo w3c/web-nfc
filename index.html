@@ -2042,8 +2042,7 @@
       <td><dfn>[[\MediaType]]</dfn></td>
       <td>An empty <a>string</a>.</td>
       <td>
-        The {{NDEFScanOptions}}.<a href="dom-ndefrecord-mediatype">mediaType</a>
-        value.
+        The {{NDEFScanOptions}}.<a>mediaType</a> value.
       </td>
       </tr>
       <tr>
@@ -3525,7 +3524,7 @@
     <section data-link-for="NDEFReadingEvent"><h3>Dispatching NFC content</h3>
     <p>
       To <dfn>dispatch NFC content</dfn> given a |serialNumber:serialNumber|
-      of type <a>serialNumber</a>, |message:NDEFMessage|
+      of type <a>serialNumber</a> and a |message:NDEFMessage|
       of type <a>NDEFMessage</a>, run these steps:
     </p>
     <ol class=algorithm>
@@ -3534,28 +3533,46 @@
         the <a>activated reader objects</a>, run the following sub-steps:
         <ol>
           <li>
-            If |reader|.<a>[[\Id]]</a> is [= dictionary member/present =]
-            and it is not equal to any |record|'s
-            <a href="#dom-ndefrecord-id">id</a> where |record|
-            is an element of |message|, [= iteration/continue =].
-          </li>
-          <li>
-            If |reader|.<a>[[\RecordType]]</a> is [= dictionary member/present =]
-            and it is not equal to any |record|'s
-            <a href="#dom-ndefrecord-recordtype">recordType</a> where |record|
-            is an element of |message|, [= iteration/continue =].
-          </li>
-          <li>
-            If |reader|.<a>[[\MediaType]]</a> is not `""` and
-            it is not equal to any |record|'s
-            <a href="#dom-ndefrecord-mediatype">mediaType</a> where |record| is
-            an element of |message|, [= iteration/continue =].
-          </li>
-          <li>
-            <a>Fire an event</a> named "`reading`" at |reader|
-            using <a>NDEFReadingEvent</a> with its <a>serialNumber</a> attribute
-            initialized to |serialNumber| and <a>message</a> attribute
-            initialized to |message|.
+            [= list/For each =] |record:NDEFRecord| in |message:NDEFMessage|,
+            <ol>
+              <li>
+                Let |matched:boolean| be `false`.
+              </li>
+              <li>
+                If |reader|.<a>[[\Id]]</a> is not empty string and is equal to
+                |record|'s <a href="#dom-ndefrecord-id">id</a>,
+                [= iteration/continue =].
+                If it is equal, set |matched| to `true`.
+              </li>
+              <li>
+                If |reader|.<a>[[\RecordType]]</a> is
+                [= dictionary member/present =] and it is not equal to
+                |record|'s <a href="#dom-ndefrecord-recordtype">recordType</a>,
+                [= iteration/continue =].
+                If it is equal, set |matched| to `true`.
+              </li>
+              <li>
+                If |reader|.<a>[[\MediaType]]</a> is not empty string and is not
+                equal to
+                |record|'s <a href="#dom-ndefrecord-mediatype">mediaType</a>,
+                [= iteration/continue =].
+                If it is equal, set |matched| to `true`.
+              </li>
+              <li>
+                If |matched| is `true`,
+                <ol>
+                  <li>
+                    <a>fire an event</a> named "`reading`"
+                    at |reader| using <a>NDEFReadingEvent</a> with its
+                    <a>serialNumber</a> attribute initialized to |serialNumber|
+                    and <a>message</a> attribute initialized to |message|.
+                  </li>
+                  <li>
+                    [= iteration/Break =].
+                  </li>
+                </ol>
+              </li>
+            </ol>
           </li>
         </ol>
       </li>
