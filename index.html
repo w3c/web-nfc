@@ -1319,14 +1319,17 @@
             },
             {
               recordType: "t",  // type record, a local type to Sp
+              isLocal: true,
               data: encoder.encode("image/gif") // MIME type of the Sp content
             },
             {
               recordType: "s",  // size record, a local type to Sp
+              isLocal: true,
               data: new Uint32Array([4096]) // byte size of Sp content
             },
             {
               recordType: "act",  // action record, a local type to Sp
+              isLocal: true,
               // do the action, in this case open in the browser
               data: new Uint8Array([0])
             },
@@ -1379,7 +1382,7 @@
         let action, text;
 
         for (const record of externalRecord.toRecords()) {
-          if (record.recordType == "text") {
+          if (record.recordType == "text" && !record.isLocal) {
             const decoder = new TextDecoder(record.encoding);
             text = decoder.decode(record.data);
           } else if (record.recordType == "act") {
@@ -1524,6 +1527,7 @@
         readonly attribute USVString recordType;
         readonly attribute USVString? mediaType;
         readonly attribute USVString? id;
+        readonly attribute boolean isLocal;
         readonly attribute DataView? data;
 
         readonly attribute USVString? encoding;
@@ -1536,6 +1540,7 @@
         required USVString recordType;
         USVString mediaType;
         USVString id;
+        boolean isLocal = false;
 
         USVString encoding;
         USVString lang;
@@ -1560,6 +1565,10 @@
         the message (collection of records), and it may be present when no payload is.
       </p>
     </div>
+    <p>
+      The <dfn>isLocal</dfn> property represents whether or not the <a>NDEF
+      record</a> is of <a>local type</a>.
+    </p>
     <p>
       The <dfn>encoding</dfn> attribute represents the
       [=encoding/name|encoding name=] used for encoding the payload in the
@@ -1593,9 +1602,9 @@
     </p>
     <p data-dfn-for="NDEFRecordInit">
       The <dfn>NDEFRecordInit</dfn> dictionary is used to initialize an
-      <a>NDEF record</a> with its <a>record type</a> <dfn>recordType</dfn>, and
-      optional <a>record identifier</a> <dfn>id</dfn> and
-      payload data <dfn>data</dfn>.
+      <a>NDEF record</a> with its <a>record type</a> <dfn>recordType</dfn>,
+      <a>local type</a> <dfn>isLocal</dfn>, and optional <a>record
+      identifier</a> <dfn>id</dfn> and payload data <dfn>data</dfn>.
     </p>
     <div data-dfn-for="NDEFRecordInit">
       Additionally, there are additional optional fields that are only applicable
@@ -1838,6 +1847,7 @@
       <th nowrap>[=TYPE field=]</th>
       <th>[=recordType=]</th>
       <th>[=mediaType=]</th>
+      <th>[=isLocal=]</th>
     </tr>
     <tr>
       <td>[=Empty record=]</td>
@@ -1845,6 +1855,7 @@
       <td><i>unused</i></td>
       <td>"`empty`"</td>
       <td>`null`</td>
+      <td>`false`</td>
     </tr>
     <tr>
       <td>[=Well-known type record=]</td>
@@ -1852,6 +1863,7 @@
       <td>"`T`"</td>
       <td>"`text`"</td>
       <td>`null`</td>
+      <td>`false`</td>
     </tr>
     <tr>
       <td>[=Well-known type record=]</td>
@@ -1859,6 +1871,7 @@
       <td>"`U`"</td>
       <td>"`url`"</td>
       <td>`null`</td>
+      <td>`false`</td>
     </tr>
     <tr>
       <td>[=Well-known type record=]</td>
@@ -1866,6 +1879,7 @@
       <td>"`Sp`"</td>
       <td nowrap>"`smart-poster`"</td>
       <td>`null`</td>
+      <td>`false`</td>
     </tr>
     <tr>
       <td>[=Local type=] record*</td>
@@ -1873,6 +1887,7 @@
       <td>[=local type name=]</td>
       <td>[=local type name=]</td>
       <td>`null`</td>
+      <td>`true`</td>
     </tr>
     <tr>
       <td>[=MIME type record=]</td>
@@ -1880,6 +1895,7 @@
       <td>[=MIME type=]</td>
       <td>"`mime`"</td>
       <td>The <a>MIME type</a> used in the NDEF record</td>
+      <td>`false`</td>
     </tr>
     <tr>
       <td>[=Absolute-URL record=]</td>
@@ -1887,6 +1903,7 @@
       <td>URL</td>
       <td>"`absolute-url`"</td>
       <td>`null`</td>
+      <td>`false`</td>
     </tr>
     <tr>
       <td>[=External type record=]</a></td>
@@ -1894,6 +1911,7 @@
       <td>[=external type name=]</td>
       <td>[=external type name=]</td>
       <td>`null`</td>
+      <td>`false`</td>
     </tr>
     <tr>
       <td><a>Unknown record</a></td>
@@ -1901,6 +1919,7 @@
       <td><i>unused</i></td>
       <td>"`unknown`"</td>
       <td>`null`</td>
+      <td>`false`</td>
     </tr>
   </table>
   </section>
@@ -2702,7 +2721,7 @@
             If |record|'s <a>recordType</a> is `undefined`:
             <ol> <!-- guess type and mediaType from data -->
               <li>
-                If |record|'s <a>data</a> is `undefined`, reject |promise|
+                If |record|'s <a>data</a> is `undefined`, reject |promise| with
                 a {{TypeError}} and abort these steps.
               </li>
               <li>
@@ -2736,6 +2755,11 @@
                 Set |ndef|'s <a>ID field</a> to |identifier|.
               </li>
             </ul>
+          </li>
+          <li>
+            If |record|'s <a>isLocal</a> is `true` and |record| is not a payload
+            to another <a>NDEF record</a>, reject |promise| with a {{TypeError}}
+            and abort these steps.
           </li>
           <li>
             Switching on |record|'s <a>recordType</a>, pass |record| and |ndef|
@@ -3696,6 +3720,10 @@
     <ol class=algorithm data-link-for="NDEFRecord">
       <li>
         Set |record|'s <a>id</a> to |ndef|'s |id:string|.
+      </li>
+      <li>
+        Set |record|'s <a>isLocal</a> to `true` if |ndef| is a payload
+        to another <a>NDEF record</a>, or otherwise `false`.
       </li>
       <li>
         Set |record|'s <a>lang</a> to `null`.
