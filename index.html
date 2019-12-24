@@ -1529,7 +1529,7 @@
         readonly attribute USVString? encoding;
         readonly attribute USVString? lang;
 
-        sequence&lt;NDEFRecord&gt; toRecords();
+        sequence&lt;NDEFRecord&gt;? toRecords();
       };
 
       dictionary NDEFRecordInit {
@@ -3587,6 +3587,9 @@
     To <dfn>parse records from bytes</dfn> given |bytes:byte sequence|,
     run these steps:
     <ol class=algorithm>
+      <li>
+        If the length of |bytes| is `0`, return `null` and abort these steps.
+      </li>
       <li>
         Let |records| be the empty list.
       </li>
