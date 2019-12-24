@@ -3539,7 +3539,7 @@
     <section data-link-for="NDEFReadingEvent"><h3>Dispatching NFC content</h3>
     <p>
       To <dfn>dispatch NFC content</dfn> given a |serialNumber:serialNumber|
-      of type <a>serialNumber</a>, |message:NDEFMessage|
+      of type <a>serialNumber</a> and a |message:NDEFMessage|
       of type <a>NDEFMessage</a>, run these steps:
     </p>
     <ol class=algorithm>
@@ -3554,7 +3554,7 @@
                 Let |matched:boolean| be `false`.
               </li>
               <li>
-                If |reader|.<a>[[\Id]]</a> is not `""` and is not equal to
+                If |reader|.<a>[[\Id]]</a> is not empty string and is equal to
                 |record|'s <a href="#dom-ndefrecord-id">id</a>,
                 [= iteration/continue =].
                 If it is equal, set |matched| to `true`.
@@ -3567,8 +3567,9 @@
                 If it is equal, set |matched| to `true`.
               </li>
               <li>
-                If |reader|.<a>[[\MediaType]]</a> is not `""` and is not equal
-                to |record|'s <a href="#dom-ndefrecord-mediatype">mediaType</a>,
+                If |reader|.<a>[[\MediaType]]</a> is not empty string and is not
+                equal to
+                |record|'s <a href="#dom-ndefrecord-mediatype">mediaType</a>,
                 [= iteration/continue =].
                 If it is equal, set |matched| to `true`.
               </li>
