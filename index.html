@@ -269,7 +269,7 @@
     <p>
       A note about the NDEF mapping can be found here:
       <a href="https://www.nxp.com/docs/en/application-note/AN1305.pdf">
-      MIFARE Classic as NFC Type MIFARE Classic Tag</a>
+      MIFARE Classic as NFC Type MIFARE Classic Tag</a>.
     </p>
     <div>
       <ol>
@@ -277,7 +277,7 @@
           <dfn>NFC Forum Type 1</dfn>: This tag is based on the ISO/IEC 14443-3A
           (NFC-A). The tags are rewritable and can be
           configured to become read-only. Memory size can be between `96` bytes and
-          `2` Kbytes. Communication speed is `106` kbit/sec. In contrast to all other
+          `2` Kbytes. Communication speed is `106` kbit/s. In contrast to all other
           types, these tags have no anti-collision protection for dealing with multiple
           tags within the NFC field.
         </li>
@@ -285,13 +285,13 @@
           <dfn>NFC Forum Type 2</dfn>: This tag is based on the
           ISO/IEC 14443-3A (NFC-A). The tags are rewritable and can be configured
           to become read-only. Memory size can be between `48` bytes and `2` Kbytes.
-          Communication speed is `106` kbit/sec.
+          Communication speed is `106` kbit/s.
         </li>
         <li>
           <dfn>NFC Forum Type 3</dfn>: This tag is based on the Japanese Industrial
           Standard (JIS) X 6319-4 (ISO/IEC 18092), commonly known as FeliCa. The tags are
           preconfigured to be either rewritable or read-only. Memory is `2` kbytes.
-          Communication speed is `212` kbit/sec or `424` kbit/s.
+          Communication speed is `212` kbit/s or `424` kbit/s.
         </li>
         <li>
           <dfn>NFC Forum Type 4</dfn>: This tag is based on the ISO/IEC 14443-4 A/B
@@ -305,21 +305,21 @@
         </li>
         <li>
           <dfn>NFC Forum Type 5</dfn>: This tag is based on ISO/IEC 15693 (NFC-V) and
-          allows reading and writing an NDEF message on a ISO/IEC 15693 RF tag
+          allows reading and writing an NDEF message on an ISO/IEC 15693 RF tag
           that is accessible by long range RFID readers as well. The NFC communication
           is limited to short distance and may use the <i>Active Communication Mode</i> of
           ISO/IEC 18092 where the sending peer generates the field which balances
           power consumption and improves link stability. Variable memory, up to `64` kbytes.
-          Communication speed `26.48` kbit/s
+          Communication speed is `26.48` kbit/s.
         </li>
         <li>
           <dfn>MIFARE Standard</dfn>: This tag, often sold under the brand names MIFARE
           Classic or MIFARE Mini, is based on the ISO/IEC 14443-3A (also known as NFC-A,
           as defined in ISO/IEC 14443-3:2011, Part 3: Initialization and anticollision).
           The tags are rewritable and can be configured to become read-only. Memory size
-          can be between `320` and `4` kbytes. Communication speed is `106` kbit/sec.
+          can be between `320` and `4` kbytes. Communication speed is `106` kbit/s.
           <p class="note">
-            <a>MIFARE Standard</a> is a not an NFC Forum type and can only be read by devices
+            <a>MIFARE Standard</a> is not an NFC Forum type and can only be read by devices
             using NXP hardware. Support for reading and writing to tags based on the
             <a>MIFARE Standard</a> is thus non-nominative, but the type is included
             due to the popularity and use in legacy systems.
@@ -499,7 +499,7 @@
       The type information stored in the <a>TYPE field</a> of
       <a>well-known type records</a> can be of two kinds:
       <a href="#well-known-local-types">local types</a>
-      and <a href="#well-known-global-types">global types</a>
+      and <a href="#well-known-global-types">global types</a>.
     </p>
 
     <section><h4>Well-known local types</h4>
@@ -874,7 +874,7 @@
           Writing to an empty, but formatted <a>NFC tag</a>.
         </li>
         <li>
-          Writing to an <a>NFC tag</a> which already contains a
+          Writing to an <a>NFC tag</a> which already contains an
           <a>NDEF message</a>.
         </li>
         <li>
@@ -1304,8 +1304,8 @@
               },
               {
                 recordType: "mime",
-                mediaType: "image/png"
-                data: getImageBytes(fromURL);
+                mediaType: "image/png",
+                data: getImageBytes(fromURL)
               }
             ]
           }
@@ -1384,7 +1384,7 @@
       <a>NDEF message</a>.
     </p>
     <p data-dfn-for="NDEFMessageInit">
-      The <dfn>NDEFMessageInit</dfn> dictionary is used to initialize a
+      The <dfn>NDEFMessageInit</dfn> dictionary is used to initialize an
       <a>NDEF message</a>.
     </p>
   </section>
@@ -1523,7 +1523,7 @@
   <section>
     <h2>The <dfn>record type</dfn> string</h2>
       <p>
-        This string defines the allowed record types for a <a>NDEFRecord</a>. The
+        This string defines the allowed record types for an <a>NDEFRecord</a>. The
         [[[#data-mapping]]] section describes how it is mapped to
         <a>NDEF record</a> types.
       </p>
@@ -2680,7 +2680,7 @@
 
     <section><h3>Validating local type</h3>
       <p>
-        To <dfn>validate local type</dfn> given a |input:USVString| run
+        To <dfn>validate local type</dfn> given an |input:USVString| run
         these steps:
       </p>
       <ol class=algorithm id="validate-local-type">
@@ -2755,7 +2755,7 @@
             [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
-            If the type of |record|'s <a>data</a> is not a {{DOMString}} or a
+            If the type of |record|'s <a>data</a> is not {{DOMString}} or
             {{BufferSource}}, [= exception/throw =] a {{TypeError}} and abort
             these steps.
           </li>
@@ -2978,7 +2978,7 @@
         and |ndef|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecord">
           <li>
-            If the type of a |record|'s <a>data</a> is not a
+            If the type of a |record|'s <a>data</a> is not
             {{BufferSource}}, [= exception/throw =] a {{TypeError}}
             and abort these steps.
           </li>
@@ -3035,7 +3035,7 @@
             [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
-            If the type of a |record|'s <a>data</a> is not a
+            If the type of a |record|'s <a>data</a> is not
             {{BufferSource}} or {{NDEFMessageInit}}, [= exception/throw =] a
             {{TypeError}} and abort these steps.
           </li>
@@ -3048,7 +3048,7 @@
             <a>recordType</a>.
           </li>
           <li>
-            If the type of a |record|'s <a>data</a> is a {{BufferSource}},
+            If the type of a |record|'s <a>data</a> is {{BufferSource}},
             <ol>
               <li>
                 Set |arrayBuffer| to |record|'s <a>data</a>.
@@ -3069,7 +3069,7 @@
             </ol>
           </li>
           <li>
-            If the type of a |record|'s <a>data</a> is a {{NDEFMessageInit}},
+            If the type of a |record|'s <a>data</a> is {{NDEFMessageInit}},
             <ol>
               <li>
                 Set the |ndef|'s <a>PAYLOAD field</a> to the result of running
@@ -3098,7 +3098,7 @@
             [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
-            If the type of a |record|'s <a>data</a> is not a
+            If the type of a |record|'s <a>data</a> is not
             {{BufferSource}} or {{NDEFMessageInit}}, [= exception/throw =] a
             {{TypeError}} and abort these steps.
           </li>
@@ -3116,7 +3116,7 @@
             <a>local type name</a>.
           </li>
           <li>
-            If the type of a |record|'s <a>data</a> is a {{BufferSource}},
+            If the type of a |record|'s <a>data</a> is {{BufferSource}},
             <ol>
               <li>
                 Set |arrayBuffer| to |record|'s <a>data</a>.
@@ -3137,7 +3137,7 @@
             </ol>
           </li>
           <li>
-            If the type of a |record|'s <a>data</a> is a {{NDEFMessageInit}},
+            If the type of a |record|'s <a>data</a> is {{NDEFMessageInit}},
             <ol>
               <li>
                 Set the |ndef|'s <a>PAYLOAD field</a> to the result of running
@@ -3166,7 +3166,7 @@
             [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
-            If the type of a |record|'s <a>data</a> is not a
+            If the type of a |record|'s <a>data</a> is not
             {{NDEFMessageInit}}, [= exception/throw =] a {{TypeError}}
             and abort these steps.
           </li>
@@ -3655,19 +3655,19 @@
               <dt>"`T`" (`0x54`)</dt>
               <ul>
                 <li>
-                  running <a>parse an NDEF text record</a> on |ndef|.
+                  Running <a>parse an NDEF text record</a> on |ndef|.
                 </li>
               </ul>
               <dt>"`U`" (`0x55`)</dt>
               <ul>
                 <li>
-                  running <a>parse an NDEF URL record</a> on |ndef|
+                  Running <a>parse an NDEF URL record</a> on |ndef|.
                 </li>
               </ul>
               <dt>"`Sp`" (`0x53` `0x70`)</dt>
               <ul>
                 <li>
-                  running <a>parse an NDEF smart-poster record</a> on |ndef|
+                  Running <a>parse an NDEF smart-poster record</a> on |ndef|.
                 </li>
               </ul>
             </dl>
@@ -3705,7 +3705,7 @@
 
   <section><h3>Parsing NDEF well-known `T` records</h3>
   <div>
-    To <dfn>parse an NDEF text record</dfn> given a |ndefRecord| into a
+    To <dfn>parse an NDEF text record</dfn> given an |ndefRecord| into a
     |record:NDEFRecord|, run these steps:
     <ol class=algorithm data-link-for="NDEFRecord">
       <li>
@@ -3745,7 +3745,7 @@
         Set |record|'s <a>data</a> to |buffer|.
       </li>
       <li>
-        return |record|.
+        Return |record|.
       </li>
     </ol> <!-- parsing NDEF text record -->
   </div>
@@ -3792,7 +3792,7 @@
 
   <section><h3>Parsing NDEF well-known `U` records</h3>
   <div>
-    To <dfn>parse an NDEF URL record</dfn> given a |ndefRecord| into a
+    To <dfn>parse an NDEF URL record</dfn> given an |ndefRecord| into a
     |record:NDEFRecord|, run these steps:
     <ol class=algorithm data-link-for="NDEFRecord">
       <li>
@@ -3832,7 +3832,7 @@
         |record|'s <a>data</a> to |buffer|.
       </li>
       <li>
-        return |record|.
+        Return |record|.
       </li>
     </ol> <!-- parsing NDEF URL record -->
   </div>
@@ -3840,7 +3840,7 @@
 
   <section><h3>Parsing NDEF well-known `Sp` records</h3>
   <div>
-    To <dfn>parse an NDEF smart-poster record</dfn> given a |ndefRecord| into a
+    To <dfn>parse an NDEF smart-poster record</dfn> given an |ndefRecord| into a
     |record:NDEFRecord|, run these steps:
     <ol class=algorithm data-link-for="NDEFRecord">
       <li>
@@ -3861,7 +3861,7 @@
         Set |record|'s <a>data</a> to |buffer|.
       </li>
       <li>
-        return |record|.
+        Return |record|.
       </li>
     </ol>  <!-- parsing NDEF smart-poster record -->
   </div>
@@ -3869,7 +3869,7 @@
 
   <section><h3>Parsing NDEF MIME type records</h3>
     <div>
-      To <dfn>parse an NDEF MIME type record</dfn> given a |ndefRecord| into a
+      To <dfn>parse an NDEF MIME type record</dfn> given an |ndefRecord| into a
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm data-link-for="NDEFRecord">
         <li>
@@ -3889,7 +3889,7 @@
           Set |record|'s <a>data</a> to |buffer|.
         </li>
         <li>
-          return |record|.
+          Return |record|.
         </li>
       </ol> <!-- parsing NDEF MIME type record -->
     </div>
@@ -3897,7 +3897,7 @@
 
   <section><h3>Parsing NDEF absolute-URL records</h3>
     <div>
-      To <dfn>parse an NDEF absolute-URL record</dfn> given a |ndefRecord| into
+      To <dfn>parse an NDEF absolute-URL record</dfn> given an |ndefRecord| into
       a |record:NDEFRecord|, run these steps:
       <ol class=algorithm data-link-for="NDEFRecord">
         <li>
@@ -3914,7 +3914,7 @@
           Set |record|'s <a>data</a> to |buffer|.
         </li>
         <li>
-          return |record|.
+          Return |record|.
         </li>
       </ol>  <!-- parsing NDEF absolute URI record -->
     </div>
@@ -3922,7 +3922,7 @@
 
   <section><h3>Parsing NDEF external type records</h3>
     <div>
-      To <dfn>parse an NDEF external type record</dfn> given a |ndefRecord| into
+      To <dfn>parse an NDEF external type record</dfn> given an |ndefRecord| into
       a |record:NDEFRecord|, run these steps:
       <ol class=algorithm data-link-for="NDEFRecord">
         <li>
@@ -3941,7 +3941,7 @@
           Set |record|'s <a>data</a> to |buffer|.
         </li>
         <li>
-          return |record|.
+          Return |record|.
         </li>
       </ol>  <!-- parsing NDEF external type record -->
     </div>
@@ -3949,7 +3949,7 @@
 
   <section><h3>Parsing NDEF unknown type records</h3>
     <div>
-      To <dfn>parse an NDEF unknown record</dfn> given a |ndefRecord| into a
+      To <dfn>parse an NDEF unknown record</dfn> given an |ndefRecord| into a
       |record:NDEFRecord|, run these steps:
       <ol class=algorithm data-link-for="NDEFRecord">
         <li>
@@ -3967,7 +3967,7 @@
           Set |record|'s <a>data</a> to |buffer|.
         </li>
         <li>
-          return |record|.
+          Return |record|.
         </li>
       </ol>  <!-- parsing NDEF unknown record -->
     </div>
