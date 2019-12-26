@@ -2809,7 +2809,14 @@
                   Return <a>map binary data to NDEF</a> given |record| and |ndef|.
                 </li>
               </ul>
-              <!-- TODO: "smart-poster", "absolute-url" -->
+              <dt>"`smart-poster`"</dt>
+              <ul>
+                <li>
+                  Return <a>map smart poster to NDEF</a> given |record| and
+                  |ndef|.
+                </li>
+              </ul>
+              <!-- TODO: "absolute-url" -->
             </dl>
           </li>
           <li>
@@ -3329,6 +3336,42 @@
           <li>
             If |length| > `0`, set the |ndef|'s <a>PAYLOAD field</a>
             to |data|.
+          </li>
+          <li>
+            Return |ndef|.
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section><h3>Mapping smart poster to NDEF</h3>
+      <div>
+        To <dfn>map smart poster to NDEF</dfn>, given a |record:NDEFRecordInit|
+        and |ndef|,run these steps:
+        <ol class=algorithm data-link-for="NDEFRecordInit">
+          <li>
+            If |record|'s <a>mediaType</a> is not `undefined`,
+            [= exception/throw =] a {{TypeError}} and abort these steps.
+          </li>
+          <li>
+            If the type of a |record|'s <a>data</a> is not a
+            {{NDEFMessageInit}}, [= exception/throw =] a {{TypeError}}
+            and abort these steps.
+          </li>
+          <li>
+            Set |ndef|'s <a>TNF field</a> to `1`
+            ([=well-known type record=]).
+          </li>
+          <li>
+            Set |ndef|'s <a>TYPE field</a> to "`Sp`" (`0x53` `0x70`).
+          </li>
+          <li>
+            set |ndef|'s <a>PAYLOAD field</a> to the result of running the
+            <a>create NDEF message</a> given |record|'s <a>data</a>.
+          </li>
+          <li>
+            Set |ndef|'s <a>PAYLOAD LENGTH field</a> to the length of
+            |ndef|'s <a>PAYLOAD field</a>.
           </li>
           <li>
             Return |ndef|.
