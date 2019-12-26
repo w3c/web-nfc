@@ -2757,10 +2757,28 @@
             </ul>
           </li>
           <li>
-            If |record|'s <a>isLocal</a> is `true` and |record| is not a payload
-            to another <a>NDEF record</a>, reject |promise| with a {{TypeError}}
-            and abort these steps.
-          </li>
+            If |record|'s <a>isLocal</a> is `true`:
+            <ul>
+              <li>
+                If |record| is not a payload to another <a>NDEF record</a>,
+                reject |promise| with a {{TypeError}} and abort these steps.
+              </li>
+              <li>
+                If running the <a>validate local type</a> steps on |record|'s
+                <a>recordType</a> returns `false`, reject |promise| with a
+                {{TypeError}} and abort these steps.
+              </li>
+              <li>
+                If |record|'s <a>data</a> is of type
+                {{NDEFMessageInit}}, then return the result of running
+                the <a>create NDEF message</a> given |record|'s
+                <a>data</a>.
+              </li>
+              <li>
+                Otherwise, return the result of running
+                <a>map local type to NDEF</a> given |record| and |ndef|.
+              </li>
+            </ul>
           <li>
             Switching on |record|'s <a>recordType</a>, pass |record| and |ndef|
             to one of the following algorithms and return the result.
@@ -2807,23 +2825,6 @@
               <li>
                 Otherwise, return <a>map external data to NDEF</a> given
                 |record| and |ndef|.
-              </li>
-            </ul>
-          </li>
-          <li>
-            If |record| is a payload to another <a>NDEF record</a> and if
-            running the <a>validate local type</a> steps on |record|'s
-            <a>recordType</a> returns `true`,
-            <ul>
-              <li>
-                If |record|'s <a>data</a> is of type
-                {{NDEFMessageInit}}, then return the result of running
-                the <a>create NDEF message</a> given |record|'s
-                <a>data</a>.
-              </li>
-              <li>
-                Otherwise, return the result of running
-                <a>map local type to NDEF</a> given |record| and |ndef|.
               </li>
             </ul>
           </li>
@@ -3722,8 +3723,7 @@
         Set |record|'s <a>id</a> to |ndef|'s |id:string|.
       </li>
       <li>
-        Set |record|'s <a>isLocal</a> to `true` if |ndef| is a payload
-        to another <a>NDEF record</a>, or otherwise `false`.
+        Set |record|'s <a>isLocal</a> to `false`.
       </li>
       <li>
         Set |record|'s <a>lang</a> to `null`.
@@ -3752,6 +3752,10 @@
       <li>
         If |ndef|'s |typeNameField| is `1` ([=well-known type record=]):
         <ol>
+          <li>
+            Set |record|'s <a>isLocal</a> to `true` if |ndef| is a payload
+            to another <a>NDEF record</a>.
+          </li>
           <li>
             Set |record| to the result of the algorithm below switching on
             |ndef|'s |type:string|:
