@@ -2307,9 +2307,9 @@
       operation.
     </p>
     <p>
-      When the value of the <dfn>ignoreRead</dfn> property is
-      `true`, the <a href="#steps-push">push algorithm</a>
-      will skip invoking the <a>NFC reading algorithm</a> for an <a>NFC tag</a>.
+      When the value of the <dfn>ignoreRead</dfn> property is `true`, the
+      <a>NFC reading algorithm</a> will skip reading <a>NFC tag</a>s for the
+      <a>activated reader objects</a>.
     </p>
     <p>
       When the value of the <dfn>overwrite</dfn> property is
@@ -2584,19 +2584,10 @@
             In case of success, run the following steps:
             <ol>
               <li>
-                If |device| is an <a>NFC tag</a>,
-                <ul>
-                  <li>
-                    If |options|'s ignoreRead is not equal to
-                    `true`, run the <a>NFC reading algorithm</a>.
-                  </li>
-                  <li>
-                    Otherwise, if |options|'s overwrite is `false`, read the tag
-                    to check whether there are <a>NDEF</a> records on the tag.
-                    If yes, then reject |p| with a {{"NotAllowedError"}}
-                    {{DOMException}} and return |p|.
-                  </li>
-                </ul>
+                If |device| is an <a>NFC tag</a> and if |options|'s overwrite is
+                `false`, read the tag to check whether there are <a>NDEF</a>
+                records on the tag. If yes, then reject |p| with a
+                {{"NotAllowedError"}} {{DOMException}} and return |p|.
               </li>
               <li>
                 Let |output:NDEFMessage| be |writer|.[[\PushMessage]].
@@ -3340,15 +3331,15 @@
 
   <section> <h3>Listening for content</h3>
     <p>
-      If there are any {{NDEFReader}} instances in <a>activated reader objects</a>
-      then the <a>UA</a> MUST listen to <a>NDEF message</a>s on all connected
-      NFC adapters.
-    </p>
-    <p>
       To listen for <a>NFC content</a>, the client MUST activate an
       {{NDEFReader}} instance by calling <a>NDEFReader.scan()</a>. When attaching
       an event listener for the "`reading`" event on it, <a>NFC content</a> is
       accessible to the client.
+    </p>
+    <p>
+      If there are any {{NDEFReader}} instances in <a>activated reader objects</a>
+      then the <a>UA</a> MUST listen to <a>NDEF message</a>s on all connected
+      NFC adapters.
     </p>
     <p>
       Each {{NDEFReader}} can accept <a>NDEF message</a>s based on
@@ -3474,6 +3465,9 @@
     <ol class=algorithm id="parse-ndef">
       <li>
         If <a>NFC is suspended</a>, abort these steps.
+      </li>
+      <li>
+        If there is a <a>pending push tuple</a> and its writer's option's ignoreRead is `true`, abort these steps.
       </li>
       <li>
         If the <a>NFC device</a> in proximity range does not expose <a>NDEF</a>
