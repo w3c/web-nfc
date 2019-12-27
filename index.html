@@ -2044,7 +2044,7 @@
     <tbody data-link-for="NDEFScanOptions">
      <tr>
       <td><dfn>[[\Id]]</dfn></td>
-      <td>An empty <a>string</a>.</td>
+      <td>`undefined`</td>
       <td>
         The {{NDEFScanOptions}}.<a>id</a> value.
       </td>
@@ -2058,7 +2058,7 @@
      </tr>
      <tr>
       <td><dfn>[[\MediaType]]</dfn></td>
-      <td>An empty <a>string</a>.</td>
+      <td>`undefined`</td>
       <td>
         The {{NDEFScanOptions}}.<a>mediaType</a> value.
       </td>
@@ -3557,7 +3557,7 @@
                 Let |matched:boolean| be `false`.
               </li>
               <li>
-                If |reader|.<a>[[\Id]]</a> is not empty string and is equal to
+                If |reader|.<a>[[\Id]]</a> is not `undefined` and is equal to
                 |record|'s <a href="#dom-ndefrecord-id">id</a>,
                 [= iteration/continue =].
                 If it is equal, set |matched| to `true`.
@@ -3570,7 +3570,7 @@
                 If it is equal, set |matched| to `true`.
               </li>
               <li>
-                If |reader|.<a>[[\MediaType]]</a> is not empty string and is not
+                If |reader|.<a>[[\MediaType]]</a> is not `undefined` and is not
                 equal to
                 |record|'s <a href="#dom-ndefrecord-mediatype">mediaType</a>,
                 [= iteration/continue =].
