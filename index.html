@@ -2369,7 +2369,7 @@
         dictionary NDEFScanOptions {
           USVString id;
           USVString recordType;
-          USVString mediaType = "";
+          USVString mediaType;
           AbortSignal? signal;
         };
       </pre>
@@ -2400,7 +2400,6 @@
         denotes the <a>match pattern</a> which is used for matching the
         [=NDEFRecord/mediaType=] property of each
         <a>NDEFRecord</a> object in an <a>NDEF message</a>.
-        The default value `""` means that no matching is performed.
       </p>
       <pre
         title="Filter accepting only JSON content"
@@ -2708,23 +2707,6 @@
         To <dfn>create NDEF record</dfn> given |record:NDEFRecordInit|, run
         these steps:
         <ol data-link-for="NDEFRecordInit">
-          <li>
-            If |record|'s <a>recordType</a> is `undefined`:
-            <ol> <!-- guess type and mediaType from data -->
-              <li>
-                If |record|'s <a>data</a> is `undefined`, reject |promise| with
-                a {{TypeError}} and abort these steps.
-              </li>
-              <li>
-                Otherwise, if the type of |record|'s <a>data</a> is
-                {{DOMString}}, then set |record|'s <a>recordType</a> to
-                "`text`".
-              </li>
-              <li>
-                Otherwise, set |record|'s <a>recordType</a> to "`mime`".
-              </li>
-            </ol>
-          </li>
           <li>
             Let |ndef| be the representation of an <a>NDEF record</a> to be
             created by the UA.
@@ -3557,15 +3539,15 @@
                 Let |matched:boolean| be `false`.
               </li>
               <li>
-                If |reader|.<a>[[\Id]]</a> is not `undefined` and is equal to
-                |record|'s <a href="#dom-ndefrecord-id">id</a>,
+                If |reader|.<a>[[\Id]]</a> is not `undefined` and is not equal
+                to |record|'s <a href="#dom-ndefrecord-id">id</a>,
                 [= iteration/continue =].
                 If it is equal, set |matched| to `true`.
               </li>
               <li>
-                If |reader|.<a>[[\RecordType]]</a> is
-                [= dictionary member/present =] and it is not equal to
-                |record|'s <a href="#dom-ndefrecord-recordtype">recordType</a>,
+                If |reader|.<a>[[\RecordType]]</a> is not `undefined` and is
+                not equal to |record|'s
+                <a href="#dom-ndefrecord-recordtype">recordType</a>,
                 [= iteration/continue =].
                 If it is equal, set |matched| to `true`.
               </li>
