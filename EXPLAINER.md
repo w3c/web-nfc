@@ -151,9 +151,10 @@ document.querySelector("#abortButton").onclick = event => {
 
 ## Integration with Page Visibility
 
-Web NFC functionality is allowed only for the Document of the top-level browsing
-context, which must be visible. Thanks to the Page Visibility API, web
-developers can track when it document visibility changes.
+Web NFC functionality is allowed only for the document of the top-level browsing
+context, which must be visible. Thanks to the
+[Page Visibility API](https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API),
+web developers can track when it document visibility changes.
 
 ```js
 document.onvisibilitychange = event => {
