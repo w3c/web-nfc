@@ -112,7 +112,7 @@ reader.onreading = event => {
   let action, text;
 
   for (const record of externalRecord.toRecords()) {
-    if (record.recordType == "text" && !record.isLocal) {
+    if (record.recordType == "text") {
       const decoder = new TextDecoder(record.encoding);
       text = decoder.decode(record.data);
     } else if (record.recordType == "act") {
