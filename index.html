@@ -1789,7 +1789,7 @@
       <td><i>[=local type name=]</i></td>
       <td><i>unused</i></td>
       <td>
-        {{BufferSource}}
+        {{BufferSource}} or {{NDEFMessageInit}}
       </td>
       <td>[=Local type=] record*</td>
       <td>1</td>
@@ -3385,7 +3385,7 @@
             Set |ndef|'s <a>TYPE field</a> to "`Sp`" (`0x53` `0x70`).
           </li>
           <li>
-            set |ndef|'s <a>PAYLOAD field</a> to the result of running the
+            Set |ndef|'s <a>PAYLOAD field</a> to the result of running the
             <a>create NDEF message</a> given |record|'s <a>data</a>.
           </li>
           <li>
