@@ -1151,7 +1151,7 @@
                 console.log(`JSON: ${JSON.parse(decoder.decode(record.data))}`);
               }
               else if (record.mediaType.startsWith('image/')) {
-                const blob = new Blob([record.data], {type: record.mediaType});
+                const blob = new Blob([record.data], { type: record.mediaType });
 
                 const img = document.createElement("img");
                 img.src = URL.createObjectURL(blob);
@@ -1163,6 +1163,8 @@
                 console.log(`Media not handled`);
               }
               break;
+            default:
+              console.log(`Record not handled`);
           }
         }
       };
