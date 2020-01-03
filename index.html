@@ -1737,9 +1737,9 @@
       <th>[=recordType=]</th>
       <th>[=mediaType=]</th>
       <th>[=data=]</th>
-      <th><a href="#ndef-record-types">record type</a></th>
+      <th nowrap><a href="#ndef-record-types">record type</a></th>
       <th nowrap>[=TNF field=]</th>
-      <th>[=TYPE field=]</th>
+      <th nowrap>[=TYPE field=]</th>
     </tr>
     <tr>
       <td><dfn>"`empty`"</dfn></td>
@@ -1777,14 +1777,14 @@
       <td>"`Sp`"</td>
     </tr>
     <tr>
-      <td><i>[=local type name=]</i></td>
+      <td>[=local type name=] prefixed by a colon `U+003A` (`:`), e.g., "`:act`", "`:s`", and "`:t`"</td>
       <td><i>unused</i></td>
       <td>
         {{BufferSource}} or {{NDEFMessageInit}}
       </td>
       <td>[=Local type=] record*</td>
       <td>1</td>
-      <td>[=local type name=]</td>
+      <td>[=local type name=], e.g., "`act`", "`s`", and "`t`"</td>
     </tr>
     <tr>
       <td><dfn>"`mime`"</dfn></td>
@@ -1870,8 +1870,8 @@
     <tr>
       <td>[=Local type=] record*</td>
       <td>1</td>
-      <td>[=local type name=]</td>
-      <td>[=local type name=]</td>
+      <td>[=local type name=], e.g., "`act`", "`s`", and "`t`"</td>
+      <td>[=local type name=] prefixed by a colon `U+003A` (`:`), e.g., "`:act`", "`:s`", and "`:t`"</td>
       <td>`null`</td>
     </tr>
     <tr>
