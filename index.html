@@ -3395,10 +3395,14 @@
             Set |data:byte sequence| to |arrayBuffer|.[[\ArrayBufferData]].
           </li>
           <li>
-            Set the |ndef|'s <a>TNF field</a> to `3` ([=absolute-URL record=]).
+            Set |ndef|'s <a>TNF field</a> to `3` ([=absolute-URL record=]).
           </li>
           <li>
-            Set the |ndef|'s <a>TYPE field</a> to |data|.
+            Set |ndef|'s <a>TYPE field</a> to |data|.
+          </li>
+          <li>
+            Set |ndef|'s <a>PAYLOAD LENGTH field</a> to `0` and omit <a>PAYLOAD
+            field</a>.
           </li>
           <li>
             Return |ndef|.
