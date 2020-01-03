@@ -2766,7 +2766,13 @@
                   |ndef|.
                 </li>
               </ul>
-              <!-- TODO: "absolute-url" -->
+              <dt>"`absolute-url`"</dt>
+              <ul>
+                <li>
+                  Return <a>map absolute-URL to NDEF</a> given |record| and
+                  |ndef|.
+                </li>
+              </ul>
             </dl>
           </li>
           <li>
@@ -3356,6 +3362,47 @@
           <li>
             Set |ndef|'s <a>PAYLOAD LENGTH field</a> to the length of
             |ndef|'s <a>PAYLOAD field</a>.
+          </li>
+          <li>
+            Return |ndef|.
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section><h3>Mapping absolute-URL to NDEF</h3>
+      <div>
+        To <dfn>map absolute-URL to NDEF</dfn> given a |record:NDEFRecordInit|
+        and |ndef|, run these steps:
+        <ol class=algorithm data-link-for="NDEFRecord">
+          <li>
+            If |record|'s <a>mediaType</a> is not `undefined`,
+            [= exception/throw =] a {{TypeError}} and abort these steps.
+          </li>
+          <li>
+            If |record|'s <a>data</a> is not a {{DOMString}},
+            [= exception/throw =] a {{TypeError}} and abort these steps.
+          </li>
+          <li>
+            If the result of <a data-lt="url parser">parsing</a> |record|'s
+            <a>data</a> is failure, [= exception/throw =] a
+            {{SyntaxError}} and abort these steps.
+          </li>
+          <li>
+            Set |arrayBuffer| to |record|'s <a>data</a>.
+          </li>
+          <li>
+            Set |data:byte sequence| to |arrayBuffer|.[[\ArrayBufferData]].
+          </li>
+          <li>
+            Set |ndef|'s <a>TNF field</a> to `3` ([=absolute-URL record=]).
+          </li>
+          <li>
+            Set |ndef|'s <a>TYPE field</a> to |data|.
+          </li>
+          <li>
+            Set |ndef|'s <a>PAYLOAD LENGTH field</a> to `0` and omit <a>PAYLOAD
+            field</a>.
           </li>
           <li>
             Return |ndef|.
