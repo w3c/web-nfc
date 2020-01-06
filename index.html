@@ -2812,73 +2812,33 @@
       </p>
       <ol class=algorithm id="validate-external-type">
         <li>
-          If |input:string| is not an [=ASCII string=] or it is empty, or its
+          If |input:string| is not an [=ASCII string=], is empty, or its
           length exceeds 255 bytes, return `false`.
         </li>
         <li>
-          If input starts with `U+005B` (`[`), then:
-          <ol>
-            <li>
-              Let |address| be the part of input between `U+005B` (`[`) and
-              the first occurrence of `U+005D` (`]`) or `null` if that is not
-              found.
-            </li>
-            <li>
-              If |address| is `null`, return `false`.
-            </li>
-            <li>
-              Let |domain| be the result of running
-              <a href="https://url.spec.whatwg.org/#concept-ipv6-parser">
-              IPv6 parsing</a> on |address|.
-            </li>
-            <li>
-              If |domain| is failure, return `false`.
-            </li>
-            <li>
-              Let |rest| be the |input| after the first occurrence, if any, of
-              `U+005D` (`]`) up to the end of |input|, or `null` if that is
-              not found.
-            </li>
-            <li>
-              If |rest| is `null`, or it contains less than 2 [=code points=],
-              or the first [=code point=] in |rest| is not `U+003A` (`:`),
-              return `false`.
-            </li>
-            <li>
-              Let |type| be |rest| from the second [=code point=] up to the end
-              of |rest|.
-            </li>
-          </ol>
+           Let |domain| be the |input| from the start of |input| up to
+           but excluding the first occurrence of `U+003A` (`:`), or `null`
+           if that is not found.
         </li>
         <li>
-          Otherwise,
-          <ol>
-            <li>
-               Let |domain| be the |input| from the start of |input| up to
-               but excluding the first occurrence of `U+003A` (`:`), or `null`
-               if that is not found.
-            </li>
-            <li>
-              Let |type| be the |input| after the first occurrence, if any, of
-              `U+003A` (`:`) up to the end of |input|, or `null` if that is
-              not found.
-            </li>
-            <li>
-              If |domain| or |type| is `null`, return `false`.
-            </li>
-            <li>
-              Let |asciiDomain| be the result of running
-              <a href="https://url.spec.whatwg.org/#concept-domain-to-ascii">
-              domain to ASCII</a> given |domain| and `true` (as |beStrict|).
-            </li>
-            <li>
-              If |asciiDomain| is failure, return `false`.
-            </li>
-            <li>
-              If |asciiDomain| contains a [=forbidden host code point=] or
-              `U+005F` `LOW LINE` (`_`), return `false`.
-            </li>
-          </ol>
+          Let |type| be the |input| after the first occurrence, if any, of
+          `U+003A` (`:`) up to the end of |input|, or `null` if that is
+          not found.
+        </li>
+        <li>
+          If |domain| or |type| is `null`, return `false`.
+        </li>
+        <li>
+          Let |asciiDomain| be the result of running
+          <a href="https://url.spec.whatwg.org/#concept-domain-to-ascii">
+          domain to ASCII</a> given |domain| and `true` (as |beStrict|).
+        </li>
+        <li>
+          If |asciiDomain| is failure, return `false`.
+        </li>
+        <li>
+          If |asciiDomain| contains a [=forbidden host code point=] or
+          `U+005F` `LOW LINE` (`_`), return `false`.
         </li>
         <li>
           If |type| contains [=code points=] that are not
