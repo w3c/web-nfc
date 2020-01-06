@@ -135,8 +135,8 @@
     NFC technology. The current scope of this specification is <a>NDEF</a>.
   </p>
   <p class="advisement">
-    Low-level I/O operations with the ISO-DEP protocol and Host-based Card
-    Emulation (HCE) are <b>not</b> supported in the current scope.
+    Low-level I/O operations (e.g. ISO-DEP, NFC-A/B, NFC-F) and Host-based Card
+    Emulation (HCE) are <b>not</b> supported within the current scope.
   </p>
 </section>
 
@@ -855,12 +855,12 @@
     <a href="http://www.w3.org/2009/dap/wiki/Near_field_communications_%28NFC%29#Use_cases_submitted_to_DAP_mailing_list">
     here</a> and in the
     <a href="/archive/use-cases.html">Web NFC Use Cases</a>
-    document. The basic Web NFC interactions are the following.
+    document. The rudimentary Web NFC interactions are the following.
   </p>
 
   <section> <h3>Reading an <a>NFC tag</a></h3>
     <p>
-      Reading an <a>NFC tag</a> containing an <a>NDEF message</a>, when the
+      Reading an <a>NFC tag</a> containing an <a>NDEF message</a>, while the
       {{Document}} of the <a>top-level browsing context</a> using Web NFC is
       <a>visible</a>. For instance, a web page instructs the user to tap an NFC
       tag, and then receives information from the tag.

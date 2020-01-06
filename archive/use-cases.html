@@ -63,8 +63,8 @@
     applications and pages, and to enable new use-cases based on NFC technology.
   </p>
   <p class="advisement">
-    Low-level I/O operations with the ISO-DEP protocol and Host-based Card
-    Emulation (HCE) are <b>not</b> supported in the current scope.
+    Low-level I/O operations (e.g. ISO-DEP, NFC-A/B, NFC-F) and Host-based Card
+    Emulation (HCE) are <b>not</b> supported within the current scope.
   </p>
 </section>
 
@@ -145,16 +145,20 @@
      and other data.
     </p>
     <p class="note">
-      This use case is not supported in this version of the specification.
+      This use case is not supported within the current scope of the
+      specification.
     </p>
   </section>
-  <section><h3>Payment scenarios</h3>
+  <section><h3>Scenarios along side payment</h3>
     <p>
-      Payment scenarios with Web NFC generally do not refer to supporting
-      the payment process itself, but associating the payment status with
+      Payment using NFC should be handled at a platform level due to security
+      considerations and is thus not within the scope of Web NFC. On the other
+      hand it is possible to associate the payment status with
       a web page in order to have secondary actions. For instance,
       the user buys goods in a store, and payment options include contactless
       payment using NFC technology.
+    </p>
+    <p>
       In general, touching the device to the point of sales terminal receiver
       area will result in a transaction between the secure element from the
       device and the point of sales terminal. With Web NFC, if the
@@ -164,7 +168,8 @@
       tickets, keys, etc) to the device.
     </p>
     <p class="note">
-      This use case is not supported in this version of the specification.
+      This use case is not supported within the current scope of the
+      specification.
     </p>
   </section>
   <!--
