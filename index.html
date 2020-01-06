@@ -126,13 +126,17 @@
     NFC is an international standard (ISO/IEC 18092) defining an interface and
     protocol for simple wireless interconnection of closely coupled devices
     operating at 13.56 MHz.
-
+  </p>
+  <p>
     The hardware standard is defined in [[[NFC-STANDARDS]]].
   </p>
   <p>
     This document defines an API to enable selected use-cases based on
-    NFC technology. The current scope of the specification is <a>NDEF</a>.
-    Other NFC technologies may be supported in the future.
+    NFC technology. The current scope of this specification is <a>NDEF</a>.
+  </p>
+  <p class="advisement">
+    Low-level I/O operations (e.g. ISO-DEP, NFC-A/B, NFC-F) and Host-based Card
+    Emulation (HCE) are <b>not</b> supported within the current scope.
   </p>
 </section>
 
@@ -161,7 +165,7 @@
 <!-- - - - - - - - - - - - - - -  Introduction  - - - - - - - - - - - - - - -->
 <section class="informative"> <h2>Introduction</h2>
   <div>
-    NFC user scenarios can be grouped as follows:
+    Web NFC user scenarios can be grouped as follows:
     <ul>
       <li>
         Hold a device in close proximity to a passively powered tag, such as
@@ -170,23 +174,6 @@
       <li>
         Hold two active devices, e.g. phones or tablets, in close proximity
         in order to push data from one device to the other.
-      </li>
-      <li>
-        Hold two active devices, e.g. phones or tablets, in close proximity
-        in order to initiate a connection using another wireless carrier such
-        as Bluetooth or WiFi.
-      </li>
-      <li>Card emulation
-       <ol>
-        <li>
-          With a secure element: make payments by holding a phone close to a
-          point-of-sales terminal.
-        </li>
-        <li>
-          With host card emulation (HCE): for allowing use-cases like using a
-          phone acting as a hotel room keycard.
-        </li>
-       </ol>
       </li>
     </ul>
   </div>
@@ -350,10 +337,6 @@
       Forum, many commercial products such as bus cards, door openers may be based
       on the <a>MIFARE Standard</a> which requires specific NFC chips (same vendor of
       card and reader) in order to function.
-    </p>
-    <p>
-      Card emulation mode capabilities also depend on the NFC chip in the device.
-      For payments, a Secure Element is often needed.
     </p>
   </section>
 
@@ -699,9 +682,10 @@
       <dfn>NDEF Signature</dfn> is defined [[NDEF-SIGNATURE]].
       Its <a>TYPE field</a> contains "`Sig`" (`0x53`, `0x69`, `0x67`) and its
       <a>PAYLOAD field</a> contains version, signature and a certificate chain.
-      In this version of the API, Web NFC only provides the raw byte content
-      of the payload (see this
-      <a href="https://github.com/w3c/web-nfc/issues/363">issue</a>).
+    </p>
+    <p class="issue" data-number="363">
+      As currently spec'ed, Web NFC only provides the raw byte content of the
+      payload.
     </p>
     </section>
 
@@ -713,8 +697,10 @@
       The negotiated communication carrier would then be used (separately) to
       perform certain activities between the two devices, such as sending photos
       to the other device, printing to a Bluetooth printer or streaming video to
-      a television set. Web NFC does not support this at the moment (see this
-      <a href="https://github.com/w3c/web-nfc/issues/364">issue</a>.
+      a television set.
+    </p>
+    <p class="issue" data-number="364">
+      As currently spec'ed, this is not supported.
     </p>
     </section>
     </section> <!-- well-known global types -->
@@ -869,34 +855,17 @@
     A few NFC user scenarios have been enumerated
     <a href="http://www.w3.org/2009/dap/wiki/Near_field_communications_%28NFC%29#Use_cases_submitted_to_DAP_mailing_list">
     here</a> and in the
-    <a href="https://w3c.github.io/web-nfc/use-cases.html">Web NFC Use Cases</a>
-    document. The basic NFC interactions are the following.
+    <a href="/use-cases.html">Web NFC Use Cases</a>
+    document. The rudimentary Web NFC interactions are the following.
   </p>
 
   <section> <h3>Reading an <a>NFC tag</a></h3>
-    <ol>
-      <li>
-        Reading an <a>NFC tag</a> containing an <a>NDEF message</a>, when the
-        {{Document}} of the <a>top-level browsing context</a> using Web NFC
-        is <a>visible</a>. For instance, a web page instructs the user
-        to tap an NFC tag, and then receives information from the tag.
-      </li>
-      <li>
-        Reading an <a>NFC tag</a> with non-<a>NDEF</a> technology, e.g. the
-        <a>MIFARE Standard</a>, when the {{Document}} of the <a>top-level
-        browsing context</a> using Web NFC is <a>visible</a>.
-        <p class="note">
-          This use case is not supported in this version of the specification.
-        </p>
-      </li>
-      <li>
-        Reading an <a>NFC tag</a> when no {{Document}} using Web NFC is
-        <a>visible</a>.
-        <p class="note">
-          This use case is not supported in this version of the specification.
-        </p>
-      </li>
-    </ol>
+    <p>
+      Reading an <a>NFC tag</a> containing an <a>NDEF message</a>, while the
+      {{Document}} of the <a>top-level browsing context</a> using Web NFC is
+      <a>visible</a>. For instance, a web page instructs the user to tap an NFC
+      tag, and then receives information from the tag.
+    </p>
   </section>
 
   <section> <h3>Writing to an <a>NFC tag</a></h3>
@@ -942,39 +911,6 @@
     </p>
   </section>
 
-  <section> <h3>Handover to another wireless connection type</h3>
-    <p>
-      NFC supports handover protocols to Bluetooth or WiFi connectivity for
-      the purpose of larger volume data transfer. The user touches another
-      NFC capable device, and as a result configuration data is sent for a
-      new Bluetooth or WiFi connection which is then established between the
-      devices.
-    </p>
-    <p class="note">
-      This use case is not supported in this version of the specification.
-    </p>
-  </section>
-
-  <section> <h3>Payment scenarios</h3>
-    <p>
-      Payment scenarios with Web NFC generally do not refer to supporting
-      the payment process itself, but associating the payment status with
-      a web page in order to have secondary actions. For instance,
-      the user buys goods in a store, and payment options include contactless
-      payment using NFC technology.
-      In general, touching the device to the point of sales terminal receiver
-      area will result in a transaction between the secure element from the
-      device and the point of sales terminal. With Web NFC, if the
-      user navigates to a web site before paying, there may be interaction
-      with that site regarding the payment, e.g. the user could get points and
-      discounts, or get delivered application or service specific data (e.g.
-      tickets, keys, etc) to the device.
-    </p>
-    <p class="note">
-      This use case is not supported in this version of the specification.
-    </p>
-  </section>
-
   <section> <h3>Support for multiple NFC adapters</h3>
     <p>
       Users may attach one or more external <a>NFC adapter</a>s to their
@@ -1006,17 +942,6 @@
         Allow users to write a payload via <a>NDEF record</a>s to compatible
         devices, such as writable tags, when they come in range, as
         <a>NDEF message</a>s.
-      </li>
-      <li>
-        [future] Allow manual connection for various technologies such as
-        NFC-A and NFC-F depending on the secondary device.
-      </li>
-      <li>
-        [future] Allow <a>NFC handover</a> to Bluetooth or WiFi.
-      </li>
-      <li>
-        [future] Allow card emulation with secure element or host card
-        emulation.
       </li>
     </ol>
   </div>
@@ -2174,7 +2099,7 @@
               <a data-lt="request permission to use">request permission</a>
               from the user for the <a>Web NFC permission name</a>.
               If that is granted, return `true`.
-              <p class="issue">
+              <p class="issue" data-number="482">
                 The <a data-lt="request permission to use">request permission</a>
                 steps are not yet clearly defined.
                 At this point the UA asks the user about the policy to be used
