@@ -15,7 +15,7 @@ Field Communication) devices (e.g., tags and phones) in a secure and privacy
 preserving manner.
 
 NFC consists of a rather large set of technologies, so for this first iteration
-of the API the focus has been on supporting
+of the API the focus has been on supporting the NFC Data Exchange Format aka
 [NDEF](https://www.oreilly.com/library/view/beginning-nfc/9781449324094/ch04.html),
 a lightweight binary message format, as it works across different tag formats.
 
@@ -58,7 +58,23 @@ Lots of examples can be found here: https://w3c.github.io/web-nfc/#examples
 
 ## Key scenarios
 
-Web NFC works well with other existing APIs
+Among different use-cases, NFC allows users to take their NFC enabled device
+such as a phone and touch NFC tags (sticker, card and the like). The platform,
+or a certain application can then at this moment read the content and write
+new content back.
+
+Web NFC allows to build web experiences that can do the above, thus exchange
+data between the web enabled device and NFC tags.
+
+Data read from NFC tags can come from unknown sources and thus should be
+treated like that by web developers. This is no different than treating
+user input and data such as JSON, fetched from a remote server.
+
+The NDEF signature records, gives the web site the possibility of verifying
+the authenticity and integrity of data within the NDEF message and only deal
+with data it trusts.
+
+Additionally, Web NFC integrates well with other existing APIs:
 
 ### Integration with Permissions API
 The close integration with the [Permissions
@@ -169,9 +185,10 @@ document.onvisibilitychange = event => {
 ## Detailed design discussion
 
 ### Low level API vs standardized NDEF records only
-NDEF comes with a set of standard records with data encoded in particular ways,
-like text which also encode the encoding and language name, and even
-smart-poster, which can contain icons and descriptions in multiple languages.
+NDEF (NFC Data Exchange Format) comes with a set of standard records with
+data encoded in particular ways, like text which also encode the encoding
+and language name, and even smart-poster, which can contain icons and
+descriptions in multiple languages.
 
 It would have been possible to just expose these as separate objects, each with
 a set of properties. That would solve the common go-to examples for NFC, but it
@@ -228,7 +245,7 @@ running into API issues when extending the API in the future.
 
 - Chrome: Positive (part of Project Fugu)
 - Firefox: Positive in the FirefoxOS days, since then, no signals
-- Safari: No signals
+- Safari: Negative
 - Edge: No signals
 
 From speaking about the feature at multiple events over the years, it is clear
