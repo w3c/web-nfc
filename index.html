@@ -4069,11 +4069,6 @@
 
 <!-- - - - - - - - - - - - - Security and Privacy - - - - - - - - - - - - - -->
 <section> <h2 id="security">Security and Privacy</h2>
-  <p>
-    In order to protect the integrity and authenticity of NDEF messages, the NFC
-    Forum introduced [[NDEF-SIGNATURE]].
-  </p>
-
   <section> <h3>Chain of trust</h3>
     <p>
       Web sites and applications using Web NFC are not trusted.
@@ -4086,7 +4081,9 @@
       specification.
     </p>
     <p>
-      Web NFC does not sign <a>NFC content</a>. Using <a>NDEF signature</a> and
+      Web NFC does not sign <a>NFC content</a>. In order to protect the
+      integrity and authenticity of NDEF messages, the NFC Forum introduced
+      [[NDEF-SIGNATURE]]. Using <a>NDEF signature</a> and
       key management is the responsibility of the application.
     </p>
     <p>
@@ -4121,7 +4118,7 @@
         <li>
           <strong>User identity or other privacy sensitive attributes</strong>
           that can be directly or indirectly determined by using Web NFC, by the
-          <a>NFC content</a> creator by a web site using Web NFC.
+          <a>NFC content</a> creator, or by a web site using Web NFC.
           This data could be used directly or leaked forward to third parties.
           Examples are user location, device identifiers and user identifiers.
         </li>
