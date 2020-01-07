@@ -59,7 +59,7 @@ Lots of examples can be found here: https://w3c.github.io/web-nfc/#examples
 ## Key scenarios
 
 Among different use-cases, NFC allows users to take their NFC enabled device
-such a a phone and touch NFC tags (sticker, card at the like). The platform,
+such as a phone and touch NFC tags (sticker, card and the like). The platform,
 or a certain application can then at this moment read the content and write
 new content back.
 
@@ -67,11 +67,12 @@ Web NFC allows to build web experiences that can do the above, thus exchange
 data between the web enabled device and NFC tags.
 
 Data read from NFC tags can come from unknown sources and thus should be
-treated like that by the web developer. This is no different than treating
+treated like that by web developers. This is no different than treating
 user input and data such as JSON, fetched from a remote server.
 
-NDEF signature records can be done to validate that data comes from a trusted
-source and it is possible for web sites to ignore all other records.
+The NDEF signature records, gives the web site the possibility of verifying
+the authenticity and integrity of data within the NDEF message and only deal
+with data it trusts.
 
 Aditionally, Web NFC integrates well with other existing APIs:
 
