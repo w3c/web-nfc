@@ -74,7 +74,7 @@ The NDEF signature records, gives the web site the possibility of verifying
 the authenticity and integrity of data within the NDEF message and only deal
 with data it trusts.
 
-Aditionally, Web NFC integrates well with other existing APIs:
+Additionally, Web NFC integrates well with other existing APIs:
 
 ### Integration with Permissions API
 The close integration with the [Permissions
