@@ -2876,13 +2876,27 @@
             Let |language:string| be |record|'s <a>lang</a> if it [= map/exists =],
             or else to |documentLanguage|.
           </li>
-          <li>
-            Let |encoding label:string| be |record|'s <a>encoding</a> if it
-            [= map/exists =], or "`utf-8`".
-          </li>
-          <li>
-            If |encoding label| is not equal to "`utf-8`", "`utf-16`",
-            "`utf-16le`" or "`utf-16be`" [= exception/throw =] a {{TypeError}}.
+          <li>Switch on the type of |record|'s <a>data</a>:
+            <dl>
+              <dt>{{DOMString}}</dt>
+              <ol>
+                <li>
+                  Let |encoding label:string| be "`utf-8`".
+                </li>
+              </ol>
+              <dt>{{BufferSource}}</dt>
+              <ol>
+                <li>
+                  Let |encoding label:string| be |record|'s <a>encoding</a> if
+                  it [= map/exists =], or "`utf-8`".
+                </li>
+                <li>
+                  If |encoding label| is not equal to "`utf-8`", "`utf-16`",
+                  "`utf-16le`" or "`utf-16be`" [= exception/throw =] a
+                  {{TypeError}}.
+                </li>
+              </ol>
+            </dl>
           </li>
           <li>
             Let |encoding name| be the [=encoding/name|name=]
