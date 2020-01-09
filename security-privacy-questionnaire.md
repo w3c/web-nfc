@@ -2,9 +2,8 @@
 
 ### 2.1 What information might this feature expose to Web sites or other parties, and for what purposes is that exposure necessary?
 
-It exposes content on NFC devices (tags or phones) that have been prepared for
-sharing (in public), in the case of tags/cards, and for a given interaction, in
-the case of beaming (NFC peer).
+It exposes content on passive NFC devices (smart cards, tags, etc.) that have
+been prepared for sharing (in public).
 
 The API does not explicitly expose whether the device has an NFC adapter (the
 reader/writer chip used in phones etc), but that could be determined if NFC
@@ -80,7 +79,8 @@ No.
 ### 2.8 What data does this specification expose to an origin? Please also document what data is identical to data exposed by other features, in the same or different contexts.
 
 The data read from NFC is exposed. That data is considered either public (NFC
-tags/cards) or app-controlled (NFC peer/beaming) or private (non-NDEF tech that
+tags/cards), app-controlled (NFC peer/beaming that
+the spec does not support at the moment), or private (non-NDEF tech that
 the spec does not support at the moment).
 
 ### 2.9 Does this specification enable new script execution/loading mechanisms?
