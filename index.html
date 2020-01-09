@@ -2413,6 +2413,11 @@
                 </p>
               </li>
               <li>
+                If the <a>obtain permission</a> steps return `false`, then
+                reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
+                abort these steps.
+              </li>
+              <li>
                 Let |output| be the notation for the <a>NDEF message</a>
                 to be created by UA, as the result of passing
                 |message| to <a>create NDEF message</a>.
