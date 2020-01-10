@@ -2775,6 +2775,11 @@
               <dt>{{DOMString}}</dt>
               <ol>
                 <li>
+                  If |record|'s <a>encoding</a> is neither `undefined` nor
+                  "`utf-8`", [= exception/throw =] a {{TypeError}} and abort
+                  these steps.
+                </li>
+                <li>
                   Let |encoding label:string| be "`utf-8`".
                 </li>
               </ol>
@@ -2787,7 +2792,7 @@
                 <li>
                   If |encoding label| is not equal to "`utf-8`", "`utf-16`",
                   "`utf-16le`" or "`utf-16be`" [= exception/throw =] a
-                  {{TypeError}}.
+                  {{TypeError}} and abort these steps.
                 </li>
               </ol>
             </dl>
