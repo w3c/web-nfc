@@ -164,26 +164,19 @@
 
 <!-- - - - - - - - - - - - - - -  Introduction  - - - - - - - - - - - - - - -->
 <section class="informative"> <h2>Introduction</h2>
-  <div>
-    Web NFC user scenarios can be grouped as follows:
-    <ul>
-      <li>
-        Hold a device in close proximity to a passively powered tag, such as
-        a plastic card or sticker, in order to read and/or write data.
-      </li>
-      <li>
-        Hold two active devices, e.g. phones or tablets, in close proximity
-        in order to push data from one device to the other.
-      </li>
-    </ul>
-  </div>
+  <p>
+    Web NFC user scenario is as follows: Hold a device in close proximity to a
+    passively powered NFC tag, such as a plastic card or sticker, in order to
+    read and/or write data.
+  </p>
   <p>
     NFC works using magnetic induction, meaning that the reader (an active,
-    powered device) will emit a
-    small electric charge which then creates a magnetic field. This field powers
-    the passive device which turns it into electrical impulses to communicate
-    data. Thus, when the devices are within range, a read is always performed
-    (see NFC Analog Specification and NFC Digital Protocol, NFC Forum, 2006).
+    powered device) will emit a small electric charge which then creates a
+    magnetic field.
+    This field powers the passive device which turns it into electrical impulses
+    to communicate data. Thus, when the devices are within range, a read is
+    always performed (see NFC Analog Specification and NFC Digital Protocol, NFC
+    Forum, 2006).
     The peer-to-peer connection works in a similar way, as the device
     periodically switches into a so-called initiator mode in order to scan for
     targets, then later to fall back into target mode. If a target is found, the
@@ -231,10 +224,13 @@
       manufacturer. They may also expose an <a>NDEF</a> message.
     </p>
   </div>
-  <p>
+  <div>
     An <dfn>NFC peer</dfn> is an active, powered device which can interact
     with other devices in order to exchange data using NFC.
-  </p>
+    <p class="issue" data-number="529">
+      As currently spec'ed, peer-to-peer is not supported.
+    </p>
+  </div>
   <p>
     An <dfn>NFC device</dfn> is either an <a>NFC peer</a>, or an <a>NFC tag</a>.
   </p>
@@ -249,8 +245,7 @@
   </p>
   <p>
     The term <dfn>NFC content</dfn> denotes all bytes sent to or received from
-    an <a>NFC tag</a> or an <a>NFC peer</a>. In the current API it is synonym
-    to <a>NDEF message</a>.
+    an <a>NFC tag</a>. In the current API it is synonym to <a>NDEF message</a>.
   </p>
 </section> <!-- Terminology -->
 
@@ -869,7 +864,7 @@
 
   <section> <h3>Writing to an <a>NFC tag</a></h3>
     <div>
-      The user opens a web page which can write an <a>NFC tag</a>. The write
+      The user opens a web page which can write to an <a>NFC tag</a>. The write
       operations may be one of the following:
       <ol>
         <li>
@@ -894,22 +889,6 @@
     </p>
   </section>
 
-  <section> <h3>Pushing data to an <a>NFC peer</a> device</h3>
-    <p>
-      In general, pushing data to another NFC capable device requires that
-      on the initiating device the user would first have to navigate to a web
-      site. The user would then touch the device against another Web NFC
-      equipped device, and data transfer would occur.
-    </p>
-    <p>
-      On the receiving device the UA will dispatch the content to an application
-      registered and eligible to handle the content, and if that application is
-      a browser which has a {{Document}} of the <a>top-level browsing context</a>
-      <a>visible</a> with active {{NDEFReader}},
-      then the content is delivered to the page through the <a>NDEFReadingEvent</a>.
-    </p>
-  </section>
-
   <section> <h3>Support for multiple NFC adapters</h3>
     <p>
       Users may attach one or more external <a>NFC adapter</a>s to their
@@ -929,13 +908,12 @@
         then the UA operates all <a>NFC adapter</a>s in parallel.
       </li>
       <li>
-        Support communication with active (powered devices such as readers,
-        phones) and passive (smart cards, tags, etc) devices.
+        Support communication with passive (smart cards, tags, etc.) NFC devices.
       </li>
       <li>
         Allow users to act on (e.g. read, write or transceive) discovered
-        NFC devices (passive and active), as well as access the payload
-        which were read in the process as <a>NDEF message</a>s.
+        passive NFC devices, as well as access the payload which were read in
+        the process as <a>NDEF message</a>s.
       </li>
       <li>
         Allow users to write a payload via <a>NDEF record</a>s to compatible
@@ -965,11 +943,9 @@
     </pre>
   </section>
 
-  <section><h3>Push a text string to either a tag or peer</h3>
+  <section><h3>Push a text string</h3>
     <p>
-      Pushing a text string to any kind of device is straightforward.
-      Options can be left out, as they default to pushing to both tags
-      and peers.
+      Pushing a text string to an NFC tag is straightforward.
     </p>
     <pre class="example">
       const writer = new NDEFWriter();
@@ -983,25 +959,7 @@
     </pre>
   </section>
 
-  <section><h3>Push a text string to a peer device</h3>
-    <p>
-      It is possible to restrict to which devices (tags or peers) data
-      should be pushed. Below push is specified only to peers,
-      and thus, no data is pushed when the user taps a tag.
-    </p>
-    <pre class="example">
-      const writer = new NDEFWriter();
-      writer.push(
-        "Text intended for peers only", { target: "peer" }
-      ).then(() => {
-        console.log("Message pushed.");
-      }).catch(_ => {
-        console.log("Push failed :-( try again.");
-      });
-    </pre>
-  </section>
-
-  <section> <h3>Push a URL to either a tag or peer</h3>
+  <section> <h3>Push a URL</h3>
     <p>
       In order to push an NDEF record of URL type, simply use NDEFMessage.
     </p>
@@ -1095,17 +1053,13 @@
     </pre>
   </section>
 
-  <section> <h3>Save and restore game progress with another device</h3>
+  <section> <h3>Save and restore game progress with an NFC tag</h3>
     <p>
       Filtering of relevant data sources can be done by the use of
       the <a>NDEFScanOptions</a>. Below we use the custom record identifier
       "`my-game-progress`" as a relative URL so that when we read the data, we
       immediately update the game progress by issuing a push with a custom NDEF
       data layout.
-    </p>
-    <p>
-      The example allows reading and pushing to both peers and tags,
-      whichever one is tapped first.
     </p>
     <pre class="example">
       const reader = new NDEFReader();
@@ -1177,9 +1131,9 @@
     </pre>
   </section>
 
-  <section> <h3>Write data to tag and print out existing data</h3>
+  <section> <h3>Write data and print out existing data</h3>
     <p>
-      Pushing data to a tag requires tapping it. If existing data should be
+      Pushing data requires tapping an <a>NFC tag</a>. If data should be
       read during the same tap, we need to set the [=NDEFPushOptions/ignoreRead=]
       property to `false`.
     </p>
@@ -1197,7 +1151,7 @@
         };
 
         const writer = new NDEFWriter();
-        return writer.push("Pushing data is fun!", { target: "tag", ignoreRead: false });
+        return writer.push("Pushing data is fun!", { ignoreRead: false });
 
       }).catch(error => {
         console.log(`Push failed :-( try again: ${error}.`);
@@ -1617,7 +1571,7 @@
       <p>
         Applications MAY also use a <dfn>local type name</dfn>, which is a
         string that MUST start with lowercase character or a number,
-        representing a type for a NFC Forum [=local type=]. It is
+        representing a type for an NFC Forum [=local type=]. It is
         typically used in a record of an <a>NDEFMessage</a> that is the payload
         of a parent <a>NDEFRecord</a>, for instance in a <a>smart poster</a>.
         The context of the <a>local type</a> is the parent record whose payload
@@ -1836,10 +1790,8 @@
 <section> <h2>The NDEFReader and NDEFWriter objects</h2>
   The objects provide a way for the <a>browsing context</a> to
   use NFC functionality.
-  They allow for pushing <a>NDEF message</a>s to <a>NFC tag</a>s
-  or <a>NFC peer</a>s within range, and to act on incoming
-  <a>NDEF message</a>s either from an <a>NFC tag</a> or an
-  <a>NFC peer</a>.
+  They allow for pushing <a>NDEF message</a>s to <a>NFC tag</a>s within range,
+  and to act on incoming <a>NDEF message</a>s from <a>NFC tag</a>s.
   <pre class="idl">
     typedef (DOMString or BufferSource or NDEFMessageInit) NDEFMessageSource;
 
@@ -1896,8 +1848,7 @@
     The serial number usually consists of 4 or 7 numbers, separated by `:`.
   </p>
   <p>
-    The <dfn>NDEFWriter</dfn> is an object used for writing data to NFC devices
-    such as tags.
+    The <dfn>NDEFWriter</dfn> is an object used for writing data to an <a>NFC tag</a>.
   </p>
   <p>
     An {{NDEFWriter}} object has the following <a data-cite=
@@ -2201,18 +2152,11 @@
     <h3>The <dfn>NDEFPushOptions</dfn> dictionary</h3>
     <pre class="idl">
       dictionary NDEFPushOptions {
-        NDEFPushTarget target = "any";
         boolean ignoreRead = true;
         boolean overwrite = true;
         AbortSignal? signal;
       };
     </pre>
-    <p>
-      The <dfn>target</dfn> property
-      denotes the intended target for the pending
-      [=NDEFWriter/push()=]
-      operation.
-    </p>
     <p>
       When the value of the <dfn>ignoreRead</dfn> property is `true`, the
       <a>NFC reading algorithm</a> will skip reading <a>NFC tag</a>s for the
@@ -2230,41 +2174,6 @@
       the [=NDEFWriter/push()=] operation.
     </p>
   </section>
-
-  <section data-dfn-for="NDEFPushTarget">
-    <h2>The <dfn>NDEFPushTarget</dfn> enum</h2>
-    <p>
-      This enum defines the set of intended target values for the
-      [=NDEFWriter/push()=] operation.
-    </p>
-    <pre class="idl">
-      enum NDEFPushTarget {
-        "tag",
-        "peer",
-        "any"
-      };
-    </pre>
-    <dl>
-      <dt><dfn>tag</dfn></dt>
-      <dd>
-        The enum value representing the intended target for the
-        [=NDEFWriter/push()=] operation to be
-        a <a>NFC tag</a>.
-      </dd>
-      <dt><dfn>peer</dfn></dt>
-      <dd>
-        The enum value representing the intended target for the
-        [=NDEFWriter/push()=] operation to be
-        a <a>NFC peer</a>.
-      </dd>
-      <dt><dfn>any</dfn></dt>
-      <dd>
-        The enum value representing the intended target for the
-        [=NDEFWriter/push()=] operation to be
-        a <a>NFC tag</a> or a <a>NFC peer</a>.
-      </dd>
-    </dl>
-  </section> <!-- NDEFPushTarget enum -->
 
   <section data-dfn-for="NDEFScanOptions">
     <h3>The <dfn>NDEFScanOptions</dfn> dictionary</h3>
@@ -2329,11 +2238,9 @@
     <h3><dfn>Writing or pushing content</dfn></h3>
     <p>
       This section describes how to write an <a>NDEF message</a>
-      to an <a>NFC tag</a> or how to push it to an <a>NFC peer</a>
-      device when it is next time in proximity range before a timer expires.
-      At any time there is a maximum of two
-      <a>NDEF message</a>s that can be set for pushing for an <a>origin</a>:
-      one targeted to <a>NFC tag</a>s and one to <a>NFC peer</a>s, until
+      to an <a>NFC tag</a> when it is next time in proximity range before a
+      timer expires. At any time there is a maximum of one
+      <a>NDEF message</a> that can be set for pushing for an <a>origin</a> until
       the current message is sent or the push is aborted.
     </p>
     <section><h3>The <strong>push()</strong> method</h3>
@@ -2411,10 +2318,8 @@
                 <p class="note">
                   The UA might abort message push at this point. The reasons
                   for termination are implementation details. For example, the
-                  user could have has set a preference to allow a given
-                  <a>origin</a> only to read, write, or push data to peers.
-                  Also, the implementation might be unable to support the
-                  requested operation.
+                  implementation might be unable to support the requested
+                  operation.
                 </p>
               </li>
               <li>
@@ -2441,10 +2346,10 @@
               </li>
               <li>
                 Run the <a>start the NFC push</a> steps whenever an
-                <a>NFC device</a> |device| comes within communication range.
+                <a>NFC tag</a> |device| comes within communication range.
                 <p class="note">
                   If <a>NFC is suspended</a>, continue waiting until promise is
-                  aborted by the user or an <a>NFC device</a> comes within
+                  aborted by the user or an <a>NFC tag</a> comes within
                   communication range.
                 </p>
               </li>
@@ -2467,29 +2372,13 @@
             Let |options:NDEFPushOptions| be |writer|.[[\PushOptions]].
           </li>
           <li>
-            Let |target:NDEFPushTarget| be |options|' target.
-          </li>
-          <li>
-            If the <a>NFC device</a> in proximity range does not expose
+            If the <a>NFC tag</a> in proximity range does not expose
             <a>NDEF</a> technology for formatting or writing, then
             reject |p| with a {{"NotSupportedError"}} {{DOMException}} and
             return |p|.
           </li>
           <li>
-            Verify the following conditions:
-            <ul>
-              <li>
-                if |device| is an <a>NFC tag</a>, |target| is
-                "`tag`" or "`any`".
-              </li>
-              <li>
-                if |device| is an <a>NFC peer</a>, |target| is
-                "`peer`" or "`any`".
-              </li>
-              <li>
-                <a href="#nfc-is-suspended">NFC is not suspended</a>.
-              </li>
-            </ul>
+            Verify that <a href="#nfc-is-suspended">NFC is not suspended</a>.
           </li>
           <li>
             In case of success, run the following steps:
@@ -2508,9 +2397,9 @@
                 |output| as buffer, using the <a>NFC adapter</a>
                 in communication range with |device|.
                 <p class="note">
-                  If the <a>NFC device</a> in proximity range is an unformatted
-                  <a>NFC tag</a> that is <a>NDEF</a>-formatable, format it and
-                  write |output| as buffer.
+                  If the <a>NFC tag</a> in proximity range is unformatted and
+                  <a>NDEF</a>-formatable, format it and write |output| as
+                  buffer.
                 </p>
                 <p class="note">
                   Multiple adapters should be used sequentially by users.
@@ -3486,7 +3375,7 @@
         If there is a <a>pending push tuple</a> and its writer's option's ignoreRead is `true`, abort these steps.
       </li>
       <li>
-        If the <a>NFC device</a> in proximity range does not expose <a>NDEF</a>
+        If the <a>NFC tag</a> in proximity range does not expose <a>NDEF</a>
         technology for reading or formatting, run the following sub-steps:
         <ol>
           <li>[= list/For each =]
@@ -3517,8 +3406,8 @@
         |message|'s records set to the empty <a>list</a>.
       </li>
       <li>
-        If the <a>NFC device</a> in proximity range is an unformatted
-        <a>NFC tag</a> that is NDEF-formattable, let |input| be `null`.
+        If the <a>NFC tag</a> in proximity range is unformatted and is
+        NDEF-formattable, let |input| be `null`.
         Otherwise, let |input| be the notation for the <a>NDEF message</a>
         which has been received.
         <p class="note">
@@ -4197,8 +4086,7 @@
         <dd>
           Malicious web page collects user data, identity or other privacy
           sensitive attributes (such as location) without user consent and
-          exposes it to third parties (writing it to NFC tags, pushing to NFC
-          peers).
+          exposes it to third parties (writing it to NFC tags).
         </dd>
         <dt><strong>Affected assets</strong></dt>
         <dd>
@@ -4214,7 +4102,7 @@
           NFC from the given web page.
           Use permissions and user prompts for accessing personal data,
           minimize user data exposed to NFC.
-          A NFC tag SHOULD NOT ever trigger a user’s device to navigate
+          An NFC tag SHOULD NOT ever trigger a user’s device to navigate
           to a web site without asking permission, unless the site has been in
           the foreground or has been brought to the foreground and has been
           granted permission. User agents SHOULD take into account the
@@ -4288,7 +4176,7 @@
         <dt><strong>Threat description</strong></dt>
         <dd>
           Confidential payload of <a>NDEF record</a> in-storage (stored
-          on a NFC tag) or in-transfer between Web NFC and the
+          on an NFC tag) or in-transfer between Web NFC and the
           <a>NFC adapter</a> are read by unauthorized parties.
         </dd>
         <dt><strong>Affected assets</strong></dt>
@@ -4431,7 +4319,7 @@
         <a>obtain permission</a>.
       </p>
       <p>
-        Pushing <a>NFC content</a> to an <a>NFC peer</a> MUST
+        Pushing <a>NFC content</a> to an <a>NFC tag</a> MUST
         <a>obtain permission</a>.
         See the [[[#writing-or-pushing-content]]] section.
       </p>
