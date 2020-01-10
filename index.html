@@ -2352,23 +2352,6 @@
             Let |options:NDEFPushOptions| be the second argument.
           </li>
           <li>
-            If there is no underlying <a>NFC Adapter</a>, or if a connection
-            cannot be established, then reject |p| with a
-            {{"NotSupportedError"}} {{DOMException}}
-            and return |p|.
-          </li>
-          <li>
-            If the UA is not allowed to access the underlying <a>NFC Adapter</a>
-            (e.g. a user preference), then reject |p| with a
-            {{"NotReadableError"}} {{DOMException}}
-            and return |p|.
-          </li>
-          <li>
-            If pushing data is not supported by the underlying
-            <a>NFC Adapter</a>, then reject |p| with a {{"NotSupportedError"}}
-            {{DOMException}} and return |p|.
-          </li>
-          <li>
             Let |signal:AbortSignal| be the |options|’ dictionary member
             of the same name if present, or `null` otherwise.
           </li>
@@ -2400,6 +2383,28 @@
             Return |p| and run the following steps <a>in parallel</a>:
             <ol>
               <li>
+                If the <a>obtain permission</a> steps return `false`, then
+                reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
+                abort these steps.
+              </li>
+              <li>
+                If there is no underlying <a>NFC Adapter</a>, or if a connection
+                cannot be established, then reject |p| with a
+                {{"NotSupportedError"}} {{DOMException}}
+                and return |p|.
+              </li>
+              <li>
+                If the UA is not allowed to access the underlying <a>NFC Adapter</a>
+                (e.g. a user preference), then reject |p| with a
+                {{"NotReadableError"}} {{DOMException}}
+                and return |p|.
+              </li>
+              <li>
+                If pushing data is not supported by the underlying
+                <a>NFC Adapter</a>, then reject |p| with a {{"NotSupportedError"}}
+                {{DOMException}} and return |p|.
+              </li>
+              <li>
                 An implementation MAY reject |p| with
                 a {{"NotSupportedError"}} {{DOMException}}
                 and abort these steps.
@@ -2411,11 +2416,6 @@
                   Also, the implementation might be unable to support the
                   requested operation.
                 </p>
-              </li>
-              <li>
-                If the <a>obtain permission</a> steps return `false`, then
-                reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
-                abort these steps.
               </li>
               <li>
                 Let |output| be the notation for the <a>NDEF message</a>
@@ -3420,18 +3420,6 @@
             </ol>
           </li>
           <li>
-            If there is no underlying <a>NFC Adapter</a>, or if a connection
-            cannot be established, then reject |p| with a
-            {{"NotSupportedError"}} {{DOMException}}
-            and return |p|.
-          </li>
-          <li>
-            If the UA is not allowed to access the underlying <a>NFC Adapter</a>
-            (e.g. a user preference), then reject |p| with a
-            {{"NotReadableError"}} {{DOMException}}
-            and return |p|.
-          </li>
-          <li>
             If |reader|.<a>[[\Signal]]</a>'s [= AbortSignal/aborted flag =] is
             set, then reject |p| with a {{"AbortError"}} {{DOMException}}
             and return |p|.
@@ -3459,6 +3447,18 @@
                 If the <a>obtain permission</a> steps return `false`, then
                 reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
                 abort these steps.
+              </li>
+              <li>
+                If there is no underlying <a>NFC Adapter</a>, or if a connection
+                cannot be established, then reject |p| with a
+                {{"NotSupportedError"}} {{DOMException}}
+                and return |p|.
+              </li>
+              <li>
+                If the UA is not allowed to access the underlying <a>NFC Adapter</a>
+                (e.g. a user preference), then reject |p| with a
+                {{"NotReadableError"}} {{DOMException}}
+                and return |p|.
               </li>
               <li>
                 Add |reader| to the <a>activated reader objects</a>.
