@@ -10,19 +10,27 @@ Participate
 - https://lists.w3.org/Archives/Public/public-web-nfc/
 
 ## Introduction
+
 Web NFC aims to provide sites the ability to read and write to nearby NFC (Near
-Field Communication) devices (e.g., tags and phones) in a secure and privacy
-preserving manner.
+Field Communication) tags in a secure and privacy preserving manner.
 
 NFC consists of a rather large set of technologies, so for this first iteration
 of the API the focus has been on supporting the NFC Data Exchange Format aka
 [NDEF](https://www.oreilly.com/library/view/beginning-nfc/9781449324094/ch04.html),
 a lightweight binary message format, as it works across different tag formats.
 
-The focus has been on making an easy to use, and very webby API that web
-developers would be comfortable with, and at the same time making sure that it
-is low-level and flexible enough so that users can get the full potential out of
-NDEF and even integrate with legacy solutions.
+Web NFC is only available to top-level, secure browsing contexts, and origins
+must first request the “nfc” permission while handling a user gesture. To then
+perform a read or write, the web page must be visible when the user touches
+their device to an NFC tag. The browser uses haptic feedback to indicate a tap.
+Access to the NFC radio is blocked if the display is off or the device is
+locked. For backgrounded web pages, receiving and pushing NFC content are
+suspended.
+
+We believe Web NFC is an easy to use, and very webby API that web developers
+would be comfortable with, and at the same time that it is low-level and
+flexible enough so that users can get the full potential out of NDEF and even
+integrate with legacy solutions.
 
 ## Goals
 
@@ -34,6 +42,7 @@ Make sure the API is extendable to cover more NFC use-cases, like non-NDEF, in
 the future.
 
 ## Non-goals
+
 In this version of the API, proprietary NFC technologies used in hotel keys,
 e-passports etc are not supported. Automatic handling of NFC content, such as
 opening or saving files, making calls or saving contacts (with “smart posters”),
