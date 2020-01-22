@@ -648,6 +648,10 @@
             just provides the values.
           </p>
         </li>
+        <li>
+          A <a>smart poster</a> MAY also contain other records, which can be
+          handled in an application specific manner.
+        </li>
       </ul>
     </div>
 
@@ -1509,9 +1513,14 @@
         <a>recordType</a> attribute.
       </li>
       <li>
-        If the |recordType| value is "`smart-poster`", or if running
-        <a>validate external type</a> on |recordType| returns `true`,
-        then return the result of running <a>parse records from bytes</a> on |bytes|.
+        If the |recordType| value is "`smart-poster`", then return the result of
+        running <a>parse records from bytes</a> given |bytes| and
+        `"smart-poster"`.
+      </li>
+      <li>
+        If running <a>validate external type</a> on |recordType| returns `true`,
+        then return the result of running <a>parse records from bytes</a> given
+        |bytes| and `"external"`.
       </li>
       <li>
         Otherwise, [= exception/throw =] a
@@ -2324,8 +2333,8 @@
               </li>
               <li>
                 Let |output| be the notation for the <a>NDEF message</a>
-                to be created by UA, as the result of passing
-                |message| to <a>create NDEF message</a>.
+                to be created by UA, as the result of invoking
+                <a>create NDEF message</a> with |message| and `""`.
                 If this throws an exception, reject |p| with that
                 exception and abort these steps.
               </li>
@@ -2431,7 +2440,7 @@
   <section><h3>Creating NDEF message</h3>
     <div>
       To <dfn>create NDEF message</dfn> given a
-      |source:NDEFMessageSource| run these steps:
+      |source:NDEFMessageSource| and |context:string|, run these steps:
       <ol class=algorithm id="create-web-nfc-message">
         <li>Switch on |source:NDEFMessageSource|'s type:
           <dl>
@@ -2451,7 +2460,7 @@
             <dt>{{BufferSource}}</dt>
             <ul>
                 <li>
-                  Let |mimeRecord| be an <a>NDEFrecord</a> initialized with its
+                  Let |mimeRecord| be an <a>NDEFRecord</a> initialized with its
                   |recordType| set to "`mime`", |data| set to |source|, and
                   |mediaType| set to "`application/octet-stream`".
                 </li>
@@ -2465,8 +2474,8 @@
             <dt>{{NDEFMessageInit}}</dt>
             <ul>
               <li>
-                If |source|'s records [= list/is empty =], throw a
-                {{TypeError}} and abort these steps.
+                If |source|'s records [= list/is empty =], [= exception/throw =]
+                a {{TypeError}} and abort these steps.
               </li>
             </ul>
             <dt>unmatched type</dt>
@@ -2487,8 +2496,8 @@
           <ol>
             <li>
               Let |ndef| be the result of running <a>create NDEF record</a>
-              given |record:NDEFRecordInit|, or make sure the underlying
-              platform provides equivalent values to |ndef|.
+              given |record:NDEFRecordInit| and |context|, or make sure the
+              underlying platform provides equivalent values to |ndef|.
               If the algorithm throws an exception |e|, reject |promise| with
               |e| and abort these steps.
             </li>
@@ -2498,15 +2507,48 @@
           </ol>
         </li>
         <li>
+          If running <a>check created records</a> given |output| and |context|
+          throw an |error: Error|, reject |promise| with |error| and abort these
+          steps.
+        </li>
+        <li>
           Return |output|.
         </li>
       </ol>
     </div>
 
+    <section><h3>Check created records</h3>
+      <div>
+        To <dfn>check created records</dfn> given |records: NDEFRecord sequence|
+        and |context: string|, run these steps:
+        <ol class=algorithm>
+          <li>
+            If |context| is `"smart-poster"` and |records| does not contain
+            exactly one <a>URI record</a>, or if it contains more than one
+            <a>type record</a>, <a>size record</a> or <a>action record</a>,
+            throw {{TypeError}} and abort these steps.
+          </li>
+          <li>
+            Return `true`;
+          </li>
+        </ol>
+        <p class="note">
+          Icon record media types could be limited to `"image/"` or `"video/"`,
+          but the [[NDEF-SMARTPOSTER]] specification does actually allow other
+          media type records in a <a>smart poster</a>, which can be treated in
+          an application-specific manner, for instance a vCard contact card
+          using one of its associated
+          <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">
+          MIME types</a>. Applications MAY ignore any extra records inside
+          the <a>smart poster</a>.
+        </p>
+      </div>
+    </section>
+
     <section><h3>Creating NDEF record</h3>
       <div>
-        To <dfn>create NDEF record</dfn> given |record:NDEFRecordInit|, run
-        these steps:
+        To <dfn>create NDEF record</dfn> given |record:NDEFRecordInit|
+        and |context:string|, run these steps:
         <ol data-link-for="NDEFRecordInit">
           <li>
             Let |ndef| be the representation of an <a>NDEF record</a> to be
@@ -2534,7 +2576,8 @@
             If |record|'s <a>recordType</a> starts with a colon `U+003A` (`:`):
             <ul>
               <li>
-                If |record| is not a payload to another <a>NDEF record</a>,
+                If |record| is not a payload to another <a>NDEF record</a>
+                or if |context| is `"smart-poster"`,
                 reject |promise| with a {{TypeError}} and abort these steps.
               </li>
               <li>
@@ -2548,13 +2591,17 @@
               </li>
             </ul>
           <li>
-            Switching on |record|'s <a>recordType</a>, pass |record| and |ndef|
-            to one of the following algorithms and return the result.
+            Switching on |record|'s <a>recordType</a>, invoke one of the
+            following algorithms and return the result.
             If the algorithm throws an exception |e|, reject |promise| with |e|
             and abort these steps.
             <dl>
               <dt>"`empty`"</dt>
               <ul>
+                <li>
+                  If |context| is `"smart-poster"`,
+                  [= exception/throw =] a {{TypeError}} and abort these steps.
+                </li>
                 <li>
                   Return <a>map empty record to NDEF</a> given |record| and |ndef|.
                 </li>
@@ -2580,12 +2627,16 @@
               <dt>"`smart-poster`"</dt>
               <ul>
                 <li>
-                  Return <a>map smart poster to NDEF</a> given |record| and
-                  |ndef|.
+                  Return <a>map smart poster to NDEF</a> given |record|, |ndef|
+                  and |context|.
                 </li>
               </ul>
               <dt>"`absolute-url`"</dt>
               <ul>
+                <li>
+                  If |context| is `"smart-poster"`,
+                  [= exception/throw =] a {{TypeError}} and abort these steps.
+                </li>
                 <li>
                   Return <a>map absolute-URL to NDEF</a> given |record| and
                   |ndef|.
@@ -2595,8 +2646,16 @@
           </li>
           <li>
             If running <a>validate external type</a> on |record|'s
-            <a>recordType</a> returns `true`, return
-            <a>map external data to NDEF</a> given |record| and |ndef|.
+            <a>recordType</a> returns `true`,
+            <ol>
+              <li>
+                If |context| is `"smart-poster"`,
+                [= exception/throw =] a {{TypeError}} and abort these steps.
+              </li>
+              <li>
+                Return <a>map external data to NDEF</a> given |record| and |ndef|.
+              </li>
+            </ol>
           </li>
           <li>
             Otherwise, [= exception/throw =] a {{TypeError}} and abort
@@ -2988,17 +3047,22 @@
             and abort these steps.
           </li>
           <li>
-            Let |mimeTypeRecord| be the <a>MIME type</a>
+            Let |mimeType| be the <a>MIME type</a>
             returned by running <a>parse a MIME type</a> on
             |record|'s <a>mediaType</a>.
-            <ol>
-              <li>
-                If |mimeTypeRecord| is failure, let |mimeTypeRecord| be a new
-                <a>MIME type record</a> whose type is "`application`", and
-                subtype is "`octet-stream`".
-              </li>
-            </ol>
           </li>
+          <li>
+            If |mimeType| is failure, let |mimeTypeRecord| be a new
+            <a>MIME type record</a> whose type is "`application`", and
+            subtype is "`octet-stream`".
+          </li>
+          <!--
+          <li>
+            If |context| is `"smart-poster"` and |mimeType| does not
+            start with `"image/"` or `"video/"`, throw <a>TypeError</a>
+            and abort these steps.
+          </li>
+          -->
           <li>
             Set |arrayBuffer| to |record|'s <a>data</a>.
           </li>
@@ -3013,7 +3077,7 @@
           </li>
           <li>
             Set the |ndef|'s <a>TYPE field</a> to the result of
-            <a>serialize a MIME type</a> with |mimeTypeRecord| as
+            <a>serialize a MIME type</a> with |mimeType| as
             the input.
           </li>
           <li>
@@ -3078,7 +3142,8 @@
             <ol>
               <li>
                 Set the |ndef|'s <a>PAYLOAD field</a> to the result of running
-                the <a>create NDEF message</a> given |record|'s <a>data</a>.
+                the <a>create NDEF message</a> given |record|'s <a>data</a>
+                and `"external"`.
               </li>
               <li>
                 Set the |ndef|'s <a>PAYLOAD LENGTH field</a> to the length of
@@ -3146,7 +3211,8 @@
             <ol>
               <li>
                 Set the |ndef|'s <a>PAYLOAD field</a> to the result of running
-                the <a>create NDEF message</a> given |record|'s <a>data</a>.
+                the <a>create NDEF message</a> given |record|'s <a>data</a>
+                and `"local"`.
               </li>
               <li>
                 Set the |ndef|'s <a>PAYLOAD LENGTH field</a> to the length of
@@ -3184,7 +3250,8 @@
           </li>
           <li>
             Set |ndef|'s <a>PAYLOAD field</a> to the result of running the
-            <a>create NDEF message</a> given |record|'s <a>data</a>.
+            <a>create NDEF message</a> given |record|'s <a>data</a> and
+            `"smart-poster"`.
           </li>
           <li>
             Set |ndef|'s <a>PAYLOAD LENGTH field</a> to the length of
@@ -3433,7 +3500,7 @@
           </li>
           <li>
             Let |record:NDEFRecord| be the result of <a>parse an NDEF record</a>
-            on |ndef|.
+            given |ndef| and `""`.
           </li>
           <li>
              If |record| is not `null`, <a>append</a> |record| to |message|'s
@@ -3512,8 +3579,8 @@
   <h3>Parsing content</h3>
 
   <section><h3>Parsing records from bytes</h3>
-    To <dfn>parse records from bytes</dfn> given |bytes:byte sequence|,
-    run these steps:
+    To <dfn>parse records from bytes</dfn> given |bytes:byte sequence| and
+    |context: string|, run these steps:
     <ol class=algorithm>
       <li>
         If the length of |bytes| is `0`, return `null` and abort these steps.
@@ -3602,13 +3669,23 @@
           </li>
           <li>
             Let |record:NDEFRecord| be the result of <a>parse an NDEF record</a>
-            on |ndef|.
+            given |ndef| and |context|.
           </li>
           <li>
             If |record| is not `null`, <a>append</a> |record| to |records|.
           </li>
           <li>
-            If |messageEnd| is `true`, abort these sub-steps.
+            If |messageEnd| is `true`,
+            <ol>
+              <li>
+                If <a>check parsed records</a> given |records| and |context|
+                throws an |error|, reject |promise| with |error| and abort these
+                steps.
+              </li>
+              <li>
+                Otherwise abort these sub-steps (terminate the loop).
+              </li>
+            </ol>
           </li>
         </ol>
       </li>
@@ -3618,9 +3695,25 @@
     </ol>
   </section>
 
+  <section><h3>Check parsed records</h3>
+    To <dfn>check parsed records</dfn> given |records: NDEFRecord sequence|
+    and |context: string|, run these steps:
+    <ol class=algorithm>
+      <li>
+        If |context| is `"smart-poster"` and |records| does not contain
+        exactly one <a>URI record</a>, or if it contains more than one
+        <a>type record</a>, <a>size record</a> or <a>action record</a>,
+        throw {{TypeError}} and abort these steps.
+      </li>
+      <li>
+        Otherwise return `true`.
+      </li>
+    </ol>
+  </section>
+
   <section><h3>Parsing NDEF records</h3>
   <div>
-    To <dfn>parse an NDEF record</dfn> given |ndef| into a
+    To <dfn>parse an NDEF record</dfn> given |ndef| and |context:string| into a
     |record:NDEFRecord|, run these steps:
     <ol class=algorithm data-link-for="NDEFRecord">
       <li>
@@ -3651,58 +3744,89 @@
         </ol>
       </li>
       <li>
-        If |ndef|'s |typeNameField| is `1` ([=well-known type record=]):
+        If |ndef|'s |typeNameField| is `1` ([=well-known type record=]), then
         <ol>
           <li>
-            Set |record| to the result of the algorithm below switching on
-            |ndef|'s |type:string|:
-            <dl>
-              <dt>"`T`" (`0x54`)</dt>
-              <ul>
-                <li>
-                  Running <a>parse an NDEF text record</a> on |ndef|.
-                </li>
-              </ul>
-              <dt>"`U`" (`0x55`)</dt>
-              <ul>
-                <li>
-                  Running <a>parse an NDEF URL record</a> on |ndef|.
-                </li>
-              </ul>
-              <dt>"`Sp`" (`0x53` `0x70`)</dt>
-              <ul>
-                <li>
-                  Running <a>parse an NDEF smart-poster record</a> on |ndef|.
-                </li>
-              </ul>
-            </dl>
+            If |ndef|'s |type:string| is <strong>"`T`" (`0x54`)</strong>,
+            set |record| to the result of running
+            <a>parse an NDEF text record</a> on |ndef|.
+          </li>
+          <li>
+            If |ndef|'s |type:string| is <strong>"`U`" (`0x55`)</strong>,
+            set |record| to the result of running
+            <a>parse an NDEF URL record</a> on |ndef|.
+          </li>
+          <li>
+            If |ndef|'s |type:string| is <strong>"`Sp`" (`0x53` `0x70`)</strong>,
+            set |record| to the result of running
+            <a>parse an NDEF smart-poster record</a> on |ndef|.
+          </li>
+          <li>
+            If |ndef|'s |type:string| is <strong>"`s`" (`0x73`)</strong>
+            and if |context| is equal to `"smart-poster"`,
+            set |record| to the result of running
+            <a>parse a smart-poster size record</a> on |ndef|.
+          </li>
+          <li>
+            If |ndef|'s |type:string| is <strong>"`t`" (`0x74`)</strong>
+            and if |context| is equal to `"smart-poster"`,
+            set |record| to the result of running
+            <a>parse a smart-poster type record</a> on |ndef|.
+          </li>
+          <li>
+            If |ndef|'s |type:string| is <strong>"`act`" (`0x61` `0x63` `0x74`)
+            </strong> and if |context| is equal to `"smart-poster"`,
+            set |record| to the result of running
+            <a>parse a smart-poster action record</a> on |ndef|.
+          </li>
+          <li>
+            If running the <a>validate local type</a> steps on
+            |ndef|'s |type:string| returns `true`,
+            <ol>
+              <li>
+                If |context| is not `"external"` or `"smart-poster"`,
+                [= exception/throw =] a {{TypeError}} and abort these steps.
+              </li>
+              <li>
+                Set |record| to the result of running
+                <a>parse a local type record</a> on |ndef|.
+              </li>
+            </ol>
+          </li>
+          <li>
+            Otherwise [= exception/throw =] a {{TypeError}} and abort these
+            steps.
           </li>
         </ol>
       </li>
       <li>
         If |ndef|'s |typeNameField| is `2` (<a>MIME type record</a>), then
-        set |record| to the result of running <a>parse an NDEF MIME type record</a>
-        on |ndef|, or make sure that the underlying platform provides equivalent
-        values to the |record| object's properties.
+        set |record| to the result of running
+        <a>parse an NDEF MIME type record</a> on |ndef|, or make sure that
+        the underlying platform provides equivalent values to the |record|
+        object's properties.
       </li>
       <li>
-        Otherwise, if |ndef|'s |typeNameField| is `3` (<a>absolute-URL record</a>),
+        If |ndef|'s |typeNameField| is `3` (<a>absolute-URL record</a>),
         then set |record| to the result of running
         <a>parse an NDEF absolute-URL record</a> on |ndef|.
       </li>
       <li>
-        Otherwise, if |ndef|'s |typeNameField| is `4` (<a>external type record</a>),
+        If |ndef|'s |typeNameField| is `4` (<a>external type record</a>),
         then set |record| to the result of running
         <a>parse an NDEF external type record</a> on |ndef|, or make sure that
         the underlying platform provides equivalent values to the |record|
         object's properties.
       </li>
       <li>
-        Otherwise, if |ndef|'s |typeNameField| is `5` (<a>unknown record</a>)
+        If |ndef|'s |typeNameField| is `5` (<a>unknown record</a>)
         then set |record| to the result of running
         <a>parse an NDEF unknown record</a> on |ndef|, or make sure that the
         underlying platform provides equivalent values to the |record| object's
         properties.
+      </li>
+      <li>
+        Otherwise [= exception/throw =] a {{TypeError}} and abort these steps.
       </li>
     </ol>
   </div>
@@ -3867,8 +3991,126 @@
       </li>
       <li>
         Return |record|.
+        <p class="note">
+          Applications may call <code>toRecords()</code> on <a>data</a> to
+          parse it to <a>NDEF records</a>, or may parse it themselves.
+        </p>
       </li>
     </ol>  <!-- parsing NDEF smart-poster record -->
+  </div>
+  <div>
+    To <dfn>parse a smart-poster size record</dfn> given an |ndefRecord| into a
+    |record:NDEFRecord|, run these steps:
+    <ol class=algorithm data-link-for="NDEFRecord">
+      <li>
+        Set |record|'s <a>recordType</a> to "`:s`".
+      </li>
+      <li>
+        Set |record|'s <a>mediaType</a> to `null`.
+      </li>
+      <li>
+        If |ndefRecord|'s <a>PAYLOAD field</a> has not exactly 4 bytes,
+        [= exception/throw =] a {{TypeError}} and abort these steps.
+      </li>
+      <li>
+        Let |buffer:byte sequence| be the <a>byte sequence</a> of
+        |ndefRecords|'s <a>PAYLOAD field</a>.
+      </li>
+      <li>
+        Set |record|'s <a>data</a> to |buffer|.
+        <p class="note">
+          Applications can parse this value as a 32 bit unsigned integer that
+          denotes the size of the object the URI record in the <a>smart-poster</a>
+          refers to.
+        </p>
+      </li>
+      <li>
+        Return |record|.
+      </li>
+    </ol>
+  </div>
+  <div>
+    To <dfn>parse a smart-poster type record</dfn> given an |ndefRecord| into a
+    |record:NDEFRecord|, run these steps:
+    <ol class=algorithm data-link-for="NDEFRecord">
+      <li>
+        Set |record|'s <a>recordType</a> to "`:t`".
+      </li>
+      <li>
+        Set |record|'s <a>mediaType</a> to `null`.
+      </li>
+      <li>
+        Let |buffer:byte sequence| be the <a>byte sequence</a> of
+        |ndefRecords|'s <a>PAYLOAD field</a>.
+        <p class="note">
+          Applications can parse this value as a string that contains an
+          [[RFC2048]] media type that denotes the media type of the object the
+          URI record in the <a>smart-poster</a> refers to.
+        </p>
+      </li>
+      <li>
+        Set |record|'s <a>data</a> to |buffer|.
+      </li>
+      <li>
+        Return |record|.
+      </li>
+    </ol>
+  </div>
+  <div>
+    To <dfn>parse a smart-poster action record</dfn> given an |ndefRecord| into
+    a |record:NDEFRecord|, run these steps:
+    <ol class=algorithm data-link-for="NDEFRecord">
+      <li>
+        Set |record|'s <a>recordType</a> to "`:act`".
+      </li>
+      <li>
+        Set |record|'s <a>mediaType</a> to `null`.
+      </li>
+      <li>
+        If |ndefRecord|'s <a>PAYLOAD field</a> has not exactly 1 byte,
+        [= exception/throw =] a {{TypeError}} and abort these steps.
+      </li>
+      <li>
+        Let |buffer:byte sequence| be the <a>byte sequence</a> of
+        |ndefRecords|'s <a>PAYLOAD field</a>.
+      </li>
+      <li>
+        Set |record|'s <a>data</a> to |buffer|.
+        <p class="note">
+          Applications can parse this value as an 8 bit unsigned integer for
+          which the values are defined <a href="#dfn-action-record">here</a>.
+        </p>
+      </li>
+      <li>
+        Return |record|.
+      </li>
+    </ol>
+  </div>
+  </section>
+
+  <section><h3>Parsing local type records</h3>
+  <div>
+    To <dfn>parse a local type record</dfn> given |ndef| into
+    a |record:NDEFRecord|, run these steps:
+    <ol class=algorithm data-link-for="NDEFRecord">
+      <li>
+        Set |record|'s <a>recordType</a> to "`:`" (`U+003A`) concatenated with
+        |ndef|'s |type:string|.
+      </li>
+      <li>
+        Set |record|'s <a>mediaType</a> to `null`.
+      </li>
+      <li>
+        Let |buffer:byte sequence| be the <a>byte sequence</a> of
+        |ndefRecords|'s <a>PAYLOAD field</a>.
+      </li>
+      <li>
+        Set |record|'s <a>data</a> to |buffer|.
+      </li>
+      <li>
+        Return |record|.
+      </li>
+    </ol>
   </div>
   </section>
 
