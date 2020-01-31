@@ -1211,12 +1211,12 @@
               data: new Uint8Array([0])
             },
             {
-              recordType: "mime" // icon record, a MIME type record
+              recordType: "mime", // icon record, a MIME type record
               mediaType: "image/png",
               data: await (await fetch("icon1.png")).arrayBuffer()
             },
             {
-              recordType: "mime" // another icon record
+              recordType: "mime", // another icon record
               mediaType: "image/jpg",
               data: await (await fetch("icon2.jpg")).arrayBuffer()
             }
