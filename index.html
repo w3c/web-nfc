@@ -2298,18 +2298,18 @@
                 If there is no underlying <a>NFC Adapter</a>, or if a connection
                 cannot be established, then reject |p| with a
                 {{"NotSupportedError"}} {{DOMException}}
-                and return |p|.
+                and abort these steps.
               </li>
               <li>
                 If the UA is not allowed to access the underlying <a>NFC Adapter</a>
                 (e.g. a user preference), then reject |p| with a
                 {{"NotReadableError"}} {{DOMException}}
-                and return |p|.
+                and abort these steps.
               </li>
               <li>
                 If pushing data is not supported by the underlying
                 <a>NFC Adapter</a>, then reject |p| with a {{"NotSupportedError"}}
-                {{DOMException}} and return |p|.
+                {{DOMException}} and abort these steps.
               </li>
               <li>
                 An implementation MAY reject |p| with
@@ -3346,13 +3346,13 @@
                 If there is no underlying <a>NFC Adapter</a>, or if a connection
                 cannot be established, then reject |p| with a
                 {{"NotSupportedError"}} {{DOMException}}
-                and return |p|.
+                and abort these steps.
               </li>
               <li>
                 If the UA is not allowed to access the underlying <a>NFC Adapter</a>
                 (e.g. a user preference), then reject |p| with a
                 {{"NotReadableError"}} {{DOMException}}
-                and return |p|.
+                and abort these steps.
               </li>
               <li>
                 Add |reader| to the <a>activated reader objects</a>.
