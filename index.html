@@ -2530,9 +2530,17 @@
             throw {{TypeError}} and abort these steps.
           </li>
           <li>
-            Return `true`;
+            If |context| is `"smart-poster"`, move the <a>URI record</a> to
+            the beginning of |records|.
           </li>
         </ol>
+        <p class="note">
+          Web NFC currently allows writing <a>external type</a> and
+          <a>local type</a> records in <a>smart poster</a>.
+          Also, <a>empty records</a> are allowed.
+          Applications MAY ignore any extra records inside
+          the <a>smart poster</a>.
+        </p>
         <p class="note">
           Icon record media types could be limited to `"image/"` or `"video/"`,
           but the [[NDEF-SMARTPOSTER]] specification does actually allow other
@@ -2540,8 +2548,7 @@
           an application-specific manner, for instance a vCard contact card
           using one of its associated
           <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">
-          MIME types</a>. Applications MAY ignore any extra records inside
-          the <a>smart poster</a>.
+          MIME types</a>.
         </p>
       </div>
     </section>
@@ -2574,11 +2581,55 @@
             </ul>
           </li>
           <li>
+            Switching on |record|'s <a>recordType</a>, invoke the algorithm
+            specified below with |record|, |ndef| and |context| and return the
+            result. If an exception |e| is thrown, reject |promise| with |e|
+            and abort these steps.
+            <dl>
+              <dt>"`empty`"</dt>
+              <ul>
+                <li>
+                  <a>map empty record to NDEF</a>.
+                </li>
+              </ul>
+              <dt>"`text`"</dt>
+              <ul>
+                <li>
+                  <a>map text to NDEF</a>.
+                </li>
+              </ul>
+              <dt>"`url`"</dt>
+              <ul>
+                <li>
+                  <a>map a URL to NDEF</a>.
+                </li>
+              </ul>
+              <dt>"`mime`"</dt>
+              <ul>
+                <li>
+                  <a>map binary data to NDEF</a>.
+                </li>
+              </ul>
+              <dt>"`smart-poster`"</dt>
+              <ul>
+                <li>
+                  <a>map smart poster to NDEF</a>.
+                </li>
+              </ul>
+              <dt>"`absolute-url`"</dt>
+              <ul>
+                <li>
+                  <a>map absolute-URL to NDEF</a>.
+                </li>
+              </ul>
+            </dl>
+          </li>
+          <li>
             If |record|'s <a>recordType</a> starts with a colon `U+003A` (`:`):
             <ul>
               <li>
                 If |record| is not a payload to another <a>NDEF record</a>
-                or if |context| is `"smart-poster"`,
+                and if |context| is not `"smart-poster"`,
                 reject |promise| with a {{TypeError}} and abort these steps.
               </li>
               <li>
@@ -2586,77 +2637,25 @@
                 <a>recordType</a> returns `false`, reject |promise| with a
                 {{TypeError}} and abort these steps.
               </li>
+              <!--
+              TODO: include clauses to fix
+              https://github.com/w3c/web-nfc/issues/546, i.e.
+              check SP size and action records payload size.
+              -->
               <li>
                 Return the result of running
-                <a>map local type to NDEF</a> given |record| and |ndef|.
+                <a>map local type to NDEF</a> given |record|, |ndef| and
+                |context|. If that throws an exception |e|, reject |promise|
+                with |e| and abort these steps.
               </li>
             </ul>
-          <li>
-            Switching on |record|'s <a>recordType</a>, invoke one of the
-            following algorithms and return the result.
-            If the algorithm throws an exception |e|, reject |promise| with |e|
-            and abort these steps.
-            <dl>
-              <dt>"`empty`"</dt>
-              <ul>
-                <li>
-                  If |context| is `"smart-poster"`,
-                  [= exception/throw =] a {{TypeError}} and abort these steps.
-                </li>
-                <li>
-                  Return <a>map empty record to NDEF</a> given |record| and |ndef|.
-                </li>
-              </ul>
-              <dt>"`text`"</dt>
-              <ul>
-                <li>
-                  Return <a>map text to NDEF</a> given |record| and |ndef|.
-                </li>
-              </ul>
-              <dt>"`url`"</dt>
-              <ul>
-                <li>
-                  Return <a>map a URL to NDEF</a> given |record| and |ndef|.
-                </li>
-              </ul>
-              <dt>"`mime`"</dt>
-              <ul>
-                <li>
-                  Return <a>map binary data to NDEF</a> given |record| and |ndef|.
-                </li>
-              </ul>
-              <dt>"`smart-poster`"</dt>
-              <ul>
-                <li>
-                  Return <a>map smart poster to NDEF</a> given |record|, |ndef|
-                  and |context|.
-                </li>
-              </ul>
-              <dt>"`absolute-url`"</dt>
-              <ul>
-                <li>
-                  If |context| is `"smart-poster"`,
-                  [= exception/throw =] a {{TypeError}} and abort these steps.
-                </li>
-                <li>
-                  Return <a>map absolute-URL to NDEF</a> given |record| and
-                  |ndef|.
-                </li>
-              </ul>
-            </dl>
           </li>
           <li>
             If running <a>validate external type</a> on |record|'s
             <a>recordType</a> returns `true`,
-            <ol>
-              <li>
-                If |context| is `"smart-poster"`,
-                [= exception/throw =] a {{TypeError}} and abort these steps.
-              </li>
-              <li>
-                Return <a>map external data to NDEF</a> given |record| and |ndef|.
-              </li>
-            </ol>
+            return <a>map external data to NDEF</a> given |record|, |ndef| and
+            |context|. If that throws an exception |e|, reject |promise|
+            with |e| and abort these steps.
           </li>
           <li>
             Otherwise, [= exception/throw =] a {{TypeError}} and abort
@@ -2769,8 +2768,14 @@
     <section><h3>Mapping empty record to NDEF</h3>
       <div>
         To <dfn>map empty record to NDEF</dfn> given a |record:NDEFRecordInit|
-        and |ndef|, run these steps:
+        |ndef| and |context:string|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
+          <!--
+          <li>
+            If |context| is `"smart-poster"`,
+            [= exception/throw =] a {{TypeError}} and abort these steps.
+          </li>
+          -->
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
             [= exception/throw =] a {{TypeError}} and abort these steps.
@@ -2799,8 +2804,8 @@
 
     <section><h3>Mapping string to NDEF</h3>
       <div>
-        To <dfn>map text to NDEF</dfn> given a |record:NDEFRecordInit| and
-        |ndef|, run these steps:
+        To <dfn>map text to NDEF</dfn> given a |record:NDEFRecordInit|, |ndef|
+        and |context:string|, run these steps:
         <p class="note">
           This is useful when clients specifically want to write text in a
           [=well-known type record=].
@@ -2953,8 +2958,8 @@
 
     <section><h3>Mapping URL to NDEF</h3>
       <div>
-        To <dfn>map a URL to NDEF</dfn> given a |record:NDEFRecordInit| and
-        |ndef|, run these steps:
+        To <dfn>map a URL to NDEF</dfn> given a |record:NDEFRecordInit|, |ndef|
+        and |context:string|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
@@ -3039,8 +3044,8 @@
 
     <section><h3>Mapping binary data to NDEF</h3>
       <div>
-        To <dfn>map binary data to NDEF</dfn> given a |record:NDEFRecordInit|
-        and |ndef|, run these steps:
+        To <dfn>map binary data to NDEF</dfn> given a |record:NDEFRecordInit|,
+        |ndef| and |context:string|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecord">
           <li>
             If the type of a |record|'s <a>data</a> is not
@@ -3097,9 +3102,15 @@
 
     <section><h3>Mapping external data to NDEF</h3>
       <div>
-        To <dfn>map external data to NDEF</dfn> given a |record:NDEFRecordInit|
-        and |ndef|, run these steps:
+        To <dfn>map external data to NDEF</dfn> given a |record:NDEFRecordInit|,
+        |ndef| and |context:string|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
+          <!--
+          <li>
+            If |context| is `"smart-poster"`,
+            [= exception/throw =] a {{TypeError}} and abort these steps.
+          </li>
+          -->
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
             [= exception/throw =] a {{TypeError}} and abort these steps.
@@ -3161,8 +3172,8 @@
 
     <section><h3>Mapping local type to NDEF</h3>
       <div>
-        To <dfn>map local type to NDEF</dfn> given a |record:NDEFRecordInit| and
-        |ndef|, run these steps:
+        To <dfn>map local type to NDEF</dfn> given a |record:NDEFRecordInit|,
+        |ndef| and |context:string|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
@@ -3221,6 +3232,10 @@
               </li>
             </ol>
           </li>
+          <!--
+            TODO: clauses to fix https://github.com/w3c/web-nfc/issues/546
+            check SP size and action records payload size.
+          -->
           <li>
             Return |ndef|.
           </li>
@@ -3231,7 +3246,7 @@
     <section><h3>Mapping smart poster to NDEF</h3>
       <div>
         To <dfn>map smart poster to NDEF</dfn>, given a |record:NDEFRecordInit|
-        and |ndef|, run these steps:
+        |ndef| and |context:string|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
@@ -3268,8 +3283,16 @@
     <section><h3>Mapping absolute-URL to NDEF</h3>
       <div>
         To <dfn>map absolute-URL to NDEF</dfn> given a |record:NDEFRecordInit|
-        and |ndef|, run these steps:
+        |ndef| and |context:string|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecord">
+          <li>
+            If |context| is `"smart-poster"`,
+            [= exception/throw =] a {{TypeError}} and abort these steps.
+            <p class="note">
+              The [[NDEF-SMARTPOSTER]] specification allows only one URL in
+              a <a>smart poster</a> and that MUST be a single <a>URI record</a>.
+            </p>
+          </li>
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
             [= exception/throw =] a {{TypeError}} and abort these steps.
@@ -3708,11 +3731,20 @@
       </li>
       <li>
         If |context| is `"smart-poster"` and |records| contain
-        [=absolute-URL records=], remove them rom |records|.
+        [=absolute-URL records=], remove them from |records|.
+        <p class="note">
+          In other words, remove [=absolute-URL records=] from <a>smart poster</a>,
+          as required by the [[NDEF-SMARTPOSTER]] specification.
+        </p>
       </li>
       <li>
         If any record in |records| is a <a>smart poster</a>, then remove
         all <a>URI records</a> and [=absolute-URL records=] from |records|.
+        <p class="note">
+          In other words, remove [=absolute-URL records=] and <a>URI records</a>
+          from <a>NDEF messages</a> that contain a <a>smart poster</a> record,
+          as required by the [[NDEF-SMARTPOSTER]] specification.
+        </p>
       </li>
       <li>
         Otherwise return `true`.
