@@ -2637,11 +2637,6 @@
                 <a>recordType</a> returns `false`, reject |promise| with a
                 {{TypeError}} and abort these steps.
               </li>
-              <!--
-              TODO: include clauses to fix
-              https://github.com/w3c/web-nfc/issues/546, i.e.
-              check SP size and action records payload size.
-              -->
               <li>
                 Return the result of running
                 <a>map local type to NDEF</a> given |record|, |ndef| and
@@ -3198,6 +3193,19 @@
             <a>local type name</a>.
           </li>
           <li>
+            If |context| is `"smart-poster"`, |localTypeName| is
+            <strong>"`s`" (`0x73`)</strong> and if the type of
+            |record|'s <a>data</a> is not {{BufferSource}} or its byte length
+            is bigger than 4, [= exception/throw =] a {{TypeError}} and abort these steps.
+          </li>
+          <li>
+            If |context| is `"smart-poster"`, |localTypeName| is
+            <strong>"`act`" (`0x61` `0x63` `0x74`) </strong> and if the type of
+            |record|'s <a>data</a> is not {{BufferSource}} or its byte length
+            is not exactly one, [= exception/throw =] a {{TypeError}} and abort
+            these steps.
+          </li>
+          <li>
             If the type of a |record|'s <a>data</a> is {{BufferSource}},
             <ol>
               <li>
@@ -3232,10 +3240,6 @@
               </li>
             </ol>
           </li>
-          <!--
-            TODO: clauses to fix https://github.com/w3c/web-nfc/issues/546
-            check SP size and action records payload size.
-          -->
           <li>
             Return |ndef|.
           </li>
