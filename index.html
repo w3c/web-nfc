@@ -2628,9 +2628,9 @@
             If |record|'s <a>recordType</a> starts with a colon `U+003A` (`:`):
             <ul>
               <li>
-                If |record| is not a payload to another <a>NDEF record</a>
-                and if |context| is not `"smart-poster"`,
-                reject |promise| with a {{TypeError}} and abort these steps.
+                If |context| is `""` (i.e. |record| is not a payload to another
+                <a>NDEF record</a>), reject |promise| with a {{TypeError}} and
+                abort these steps.
               </li>
               <li>
                 If running the <a>validate local type</a> steps on |record|'s
