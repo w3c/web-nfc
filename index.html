@@ -575,8 +575,12 @@
       <ul>
         <li>
           A single mandatory <a>URI record</a> that refers to the
-          <a>smart poster</a> content. A <a>smart poster</a> overrides any
-          other <a>URI records</a> in an <a>NDEF message</a>.
+          <a>smart poster</a> content.
+          <p class="note">
+            The [[NDEF-SMARTPOSTER]] states that applications SHALL use only the
+            <a>smart poster</a> record if it is present in an <a>NDEF message</a>
+            that also contains other <a>URI records</a>.
+          </p>
         </li>
         <li>
           Zero or more <a>Text records</a> that act as a <dfn>title record</dfn>
@@ -3733,6 +3737,7 @@
         <a>type record</a>, <a>size record</a> or <a>action record</a>,
         throw {{TypeError}} and abort these steps.
       </li>
+      <!--
       <li>
         If |context| is `"smart-poster"` and |records| contain
         [=absolute-URL records=], remove them from |records|.
@@ -3750,6 +3755,7 @@
           as required by the [[NDEF-SMARTPOSTER]] specification.
         </p>
       </li>
+      -->
       <li>
         Otherwise return `true`.
       </li>
