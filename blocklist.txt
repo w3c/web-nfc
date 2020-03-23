@@ -1,0 +1,11 @@
+# This file holds a list of devices that websites using the Web NFC API are
+# forbidden from accessing.
+#
+# Each line contains the NFC-A tag's historical bytes hexadecimal values of a
+# device that should be blocked. In ISO 14443-4 terminology, the historical
+# bytes are a subset of the RATS (Request for Answer To Select) response.
+
+# Additions to this file must be made by pull request.
+
+8073C021C057597562694B6579 # YubiKey 5 series
+597562696B65794E454F7233   # YubiKey NEO
