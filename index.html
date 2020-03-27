@@ -214,7 +214,7 @@
     adapters, for instance a built-in one, and one or more attached via USB.
   </p>
   <div>
-    An <dfn>NFC tag</dfn> is a passive NFC device.
+    An <dfn>NFC tag</dfn> is a passive NFC device that is not <a>blocklisted</a>.
     The <a>NFC tag</a> is powered by magnetic induction when an active NFC
     device is in proximity range. An <a>NFC tag</a> that supports <a>NDEF</a>
     contains a single <a>NDEF message</a>.
@@ -4273,6 +4273,63 @@
 </section>
 </section>
 
+<!-- - - - - - - - - - - - - - - The Blocklist - - - - - - - - - - - - - - - -->
+<section> <h2 id="blocklist">The Blocklist</h2>
+  <p>
+    This specification relies on a blocklist file to restrict the set of NFC
+    devices a website can access.
+  </p>
+  <p>
+    The result of <dfn>parsing the blocklist</dfn> at a |url:URL| is a list of
+    historical bytes hexadecimal values, produced by the following algorithm:
+    <ol class=algorithm>
+      <li>
+        Fetch |url:URL|, and let |contents:string| be its body, decoded as UTF-8.
+      </li>
+      <li>
+        Let |lines:array| be |contents| split on `"\n"`.
+      </li>
+      <li>
+        Let |result:list| be an empty <a>list</a>.
+      </li>
+      <li>
+        [= list/For each =] |line:string| in |lines|, run the following sub-steps:
+        <ol>
+          <li>
+            If |line| is empty, continue to the next line.
+          </li>
+          <li>
+            If |line| starts with `"#"`, continue to the next line.
+          </li>
+          <li>
+            If |line| contains invalid hexadecimal values, continue to the next line.
+          </li>
+          <li>
+            <a>Append</a> |line| to |result|.
+          </li>
+          </li>
+        </ol>
+      </li>
+      <li>
+        Return |result|.
+      </li>
+    </ol>  <!-- parsing the blocklist -->
+  </p>
+  <p>
+    The <dfn>blocklist</dfn> is the result of <a>parsing the blocklist</a> at
+    <a
+    href="https://github.com/w3c/web-nfc/blob/master/blocklist.txt">https://github.com/w3c/web-nfc/blob/master/blocklist.txt</a>.
+    The UA should re-fetch the blocklist periodically, but it’s unspecified how
+    often.
+  </p>
+  <p>
+    An <a>NFC device</a> is <dfn>blocklisted</dfn> if the <a>blocklist</a>’s
+    value contains the device's <a>historical bytes</a> hexadecimal values. In
+    ISO 14443-4 terminology, the <dfn>historical bytes</dfn> are a subset of the
+    RATS (Request for Answer To Select) response.
+  </p>
+</section>
+
 <!-- - - - - - - - - - - - - Security and Privacy - - - - - - - - - - - - - -->
 <section> <h2 id="security">Security and Privacy</h2>
   <section> <h3>Chain of trust</h3>
@@ -4634,6 +4691,13 @@
       <p>
         All permission that are preserved beyond the current
         browsing session MUST be revocable.
+      </p>
+    </section>
+
+    <section> <h4>Blocklist</h4>
+      <p>
+        Web NFC includes a <a>blocklist</a> of vulnerable NFC devices to prevent
+        websites from taking advantage of them.
       </p>
     </section>
 

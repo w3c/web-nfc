@@ -7,5 +7,7 @@
 
 # Additions to this file must be made by pull request.
 
-8073C021C057597562694B6579 # YubiKey 5 series
-597562696B65794E454F7233   # YubiKey NEO
+# YubiKey 5 series
+8073C021C057597562694B6579
+# YubiKey NEO
+597562696B65794E454F7233
