@@ -1852,8 +1852,7 @@
   <p data-dfn-for="NDEFReadingEventInit">
     <dfn>NDEFReadingEventInit</dfn> is used to initialize a new event with a serial number
     and the <a>NDEFMessageInit</a> data via the <dfn>message</dfn> member.
-    If <dfn>serialNumber</dfn> is
-    [= dictionary member/not present =] or is `null`,
+    If <dfn>serialNumber</dfn> is not present or is `null`,
     empty string will be used to init the event.
   </p>
   <p class="note">
@@ -2212,7 +2211,7 @@
         denotes the string value which is used for matching the
         <a>record identifier</a> of each
         <a>NDEFRecord</a> object in an <a>NDEF message</a>.
-        If the dictionary member is [= dictionary member/not present =],
+        If the dictionary member is not present,
         then it will be ignored by the
         <a href="#steps-listen">NFC listen algorithm</a>.
       </p>
@@ -2221,7 +2220,7 @@
         denotes the string value which is used for matching the
         <a>record type</a> of each
         <a>NDEFRecord</a> object in an <a>NDEF message</a>.
-        If the dictionary member is [= dictionary member/not present =],
+        If the dictionary member is not present,
         then it will be ignored by the
         <a href="#steps-listen">NFC listen algorithm</a>.
       </p>
