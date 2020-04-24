@@ -71,6 +71,12 @@
           publisher: "NFC Forum",
           date: "24 July 2006",
         },
+        "TNEP": {
+          href: "http://members.nfc-forum.org/specs/spec_list/",
+          title: "NFC Forum Tag NDEF Exchange Protocol",
+          publisher: "NFC Forum",
+          date: "9 December 2019",
+        },
         "NDEF-TEXT": {
           href: "http://members.nfc-forum.org/specs/spec_list/",
           title: "NFC Forum Text Record Type Definition",
@@ -679,6 +685,188 @@
         </ndef-record>
       </ndef-record>
     </div>
+    </section>
+
+    <section> <h5>Tag NDEF Exchange Protocol</h5>
+      <p>
+        The Tag NDEF Exchange Protocol [[TNEP]] is an application-level protocol built on top
+        of NDEF. It allows for exchanging application data in the form of NDEF messages between
+        an active NFC Reader/Writer device and an NFC Tag Device (often emulated using
+        Host Card emulation).
+      </p>
+      <p>
+        This protocol defines three additional NDEF records for this communication to take place.
+      </p>
+
+      <section> <h5>TNEP Service Parameter record</h5>
+        <div>
+          <p>
+            The <dfn>Service Parameter record</dfn> is a [=well-known type record=] that is defined
+            in the [[TNEP]] specification.
+          </p>
+          <p>
+            The <a>TNF field</a> is `1` and the <a>TYPE field</a> is "`Tp`" (`0x54`, `0x70`).
+          </p>
+          <p>
+            The <a>PAYLOAD field</a> contains the following data:
+          </p>
+
+          <table class="simple">
+            <tr>
+              <th>Offset</th>
+              <th>Bytes</th>
+              <th>Description</th>
+            </tr>
+            <tr>
+              <td>0 bytes</td>
+              <td>1 byte</td>
+              <td><a>PROTOCOL VERSION</a></td>
+            </tr>
+            <tr>
+              <td>1 byte</td>
+              <td>1 byte</td>
+              <td><a>SERVICE NAME URI LENGTH</a> (bytes)</td>
+            </tr>
+            <tr>
+              <td>2 byte</td>
+              <td><i>N</i> bytes</td>
+              <td><a>SERVICE NAME URI</a></td>
+            </tr>
+            <tr>
+              <td>2 + <i>N</i> bytes</td>
+              <td>1 byte</td>
+              <td><a>COMMUNICATION MODE</a></td>
+            </tr>
+            <tr>
+              <td>3 + <i>N</i> bytes</td>
+              <td>1 byte (6 least significant bits)</td>
+              <td><a>MIN WAIT TIME</a></td>
+            </tr>
+            <tr>
+              <td>4 + <i>N</i> bytes</td>
+              <td>1 byte (4 least significant bits)</td>
+              <td><a>MAX WAIT TIME EXTENSION</a> (repetitions)</td>
+            </tr>
+            <tr>
+              <td>5 + <i>N</i> bytes</td>
+              <td>2 bytes</td>
+              <td><a>MAX NDEF MESSAGE SIZE</a> (bytes)</td>
+            </tr>
+          </table>
+          <p>
+            The <dfn>PROTOCOL VERSION</dfn> field represents the TNEP protocol version, with the first
+            nibble (four-bit aggregation) representing the major version, and the second nibble
+            representing the minor version:
+            <ul>
+              <li>Bits 7 to 4, defines the major version.</li>
+              <li>Bits 3 to 0, defines the minor version</li>
+            </ul>
+          </p>
+          <p>
+            The <dfn>SERVICE NAME URI LENGTH</dfn> field represents the length (in bytes) of the
+            <a>SERVICE NAME URI</a>.
+          </p>
+          <p>
+            The <dfn>SERVICE NAME URI</dfn> field represents service name (well-known service name
+            or external service name) in ASCII.
+          </p>
+          <p>
+            The <dfn>COMMUNICATION MODE</dfn> field can be either <dfn>single response</dfn> (0x00)
+            or <dfn>service specific</dfn> (0xFE). <a>Service specific</a> communication are
+            application/service defined and MUST use external service URIs.
+          </p>
+          <p>
+            The <dfn>MIN WAIT TIME</dfn> (bit `5` to `0`) field represents the mimimum time requires to start a read after
+            a write was performed. For <a>service specific</a> modes with multiple reads,
+            this will also be the minimum time required between reads.
+          </p>
+          <p>
+            The number represents a value between 0.5 and 27554 ms and is calculated after
+            the following formula:
+            <div>
+              t<sub>wait</sub> = 2 * ((MIN WAIT TIME / 4) - 1) ms
+            </div>
+          </p>
+          <p>
+            The <dfn>MAX WAIT TIME EXTENSION</dfn> (bit `3` to `0`) field represents is the maximum number of
+            repititions of t<sub>wait</sub> extensions to allow. This is to accomondate the
+            fact that some tag operations might take longer.
+          </p>
+          <p>
+            The <dfn>MAX NDEF MESSAGE SIZE</dfn> field represents the maximum allowed NDEF message size.
+          </p>
+        </div>
+      </section>
+
+      <section> <h5>TNEP Service Select record</h5>
+        <div>
+          <p>
+            The <dfn>Service Select record</dfn> is a [=well-known type record=] that is defined
+            in the [[TNEP]] specification.
+          </p>
+          <p>
+            The <a>TNF field</a> is `1` and the <a>TYPE field</a> is "`Ts`" (`0x54`, `0x73`).
+          </p>
+          <p>
+            The <a>PAYLOAD field</a> contains the following data:
+          </p>
+          <table class="simple">
+            <tr>
+              <th>Offset</th>
+              <th>Bytes</th>
+              <th>Description</th>
+            </tr>
+            <tr>
+              <td>0 byte</td>
+              <td>1 byte</td>
+              <td><a>SERVICE NAME URI LENGTH</a> (bytes)</td>
+            </tr>
+            <tr>
+              <td>1 byte</td>
+              <td><i>N</i> bytes</td>
+              <td><a>SERVICE NAME URI</a></td>
+            </tr>
+          </table>
+          <p>
+            The value of the <a>SERVICE NAME URI LENGTH</a> field can be 0, indicating to
+            deselect the current selected service, if any.
+          </p>
+        </div>
+      </section>
+
+      <section> <h5>TNEP Status record</h5>
+        <div>
+          <p>
+            The <dfn>Status record</dfn> is a [=well-known type record=] that is defined
+            in the [[TNEP]] specification.
+          </p>
+          <p>
+            The <a>TNF field</a> is `1` and the <a>TYPE field</a> is "`Te`" (`0x54`, `0x65`).
+          </p>
+          <p>
+            The <a>PAYLOAD field</a> contains the status code (unused values are reserved for future use):
+          </p>
+          <table class="simple">
+            <tr>
+              <th>Value</th>
+              <th>Description</th>
+            </tr>
+            <tr>
+              <td>0x00</td>
+              <td>Success (no error)</td>
+            </tr>
+            <tr>
+              <td>0x01</td>
+              <td>TNEP protocol error</td>
+            </tr>
+            <tr>
+              <td>0x80 – 0xFE</td>
+              <td>Service specific error code</td>
+            </tr>
+          </table>
+        </div>
+      </section>
+
     </section>
 
     <section> <h5>Signature records</h5>
