@@ -1065,15 +1065,17 @@
   <section> <h3>Save and restore game progress with an NFC tag</h3>
     <p>
       Filtering of relevant data sources can be done by the use of
-      the <a>NDEFScanOptions</a>. Below we use the custom record identifier
-      "`my-game-progress`" as a relative URL so that when we read the data, we
-      immediately update the game progress by issuing a write with a custom NDEF
-      data layout.
+      a custom record identifier, in this case "`my-game-progress`".
+      When we read the data, we immediately update the game progress by issuing
+      a write with a custom NDEF data layout.
     </p>
     <pre class="example">
       const reader = new NDEFReader();
-      await reader.scan({ id: "my-game-progress" });
+      await reader.scan();
       reader.onreading = async event => {
+        if (event.message.id !== "my-game-progress")
+          return;
+
         console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
 
         const encoder = new TextEncoder();
@@ -1102,9 +1104,7 @@
     </p>
     <pre class="example">
       const reader = new NDEFReader();
-      await reader.scan({
-        mediaType: "application/*json"
-      });
+      await reader.scan();
       reader.onreading = event => {
         const decoder = new TextDecoder();
         for (const record of event.message.records) {
@@ -1259,7 +1259,7 @@
     </p>
     <pre class="example">
       const reader = new NDEFReader();
-      await reader.scan({ recordType: "example.com:smart-poster" });
+      await reader.scan();
       reader.onreading = event => {
         const externalRecord = event.message.records.find(
           record => record.type == "example.com:smart-poster"
@@ -1352,10 +1352,11 @@
     </pre>
     <pre class="example">
       const reader = new NDEFReader();
-      await reader.scan({ recordType: "example.com:shoppingItem" });
+      await reader.scan();
       reader.onreading = event => {
         const shoppingItemRecord = event.message.records[0];
-        if (!shoppingItemRecord) {
+        if (!shoppingItemRecord ||
+            shoppingItemRecord.recordType !== "example.com:shoppingItem") {
           return;
         }
 
@@ -1913,27 +1914,6 @@
      </tr>
     </thead>
     <tbody data-link-for="NDEFScanOptions">
-     <tr>
-      <td><dfn>[[\Id]]</dfn></td>
-      <td>`undefined`</td>
-      <td>
-        The {{NDEFScanOptions}}.<a>id</a> value.
-      </td>
-     </tr>
-     <tr>
-      <td><dfn>[[\RecordType]]</dfn></td>
-      <td>`undefined`</td>
-      <td>
-        The {{NDEFScanOptions}}.<a>recordType</a> value.
-      </td>
-     </tr>
-     <tr>
-      <td><dfn>[[\MediaType]]</dfn></td>
-      <td>`undefined`</td>
-      <td>
-        The {{NDEFScanOptions}}.<a>mediaType</a> value.
-      </td>
-      </tr>
       <tr>
         <td><dfn>[[\Signal]]</dfn></td>
         <td>`undefined`</td>
@@ -1944,13 +1924,6 @@
     </tbody>
   </table>
 
-  <p class="note">
-    Note that the internal slots of {{NDEFReader}} come from the
-    |options:NDEFScanOptions| passed to <a>NDEFReader.scan()</a>.
-    Therefore there is maximum one filter associated with any given
-    {{NDEFReader}} object and successive invocations of <a>NDEFReader.scan()</a>
-    with new |options:NDEFScanOptions| will replace existing filters.
-  </p>
   <p>
     The <dfn data-dfn-for="NDEFReader">onreading</dfn> is an {{EventHandler}}
     which is called to notify that new reading is available.
@@ -2191,14 +2164,11 @@
   <section data-dfn-for="NDEFScanOptions">
     <h3>The <dfn>NDEFScanOptions</dfn> dictionary</h3>
       <p>
-        To describe which messages an application is interested in, the
+        To pass an [= AbortSignal/aborted flag =], the
         <a>NDEFScanOptions</a> dictionary is used:
       </p>
       <pre class="idl">
         dictionary NDEFScanOptions {
-          USVString id;
-          USVString recordType;
-          USVString mediaType;
           AbortSignal? signal;
         };
       </pre>
@@ -2206,45 +2176,6 @@
         The <dfn>signal</dfn> property allows to abort the
         [=NDEFReader/scan()=] operation.
       </p>
-      <p>
-        The <dfn>id</dfn> property
-        denotes the string value which is used for matching the
-        <a>record identifier</a> of each
-        <a>NDEFRecord</a> object in an <a>NDEF message</a>.
-        If the dictionary member is not present,
-        then it will be ignored by the
-        <a href="#steps-listen">NFC listen algorithm</a>.
-      </p>
-      <p>
-        The <dfn>recordType</dfn> property
-        denotes the string value which is used for matching the
-        <a>record type</a> of each
-        <a>NDEFRecord</a> object in an <a>NDEF message</a>.
-        If the dictionary member is not present,
-        then it will be ignored by the
-        <a href="#steps-listen">NFC listen algorithm</a>.
-      </p>
-      <p>
-        The <dfn>mediaType</dfn> property
-        denotes the <a>match pattern</a> which is used for matching the
-        [=NDEFRecord/mediaType=] property of each
-        <a>NDEFRecord</a> object in an <a>NDEF message</a>.
-      </p>
-      <pre
-        title="Filter accepting only JSON content"
-        class="example highlight">
-        const options = {
-          mediaType: "application/*json"  // any JSON-based MIME type
-        }
-      </pre>
-      <pre
-        title="Filter which only accepts binary content for a custom record identifier"
-        class="example highlight">
-        const options = {
-          id: "my-restaurant-daily-menu",
-          mediaType: "application/octet-stream"
-        }
-      </pre>
   </section> <!-- NDEFScanOptions -->
 
   <section id="writing-content">
@@ -3349,28 +3280,6 @@
       then the <a>UA</a> MUST listen to <a>NDEF message</a>s on all connected
       NFC adapters.
     </p>
-    <p>
-      Each {{NDEFReader}} can accept <a>NDEF message</a>s based on
-      data type, and record identifier filters.
-    </p>
-
-    <section> <h3>Match patterns</h3>
-      <div>
-        A <dfn>match pattern</dfn> is defined by the following ABNF:
-        <pre class="abnf">
-          match-pattern  = top-level-type "/" [ tree "." ] subtype [ "+" suffix ] [ ";" parameters ]
-          top-level-type = "*" / &lt; VCHAR except "/" and "*" &gt;
-          subtype        = "*" / &lt; VCHAR except "+" &gt;
-        </pre>
-        A <a>match pattern</a> is a
-        <a href="http://pubs.opengroup.org/onlinepubs/007904875/utilities/xcu_chap02.html#tag_02_13_03">
-        glob</a> used for matching <a>MIME type</a>s,
-        for instance the pattern "`application/*+json`" matches
-        "`application/calendar+json`", but does not match
-        "`application/json`". The pattern
-        "`*/*json`", on the other hand, matches both.
-      </div>
-    </section>
 
     <section> <h3>The <strong>scan()</strong> method</h3>
       <p>
@@ -3396,18 +3305,6 @@
               <li>
                 If |key| equals "`signal`" and |value| is not `undefined`, set
                 |reader|.<a>[[\Signal]]</a> to |value|.
-              </li>
-              <li>
-                Otherwise, if |key| equals "`id`", set
-                |reader|.<a>[[\Id]]</a> to |value|.
-              </li>
-              <li>
-                Otherwise, if |key| equals "`recordType`", set
-                |reader|.<a>[[\RecordType]]</a> to |value|.
-              </li>
-              <li>
-                Otherwise, if |key| equals "`mediaType`", set
-                |reader|.<a>[[\MediaType]]</a> to |value|.
               </li>
             </ol>
           </li>
@@ -3556,49 +3453,13 @@
     <ol class=algorithm>
       <li>
         [= list/For each =] {{NDEFReader}} instance |reader:NDEFReader| in
-        the <a>activated reader objects</a>, run the following sub-steps:
+        the <a>activated reader objects</a>,
         <ol>
           <li>
-            [= list/For each =] |record:NDEFRecord| in |message:NDEFMessage|,
-            <ol>
-              <li>
-                Let |matched:boolean| be `false`.
-              </li>
-              <li>
-                If |reader|.<a>[[\Id]]</a> is not `undefined` and is not equal
-                to |record|'s <a href="#dom-ndefrecord-id">id</a>,
-                [= iteration/continue =].
-                If it is equal, set |matched| to `true`.
-              </li>
-              <li>
-                If |reader|.<a>[[\RecordType]]</a> is not `undefined` and is
-                not equal to |record|'s
-                <a href="#dom-ndefrecord-recordtype">recordType</a>,
-                [= iteration/continue =].
-                If it is equal, set |matched| to `true`.
-              </li>
-              <li>
-                If |reader|.<a>[[\MediaType]]</a> is not `undefined` and is not
-                equal to
-                |record|'s <a href="#dom-ndefrecord-mediatype">mediaType</a>,
-                [= iteration/continue =].
-                If it is equal, set |matched| to `true`.
-              </li>
-              <li>
-                If |matched| is `true`,
-                <ol>
-                  <li>
-                    <a>fire an event</a> named "`reading`"
-                    at |reader| using <a>NDEFReadingEvent</a> with its
-                    <a>serialNumber</a> attribute initialized to |serialNumber|
-                    and <a>message</a> attribute initialized to |message|.
-                  </li>
-                  <li>
-                    [= iteration/Break =].
-                  </li>
-                </ol>
-              </li>
-            </ol>
+            <a>fire an event</a> named "`reading`" at |reader| using
+            <a>NDEFReadingEvent</a> with its <a>serialNumber</a> attribute
+            initialized to |serialNumber| and <a>message</a> attribute
+            initialized to |message|.
           </li>
         </ol>
       </li>
