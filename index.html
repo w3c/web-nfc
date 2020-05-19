@@ -1006,8 +1006,8 @@
 
   <section> <h3>Handle scanning errors</h3>
     <p>
-      This example shows what happens when [=NDEFReader/scan=] promise rejects and
-      [=NDEFReader/onerror=] is fired.
+      This example shows what happens when {{NDEFReader/scan}} promise rejects and
+      {{NDEFReader/onerror}} is fired.
     </p>
     <pre class="example">
       const reader = new NDEFReader();
@@ -1162,7 +1162,7 @@
   <section> <h3>Write data and print out existing data</h3>
     <p>
       Writing data requires tapping an <a>NFC tag</a>. If data should be
-      read during the same tap, we need to set the [=NDEFWriteOptions/ignoreRead=]
+      read during the same tap, we need to set the {{NDEFWriteOptions/ignoreRead}}
       property to `false`.
     </p>
     <pre class="example">
@@ -1189,7 +1189,7 @@
 
   <section> <h3>Stop listening to NDEF messages</h3>
     <p>
-      Read NDEF messages for 3 seconds by using [=NDEFScanOptions/signal=].
+      Read NDEF messages for 3 seconds by using {{NDEFScanOptions/signal}}.
     </p>
     <pre class="example">
       const reader = new NDEFReader();
@@ -1647,9 +1647,9 @@
   </p>
   <table class="simple" data-link-for="NDEFRecordInit">
     <tr>
-      <th>[=recordType=]</th>
-      <th>[=mediaType=]</th>
-      <th>[=data=]</th>
+      <th>{{recordType}}</th>
+      <th>{{mediaType}}</th>
+      <th>{{data}}</th>
       <th nowrap><a href="#ndef-record-types">record type</a></th>
       <th nowrap>[=TNF field=]</th>
       <th nowrap>[=TYPE field=]</th>
@@ -1749,8 +1749,8 @@
       <th><a href="#ndef-record-types">record type</a></th>
       <th nowrap>[=TNF field=]<br></th>
       <th nowrap>[=TYPE field=]</th>
-      <th>[=recordType=]</th>
-      <th>[=mediaType=]</th>
+      <th>{{recordType}}</th>
+      <th>{{mediaType}}</th>
     </tr>
     <tr>
       <td>[=Empty record=]</td>
@@ -1860,7 +1860,7 @@
   </pre>
   <p>
     The <dfn>NDEFMessageSource</dfn> is a union type representing argument types
-    accepted by the [=NDEFWriter/write()=] method.
+    accepted by the {{NDEFWriter/write()}} method.
   </p>
   <p data-dfn-for="NDEFReadingEvent">
     The <dfn>NDEFReadingEvent</dfn> is the event being dispatched on new NFC readings.
@@ -2203,7 +2203,7 @@
     </p>
     <p>
       The <dfn>signal</dfn> property allows to abort
-      the [=NDEFWriter/write()=] operation.
+      the {{NDEFWriter/write()}} operation.
     </p>
   </section>
 
@@ -2223,7 +2223,7 @@
       </pre>
       <p>
         The <dfn>signal</dfn> property allows to abort the
-        [=NDEFReader/scan()=] operation.
+      {{NDEFReader/scan()}} operation.
       </p>
       <p>
         The <dfn>id</dfn> property
@@ -2246,7 +2246,7 @@
       <p>
         The <dfn>mediaType</dfn> property
         denotes the <a>match pattern</a> which is used for matching the
-        [=NDEFRecord/mediaType=] property of each
+        {{NDEFRecord/mediaType}} property of each
         <a>NDEFRecord</a> object in an <a>NDEF message</a>.
       </p>
       <pre
@@ -3535,7 +3535,7 @@
         <p class="note">
            The UA SHOULD represent an unformatted <a>NFC tag</a> as an
            <a>NDEF message</a> containing no <a>NDEF record</a>s, i.e. an empty
-           array for its [=NDEFMessage/records=] property.
+           array for its {{NDEFMessage/records}} property.
         </p>
       </li>
       <li>
