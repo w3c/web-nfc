@@ -7,9 +7,9 @@
 // https://w3c.github.io/web-nfc/#actual-idl-index
 
 interface Window {
-  NDEFMEssage: NDEFMEssage
+  NDEFMessage: NDEFMessage
 }
-declare class NDEFMEssage {
+declare class NDEFMessage {
   constructor(messageInit: NDEFMessageInit)
   readonly records: NDEFRecord[]
 }
@@ -70,7 +70,7 @@ interface Window {
 declare class NDEFReadingEvent extends Event {
   constructor(type: string, readingEventInitDict: NDEFReadingEventInit)
   serialNumber: string
-  message: NDEFMEssage
+  message: NDEFMessage
 }
 interface NDEFReadingEventInit extends EventInit {
   serialNumber?: string
