@@ -11,7 +11,7 @@ interface Window {
 }
 declare class NDEFMessage {
   constructor(messageInit: NDEFMessageInit)
-  readonly records: NDEFRecord[]
+  records: ReadonlyArray<NDEFRecord>
 }
 declare interface NDEFMessageInit {
   records: NDEFRecordInit[]
