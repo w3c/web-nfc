@@ -86,5 +86,5 @@ interface NDEFScanOptions {
   id?: string
   recordType?: string
   mediaType?: string
-  signal?: any
+  signal?: AbortSignal
 }
