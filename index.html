@@ -4352,6 +4352,9 @@
 <section> <h2 id="security">Security and Privacy</h2>
   <section> <h3>Chain of trust</h3>
     <p>
+      Implementations need to make sure that when the user authorizes a method which is part of the Web NFC API, only that action is run, without side effects.
+    </p>
+    <p>
       By default, NDEF doesn't provide any way to make the content trusted
       beyond allowing tags to be made permanently read-only after writing
       data to them. This can even be done from a factory setting.
