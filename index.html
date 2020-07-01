@@ -113,6 +113,7 @@
   <style>
     table.simple { border: 1px solid #000; }
     table.simple td { border-right: 1px solid #000; }
+    img { width: 100%; height: auto }
   </style>
 </head>
 
@@ -4380,6 +4381,125 @@
       [[RFC2048]] and [[RFC2046]].
     </p>
   </section>
+  <section> <h3>Privacy implications and implementation considerations</h3>
+    <p>
+      The comparison to barcodes or QR codes is appropriate because NFC tags
+      are another non-human-readable method of exchanging data and sharing
+      them can have unforeseen privacy and security implications. For a web
+      site to read a QR code, a piece of interruptive UI must be used (the
+      camera) which captures an image and makes it apparent that the contents
+      of this image (including the QR code) will be available to the web page,
+      making it clear to the user that scanning is being performed.
+    </p>
+    <p>
+      Scanning a tag with NFC requires the user to place the scanning device
+      (e.g. phone) in close proximity to the NFC tag.
+    </p>
+    <p>
+      Scanning a tag when a Web NFC scan is not active, triggers the host OS
+      handling. Thus launching URLs and apps from scanning a NFC tag is not
+      handled and supported by Web NFC itself.
+    </p>
+    <p>
+      Furthermore, Web NFC scanning needs to be activated from a user interaction,
+      and scanning is paused when the web site is not in focus or the device
+      screen turns off (i.e. is not unlocked). This is put in place so that
+      accidental scans do not happen.
+    </p>
+    <p>
+      Web NFC further recommends that the implementation makes it very clear
+      UX-wise to the user that data will be scanned when placing the scanning
+      device in close proximity to a NFC tag - basically mimicking the UX flow
+      of scanning a QR code.
+    </p>
+    <p>
+      There are many options for doing so, like playing back a sound or showing
+      some persistent UI while the scanning can happen, for instance a modal
+      dialog with the ability to cancel at any point.
+    </p>
+    <img src="images/scan.jpg">
+    <p>
+      An implementation could also show the data that is about to be uploaded,
+      postpone sharing the read data until the user OK'd it and even show some
+      UI allowing the user to select which records to share.
+    </p>
+    <img src="images/approve.jpg">
+    <section> <h4>Reading and writing during a scan</h4>
+      <p>
+       When the user scans a tag, at that point the web application has access
+       to read the data on the tag, and in case it is not read-only, also to
+       write data to the tag. Consumer stickers for private usage (e.g. in the
+       maker community) are often unlocked (read + write), whereas commercial
+       deployment of NFC are read-only.
+      </p>
+      <p class="note">
+        An older protocol SNEP (Simple NDEF Exchange Protocol) allowed active
+        devices (e.g. a phone) to receive NDEF data from another active device,
+        but it is unsupported by Web NFC and it is currently being deprecated
+        on supported native platforms.
+      </p>
+      <p class="note">
+        A newer protocol TNEP (Tag NDEF Exchange Protocol) allows bidirectional
+        communication between a scanner device (e.g. phone) and actively powered
+        device like an IOT device. It is currently unsupported by Web NFC, and
+        furthermore it has restrictions on what input to accept and the IOT device
+        must ensure that the accepted records are valid.
+      </p>
+      <p>
+        If the tag contains privacy sensitive data, such data will be shared with
+        the site. Potentially, not immediately if the UX requires the user to
+        confirm the data exchange before doing so.
+      </p>
+      <p>
+        In some cases it might be obvious that the tag/device contains privacy
+        sensitive data, say in case it is a glucose meter which can indicate
+        that you, or someone in the close family, are a diabetes patient.
+      </p>
+      <p>
+        In other cases it might not be obvious that that can happen, but a user
+        might have used an app or website to write data to a tag that unknowingly
+        to the user encoded a user id or the like, which can later be read back
+        by any other site.
+      </p>
+      <p>
+        Private and unexpected data can also be stored in files (e.g. word
+        pressing documents, PDFs or camera images) which are uploaded using
+        the file upload API. The mitigations associated with the Web NFC API
+        are stronger than those associated with file upload and the data less
+        likely to be personally identifiable.
+      </p>
+    </section>
+    <section> <h4>Reading and writing during a scan</h4>
+      <p>
+        A scan of a tag might also reveal user location if the website knows
+        how to identify the tag and know the tags location in the real world,
+        like if it is mounted inside a museum. It might also be able to deduct
+        it somewhat as for instance FeliCa NFC tags are mostly used in Japan,
+        but Web NFC doesn’t reveal what tag technology is used.
+      </p>
+      <p>
+        This does not bring the web advertising and tracking model into the
+        real world, because it requires an action by the user and it is
+        obvious when being used and cannot be triggered in the background.
+      </p>
+    </section>
+    <section> <h4>Overwriting existing data</h4>
+      <p>
+        There is also the fear that writing to a NFC tag can ruin it or
+        “brick it”. As NFC tags were designed to be read by multiple user
+        applications, NDEF tags have been designed with an easy way to make
+        devices permanently read-only and can even be configured that way
+        from a factory.
+      </p>
+      <p>
+        NDEF is a simple exchange format for reading and writing data and
+        not for bi-directional communication. NFC supports multiple
+        communications formats based on lower tech (thus not locked as
+        read-only as NDEF) and none of these are supported by Web NFC.
+      </p>
+    </section>
+  </section>
+
   <section> <h3>Things that users should be made aware of when using NFC</h3>
     <p>
       This section details some of the things that users ought to be aware
@@ -4861,8 +4981,8 @@
     The editors would like to thank Jeffrey Yasskin, Anne van Kesteren,
     Anssi Kostiainen, Domenic Denicola, Daniel Ehrenberg, Jonas Sicking,
     Don Coleman, Salvatore Iovene, Rijubrata Bhaumik, Wanming Lin, Han Leon,
-    Ryan Sleevi, Balázs Engedy, Theodore Olsauskas-Warren and Reilly Grant
-    for their contributions to this document.
+    Ryan Sleevi, Balázs Engedy, Theodore Olsauskas-Warren, Reilly Grant,
+    Diego González and Daniel Appelquist for their contributions to this document.
   </p>
   <p>
     Special thanks to Luc Yriarte and Samuel Ortiz for their initial
