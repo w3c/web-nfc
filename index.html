@@ -4393,7 +4393,8 @@
     </p>
     <p>
       Scanning a tag with NFC requires the user to place the scanning device
-      (e.g. phone) in close proximity to the NFC tag.
+      (e.g. phone) in close proximity to the NFC tag - usually 5-10 cm, 2-4
+      inches.
     </p>
     <p>
       Scanning a tag when a Web NFC scan is not active, triggers the host OS
@@ -4404,7 +4405,7 @@
       Furthermore, Web NFC scanning needs to be activated from a user interaction,
       and scanning is paused when the web site is not in focus or the device
       screen turns off (i.e. is not unlocked). This is put in place so that
-      accidental scans do not happen.
+      accidental scans are not likely to happen.
     </p>
     <p>
       Web NFC further recommends that the implementation makes it very clear
@@ -4452,11 +4453,13 @@
       </p>
       <p>
         In some cases it might be obvious that the tag/device contains privacy
-        sensitive data, say in case it is a glucose meter which can indicate
-        that you, or someone in the close family, are a diabetes patient.
+        sensitive data, say in case of NFC equipped conference badgets and business
+        cards. This would also be the case with an NFC equipped glucose meter,
+        which can indicate that you, or someone in the close family, are a diabetes
+        patient.
       </p>
       <p>
-        In other cases it might not be obvious that that can happen, but a user
+        In other cases it might be less obvious that that can happen, but a user
         might have used an app or website to write data to a tag that unknowingly
         to the user encoded a user id or the like, which can later be read back
         by any other site.
@@ -4479,8 +4482,9 @@
       </p>
       <p>
         This does not bring the web advertising and tracking model into the
-        real world, because it requires an action by the user and it is
-        obvious when being used and cannot be triggered in the background.
+        real world, because it requires an action by the user and it cannot
+        be triggered in the background; and with proper UX it should be clear
+        that scanning is active.
       </p>
     </section>
     <section> <h4>Overwriting existing data</h4>
@@ -4504,7 +4508,7 @@
     <p>
       This section details some of the things that users ought to be aware
       of when using NFC. It is recommendated that implementations help educate
-      the users of given facts before or when related NFC actions are performed. 
+      the users of given facts before or when related NFC actions are performed.
     </p>
     <h4>Data that is read is shared with site</h4>
     <p>
@@ -4542,7 +4546,7 @@
       NFC can only read one tag at the time, but multiple tags can be detected
       and one of the tags can be selected as the tag to communicate with.
     </p>
-    <p> 
+    <p>
       Use cases for this could be having multiple smart cards (NFC based) in
       your wallet and not wanting to take the card out.
     </p>
