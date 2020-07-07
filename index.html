@@ -3,7 +3,7 @@
 <head>
   <title>Web NFC</title>
   <meta charset="UTF-8">
-  <link href="https://raw.githubusercontent.com/google/material-design-icons/master/device/2x_web/ic_nfc_black_48dp.png" rel="icon">
+  <link rel="icon" type="image/png" href="images/webnfc-favicon-simple.png">
   <script type="module" src="ndef-record.js"></script>
   <script src='https://www.w3.org/Tools/respec/respec-w3c' async class=
   'remove'></script>
@@ -34,6 +34,24 @@
           company: "Intel",
           companyURL: "https://intel.com/",
         },
+      ],
+      logos: [
+        {
+          src: 'images/w3c-logo.svg',
+          url: "https://w3.org",
+          alt: "W3C logo",
+          width: 95,
+          height: 68,
+          id: 'w3c-logo'
+        },
+        {
+          src: 'images/webnfc-logo.svg',
+          url: "https://w3c.github.io/web-nfc/",
+          alt: "Web NFC logo",
+          width: 95,
+          height: 68,
+          id: 'webnfc-logo'
+        }
       ],
       testSuiteURI: "https://wpt.fyi/web-nfc/",
       wg: "Web NFC Community Group",
@@ -113,7 +131,7 @@
   <style>
     table.simple { border: 1px solid #000; }
     table.simple td { border-right: 1px solid #000; }
-    img { width: 100%; height: auto }
+    img.illustration { width: 100%; height: auto }
   </style>
 </head>
 
@@ -4418,13 +4436,13 @@
       some persistent UI while the scanning can happen, for instance a modal
       dialog with the ability to cancel at any point.
     </p>
-    <img src="images/scan.jpg">
+    <img class="illustration" src="images/scan.jpg">
     <p>
       An implementation could also show the data that is about to be uploaded,
       postpone sharing the read data until the user OK'd it and even show some
       UI allowing the user to select which records to share.
     </p>
-    <img src="images/approve.jpg">
+    <img class="illustration" src="images/approve.jpg">
     <section> <h4>Reading and writing during a scan</h4>
       <p>
        When the user scans a tag, at that point the web application has access
