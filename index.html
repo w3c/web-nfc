@@ -1851,7 +1851,7 @@
     interface NDEFWriter {
       constructor();
 
-      Promise&lt;void&gt; write(NDEFMessageSource message, optional NDEFWriteOptions options={});
+      Promise&lt;undefined&gt; write(NDEFMessageSource message, optional NDEFWriteOptions options={});
     };
 
     [SecureContext, Exposed=Window]
@@ -1861,7 +1861,7 @@
       attribute EventHandler onerror;
       attribute EventHandler onreading;
 
-      Promise&lt;void&gt; scan(optional NDEFScanOptions options={});
+      Promise&lt;undefined&gt; scan(optional NDEFScanOptions options={});
     };
 
     [SecureContext, Exposed=Window]
