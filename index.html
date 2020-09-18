@@ -3,7 +3,7 @@
 <head>
   <title>Web NFC</title>
   <meta charset="UTF-8">
-  <link href="https://raw.githubusercontent.com/google/material-design-icons/master/device/2x_web/ic_nfc_black_48dp.png" rel="icon">
+  <link rel="icon" type="image/png" href="images/webnfc-favicon-simple.png">
   <script type="module" src="ndef-record.js"></script>
   <script src='https://www.w3.org/Tools/respec/respec-w3c' async class=
   'remove'></script>
@@ -34,6 +34,24 @@
           company: "Intel",
           companyURL: "https://intel.com/",
         },
+      ],
+      logos: [
+        {
+          src: 'images/w3c-logo.svg',
+          url: "https://w3.org",
+          alt: "W3C logo",
+          width: 95,
+          height: 68,
+          id: 'w3c-logo'
+        },
+        {
+          src: 'images/webnfc-logo.svg',
+          url: "https://w3c.github.io/web-nfc/",
+          alt: "Web NFC logo",
+          width: 95,
+          height: 68,
+          id: 'webnfc-logo'
+        }
       ],
       testSuiteURI: "https://wpt.fyi/web-nfc/",
       wg: "Web NFC Community Group",
@@ -113,6 +131,7 @@
   <style>
     table.simple { border: 1px solid #000; }
     table.simple td { border-right: 1px solid #000; }
+    img.illustration { width: 100%; height: auto }
   </style>
 </head>
 
@@ -1973,7 +1992,7 @@
     interface NDEFWriter {
       constructor();
 
-      Promise&lt;void&gt; write(NDEFMessageSource message, optional NDEFWriteOptions options={});
+      Promise&lt;undefined&gt; write(NDEFMessageSource message, optional NDEFWriteOptions options={});
     };
 
     [SecureContext, Exposed=Window]
@@ -1983,7 +2002,7 @@
       attribute EventHandler onerror;
       attribute EventHandler onreading;
 
-      Promise&lt;void&gt; scan(optional NDEFScanOptions options={});
+      Promise&lt;undefined&gt; scan(optional NDEFScanOptions options={});
     };
 
     [SecureContext, Exposed=Window]
@@ -4484,17 +4503,16 @@
 <section> <h2 id="security">Security and Privacy</h2>
   <section> <h3>Chain of trust</h3>
     <p>
-      Web sites and applications using Web NFC are not trusted.
-      This means that the user needs to be made aware of what NFC functionality
-      a web page intends to do. Implementations need to
-      make sure that when the user authorizes a method of this API, only
-      that action is run, without side effects, and exactly in the context and
-      the number of times the user allows the execution of NFC related
-      operations, according to the algorithmic steps detailed in this
-      specification.
+      Implementations need to make sure that when the user authorizes a method which is part of the Web NFC API, only that action is run, without side effects.
     </p>
     <p>
-      Web NFC does not sign <a>NFC content</a>. In order to protect the
+      By default, NDEF doesn't provide any way to make the content trusted
+      beyond allowing tags to be made permanently read-only after writing
+      data to them. This can even be done from a factory setting.
+    </p>
+    <p>
+      Data written by the use of this API is not signed or encrypted automatically,
+      which follows existing native NFC APIs. In order to protect the
       integrity and authenticity of NDEF messages, the NFC Forum introduced
       [[NDEF-SIGNATURE]]. Using <a>NDEF signature</a> and
       key management is the responsibility of the application.
@@ -4511,6 +4529,204 @@
     <p>
       Security considerations for MIME types in general are discussed in
       [[RFC2048]] and [[RFC2046]].
+    </p>
+  </section>
+  <section> <h3>Privacy implications and implementation considerations</h3>
+    <p>
+      The comparison to barcodes or QR codes is appropriate because NFC tags
+      are another non-human-readable method of exchanging data and sharing
+      them can have unforeseen privacy and security implications. For a web
+      site to read a QR code, a piece of interruptive UI must be used (the
+      camera) which captures an image and makes it apparent that the contents
+      of this image (including the QR code) will be available to the web page,
+      making it clear to the user that scanning is being performed.
+    </p>
+    <p>
+      Scanning a tag with NFC requires the user to place the scanning device
+      (e.g. phone) in close proximity to the NFC tag - usually 5-10 cm, 2-4
+      inches.
+    </p>
+    <p>
+      Scanning a tag when a Web NFC scan is not active, triggers the host OS
+      handling. Thus launching URLs and apps from scanning a NFC tag is not
+      handled and supported by Web NFC itself.
+    </p>
+    <p>
+      Furthermore, Web NFC scanning needs to be activated from a user interaction,
+      and scanning is paused when the web site is not in focus or the device
+      screen turns off (i.e. is not unlocked). This is put in place so that
+      accidental scans are not likely to happen.
+    </p>
+    <p>
+      Web NFC further recommends that the implementation makes it very clear
+      UX-wise to the user that data will be scanned when placing the scanning
+      device in close proximity to a NFC tag - basically mimicking the UX flow
+      of scanning a QR code.
+    </p>
+    <p>
+      There are many options for doing so, like playing back a sound or showing
+      some persistent UI while the scanning can happen, for instance a modal
+      dialog with the ability to cancel at any point.
+    </p>
+    <img class="illustration" src="images/scan.jpg">
+    <p>
+      An implementation could also show the data that is about to be uploaded,
+      postpone sharing the read data until the user OK'd it and even show some
+      UI allowing the user to select which records to share.
+    </p>
+    <img class="illustration" src="images/approve.jpg">
+    <section> <h4>Reading and writing during a scan</h4>
+      <p>
+       When the user scans a tag, at that point the web application has access
+       to read the data on the tag, and in case it is not read-only, also to
+       write data to the tag. Consumer stickers for private usage (e.g. in the
+       maker community) are often unlocked (read + write), whereas commercial
+       deployment of NFC are read-only.
+      </p>
+      <p class="note">
+        An older protocol SNEP (Simple NDEF Exchange Protocol) allowed active
+        devices (e.g. a phone) to receive NDEF data from another active device,
+        but it is unsupported by Web NFC and it is currently being deprecated
+        on supported native platforms.
+      </p>
+      <p class="note">
+        A newer protocol TNEP (Tag NDEF Exchange Protocol) allows bidirectional
+        communication between a scanner device (e.g. phone) and actively powered
+        device like an IOT device. It is currently unsupported by Web NFC, and
+        furthermore it has restrictions on what input to accept and the IOT device
+        must ensure that the accepted records are valid.
+      </p>
+      <p>
+        If the tag contains privacy sensitive data, such data will be shared with
+        the site. Potentially, not immediately if the UX requires the user to
+        confirm the data exchange before doing so.
+      </p>
+      <p>
+        In some cases it might be obvious that the tag/device contains privacy
+        sensitive data, say in case of NFC equipped conference badgets and business
+        cards. This would also be the case with an NFC equipped glucose meter,
+        which can indicate that you, or someone in the close family, are a diabetes
+        patient.
+      </p>
+      <p>
+        In other cases it might be less obvious that that can happen, but a user
+        might have used an app or website to write data to a tag that unknowingly
+        to the user encoded a user id or the like, which can later be read back
+        by any other site.
+      </p>
+      <p>
+        Private and unexpected data can also be stored in files (e.g. word
+        pressing documents, PDFs or camera images) which are uploaded using
+        the file upload API. The mitigations associated with the Web NFC API
+        are stronger than those associated with file upload and the data less
+        likely to be personally identifiable.
+      </p>
+    </section>
+    <section> <h4>Reading and writing during a scan</h4>
+      <p>
+        A scan of a tag might also reveal user location if the website knows
+        how to identify the tag and know the tags location in the real world,
+        like if it is mounted inside a museum. It might also be able to deduct
+        it somewhat as for instance FeliCa NFC tags are mostly used in Japan,
+        but Web NFC doesn’t reveal what tag technology is used.
+      </p>
+      <p>
+        This does not bring the web advertising and tracking model into the
+        real world, because it requires an action by the user and it cannot
+        be triggered in the background; and with proper UX it should be clear
+        that scanning is active.
+      </p>
+    </section>
+    <section> <h4>Overwriting existing data</h4>
+      <p>
+        There is also the fear that writing to a NFC tag can ruin it or
+        “brick it”. As NFC tags were designed to be read by multiple user
+        applications, NDEF tags have been designed with an easy way to make
+        devices permanently read-only and can even be configured that way
+        from a factory.
+      </p>
+      <p>
+        NDEF is a simple exchange format for reading and writing data and
+        not for bi-directional communication. NFC supports multiple
+        communications formats based on lower tech (thus not locked as
+        read-only as NDEF) and none of these are supported by Web NFC.
+      </p>
+    </section>
+  </section>
+
+  <section> <h3>Things that users should be made aware of when using NFC</h3>
+    <p>
+      This section details some of the things that users ought to be aware
+      of when using NFC. It is recommendated that implementations help educate
+      the users of given facts before or when related NFC actions are performed.
+    </p>
+    <h4>Data that is read is shared with site</h4>
+    <p>
+      When a site has access to read NFC content, then the data of the scanned
+      tags is shared with the site, in a similar way to uploading files and images.
+      As with any site, it is up to the user whether to trust that the site handles this data properly and in the
+      intended manner.
+    </p>
+    <h4>A site may modify and overwrite data of tags that are not made read-only</h4>
+    <p>
+      Deployed NFC solutions, like tags in stores etc, should always be made
+      read-only in order to ensure they are not modified by mistake or as part
+      of a malicious act.
+    </p>
+    <p>
+      Private tags and stickers are often unlocked (writable) from the factory
+      and the user should be aware that such tags might be overwritten/modified
+      by scanning them.
+    </p>
+    <h4>Reading a fixed (e.g. mounted) tag may expose reading location</h4>
+    <p>
+      A fixed tag may encode its ID or location in the data, meaning that reading
+      it exposes that information to the site that knows the physical location of the tag, which then can deduct the location
+      the read took place. That combined with being logged into a service, can
+      share your location data with the site.
+    </p>
+    <p>
+      Data written is readable by other apps and sites with granted read access
+      Any NDEF data on a tag can be read by any app or web site with the proper
+      access, so if that is not intended then the data should be encrypted in a
+      secure manner that only who is supposed to read it can.
+    </p>
+    <h4>Multiple tags may be within the reading field at the same time</h4>
+    <p>
+      NFC can only read one tag at the time, but multiple tags can be detected
+      and one of the tags can be selected as the tag to communicate with.
+    </p>
+    <p>
+      Use cases for this could be having multiple smart cards (NFC based) in
+      your wallet and not wanting to take the card out.
+    </p>
+    <p>
+      This is mostly useful for payment cards and travel cards that are read
+      by external hardware and thus not a use-case for Web NFC. For Web NFC,
+      we do not allow reading when there are multiple tags available, preventing the following attack vector.
+    </p>
+    <p>
+      There is an attack vector, where someone places another malicious NFC
+      tag/sticker on top of a legitimate tag, in order to load the wrong
+      app/site, or inject wrong data into the right app/site. They can
+      do so by cloning the data of the original tag and modifying it -
+      either by changing the URL to load a malicious app/site, or by
+      changing the data to inject malicious data in the right app/site.
+      Example: the tag is supposed to take you to <a href="https://example.com">https://example.com</a> but is modified
+      to take you to <a href="https://exаmple.com">https://exаmple.com</a> (that is with a Cyrillic а) - it looks legitimate
+      and you might now to giving sensitive data to a malicious site.
+    </p>
+    <p>
+      Loading web sites from a tag is outside the scope of Web NFC, but it
+      is recommended for user agents to not auto load URLs when multiple
+      tags are available due to the above attack vector.
+    </p>
+    <p>
+      By disallowing reading when there are multiple tags available, Web
+      NFC protects well against injecting wrong/malicious data into a site
+      as shielding the existing NFC tag is quite difficult as it requires
+      ferrite shielding which is quite visible. Metal interferes with the
+      magnetic field and makes tags not readable.
     </p>
   </section>
 
@@ -4561,8 +4777,8 @@
           and attack vectors.
         </li>
         <li>
-          <strong>Malicious NFC tag creator</strong>: same as malicious web page
-          owner, but it has a possibility to create, delete or modify the NFC
+          <strong>Malicious NFC tag creator</strong>: same as above, but with the
+          additional possibility to create, delete or modify the NFC
           tags locally.
           As a result can compromise integrity of user device, cause data
           injection, redirect to malicious web page, phishing user location,
@@ -4570,8 +4786,8 @@
           automated dispatching or other actions.
         </li>
         <li>
-          <strong>Malicious man-in-the-middle (MITM) user</strong>: any MITM
-          style attack between Web NFC implementation and an <a>NFC adapter</a>
+          <strong>Compromised device or user agent: man-in-the-middle (MITM) attack</strong>:
+          any MITM style attack between Web NFC implementation and an <a>NFC adapter</a>
           in a user device, including attempts to interact with a web site using
           Web NFC by presenting modified or replayed NDEF records.
         </li>
@@ -4919,8 +5135,8 @@
     The editors would like to thank Jeffrey Yasskin, Anne van Kesteren,
     Anssi Kostiainen, Domenic Denicola, Daniel Ehrenberg, Jonas Sicking,
     Don Coleman, Salvatore Iovene, Rijubrata Bhaumik, Wanming Lin, Han Leon,
-    Ryan Sleevi, Balázs Engedy, Theodore Olsauskas-Warren and Reilly Grant
-    for their contributions to this document.
+    Ryan Sleevi, Balázs Engedy, Theodore Olsauskas-Warren, Reilly Grant,
+    Diego González and Daniel Appelquist for their contributions to this document.
   </p>
   <p>
     Special thanks to Luc Yriarte and Samuel Ortiz for their initial
