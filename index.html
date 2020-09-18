@@ -990,6 +990,37 @@
     </pre>
   </section>
 
+  <section><h3>General information about writing data</h3>
+    <p>
+      Writing data is generally straightforward, but there are a few
+      gotcha's around how writing works with NFC.
+    </p>
+    <p>
+      An NFC reader works by polling, so in order to be able to
+      write to a tag, a tag first needs to be found and read, which
+      means that polling needs to be initialized first.
+    </p>
+    <p>
+      If polling is not initiated already by first calling `scan()`,
+      then the `write()` method will initiate it temporarily until a
+      tag was found and read, and writing to it was attempted.
+    </p>
+    <p>
+      This means that the flow is that first a read it performed
+      as the tag is first found, then followed by a write.
+    </p>
+    <p>
+      This means that if `scan()` is running and you have an event
+      listener for the `reading` event, it will be dispatched once
+      during a `write()` operation, which might not be the intended
+      behavior.
+    </p>
+    <p>
+      In the following sections we will discuss how you can easily
+      deal with this behavior, but first a few simple examples.
+    </p>
+  </section>
+
   <section><h3>Write a text string</h3>
     <p>
       Writing a text string to an NFC tag is straightforward.
@@ -1008,20 +1039,101 @@
 
   <section> <h3>Write a URL</h3>
     <p>
-      In order to write an NDEF record of URL type, simply use NDEFMessage.
+      In order to write an NDEF record of URL type, simply use NDEFMessage. Here
+      we rely on async/await.
     </p>
     <pre class="example">
-      const writer = new NDEFWriter();
-      writer.write({
-        records: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
-      }).then(() => {
-        console.log("Message written.");
-      }).catch(_ => {
+      const ndef = new NDEFReader();
+      try {
+        ndef.write({
+          records: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
+        });
+      } catch {
         console.log("Write failed :-( try again.");
-      });
+      };
     </pre>
   </section>
 
+  <section> <h3>Handling initial reads while writing</h3>
+    <p>
+      In order to write, a tag needs to be found and thus read. This gives
+      you the ability to check whether it is actually a tag that you want to
+      write to or not, by checking existing data or serial number.
+    </p>
+    <p>
+      For this reason, it is recommended calling `write()` from a `reading`
+      event.
+    </p>
+      The below example shows how to coordinate between a common `reading`
+      handler and one used specifically for a single write.
+    </p>
+    <pre class="example">
+      const reader = new NDEFReader();
+      let ignoreRead = false;
+
+      reader.onreading(event => {
+        if (ignoreRead) {
+          return; // write pending, ignore read.
+        }
+
+        console.log("We read a tag, but not during pending write!");
+      }
+
+      function write(data) {
+        ignoreRead = true;
+        return new Promise((resolve, reject) => {
+          reader.addEventListener("reading", event => {
+            // Check if we want to write to this tag, or reject.
+            reader.write(data).then(resolve, reject).finally(() => ignoreRead = false);
+          }, { once: true });
+        });
+      }
+
+      await reader.scan();
+      try {
+        await write("Hello World");
+        console.log("We wrote to a tag!")
+      } catch(err) {
+        console.error("Something went wrong", err);
+      }
+    </pre>
+  </section>
+
+  <section> <h3>Scheduling a write with a timeout</h3>
+    <p>
+      It can sometime be useful to set a time limit on a write operation.
+      Like you ask the user to touch a tag, and if no tag is found within
+      a certain amount of time, then you time out.
+    </p>
+    <pre class="example">
+      const reader = new NDEFReader();
+      reader.onreading(event => console.log("We read a tag!"));
+
+      function write(data, { timeout } = {}) {
+        return new Promise((resolve, reject) => {
+          const ctlr = new AbortController();
+          ctlr.signal.onabort = _ => reject("Time is up, bailing out!");
+          if (typeof timeout == "number") {
+            setTimeout(() => ctlr.abort(), timeout);
+          }
+
+          reader.addEventListener("reading", event => {
+            reader.write(data, { signal: ctlr.signal }).then(resolve, reject);
+          }, { once: true });
+        });
+      }
+
+      await reader.scan();
+      try {
+        // Let's wait for 5 seconds only.
+        write("Hello World", { timeout: 5_000 });}
+      } catch(err) {
+        console.error("Something went wrong", err);
+      } finally {
+        console.log("We wrote to a tag!");
+      }
+    </pre>
+  </section>
 
   <section> <h3>Handle scanning errors</h3>
     <p>
@@ -1041,6 +1153,37 @@
       }).catch(error => {
         console.log(`Error! Scan failed to start: ${error}.`);
       });
+    </pre>
+  </section>
+
+  <section> <h3>Read a single tag, once</h3>
+    <p>
+      This example show you how to easily create a convenience function
+      that just reads a single tag and then stops polling, saving
+      battery life by cutting unneeded work.
+    </p>
+    <p>
+      The example could easily be extended to time out after a given
+      amount of milliseconds.
+    </p>
+    <pre class="example">
+      const reader = new NDEFReader();
+
+      function read() {
+        return new Promise((resolve, reject) => {
+          const ctlr = new AbortController();
+          ctlr.signal.onabort = reject;
+          reader.addEventListener("reading", event => {
+            ctlr.abort();
+            resolve(event);
+          }, { once: true });
+          reader.scan({ signal: ctlr.signal }).catch(err => reject(err));
+        });
+      }
+
+      read().then(({ serialNumber }) => {
+        console.log(serialNumber);
+      })
     </pre>
   </section>
 
@@ -1180,29 +1323,27 @@
 
   <section> <h3>Write data and print out existing data</h3>
     <p>
-      Writing data requires tapping an <a>NFC tag</a>. If data should be
-      read during the same tap, we need to set the {{NDEFWriteOptions/ignoreRead}}
-      property to `false`.
+      Writing data requires tapping an <a>NFC tag</a>.
     </p>
     <pre class="example">
-      const reader = new NDEFReader();
-      reader.scan().then(() => {
+      const ndef = new NDEFReader();
 
-        reader.onreading = event => {
-          const decoder = new TextDecoder();
-          for (const record of event.message.records) {
-            console.log("Record type:  " + record.recordType);
-            console.log("MIME type:    " + record.mediaType);
-            console.log("=== data ===\n" + decoder.decode(record.data));
-          }
-        };
+      ndef.onreading = async event => {
+        const decoder = new TextDecoder();
+        for (const record of event.message.records) {
+          console.log("Record type:  " + record.recordType);
+          console.log("MIME type:    " + record.mediaType);
+          console.log("=== data ===\n" + decoder.decode(record.data));
+        }
 
-        const writer = new NDEFWriter();
-        return writer.write("Writing data is fun!", { ignoreRead: false });
+        try {
+          await ndef.write("Overriding data is fun!");
+        } catch(error) {
+          console.log(`Write failed :-( try again: ${error}.`);
+        }
+      };
 
-      }).catch(error => {
-        console.log(`Write failed :-( try again: ${error}.`);
-      });
+      ndef.scan();
     </pre>
   </section>
 
@@ -1224,7 +1365,7 @@
       };
 
       // Stop listening to NDEF messages after 3s.
-      setTimeout(() => controller.abort(), 3000);
+      setTimeout(() => controller.abort(), 3_000);
     </pre>
   </section>
 
@@ -2203,21 +2344,15 @@
     <h3>The <dfn>NDEFWriteOptions</dfn> dictionary</h3>
     <pre class="idl">
       dictionary NDEFWriteOptions {
-        boolean ignoreRead = true;
         boolean overwrite = true;
         AbortSignal? signal;
       };
     </pre>
     <p>
-      When the value of the <dfn>ignoreRead</dfn> property is `true`, the
-      <a>NFC reading algorithm</a> will skip reading <a>NFC tag</a>s for the
-      <a>activated reader objects</a>.
-    </p>
-    <p>
       When the value of the <dfn>overwrite</dfn> property is
       `false`, the <a href="#steps-write">write algorithm</a>
-      will read the <a>NFC tag</a> regardless of the `ignoreRead` value
-      to determine if it has <a>NDEF</a> records on it, and if yes, it will not
+      will read the <a>NFC tag</a> to determine if it has
+      <a>NDEF</a> records on it, and if yes, it will not
       execute any pending write.
     </p>
     <p>
@@ -3511,9 +3646,6 @@
     <ol class=algorithm id="parse-ndef">
       <li>
         If <a>NFC is suspended</a>, abort these steps.
-      </li>
-      <li>
-        If there is a <a>pending write tuple</a> and its writer's option's ignoreRead is `true`, abort these steps.
       </li>
       <li>
         If the <a>NFC tag</a> in proximity range does not expose <a>NDEF</a>
