@@ -980,11 +980,11 @@
 
   <section><h3>Feature support</h3>
     <p>
-      Detecting if Web NFC is supported can be done by checking NDEFReader
-      objects. Note that this does not guarantee that NFC hardware is available.
+      Detecting if Web NFC is supported can be done by checking the {{NDEFReader}}
+      object. Note that this does not guarantee that NFC hardware is available.
     </p>
     <pre class="example">
-      if ('NDEFReader' in window) { /* ... Scan or write NDEF Tags */ }
+      if ('NDEFReader' in window) { /* ... Scan and write NDEF Tags */ }
     </pre>
   </section>
 
@@ -1136,13 +1136,13 @@
   <section> <h3>Handle scanning errors</h3>
     <p>
       This example shows what happens when {{NDEFReader/scan}} promise rejects and
-      {{NDEFReader/onerror}} is fired.
+      {{NDEFReader/onreadingerror}} is fired.
     </p>
     <pre class="example">
       const ndef = new NDEFReader();
       ndef.scan().then(() => {
         console.log("Scan started successfully.");
-        ndef.onerror = event => {
+        ndef.onreadingerror = event => {
           console.log("Error! Cannot read data from the NFC tag. Try a different one?");
         };
         ndef.onreading = event => {
@@ -1978,9 +1978,9 @@
 <section> <h2>The NDEFReader object</h2>
   <p>
     The <dfn>NDEFReader</dfn> is an object that exposes NFC functionality to the
-    <a>browsing context</a>: reading data when a device, such as a tag, is within
-    the magnetic induction field. Also, it is used for writing
-    <a>NDEF message</a>s to <a>NFC tag</a>s within range.
+    <a>browsing context</a>: reading <a>NDEF messages</a> when a device, such
+    as a tag, is within the magnetic induction field. Also, it is used for
+    writing <a>NDEF messages</a> to <a>NFC tag</a>s within range.
   </p>
   <pre class="idl">
     typedef (DOMString or BufferSource or NDEFMessageInit) NDEFMessageSource;
@@ -1989,8 +1989,8 @@
     interface NDEFReader : EventTarget {
       constructor();
 
-      attribute EventHandler onerror;
       attribute EventHandler onreading;
+      attribute EventHandler onreadingerror;
 
       Promise&lt;undefined&gt; scan(optional NDEFScanOptions options={});
       Promise&lt;undefined&gt; write(NDEFMessageSource message,
@@ -2030,10 +2030,6 @@
     Though most tags will have a stable unique identifier (UID), not all
     have one and some tags even create a random number on each read.
     The serial number usually consists of 4 or 7 numbers, separated by `:`.
-  </p>
-  <p>
-    The <dfn>NDEFReader</dfn> is an object used for reading or writing data when
-    a device, such as a tag, is within the magnetic induction field.
   </p>
   <p>
     An {{NDEFReader}} object has the following <a data-cite=
@@ -2080,7 +2076,7 @@
     which is called to notify that new reading is available.
   </p>
   <p>
-    The <dfn data-dfn-for="NDEFReader">onerror</dfn> is an {{EventHandler}}
+    The <dfn data-dfn-for="NDEFReader">onreadingerror</dfn> is an {{EventHandler}}
     which is called to notify that an error happened during reading.
   </p>
   <section><h3>NFC state associated with the settings object</h3>
@@ -2110,10 +2106,11 @@
       </td>
      </tr>
      <tr>
-      <td><dfn>[[\ActivatedReaderList]]</dfn></td>
+      <td><dfn>[[\PendingRead]]</dfn></td>
       <td>empty <a>set</a></td>
       <td>
-        A <a>set</a> of {{NDEFReader}} instances.
+        A &lt;|promise:Promise|, |reader:NDEFReader|&gt; tuple where |promise|
+        holds a {{Promise}} and |reader| holds an {{NDEFReader}}.
       </td>
      </tr>
      <tr>
@@ -2127,8 +2124,8 @@
     </tbody>
   </table>
   <p>
-    The <dfn>activated reader objects</dfn> is the value of the
-    <a>[[\ActivatedReaderList]]</a> internal slot.
+    The <dfn>pending read tuple</dfn> is the value of the
+    <a>[[\PendingRead]]</a> internal slot.
   </p>
   <p>
     The <dfn>pending write tuple</dfn> is the value of the
@@ -2271,7 +2268,7 @@
       Stop the <a>dispatch NFC content</a> steps.
     </li>
     <li>
-      Clear the <a>activated reader objects</a>.
+      Clear the <a>pending read tuple</a>.
     </li>
     <li>
       Release the NFC resources associated with |nfc| on the
@@ -3422,9 +3419,9 @@
       accessible to the client.
     </p>
     <p>
-      If there are any {{NDEFReader}} instances in <a>activated reader objects</a>
-      then the <a>UA</a> MUST listen to <a>NDEF message</a>s on all connected
-      NFC adapters.
+      If there is a  <a>pending read tuple</a> whose |reader| is an
+      {{NDEFReader}} instance, then the <a>UA</a> MUST listen to
+      <a>NDEF message</a>s on all connected NFC adapters.
     </p>
 
     <section> <h3>The <strong>scan()</strong> method</h3>
@@ -3465,12 +3462,10 @@
             abort steps</a> to |reader|.<a>[[\ScanAbortSignal]]</a>:
             <ol>
               <li>
-                Remove the {{NDEFReader}} instance from the
-                <a>activated reader objects</a>.
+                Clear the <a>pending read tuple</a>.
               </li>
               <li>
-                If the <a>activated reader objects</a> [= list/is empty =],
-                then make a request to stop listening to <a>NDEF message</a>s
+                Make a request to stop listening to <a>NDEF message</a>s
                 on all <a>NFC adapter</a>s.
               </li>
             </ol>
@@ -3496,7 +3491,7 @@
                 and abort these steps.
               </li>
               <li>
-                Add |reader| to the <a>activated reader objects</a>.
+                Set the <a>pending read tuple</a> to (|p|, |reader|).
               </li>
               <li>
                 Resolve |p|.
@@ -3521,14 +3516,10 @@
         If the <a>NFC tag</a> in proximity range does not expose <a>NDEF</a>
         technology for reading or formatting, run the following sub-steps:
         <ol>
-          <li>[= list/For each =]
-            {{NDEFReader}} instance |reader:NDEFReader| in the
-            <a>activated reader objects</a>, run the following sub-steps:
-            <ol>
-              <li>
-                <a>Fire an event</a> named "`error`" at |reader|.
-              </li>
-            </ol>
+          <li>
+            If there is a <a>pending read tuple</a> whose |reader| is an
+            {{NDEFReader}} instance, fire an event</a> named "`readingerror`" at
+            |reader|.
           </li>
           <li>
             Abort these steps.
@@ -3595,16 +3586,11 @@
     </p>
     <ol class=algorithm>
       <li>
-        [= list/For each =] {{NDEFReader}} instance |reader:NDEFReader| in
-        the <a>activated reader objects</a>,
-        <ol>
-          <li>
-            <a>fire an event</a> named "`reading`" at |reader| using
-            <a>NDEFReadingEvent</a> with its <a>serialNumber</a> attribute
-            initialized to |serialNumber| and <a>message</a> attribute
-            initialized to |message|.
-          </li>
-        </ol>
+        If there is a <a>pending read tuple</a> whose |reader| is an
+        {{NDEFReader}} instance, <a>fire an event</a> named "`reading`" at
+        |reader| using <a>NDEFReadingEvent</a> with its <a>serialNumber</a>
+        attribute initialized to |serialNumber| and <a>message</a> attribute
+        initialized to |message|.
       </li>
     </ol>
     </section>
