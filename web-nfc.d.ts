@@ -44,24 +44,17 @@ declare interface NDEFRecordInit {
 declare type NDEFMessageSource = string | BufferSource | NDEFMessageInit
 
 interface Window {
-  NDEFWriter: NDEFWriter
-}
-declare class NDEFWriter {
-  constructor()
-  write: (
-    message: NDEFMessageSource,
-    options?: NDEFWriteOptions
-  ) => Promise<void>
-}
-
-interface Window {
   NDEFReader: NDEFReader
 }
 declare class NDEFReader extends EventTarget {
   constructor()
-  onerror: (error: any) => void
   onreading: (event: NDEFReadingEvent) => void
+  onreadingerror: (error: any) => void
   scan: (options?: NDEFScanOptions) => Promise<void>
+  write: (
+    message: NDEFMessageSource,
+    options?: NDEFWriteOptions
+  ) => Promise<void>
 }
 
 interface Window {
@@ -78,13 +71,9 @@ interface NDEFReadingEventInit extends EventInit {
 }
 
 interface NDEFWriteOptions {
-  ignoreRead?: boolean
   overwrite?: boolean
   signal?: AbortSignal
 }
 interface NDEFScanOptions {
-  id?: string
-  recordType?: string
-  mediaType?: string
-  signal?: AbortSignal
+  signal: AbortSignal
 }
