@@ -979,11 +979,11 @@
 
   <section><h3>Feature support</h3>
     <p>
-      Detecting if Web NFC is supported can be done by checking NDEFReader
-      objects. Note that this does not guarantee that NFC hardware is available.
+      Detecting if Web NFC is supported can be done by checking the {{NDEFReader}}
+      object. Note that this does not guarantee that NFC hardware is available.
     </p>
     <pre class="example">
-      if ('NDEFReader' in window) { /* ... Scan or write NDEF Tags */ }
+      if ('NDEFReader' in window) { /* ... Scan and write NDEF Tags */ }
     </pre>
   </section>
 
@@ -1977,9 +1977,9 @@
 <section> <h2>The NDEFReader object</h2>
   <p>
     The <dfn>NDEFReader</dfn> is an object that exposes NFC functionality to the
-    <a>browsing context</a>: reading data when a device, such as a tag, is within
-    the magnetic induction field. Also, it is used for writing
-    <a>NDEF message</a>s to <a>NFC tag</a>s within range.
+    <a>browsing context</a>: reading <a>NDEF messages</a> when a device, such
+    as a tag, is within the magnetic induction field. Also, it is used for
+    writing <a>NDEF messages</a> to <a>NFC tag</a>s within range.
   </p>
   <pre class="idl">
     typedef (DOMString or BufferSource or NDEFMessageInit) NDEFMessageSource;
@@ -1988,8 +1988,8 @@
     interface NDEFReader : EventTarget {
       constructor();
 
-      attribute EventHandler onreadingerror;
       attribute EventHandler onreading;
+      attribute EventHandler onreadingerror;
 
       Promise&lt;undefined&gt; scan(optional NDEFScanOptions options={});
       Promise&lt;undefined&gt; write(NDEFMessageSource message,
@@ -2029,10 +2029,6 @@
     Though most tags will have a stable unique identifier (UID), not all
     have one and some tags even create a random number on each read.
     The serial number usually consists of 4 or 7 numbers, separated by `:`.
-  </p>
-  <p>
-    The <dfn>NDEFReader</dfn> is an object used for reading or writing data when
-    a device, such as a tag, is within the magnetic induction field.
   </p>
   <p>
     An {{NDEFReader}} object has the following <a data-cite=
