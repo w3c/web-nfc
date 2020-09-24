@@ -6,7 +6,7 @@ Authors:
 - Francois Beaufort
 
 Participate
-- https://github.com/w3c/web-nfc/issues/ 
+- https://github.com/w3c/web-nfc/issues/
 - https://lists.w3.org/Archives/Public/public-web-nfc/
 
 ## Introduction
@@ -93,14 +93,14 @@ info when users tap NFC devices can be done smoothly once permission is granted.
 
 ```js
 const reader = new NDEFReader();
- 
+
 async function startScanning() {
   await reader.scan();
   reader.onreading = event => {
     /* handle NDEF messages */
   };
 }
- 
+
 const nfcPermissionStatus = await navigator.permissions.query({ name: "nfc" });
 if (permissionStatus.state === "granted") {
   // NFC access was previously granted, so we can start NFC scanning now.
@@ -123,7 +123,7 @@ USB](https://wicg.github.io/webusb/) in that it offers secure low level access
 with no magic and instead exposes data as a DataView as well as requires text to
 be encoded and decoded using TextEncoder/TextDecoder, which allows handling
 cases where the text might even be in UTF-16 do to existing real life
-implementations. 
+implementations.
 
 ```js
 const reader = new NDEFReader();
@@ -162,13 +162,12 @@ const abortController = new AbortController();
 abortController.signal.onabort = event => {
   // All NFC operations have been aborted.
 };
- 
-const reader = new NDEFReader();
-await reader.scan({ signal: abortController.signal });
- 
-const writer = new NDEFWriter();
-await writer.push("foo", { signal: abortController.signal });
- 
+
+const ndef = new NDEFReader();
+await ndef.scan({ signal: abortController.signal });
+
+await ndef.push("foo", { signal: abortController.signal });
+
 document.querySelector("#abortButton").onclick = event => {
   abortController.abort();
 };
@@ -234,7 +233,7 @@ The reader and writer objects could have been merged into one single object, but
 as we allow multiple scans with filters to be active at the same time (maybe in
 multiple places/view of the app/site) then it makes more sense to be able to use
 separate objects.
- 
+
 ## Considered alternatives
 
 ### Restrict to NDEF and name accordingly
