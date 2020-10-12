@@ -92,7 +92,7 @@ when required, about granting access to Web NFC. It means sending and receiving
 info when users tap NFC devices can be done smoothly once permission is granted.
 
 ```js
-const reader = new NDEFReader();
+const reader = navigator.nfc.ndef;
 
 async function startScanning() {
   await reader.scan();
@@ -126,7 +126,7 @@ cases where the text might even be in UTF-16 do to existing real life
 implementations.
 
 ```js
-const reader = new NDEFReader();
+const reader = navigator.nfc.ndef;
 
 await reader.scan({ recordType: "example.com:smart-poster" });
 reader.onreading = event => {
@@ -163,7 +163,7 @@ abortController.signal.onabort = event => {
   // All NFC operations have been aborted.
 };
 
-const ndef = new NDEFReader();
+const reader = navigator.nfc.ndef;
 await ndef.scan({ signal: abortController.signal });
 
 await ndef.push("foo", { signal: abortController.signal });
