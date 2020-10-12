@@ -6,6 +6,12 @@
 // This type definitions referenced to WebIDL.
 // https://w3c.github.io/web-nfc/#actual-idl-index
 
+interface Navigator {
+  nfc: NFC
+}
+declare class NFC {
+  ndef: NDEFReader
+}
 interface Window {
   NDEFMessage: NDEFMessage
 }
@@ -43,9 +49,6 @@ declare interface NDEFRecordInit {
 
 declare type NDEFMessageSource = string | BufferSource | NDEFMessageInit
 
-interface Window {
-  NDEFReader: NDEFReader
-}
 declare class NDEFReader extends EventTarget {
   constructor()
   onreading: (event: NDEFReadingEvent) => void
