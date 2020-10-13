@@ -985,7 +985,7 @@
       The example checks if {{NDEFReader}} is available.
     </p>
     <pre class="example">
-      if (navigator.nfc && navigator.nfc.ndef) {
+      if (navigator.nfc?.ndef) {
         /* ... Scan and write NDEF Tags */
       }
     </pre>
@@ -1027,8 +1027,7 @@
       Writing a text string to an NFC tag is straightforward.
     </p>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
-      ndef.write(
+      navigator.nfc.ndef.write(
         "Hello World"
       ).then(() => {
         console.log("Message written.");
@@ -1044,9 +1043,8 @@
       we rely on async/await.
     </p>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
       try {
-        ndef.write({
+        navigator.nfc.ndef.write({
           records: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
         });
       } catch {
@@ -1069,10 +1067,9 @@
       handler and one used specifically for a single write.
     </p>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
       let ignoreRead = false;
 
-      ndef.onreading(event => {
+      navigator.nfc.ndef.onreading(event => {
         if (ignoreRead) {
           return; // write pending, ignore read.
         }
@@ -1083,14 +1080,15 @@
       function write(data) {
         ignoreRead = true;
         return new Promise((resolve, reject) => {
-          ndef.addEventListener("reading", event => {
+          navigator.nfc.ndef.addEventListener("reading", event => {
             // Check if we want to write to this tag, or reject.
-            ndef.write(data).then(resolve, reject).finally(() => ignoreRead = false);
+            navigator.nfc.ndef.write(data).then(resolve, reject)
+              .finally(() => ignoreRead = false);
           }, { once: true });
         });
       }
 
-      await ndef.scan();
+      await navigator.nfc.ndef.scan();
       try {
         await write("Hello World");
         console.log("We wrote to a tag!")
@@ -1119,7 +1117,8 @@
           }
 
           ndef.addEventListener("reading", event => {
-            ndef.write(data, { signal: ctlr.signal }).then(resolve, reject);
+            ndef.write(data, { signal: ctlr.signal })
+              .then(resolve, reject);
           }, { once: true });
         });
       }
@@ -1142,13 +1141,12 @@
       {{NDEFReader/onreadingerror}} is fired.
     </p>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
-      ndef.scan().then(() => {
+      navigator.nfc.ndef.scan().then(() => {
         console.log("Scan started successfully.");
-        ndef.onreadingerror = event => {
+        navigator.nfc.ndef.onreadingerror = event => {
           console.log("Error! Cannot read data from the NFC tag. Try a different one?");
         };
-        ndef.onreading = event => {
+        navigator.nfc.ndef.onreading = event => {
           console.log("NDEF message read.");
         };
       }).catch(error => {
@@ -1168,17 +1166,16 @@
       amount of milliseconds.
     </p>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
-
       function read() {
         return new Promise((resolve, reject) => {
           const ctlr = new AbortController();
           ctlr.signal.onabort = reject;
-          ndef.addEventListener("reading", event => {
+          navigator.nfc.ndef.addEventListener("reading", event => {
             ctlr.abort();
             resolve(event);
           }, { once: true });
-          ndef.scan({ signal: ctlr.signal }).catch(err => reject(err));
+          navigator.nfc.ndef.scan({ signal: ctlr.signal })
+            .catch(err => reject(err));
         });
       }
 
@@ -1195,14 +1192,13 @@
       a text message is written with the value "Hello World".
     </p>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
-      await ndef.scan();
-      ndef.onreading = event => {
+      await navigator.nfc.ndef.scan();
+      navigator.nfc.ndef.onreading = event => {
         const message = event.message;
 
         if (message.records.length == 0 ||     // unformatted tag
             message.records[0].recordType == 'empty' ) {  // empty record
-          ndef.write({
+          navigator.nfc.ndef.write({
             records: [{ recordType: "text", data: 'Hello World' }]
           });
           return;
@@ -1251,9 +1247,8 @@
       a write with a custom NDEF data layout.
     </p>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
-      await ndef.scan();
-      ndef.onreading = async event => {
+      await navigator.nfc.ndef.scan();
+      navigator.nfc.ndef.onreading = async event => {
         if (event.message.id !== "my-game-progress")
           return;
         console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
@@ -1271,7 +1266,7 @@
             }))
           }]
         };
-        await ndef.write(newMessage);
+        await navigator.nfc.ndef.write(newMessage);
         console.log("Message written");
       };
     </pre>
@@ -1282,9 +1277,8 @@
       Storing and receiving JSON data is easy with serialization and deserialization.
     </p>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
-      await ndef.scan();
-      ndef.onreading = event => {
+      await navigator.nfc.ndef.scan();
+      navigator.nfc.ndef.onreading = event => {
         const decoder = new TextDecoder();
         for (const record of event.message.records) {
           if (record.mediaType === 'application/json') {
@@ -1296,7 +1290,7 @@
       };
 
       const encoder = new TextEncoder();
-      ndef.write({
+      navigator.nfc.ndef.write({
         records: [
           {
             recordType: "mime",
@@ -1323,9 +1317,7 @@
       Writing data requires tapping an <a>NFC tag</a>.
     </p>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
-
-      ndef.onreading = async event => {
+      navigator.nfc.ndef.onreading = async event => {
         const decoder = new TextDecoder();
         for (const record of event.message.records) {
           console.log("Record type:  " + record.recordType);
@@ -1334,13 +1326,13 @@
         }
 
         try {
-          await ndef.write("Overriding data is fun!");
+          await navigator.nfc.ndef.write("Overriding data is fun!");
         } catch(error) {
           console.log(`Write failed :-( try again: ${error}.`);
         }
       };
 
-      ndef.scan();
+      navigator.nfc.ndef.scan();
     </pre>
   </section>
 
@@ -1349,11 +1341,10 @@
       Read NDEF messages for 3 seconds by using {{NDEFScanOptions/signal}}.
     </p>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
       const controller = new AbortController();
 
-      await ndef.scan({ signal: controller.signal });
-      ndef.onreading = event => {
+      await navigator.nfc.ndef.scan({ signal: controller.signal });
+      navigator.nfc.ndef.onreading = event => {
         console.log("NDEF message read.");
       };
 
@@ -1368,9 +1359,8 @@
 
   <section> <h3>Write a smart poster message</h3>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
       const encoder = new TextEncoder();
-      ndef.write({ records: [
+      navigator.nfc.ndef.write({ records: [
         {
           recordType: "smart-poster",  // Sp
           data: { records: [
@@ -1434,9 +1424,8 @@
       borrowed from <a>smart poster</a>, but used in local application context.
     </p>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
-      await ndef.scan();
-      ndef.onreading = event => {
+      await navigator.nfc.ndef.scan();
+      navigator.nfc.ndef.onreading = event => {
         const externalRecord = event.message.records.find(
           record => record.type == "example.com:smart-poster"
         );
@@ -1473,8 +1462,7 @@
       that may even contain an <a>NDEF message</a> as payload.
     </p>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
-      ndef.write({ records: [
+      navigator.nfc.ndef.write({ records: [
         {
           recordType: "example.game:a",
           data: {
@@ -1507,8 +1495,7 @@
     </p>
     <pre class="example">
       const encoder = new TextEncoder();
-      const ndef = navigator.nfc.ndef;
-      ndef.write({ records: [
+      navigator.nfc.ndef.write({ records: [
         {
           recordType: "example.com:shoppingItem", // External record
           data: {
@@ -1527,9 +1514,8 @@
       ]});
     </pre>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
-      await ndef.scan();
-      ndef.onreading = event => {
+      await navigator.nfc.ndef.scan();
+      navigator.nfc.ndef.onreading = event => {
         const shoppingItemRecord = event.message.records[0];
         if (!shoppingItemRecord ||
             shoppingItemRecord.recordType !== "example.com:shoppingItem") {
@@ -1997,7 +1983,7 @@
   </pre>
   <p>The
     <dfn>ndef</dfn> property is an {{NDEFReader}} object that provides
-    <a>NDEF</a> tag read and write functionality.
+    <a>NFC tag</a> read and write functionality.
   </p>
 
   <section><h3>NFC state associated with the settings object</h3>
@@ -2031,7 +2017,7 @@
       <td>empty <a>set</a></td>
       <td>
         A &lt;|promise:Promise|, |reader:NDEFReader|&gt; tuple where |promise|
-        holds a {{Promise}} and |reader| holds an {{NDEFReader}}.
+        holds a pending {{Promise}} and |reader| holds an {{NDEFReader}}.
       </td>
      </tr>
      <tr>
