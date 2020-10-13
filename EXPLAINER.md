@@ -163,10 +163,9 @@ abortController.signal.onabort = event => {
   // All NFC operations have been aborted.
 };
 
-const reader = navigator.nfc.ndef;
-await ndef.scan({ signal: abortController.signal });
+await navigator.nfc.ndef.scan({ signal: abortController.signal });
 
-await ndef.push("foo", { signal: abortController.signal });
+await navigator.nfc.ndef.write("foo", { signal: abortController.signal });
 
 document.querySelector("#abortButton").onclick = event => {
   abortController.abort();
