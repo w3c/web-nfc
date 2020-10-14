@@ -984,7 +984,7 @@
       The example checks if {{NDEFReader}} is available.
     </p>
     <pre class="example">
-      if (navigator.nfc && navigator.nfc.ndef) {
+      if (navigator.nfc?.ndef) {
         /* ... Scan and write NDEF Tags */
       }
     </pre>
@@ -1982,7 +1982,7 @@
   </pre>
   <p>The
     <dfn>ndef</dfn> property is an {{NDEFReader}} object that provides
-    <a>NDEF</a> tag read and write functionality.
+    <a>NFC tag</a> read and write functionality.
   </p>
 
   <section><h3>NFC state associated with the settings object</h3>
@@ -2016,7 +2016,7 @@
       <td>empty <a>set</a></td>
       <td>
         A &lt;|promise:Promise|, |reader:NDEFReader|&gt; tuple where |promise|
-        holds a {{Promise}} and |reader| holds an {{NDEFReader}}.
+        holds a pending {{Promise}} and |reader| holds an {{NDEFReader}}.
       </td>
      </tr>
      <tr>

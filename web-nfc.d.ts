@@ -7,10 +7,10 @@
 // https://w3c.github.io/web-nfc/#actual-idl-index
 
 interface Navigator {
-  nfc: NFC
+  readonly nfc: NFC
 }
 declare class NFC {
-  ndef: NDEFReader
+  readonly ndef: NDEFReader
 }
 interface Window {
   NDEFMessage: NDEFMessage
