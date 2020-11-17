@@ -92,9 +92,11 @@ when required, about granting access to Web NFC. It means sending and receiving
 info when users tap NFC devices can be done smoothly once permission is granted.
 
 ```js
+const reader = new NDEFReader();
+
 async function startScanning() {
-  await navigator.nfc.ndef.scan();
-  navigator.nfc.ndef.onreading = event => {
+  await reader.scan();
+  reader.onreading = event => {
     /* handle NDEF messages */
   };
 }
@@ -124,8 +126,10 @@ cases where the text might even be in UTF-16 do to existing real life
 implementations.
 
 ```js
-await navigator.nfc.ndef.scan();
-navigator.nfc.ndef.onreading = event => {
+const reader = new NDEFReader();
+
+await reader.scan({ recordType: "example.com:smart-poster" });
+reader.onreading = event => {
   const externalRecord = event.message.records.find(
     record => record.type == "example.com:smart-poster"
   );
@@ -159,9 +163,10 @@ abortController.signal.onabort = event => {
   // All NFC operations have been aborted.
 };
 
-navigator.nfc.ndef.scan({ signal: abortController.signal });
+const ndef = new NDEFReader();
+await ndef.scan({ signal: abortController.signal });
 
-navigator.nfc.ndef.write("foo", { signal: abortController.signal });
+await ndef.push("foo", { signal: abortController.signal });
 
 document.querySelector("#abortButton").onclick = event => {
   abortController.abort();
@@ -217,19 +222,17 @@ object/namespace, like Web Bluetooth, Web USB, etc. Unlike these APIs, the newer
 Generic Sensor APIs don’t attach themselves to the navigator object/namespace
 and have separate and dedicated objects like Accelerometer, Gyroscope, etc.
 
-The newer pattern allows node.js to implement the
+We decided to follow this newer pattern as it allows node.js to implement the
 same API, and have it loaded as a separate module. People working on Web
 Assembly are also advocating for this patterns as it might be able to turn such
 globals into modules in the future, at least when accessed from WASM.
 
-However, since Web NFC is close to Web Bluetooth and Web USB, and because scan
-filters were abandoned after Origin Trials feedback, attaching to the navigator
-object seemed to be a proper alignment.
-
 ### Separate objects for reader/writer
 
-The reader and writer objects existed separately when scan filters were supported,
-but after filters have been abandoned, they have been merged into one single object.
+The reader and writer objects could have been merged into one single object, but
+as we allow multiple scans with filters to be active at the same time (maybe in
+multiple places/view of the app/site) then it makes more sense to be able to use
+separate objects.
 
 ## Considered alternatives
 

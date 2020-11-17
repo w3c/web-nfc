@@ -980,14 +980,11 @@
 
   <section><h3>Feature support</h3>
     <p>
-      Detecting if Web NFC is supported can be done by checking the {{Navigator}}
+      Detecting if Web NFC is supported can be done by checking the {{NDEFReader}}
       object. Note that this does not guarantee that NFC hardware is available.
-      The example checks if {{NDEFReader}} is available.
     </p>
     <pre class="example">
-      if (navigator.nfc?.ndef) {
-        /* ... Scan and write NDEF Tags */
-      }
+      if ('NDEFReader' in window) { /* ... Scan and write NDEF Tags */ }
     </pre>
   </section>
 
@@ -1027,7 +1024,8 @@
       Writing a text string to an NFC tag is straightforward.
     </p>
     <pre class="example">
-      navigator.nfc.ndef.write(
+      const ndef = new NDEFReader();
+      ndef.write(
         "Hello World"
       ).then(() => {
         console.log("Message written.");
@@ -1043,8 +1041,9 @@
       we rely on async/await.
     </p>
     <pre class="example">
+      const ndef = new NDEFReader();
       try {
-        navigator.nfc.ndef.write({
+        ndef.write({
           records: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
         });
       } catch {
@@ -1067,9 +1066,10 @@
       handler and one used specifically for a single write.
     </p>
     <pre class="example">
+      const ndef = new NDEFReader();
       let ignoreRead = false;
 
-      navigator.nfc.ndef.onreading(event => {
+      ndef.onreading(event => {
         if (ignoreRead) {
           return; // write pending, ignore read.
         }
@@ -1080,15 +1080,14 @@
       function write(data) {
         ignoreRead = true;
         return new Promise((resolve, reject) => {
-          navigator.nfc.ndef.addEventListener("reading", event => {
+          ndef.addEventListener("reading", event => {
             // Check if we want to write to this tag, or reject.
-            navigator.nfc.ndef.write(data).then(resolve, reject)
-              .finally(() => ignoreRead = false);
+            ndef.write(data).then(resolve, reject).finally(() => ignoreRead = false);
           }, { once: true });
         });
       }
 
-      await navigator.nfc.ndef.scan();
+      await ndef.scan();
       try {
         await write("Hello World");
         console.log("We wrote to a tag!")
@@ -1105,7 +1104,7 @@
       a certain amount of time, then you time out.
     </p>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
+      const ndef = new NDEFReader();
       ndef.onreading(event => console.log("We read a tag!"));
 
       function write(data, { timeout } = {}) {
@@ -1117,8 +1116,7 @@
           }
 
           ndef.addEventListener("reading", event => {
-            ndef.write(data, { signal: ctlr.signal })
-              .then(resolve, reject);
+            ndef.write(data, { signal: ctlr.signal }).then(resolve, reject);
           }, { once: true });
         });
       }
@@ -1141,12 +1139,13 @@
       {{NDEFReader/onreadingerror}} is fired.
     </p>
     <pre class="example">
-      navigator.nfc.ndef.scan().then(() => {
+      const ndef = new NDEFReader();
+      ndef.scan().then(() => {
         console.log("Scan started successfully.");
-        navigator.nfc.ndef.onreadingerror = event => {
+        ndef.onreadingerror = event => {
           console.log("Error! Cannot read data from the NFC tag. Try a different one?");
         };
-        navigator.nfc.ndef.onreading = event => {
+        ndef.onreading = event => {
           console.log("NDEF message read.");
         };
       }).catch(error => {
@@ -1166,16 +1165,17 @@
       amount of milliseconds.
     </p>
     <pre class="example">
+      const ndef = new NDEFReader();
+
       function read() {
         return new Promise((resolve, reject) => {
           const ctlr = new AbortController();
           ctlr.signal.onabort = reject;
-          navigator.nfc.ndef.addEventListener("reading", event => {
+          ndef.addEventListener("reading", event => {
             ctlr.abort();
             resolve(event);
           }, { once: true });
-          navigator.nfc.ndef.scan({ signal: ctlr.signal })
-            .catch(err => reject(err));
+          ndef.scan({ signal: ctlr.signal }).catch(err => reject(err));
         });
       }
 
@@ -1192,13 +1192,14 @@
       a text message is written with the value "Hello World".
     </p>
     <pre class="example">
-      await navigator.nfc.ndef.scan();
-      navigator.nfc.ndef.onreading = event => {
+      const ndef = new NDEFReader();
+      await ndef.scan();
+      ndef.onreading = event => {
         const message = event.message;
 
         if (message.records.length == 0 ||     // unformatted tag
             message.records[0].recordType == 'empty' ) {  // empty record
-          navigator.nfc.ndef.write({
+          ndef.write({
             records: [{ recordType: "text", data: 'Hello World' }]
           });
           return;
@@ -1247,8 +1248,9 @@
       a write with a custom NDEF data layout.
     </p>
     <pre class="example">
-      await navigator.nfc.ndef.scan();
-      navigator.nfc.ndef.onreading = async event => {
+      const ndef = new NDEFReader();
+      await ndef.scan();
+      ndef.onreading = async event => {
         if (event.message.id !== "my-game-progress")
           return;
         console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
@@ -1266,7 +1268,7 @@
             }))
           }]
         };
-        await navigator.nfc.ndef.write(newMessage);
+        await ndef.write(newMessage);
         console.log("Message written");
       };
     </pre>
@@ -1277,8 +1279,9 @@
       Storing and receiving JSON data is easy with serialization and deserialization.
     </p>
     <pre class="example">
-      await navigator.nfc.ndef.scan();
-      navigator.nfc.ndef.onreading = event => {
+      const ndef = new NDEFReader();
+      await ndef.scan();
+      ndef.onreading = event => {
         const decoder = new TextDecoder();
         for (const record of event.message.records) {
           if (record.mediaType === 'application/json') {
@@ -1290,7 +1293,7 @@
       };
 
       const encoder = new TextEncoder();
-      navigator.nfc.ndef.write({
+      ndef.write({
         records: [
           {
             recordType: "mime",
@@ -1317,7 +1320,9 @@
       Writing data requires tapping an <a>NFC tag</a>.
     </p>
     <pre class="example">
-      navigator.nfc.ndef.onreading = async event => {
+      const ndef = new NDEFReader();
+
+      ndef.onreading = async event => {
         const decoder = new TextDecoder();
         for (const record of event.message.records) {
           console.log("Record type:  " + record.recordType);
@@ -1326,13 +1331,13 @@
         }
 
         try {
-          await navigator.nfc.ndef.write("Overriding data is fun!");
+          await ndef.write("Overriding data is fun!");
         } catch(error) {
           console.log(`Write failed :-( try again: ${error}.`);
         }
       };
 
-      navigator.nfc.ndef.scan();
+      ndef.scan();
     </pre>
   </section>
 
@@ -1341,10 +1346,11 @@
       Read NDEF messages for 3 seconds by using {{NDEFScanOptions/signal}}.
     </p>
     <pre class="example">
+      const ndef = new NDEFReader();
       const controller = new AbortController();
 
-      await navigator.nfc.ndef.scan({ signal: controller.signal });
-      navigator.nfc.ndef.onreading = event => {
+      await ndef.scan({ signal: controller.signal });
+      ndef.onreading = event => {
         console.log("NDEF message read.");
       };
 
@@ -1359,8 +1365,9 @@
 
   <section> <h3>Write a smart poster message</h3>
     <pre class="example">
+      const ndef = new NDEFReader();
       const encoder = new TextEncoder();
-      navigator.nfc.ndef.write({ records: [
+      ndef.write({ records: [
         {
           recordType: "smart-poster",  // Sp
           data: { records: [
@@ -1424,8 +1431,9 @@
       borrowed from <a>smart poster</a>, but used in local application context.
     </p>
     <pre class="example">
-      await navigator.nfc.ndef.scan();
-      navigator.nfc.ndef.onreading = event => {
+      const ndef = new NDEFReader();
+      await ndef.scan();
+      ndef.onreading = event => {
         const externalRecord = event.message.records.find(
           record => record.type == "example.com:smart-poster"
         );
@@ -1462,7 +1470,8 @@
       that may even contain an <a>NDEF message</a> as payload.
     </p>
     <pre class="example">
-      navigator.nfc.ndef.write({ records: [
+      const ndef = new NDEFReader();
+      ndef.write({ records: [
         {
           recordType: "example.game:a",
           data: {
@@ -1495,7 +1504,8 @@
     </p>
     <pre class="example">
       const encoder = new TextEncoder();
-      navigator.nfc.ndef.write({ records: [
+      const ndef = new NDEFReader();
+      ndef.write({ records: [
         {
           recordType: "example.com:shoppingItem", // External record
           data: {
@@ -1514,8 +1524,9 @@
       ]});
     </pre>
     <pre class="example">
-      await navigator.nfc.ndef.scan();
-      navigator.nfc.ndef.onreading = event => {
+      const ndef = new NDEFReader();
+      await ndef.scan();
+      ndef.onreading = event => {
         const shoppingItemRecord = event.message.records[0];
         if (!shoppingItemRecord ||
             shoppingItemRecord.recordType !== "example.com:shoppingItem") {
@@ -1963,29 +1974,111 @@
   </section>
 </section> <!-- Data types and content -->
 
-<section> <h2>Extensions to the Navigator interface</h2>
-  <pre class="idl">
-    [SecureContext]
-    partial interface Navigator {
-      [SameObject]
-      readonly attribute NFC nfc;
-    };
-  </pre>
-</section>
 
-<section data-dfn-for="NFC">
-<h2>The NFC object</h2>
-  <pre class="idl">
-    [SecureContext, Exposed=Window]
-    interface NFC {
-      readonly attribute NDEFReader ndef;
-    };
-  </pre>
-  <p>The
-    <dfn>ndef</dfn> property is an {{NDEFReader}} object that provides
-    <a>NFC tag</a> read and write functionality.
+<section> <h2>The NDEFReader object</h2>
+  <p>
+    The <dfn>NDEFReader</dfn> is an object that exposes NFC functionality to the
+    <a>browsing context</a>: reading <a>NDEF messages</a> when a device, such
+    as a tag, is within the magnetic induction field. Also, it is used for
+    writing <a>NDEF messages</a> to <a>NFC tag</a>s within range.
   </p>
+  <pre class="idl">
+    typedef (DOMString or BufferSource or NDEFMessageInit) NDEFMessageSource;
 
+    [SecureContext, Exposed=Window]
+    interface NDEFReader : EventTarget {
+      constructor();
+
+      attribute EventHandler onreading;
+      attribute EventHandler onreadingerror;
+
+      Promise&lt;undefined&gt; scan(optional NDEFScanOptions options={});
+      Promise&lt;undefined&gt; write(NDEFMessageSource message,
+                                     optional NDEFWriteOptions options={});
+    };
+
+    [SecureContext, Exposed=Window]
+    interface NDEFReadingEvent : Event {
+      constructor(DOMString type, NDEFReadingEventInit readingEventInitDict);
+
+      readonly attribute DOMString serialNumber;
+      [SameObject] readonly attribute NDEFMessage message;
+    };
+
+    dictionary NDEFReadingEventInit : EventInit {
+      DOMString? serialNumber = "";
+      required NDEFMessageInit message;
+    };
+  </pre>
+  <p>
+    The <dfn>NDEFMessageSource</dfn> is a union type representing argument types
+    accepted by the {{NDEFReader/write()}} method.
+  </p>
+  <p data-dfn-for="NDEFReadingEvent">
+    The <dfn>NDEFReadingEvent</dfn> is the event being dispatched on new NFC readings.
+    The <dfn>serialNumber</dfn> property represents the serial number of
+    the device used for anti-collision and identification, or empty string in case none
+    is available. The <dfn>message</dfn> is an <a>NDEFMessage</a> object.
+  </p>
+  <p data-dfn-for="NDEFReadingEventInit">
+    <dfn>NDEFReadingEventInit</dfn> is used to initialize a new event with a serial number
+    and the <a>NDEFMessageInit</a> data via the <dfn>message</dfn> member.
+    If <dfn>serialNumber</dfn> is not present or is `null`,
+    empty string will be used to init the event.
+  </p>
+  <p class="note">
+    Though most tags will have a stable unique identifier (UID), not all
+    have one and some tags even create a random number on each read.
+    The serial number usually consists of 4 or 7 numbers, separated by `:`.
+  </p>
+  <p>
+    An {{NDEFReader}} object has the following <a data-cite=
+    "ECMASCRIPT#sec-object-internal-methods-and-internal-slots">
+    internal slots</a>:
+  </p>
+  <table class="simple">
+    <thead>
+     <tr>
+      <th>Internal Slot</th>
+      <th>Initial value</th>
+      <th>Description (<em>non-normative</em>)</th>
+     </tr>
+    </thead>
+    <tbody data-link-for="NDEFReader">
+     <tr>
+      <tr>
+        <td><dfn>[[\ScanAbortSignal]]</dfn></td>
+        <td>`undefined`</td>
+        <td>
+          The {{NDEFScanOptions}}.signal to abort the operation.
+        </td>
+      </tr>
+     <tr>
+      <td><dfn>[[\WriteOptions]]</dfn></td>
+      <td>`null`</td>
+      <td>
+        The {{NDEFWriteOptions}} value for writing.
+      </td>
+     </tr>
+     <tr>
+      <td><dfn>[[\WriteMessage]]</dfn></td>
+      <td>`null`</td>
+      <td>
+        The {{NDEFMessage}} to be written.
+        It is initially unset.
+      </td>
+     </tr>
+    </tbody>
+  </table>
+
+  <p>
+    The <dfn data-dfn-for="NDEFReader">onreading</dfn> is an {{EventHandler}}
+    which is called to notify that new reading is available.
+  </p>
+  <p>
+    The <dfn data-dfn-for="NDEFReader">onreadingerror</dfn> is an {{EventHandler}}
+    which is called to notify that an error happened during reading.
+  </p>
   <section><h3>NFC state associated with the settings object</h3>
   <p>
     The <a>relevant settings object</a> of the <a>active document</a> of a
@@ -2017,7 +2110,7 @@
       <td>empty <a>set</a></td>
       <td>
         A &lt;|promise:Promise|, |reader:NDEFReader|&gt; tuple where |promise|
-        holds a pending {{Promise}} and |reader| holds an {{NDEFReader}}.
+        holds a {{Promise}} and |reader| holds an {{NDEFReader}}.
       </td>
      </tr>
      <tr>
@@ -2131,9 +2224,32 @@
     <p>
       The term <dfn id="nfc-suspended">suspended</dfn> refers to NFC
       operations being suspended, which means that no <a>NFC content</a> is
-      written, and no received <a>NFC content</a> is
-      presented to applications while being suspended.
+      written by <a>NDEFReader</a>s, and no received <a>NFC content</a> is
+      presented to any {{NDEFReader}} while being suspended.
     </p>
+  </section>
+
+  <section><h3>Aborting pending write operation</h3>
+  <div>
+    To attempt to <dfn>abort a pending write operation</dfn> on an
+    <a>environment settings object</a>, perform the following steps:
+    <ol class=algorithm>
+      <li>
+        If there is no <a>pending write tuple</a> |tuple|, abort these steps.
+      </li>
+      <li>
+        If |tuple|'s writer has already initiated an ongoing NFC data transfer,
+        abort these steps.
+      </li>
+      <li>
+        Reject |tuple|'s promise with an {{"AbortError"}} {{DOMException}}
+        and abort these steps.
+        <p class=note>
+          Rejecting the promise will clear the <a>pending write tuple</a>.
+        </p>
+      </li>
+    </ol>
+  </div>
   </section>
 
   <section><h3>Releasing NFC</h3>
@@ -2165,134 +2281,6 @@
     <a>unloading document cleanup steps</a>.
   </p>
   </section> <!-- release NFC -->
-
-</section>
-
-<section> <h2>The NDEFReader object</h2>
-  <p>
-    The <dfn>NDEFReader</dfn> is an object that exposes NFC functionality to the
-    <a>browsing context</a>: reading <a>NDEF messages</a> when a device, such
-    as a tag, is within the magnetic induction field. Also, it is used for
-    writing <a>NDEF messages</a> to <a>NFC tag</a>s within range.
-  </p>
-  <pre class="idl">
-    typedef (DOMString or BufferSource or NDEFMessageInit) NDEFMessageSource;
-
-    [SecureContext, Exposed=Window]
-    interface NDEFReader : EventTarget {
-      attribute EventHandler onreading;
-      attribute EventHandler onreadingerror;
-
-      Promise&lt;undefined&gt; scan(optional NDEFScanOptions options={});
-      Promise&lt;undefined&gt; write(NDEFMessageSource message,
-                                     optional NDEFWriteOptions options={});
-    };
-
-    [SecureContext, Exposed=Window]
-    interface NDEFReadingEvent : Event {
-      constructor(DOMString type, NDEFReadingEventInit readingEventInitDict);
-
-      readonly attribute DOMString serialNumber;
-      [SameObject] readonly attribute NDEFMessage message;
-    };
-
-    dictionary NDEFReadingEventInit : EventInit {
-      DOMString? serialNumber = "";
-      required NDEFMessageInit message;
-    };
-  </pre>
-  <p>
-    The <dfn>NDEFMessageSource</dfn> is a union type representing argument types
-    accepted by the {{NDEFReader/write()}} method.
-  </p>
-  <p data-dfn-for="NDEFReadingEvent">
-    The <dfn>NDEFReadingEvent</dfn> is the event being dispatched on new NFC readings.
-    The <dfn>serialNumber</dfn> property represents the serial number of
-    the device used for anti-collision and identification, or empty string in case none
-    is available. The <dfn>message</dfn> is an <a>NDEFMessage</a> object.
-  </p>
-  <p data-dfn-for="NDEFReadingEventInit">
-    <dfn>NDEFReadingEventInit</dfn> is used to initialize a new event with a serial number
-    and the <a>NDEFMessageInit</a> data via the <dfn>message</dfn> member.
-    If <dfn>serialNumber</dfn> is not present or is `null`,
-    empty string will be used to init the event.
-  </p>
-  <p class="note">
-    Though most tags will have a stable unique identifier (UID), not all
-    have one and some tags even create a random number on each read.
-    The serial number usually consists of 4 or 7 numbers, separated by `:`.
-  </p>
-  <p>
-    An {{NDEFReader}} object has the following <a data-cite=
-    "ECMASCRIPT#sec-object-internal-methods-and-internal-slots">
-    internal slots</a>:
-  </p>
-  <table class="simple">
-    <thead>
-     <tr>
-      <th>Internal Slot</th>
-      <th>Initial value</th>
-      <th>Description (<em>non-normative</em>)</th>
-     </tr>
-    </thead>
-    <tbody data-link-for="NDEFReader">
-     <tr>
-      <tr>
-        <td><dfn>[[\ScanAbortSignal]]</dfn></td>
-        <td>`undefined`</td>
-        <td>
-          The {{NDEFScanOptions}}.signal to abort the operation.
-        </td>
-      </tr>
-     <tr>
-      <td><dfn>[[\WriteOptions]]</dfn></td>
-      <td>`null`</td>
-      <td>
-        The {{NDEFWriteOptions}} value for writing.
-      </td>
-     </tr>
-     <tr>
-      <td><dfn>[[\WriteMessage]]</dfn></td>
-      <td>`null`</td>
-      <td>
-        The {{NDEFMessage}} to be written.
-        It is initially unset.
-      </td>
-     </tr>
-    </tbody>
-  </table>
-
-  <p>
-    The <dfn data-dfn-for="NDEFReader">onreading</dfn> is an {{EventHandler}}
-    which is called to notify that new reading is available.
-  </p>
-  <p>
-    The <dfn data-dfn-for="NDEFReader">onreadingerror</dfn> is an {{EventHandler}}
-    which is called to notify that an error happened during reading.
-  </p>
-
-  <section><h3>Aborting pending write operation</h3>
-  <div>
-    To attempt to <dfn>abort a pending write operation</dfn> on an
-    <a>environment settings object</a>, perform the following steps:
-    <ol class=algorithm>
-      <li>
-        If there is no <a>pending write tuple</a> |tuple|, abort these steps.
-      </li>
-      <li>
-        If |tuple|'s writer has already initiated an ongoing NFC data transfer,
-        abort these steps.
-      </li>
-      <li>
-        Reject |tuple|'s promise with an {{"AbortError"}} {{DOMException}}
-        and abort these steps.
-        <p class=note>
-          Rejecting the promise will clear the <a>pending write tuple</a>.
-        </p>
-      </li>
-    </ol>
-  </div>
-  </section>
 
   <section data-dfn-for="NDEFWriteOptions">
     <h3>The <dfn>NDEFWriteOptions</dfn> dictionary</h3>
