@@ -128,7 +128,7 @@ implementations.
 ```js
 const ndef = new NDEFReader();
 
-await ndef.scan({ recordType: "example.com:smart-poster" });
+await ndef.scan();
 ndef.onreading = event => {
   const externalRecord = event.message.records.find(
     record => record.type == "example.com:smart-poster"
