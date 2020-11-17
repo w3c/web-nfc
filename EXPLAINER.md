@@ -6,7 +6,7 @@ Authors:
 - Francois Beaufort
 
 Participate
-- https://github.com/w3c/web-nfc/issues/ 
+- https://github.com/w3c/web-nfc/issues/
 - https://lists.w3.org/Archives/Public/public-web-nfc/
 
 ## Introduction
@@ -92,15 +92,13 @@ when required, about granting access to Web NFC. It means sending and receiving
 info when users tap NFC devices can be done smoothly once permission is granted.
 
 ```js
-const reader = new NDEFReader();
- 
 async function startScanning() {
-  await reader.scan();
-  reader.onreading = event => {
+  await navigator.nfc.ndef.scan();
+  navigator.nfc.ndef.onreading = event => {
     /* handle NDEF messages */
   };
 }
- 
+
 const nfcPermissionStatus = await navigator.permissions.query({ name: "nfc" });
 if (permissionStatus.state === "granted") {
   // NFC access was previously granted, so we can start NFC scanning now.
@@ -123,13 +121,11 @@ USB](https://wicg.github.io/webusb/) in that it offers secure low level access
 with no magic and instead exposes data as a DataView as well as requires text to
 be encoded and decoded using TextEncoder/TextDecoder, which allows handling
 cases where the text might even be in UTF-16 do to existing real life
-implementations. 
+implementations.
 
 ```js
-const reader = new NDEFReader();
-
-await reader.scan({ recordType: "example.com:smart-poster" });
-reader.onreading = event => {
+await navigator.nfc.ndef.scan();
+navigator.nfc.ndef.onreading = event => {
   const externalRecord = event.message.records.find(
     record => record.type == "example.com:smart-poster"
   );
@@ -162,13 +158,11 @@ const abortController = new AbortController();
 abortController.signal.onabort = event => {
   // All NFC operations have been aborted.
 };
- 
-const reader = new NDEFReader();
-await reader.scan({ signal: abortController.signal });
- 
-const writer = new NDEFWriter();
-await writer.push("foo", { signal: abortController.signal });
- 
+
+navigator.nfc.ndef.scan({ signal: abortController.signal });
+
+navigator.nfc.ndef.write("foo", { signal: abortController.signal });
+
 document.querySelector("#abortButton").onclick = event => {
   abortController.abort();
 };
@@ -223,18 +217,20 @@ object/namespace, like Web Bluetooth, Web USB, etc. Unlike these APIs, the newer
 Generic Sensor APIs don’t attach themselves to the navigator object/namespace
 and have separate and dedicated objects like Accelerometer, Gyroscope, etc.
 
-We decided to follow this newer pattern as it allows node.js to implement the
+The newer pattern allows node.js to implement the
 same API, and have it loaded as a separate module. People working on Web
 Assembly are also advocating for this patterns as it might be able to turn such
 globals into modules in the future, at least when accessed from WASM.
 
+However, since Web NFC is close to Web Bluetooth and Web USB, and because scan
+filters were abandoned after Origin Trials feedback, attaching to the navigator
+object seemed to be a proper alignment.
+
 ### Separate objects for reader/writer
 
-The reader and writer objects could have been merged into one single object, but
-as we allow multiple scans with filters to be active at the same time (maybe in
-multiple places/view of the app/site) then it makes more sense to be able to use
-separate objects.
- 
+The reader and writer objects existed separately when scan filters were supported,
+but after filters have been abandoned, they have been merged into one single object.
+
 ## Considered alternatives
 
 ### Restrict to NDEF and name accordingly

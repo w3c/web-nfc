@@ -6,6 +6,12 @@
 // This type definitions referenced to WebIDL.
 // https://w3c.github.io/web-nfc/#actual-idl-index
 
+interface Navigator {
+  readonly nfc: NFC
+}
+declare class NFC {
+  readonly ndef: NDEFReader
+}
 interface Window {
   NDEFMessage: NDEFMessage
 }
@@ -43,25 +49,15 @@ declare interface NDEFRecordInit {
 
 declare type NDEFMessageSource = string | BufferSource | NDEFMessageInit
 
-interface Window {
-  NDEFWriter: NDEFWriter
-}
-declare class NDEFWriter {
+declare class NDEFReader extends EventTarget {
   constructor()
+  onreading: (event: NDEFReadingEvent) => void
+  onreadingerror: (error: any) => void
+  scan: (options?: NDEFScanOptions) => Promise<void>
   write: (
     message: NDEFMessageSource,
     options?: NDEFWriteOptions
   ) => Promise<void>
-}
-
-interface Window {
-  NDEFReader: NDEFReader
-}
-declare class NDEFReader extends EventTarget {
-  constructor()
-  onerror: (error: any) => void
-  onreading: (event: NDEFReadingEvent) => void
-  scan: (options?: NDEFScanOptions) => Promise<void>
 }
 
 interface Window {
@@ -78,13 +74,9 @@ interface NDEFReadingEventInit extends EventInit {
 }
 
 interface NDEFWriteOptions {
-  ignoreRead?: boolean
   overwrite?: boolean
   signal?: AbortSignal
 }
 interface NDEFScanOptions {
-  id?: string
-  recordType?: string
-  mediaType?: string
-  signal?: AbortSignal
+  signal: AbortSignal
 }
