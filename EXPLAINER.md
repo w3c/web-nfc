@@ -92,17 +92,17 @@ when required, about granting access to Web NFC. It means sending and receiving
 info when users tap NFC devices can be done smoothly once permission is granted.
 
 ```js
-const reader = new NDEFReader();
+const ndef = new NDEFReader();
 
 async function startScanning() {
-  await reader.scan();
-  reader.onreading = event => {
+  await ndef.scan();
+  ndef.onreading = event => {
     /* handle NDEF messages */
   };
 }
 
 const nfcPermissionStatus = await navigator.permissions.query({ name: "nfc" });
-if (permissionStatus.state === "granted") {
+if (nfcPermissionStatus.state === "granted") {
   // NFC access was previously granted, so we can start NFC scanning now.
   startScanning();
 } else {
@@ -126,10 +126,10 @@ cases where the text might even be in UTF-16 do to existing real life
 implementations.
 
 ```js
-const reader = new NDEFReader();
+const ndef = new NDEFReader();
 
-await reader.scan({ recordType: "example.com:smart-poster" });
-reader.onreading = event => {
+await ndef.scan({ recordType: "example.com:smart-poster" });
+ndef.onreading = event => {
   const externalRecord = event.message.records.find(
     record => record.type == "example.com:smart-poster"
   );
@@ -166,7 +166,7 @@ abortController.signal.onabort = event => {
 const ndef = new NDEFReader();
 await ndef.scan({ signal: abortController.signal });
 
-await ndef.push("foo", { signal: abortController.signal });
+await ndef.write("foo", { signal: abortController.signal });
 
 document.querySelector("#abortButton").onclick = event => {
   abortController.abort();
@@ -227,12 +227,10 @@ same API, and have it loaded as a separate module. People working on Web
 Assembly are also advocating for this patterns as it might be able to turn such
 globals into modules in the future, at least when accessed from WASM.
 
-### Separate objects for reader/writer
+### Common vs separate objects for reader/writer
 
-The reader and writer objects could have been merged into one single object, but
-as we allow multiple scans with filters to be active at the same time (maybe in
-multiple places/view of the app/site) then it makes more sense to be able to use
-separate objects.
+The reader and writer objects existed separately when scan filters were supported,
+but after filters have been abandoned, they have been merged into one single object.
 
 ## Considered alternatives
 

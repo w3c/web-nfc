@@ -1105,7 +1105,7 @@
     </p>
     <pre class="example">
       const ndef = new NDEFReader();
-      ndef.onreading(event => console.log("We read a tag!"));
+      ndef.onreading = event => console.log("We read a tag!"));
 
       function write(data, { timeout } = {}) {
         return new Promise((resolve, reject) => {
@@ -2045,14 +2045,6 @@
      </tr>
     </thead>
     <tbody data-link-for="NDEFReader">
-     <tr>
-      <tr>
-        <td><dfn>[[\ScanAbortSignal]]</dfn></td>
-        <td>`undefined`</td>
-        <td>
-          The {{NDEFScanOptions}}.signal to abort the operation.
-        </td>
-      </tr>
      <tr>
       <td><dfn>[[\WriteOptions]]</dfn></td>
       <td>`null`</td>
@@ -3443,30 +3435,33 @@
             Let |options| be first argument.
           </li>
           <li>
-            [= list/For each =] |key| → |value| of |options|:
-            <ol>
-              <li>
-                If |key| equals "`signal`" and |value| is not `undefined`, set
-                |reader|.<a>[[\ScanAbortSignal]]</a> to |value|.
-              </li>
-            </ol>
+            Let |signal:AbortSignal| be the |options|’ dictionary member
+            of the same name if present, or `null` otherwise.
           </li>
           <li>
-            If |reader|.<a>[[\ScanAbortSignal]]</a>'s [= AbortSignal/aborted flag =] is
-            set, then reject |p| with a {{"AbortError"}} {{DOMException}}
-            and return |p|.
+            If |signal|’s [= AbortSignal/aborted flag =] is set, then reject |p|
+            with an {{"AbortError"}} {{DOMException}} and return |p|.
           </li>
           <li>
-            If |reader|.<a>[[\ScanAbortSignal]]</a> is not `null`, then
-            <a data-cite="dom#abortsignal-abort-algorithms">add the following
-            abort steps</a> to |reader|.<a>[[\ScanAbortSignal]]</a>:
+            If |signal| is not `null`, then
+            <a data-cite="dom#abortsignal-abort-algorithms">
+            add the following abort steps</a> to |signal|:
+              <ol>
+                <li>
+                  Clear the <a>pending read tuple</a> .
+                </li>
+                <li>
+                  Make a request to stop listening to <a>NDEF message</a>s
+                  on all <a>NFC adapter</a>s.
+                </li>
+              </ol>
+          </li>
+          <li>
+            [=promise/React=] to |p|:
             <ol>
               <li>
-                Clear the <a>pending read tuple</a>.
-              </li>
-              <li>
-                Make a request to stop listening to <a>NDEF message</a>s
-                on all <a>NFC adapter</a>s.
+                If |p| was settled (fulfilled or rejected), then clear the
+                <a>pending read tuple</a>.
               </li>
             </ol>
           </li>
