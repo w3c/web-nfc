@@ -1001,29 +1001,17 @@
       means that polling needs to be initialized first.
     </p>
     <p>
-      If polling is not initiated already by first calling `scan()`,
-      then the `write()` method will initiate it temporarily until a
-      tag was found and read, and writing to it was attempted.
-    </p>
-    <p>
-      This means that the flow is that first a read it performed
-      as the tag is first found, then followed by a write.
-    </p>
-    <p>
-      This means that if `scan()` is running and you have an event
-      listener for the `reading` event, it will be dispatched once
-      during a `write()` operation, which might not be the intended
-      behavior.
-    </p>
-    <p>
-      In the following sections we will discuss how you can easily
-      deal with this behavior, but first a few simple examples.
+      If polling is not initiated already by first calling `navigator.nfc.start()`,
+      then the `navigator.nfc.ndef.write()` and `navigator.nfc.ndef.read()` 
+      methods will initiate it temporarily until a tag was found and the 
+      operation was attempted.
     </p>
   </section>
 
   <section><h3>Write a text string</h3>
     <p>
       Writing a text string to an NFC tag is straightforward.
+      NFC polling is started by `write()` and stopped after writing.
     </p>
     <pre class="example">
       navigator.nfc.ndef.write(
@@ -1058,41 +1046,20 @@
       you the ability to check whether it is actually a tag that you want to
       write to or not, by checking existing data or serial number.
     </p>
-    <p>
-      For this reason, it is recommended calling `write()` from a `reading`
-      event.
-    </p>
-      The below example shows how to coordinate between a common `reading`
-      handler and one used specifically for a single write.
-    </p>
     <pre class="example">
-      let ignoreRead = false;
-
-      navigator.nfc.ndef.onreading(event => {
-        if (ignoreRead) {
-          return; // write pending, ignore read.
+      await navigator.nfc.start();
+      navigator.nfc.ontagfound(event => {
+        if (event.serialNumber !== myDesiredSerial) {
+          console.log("We found a tag, but not the one we want!");
+          return;
         }
-
-        console.log("We read a tag, but not during pending write!");
-      }
-
-      function write(data) {
-        ignoreRead = true;
-        return new Promise((resolve, reject) => {
-          navigator.nfc.ndef.addEventListener("reading", event => {
-            // Check if we want to write to this tag, or reject.
-            navigator.nfc.ndef.write(data).then(resolve, reject)
-              .finally(() => ignoreRead = false);
-          }, { once: true });
-        });
-      }
-
-      await navigator.nfc.ndef.scan();
-      try {
-        await write("Hello World");
-        console.log("We wrote to a tag!")
-      } catch(err) {
-        console.error("Something went wrong", err);
+        try {
+          await navigator.nfc.ndef.write(data);
+          // read back the data;
+          let readData = await navigator.nfc.ndef.read();
+        } catch (err) {
+          console.error("Something went wrong", err);
+        }
       }
     </pre>
   </section>
@@ -1104,9 +1071,6 @@
       a certain amount of time, then you time out.
     </p>
     <pre class="example">
-      const ndef = navigator.nfc.ndef;
-      ndef.onreading(event => console.log("We read a tag!"));
-
       function write(data, { timeout } = {}) {
         return new Promise((resolve, reject) => {
           const ctlr = new AbortController();
@@ -1115,14 +1079,13 @@
             setTimeout(() => ctlr.abort(), timeout);
           }
 
-          ndef.addEventListener("reading", event => {
-            ndef.write(data, { signal: ctlr.signal })
+          navigator.nfc.addEventListener("tagfound", event => {
+            navigator.nfc.ndef.write(data, { signal: ctlr.signal })
               .then(resolve, reject);
           }, { once: true });
         });
       }
 
-      await ndef.scan();
       try {
         // Let's wait for 5 seconds only.
         write("Hello World", { timeout: 5_000 });}
@@ -1136,20 +1099,20 @@
 
   <section> <h3>Handle scanning errors</h3>
     <p>
-      This example shows what happens when {{NDEFReader/scan}} promise rejects and
-      {{NDEFReader/onreadingerror}} is fired.
+      This example shows what happens when `navigator.nfc.onerror` is fired.
     </p>
     <pre class="example">
-      navigator.nfc.ndef.scan().then(() => {
-        console.log("Scan started successfully.");
-        navigator.nfc.ndef.onreadingerror = event => {
-          console.log("Error! Cannot read data from the NFC tag. Try a different one?");
+      navigator.nfc.start().then(() => {
+        console.log("NFC polling started successfully.");
+        navigator.nfc.onerror = event => {
+          console.log("Error! NFC tag found, but is not supported " +
+            "or cannot be read. Try a different one?");
         };
-        navigator.nfc.ndef.onreading = event => {
-          console.log("NDEF message read.");
+        navigator.nfc.ontagfound = event => {
+          console.log("NFC tag found" + event.serialNumber);
         };
       }).catch(error => {
-        console.log(`Error! Scan failed to start: ${error}.`);
+        console.log(`Error! NFC polling failed to start: ${error}.`);
       });
     </pre>
   </section>
@@ -1161,26 +1124,34 @@
       battery life by cutting unneeded work.
     </p>
     <p>
-      The example could easily be extended to time out after a given
-      amount of milliseconds.
+      First it is done the simplest way, using the temporary NFC polling
+      built into the `read()` function,
+      then by manually aborting NFC polling after reading.
     </p>
     <pre class="example">
-      function read() {
+      navigator.nfc.ontagfound = event => {
+        console.log("Read the NFC tag " + serialNumber);
+      };
+      const message = await navigator.nfc.ndef.read();
+    </pre>
+    <pre class="example">
+      async function readOnce() {
         return new Promise((resolve, reject) => {
           const ctlr = new AbortController();
           ctlr.signal.onabort = reject;
-          navigator.nfc.ndef.addEventListener("reading", event => {
-            ctlr.abort();
-            resolve(event);
+          await navigator.nfc.start({ signal: ctlr.signal });
+          navigator.nfc.addEventListener("tagfound", event => {
+            event.data = await navigator.nfc.ndef.read();
+              .then(resolve(event))
+              .catch(err => reject(err));
+          ctlr.abort();
           }, { once: true });
-          navigator.nfc.ndef.scan({ signal: ctlr.signal })
-            .catch(err => reject(err));
         });
       }
 
-      read().then(({ serialNumber }) => {
-        console.log(serialNumber);
-      })
+      readOnce().then(({ serialNumber }) => {
+        console.log("Read the NFC tag " + serialNumber);
+      });
     </pre>
   </section>
 
@@ -1191,9 +1162,9 @@
       a text message is written with the value "Hello World".
     </p>
     <pre class="example">
-      await navigator.nfc.ndef.scan();
-      navigator.nfc.ndef.onreading = event => {
-        const message = event.message;
+      await navigator.nfc.start();
+      navigator.nfc.ontagfound = event => {
+        const message = await navigator.nfc.ndef.read();
 
         if (message.records.length == 0 ||     // unformatted tag
             message.records[0].recordType == 'empty' ) {  // empty record
@@ -1246,11 +1217,12 @@
       a write with a custom NDEF data layout.
     </p>
     <pre class="example">
-      await navigator.nfc.ndef.scan();
-      navigator.nfc.ndef.onreading = async event => {
-        if (event.message.id !== "my-game-progress")
+      await navigator.nfc.start();
+      navigator.nfc.ontagfound = async event => {
+        let message = await navigator.nfc.ndef.read();
+        if (message.id !== "my-game-progress")
           return;
-        console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
+        console.log(`Game state: ${ JSON.stringify(message.records) }`);
 
         const encoder = new TextEncoder();
         const newMessage = {
@@ -1276,10 +1248,11 @@
       Storing and receiving JSON data is easy with serialization and deserialization.
     </p>
     <pre class="example">
-      await navigator.nfc.ndef.scan();
-      navigator.nfc.ndef.onreading = event => {
+      await navigator.nfc.start();
+      navigator.nfc.ontagfound = event => {
+        let message = await navigator.nfc.ndef.read();
         const decoder = new TextDecoder();
-        for (const record of event.message.records) {
+        for (const record of message.records) {
           if (record.mediaType === 'application/json') {
             const json = JSON.parse(decoder.decode(record.data));
             const article =/^[aeio]/i.test(json.title) ? "an" : "a";
@@ -1316,9 +1289,10 @@
       Writing data requires tapping an <a>NFC tag</a>.
     </p>
     <pre class="example">
-      navigator.nfc.ndef.onreading = async event => {
+      navigator.nfc.ontagfound = async event => {
+        let message = await navigator.nfc.ndef.read();
         const decoder = new TextDecoder();
-        for (const record of event.message.records) {
+        for (const record of message.records) {
           console.log("Record type:  " + record.recordType);
           console.log("MIME type:    " + record.mediaType);
           console.log("=== data ===\n" + decoder.decode(record.data));
@@ -1331,28 +1305,28 @@
         }
       };
 
-      navigator.nfc.ndef.scan();
+      navigator.nfc.ndef.start();
     </pre>
   </section>
 
   <section> <h3>Stop listening to NDEF messages</h3>
     <p>
-      Read NDEF messages for 3 seconds by using {{NDEFScanOptions/signal}}.
+      Read NDEF messages with a timeout by using {{NDEFReadOptions/signal}}.
     </p>
     <pre class="example">
       const controller = new AbortController();
-
-      await navigator.nfc.ndef.scan({ signal: controller.signal });
-      navigator.nfc.ndef.onreading = event => {
-        console.log("NDEF message read.");
-      };
-
       controller.signal.onabort = event => {
         console.log("We're done waiting for NDEF messages.");
       };
 
-      // Stop listening to NDEF messages after 3s.
-      setTimeout(() => controller.abort(), 3_000);
+      navigator.nfc.ontagfound = event => {
+        console.log("NDEF message read.");
+      };
+
+      // Wait 10 seconds for a tag, then abort.
+      setTimeout(() => controller.abort(), 10_000);
+
+      await navigator.nfc.ndef.read({ signal: controller.signal });
     </pre>
   </section>
 
@@ -1423,9 +1397,10 @@
       borrowed from <a>smart poster</a>, but used in local application context.
     </p>
     <pre class="example">
-      await navigator.nfc.ndef.scan();
-      navigator.nfc.ndef.onreading = event => {
-        const externalRecord = event.message.records.find(
+      await navigator.nfc.start();
+      navigator.nfc.ontagfound = event => {
+        const message = await navigator.nfc.ndef.read();
+        const externalRecord = message.records.find(
           record => record.type == "example.com:smart-poster"
         );
 
@@ -1513,9 +1488,10 @@
       ]});
     </pre>
     <pre class="example">
-      await navigator.nfc.ndef.scan();
-      navigator.nfc.ndef.onreading = event => {
-        const shoppingItemRecord = event.message.records[0];
+      await navigator.nfc.start();
+      navigator.nfc.ontagfound = event => {
+        const message = await navigator.nfc.ndef.read();
+        const shoppingItemRecord = message.records[0];
         if (!shoppingItemRecord ||
             shoppingItemRecord.recordType !== "example.com:shoppingItem") {
           return;
@@ -1665,7 +1641,7 @@
       The mapping from data types of an
       <a>NDEFRecordInit</a> to <a>NDEF record</a> types is presented
       in the algorithmic steps which handle the data and described in the
-      [[[#steps-receiving]]] and [[[#writing-content]]] sections.
+      [[[#steps-parse]]] and [[[#steps-write]]] sections.
     </p>
     <p>
       To <dfn>convert NDEFRecord.data bytes</dfn>
@@ -1785,7 +1761,7 @@
   <section id="data-mapping"><h3>Data mapping</h3>
   <p>
     The mapping from data types of an <a>NDEFRecordInit</a> to
-    <a>NDEF record</a> types, as used in the [[[#writing-content]]]
+    <a>NDEF record</a> types, as used in the [[[#steps-write]]]
     section is as follows:
   </p>
   <table class="simple" data-link-for="NDEFRecordInit">
@@ -1885,7 +1861,7 @@
   <p>
     The mapping from <a>NDEF record</a> types to <a>NDEFRecord</a>,
     as used for incoming <a>NDEF message</a>s described in the
-    [[[#steps-receiving]]] section, is as follows.
+    [[[#steps-parse]]] section, is as follows.
   </p>
   <table class="simple" data-link-for="NDEFRecord">
     <tr>
@@ -1978,17 +1954,57 @@
     [SecureContext, Exposed=Window]
     interface NFC {
       readonly attribute NDEFReader ndef;
+      attribute EventHandler ontagfound;
+      attribute EventHandler onerror;
+      Promise&lt;undefined&gt; start(optional NFCOptions options={});
+    };
+
+    [SecureContext, Exposed=Window]
+    interface NFCTagFoundEvent : Event {
+      constructor(DOMString type, NFCTagFoundEventInit tagfoundEventInitDict);
+      readonly attribute DOMString serialNumber;
+    };
+
+    dictionary NFCTagFoundEventInit : EventInit {
+      DOMString? serialNumber = "";
     };
   </pre>
   <p>The
     <dfn>ndef</dfn> property is an {{NDEFReader}} object that provides
     <a>NFC tag</a> read and write functionality.
   </p>
-
-  <section><h3>NFC state associated with the settings object</h3>
   <p>
-    The <a>relevant settings object</a> of the <a>active document</a> of a
-    <a>browsing context</a> which supports NFC has an associated
+    The <dfn data-dfn-for="NFC">ontagfound</dfn> is an {{EventHandler}}
+    which is called to notify that an NFC tag has been detected.
+  </p>
+  <p>
+    The <dfn data-dfn-for="NFC">onerror</dfn> is an {{EventHandler}}
+    which is called to notify that an error happened during <a>NFC tag</a>
+    operations.
+  </p>
+  <p data-dfn-for="NFCTagFoundEvent">
+    The <dfn>NFCTagFoundEvent</dfn> is the event being dispatched when an
+    <a>NFC tag</a> appears in NFC proximity range.
+  </p>
+  <p data-dfn-for="NFCTagFoundEvent">
+    The <dfn>serialNumber</dfn> property represents the 
+    serial number of the device used for anti-collision and identification, 
+    or empty string in case none is available.
+  </p>
+  <p data-dfn-for="NFCTagFoundEvent">
+    <dfn>NFCTagFoundEventInit</dfn> is used to initialize a new event with a
+    serial number. If {{NFCTagFoundEvent/serialNumber}} is not present or is `null`,
+    empty string will be used to init the event.
+  </p>
+  <p class="note">
+    Though most tags will have a stable unique identifier (UID), not all
+    have one and some tags even create a random number on each read.
+    The serial number usually consists of 4 or 7 numbers, separated by `:`.
+  </p>
+
+  <section><h3>NFC state</h3>
+  <p>
+    The <a>NFC</a> object has an associated
     <dfn>NFC state</dfn> record with the following <a data-cite=
     "ECMASCRIPT#sec-object-internal-methods-and-internal-slots">internal
     slots</a>:
@@ -2002,57 +2018,50 @@
      </tr>
     </thead>
     <tbody>
-     <tr>
-      <td><dfn>[[\Suspended]]</dfn></td>
-      <td>`false`</td>
-      <td>
-        A boolean flag indicating whether NFC functionality is
-        <a href="#nfc-suspended">suspended</a> or not, initially
-        `false`.
-      </td>
-     </tr>
-     <tr>
-      <td><dfn>[[\PendingRead]]</dfn></td>
-      <td>empty <a>set</a></td>
-      <td>
-        A &lt;|promise:Promise|, |reader:NDEFReader|&gt; tuple where |promise|
-        holds a pending {{Promise}} and |reader| holds an {{NDEFReader}}.
-      </td>
-     </tr>
-     <tr>
-      <td><dfn>[[\PendingWrite]]</dfn></td>
-      <td>empty</td>
-      <td>
-        A &lt;|promise:Promise|, |writer:NDEFReader|&gt; tuple where |promise|
-        holds a pending {{Promise}} and |writer| holds an {{NDEFReader}}.
-      </td>
+      <tr>
+        <td><dfn>[[\Suspended]]</dfn></td>
+        <td>`false`</td>
+        <td>
+          A boolean flag indicating whether NFC functionality is
+          <a href="#nfc-suspended">suspended</a> or not, initially
+          `false`.
+        </td>
+      </tr>
+      <tr>
+        <td><dfn>[[\PollingActive]]</dfn></td>
+        <td>`false`</td>
+        <td>
+          Set to `true` when NFC polling is active, to `false` otherwise when
+          it is not active and to `undefined` when {{NFC/start()}} has been invoked
+          but its {{Promise}} is not yet settled.
+        </td>
       </tr>
     </tbody>
   </table>
-  <p>
-    The <dfn>pending read tuple</dfn> is the value of the
-    <a>[[\PendingRead]]</a> internal slot.
+  <p class="note">
+    Internal slots are used only as a notation in this specification, and
+    implementations do not necessarily have to map them to explicit internal
+    properties.
   </p>
   <p>
-    The <dfn>pending write tuple</dfn> is the value of the
-    <a>[[\PendingWrite]]</a> internal slot.
+    <dfn id="nfc-is-active">NFC polling is active</dfn> if the
+    <a>[[\PollingActive]]</a> internal slot is not `false`.
+  </p>
+  <p>
+    <dfn id="nfc-is-active">NFC polling is inactive</dfn> if the
+    <a>[[\PollingActive]]</a> internal slot is `false`.
   </p>
   <p>
     <dfn id="nfc-is-suspended">NFC is suspended</dfn> if the
     <a>[[\Suspended]]</a> internal slot is `true`.
   </p>
   <p>
-    To <dfn id="suspend-nfc">suspend NFC</dfn>, set the <a>[[\Suspended]]</a>
+    To <dfn id="suspend-nfc">suspend NFC</dfn>,set the <a>[[\Suspended]]</a>
     internal slot to `true`.
   </p>
   <p>
     To <dfn id="resume-nfc">resume NFC</dfn>, set the <a>[[\Suspended]]</a>
     internal slot to `false`.
-  </p>
-  <p class="note">
-    Internal slots are used only as a notation in this specification, and
-    implementations do not necessarily have to map them to explicit internal
-    properties.
   </p>
   </section>
 
@@ -2123,8 +2132,7 @@
         <a>resume NFC</a> and abort these steps.
       </li>
       <li>
-        Otherwise, <a>suspend NFC</a> and attempt to <a>abort a pending
-        write operation</a>.
+        Otherwise, <a>suspend NFC</a>.
       </li>
     </ol>
     <p>
@@ -2135,41 +2143,181 @@
     </p>
   </section>
 
-  <section><h3>Releasing NFC</h3>
-  <p>
-    To <dfn>release NFC</dfn> on an <a>environment settings object</a>,
-    perform the following steps:
-  </p>
-  <ol id="steps-nfc-release">
-    <li>
-      <a>Suspend NFC</a>.
-    </li>
-    <li>
-      Attempt to <a>abort a pending write operation</a>.
-    </li>
-    <li>
-      Stop the <a>dispatch NFC content</a> steps.
-    </li>
-    <li>
-      Clear the <a>pending read tuple</a>.
-    </li>
-    <li>
-      Release the NFC resources associated with |nfc| on the
-      underlying platform.
-    </li>
-  </ol>
-  <p>
-    The UA must <a>release NFC</a> given the document's
-    <a>relevant settings object</a> as additional
-    <a>unloading document cleanup steps</a>.
-  </p>
-  </section> <!-- release NFC -->
+  <section> <h3>The <strong>start()</strong> method</h3>
+    <p>
+      Requests starting NFC polling, unless already active and unless it has
+      been requested, but not completed yet.
+    </p>
 
-</section>
+    <section data-dfn-for="NFCOptions">
+      <h3>The <dfn>NFCOptions</dfn> dictionary</h3>
+        <p>
+          To stop polling for <a>NFC tags</a>, an [= AbortSignal/aborted flag =]
+          can be used in the <a>NFCOptions</a> dictionary:
+        </p>
+        <pre class="idl">
+          dictionary NFCOptions {
+            AbortSignal signal;
+          };
+        </pre>
+        <p>
+          The <dfn>signal</dfn> property allows to abort the {{NFC/start()}}
+          operation.
+        </p>
+    </section>
+    
+    <section data-dfn-for="NFC"> <h3>NFC polling</h3>
+      When the {{NFC.start()}}</dfn> method is invoked, run the
+      <dfn>start NFC polling</dfn> steps:
+      <ol class=algorithm>
+        <li>
+          Let |p:Promise| be a new {{Promise}} object.
+          Return |p| and run the next steps <a>in parallel</a>.
+        </li>
+        <li>
+          If <a>NFC polling is active</a>, attempt to <a>abort NFC polling</a>.
+        </li>
+        <li>
+          Set <a>[[\PollingActive]]</a> to `undefined`.
+        </li>
+        <li>
+          Let |options| be first argument.
+        </li>
+        <li>
+          Let |signal:AbortSignal| be the |options|’ dictionary member
+          of the same name if present, or `null` otherwise.
+        </li>
+        <li>
+          If |signal|’s [= AbortSignal/aborted flag =] is set, then reject |p|
+          with an {{"AbortError"}} {{DOMException}} and return |p|.
+        </li>
+        <li>
+          If |signal| is not `null`, then
+          <a data-cite="dom#abortsignal-abort-algorithms">add the following
+          abort steps</a> to |signal|:
+          <ol>
+            <li>
+              Attempt to <a>abort NFC polling</a>.
+            </li>
+          </ol>
+        </li>
+        <li>
+          If the <a>obtain permission</a> steps return `false`, then
+          reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
+          abort these steps.
+        </li>
+        <li>
+          Request starting polling <a>NFC</a> on all available <a>NFC Adapters</a>.
+        </li>
+        <li>
+          If no connection can be established with any <a>NFC Adapter</a>s,
+          reject |p| with a {{"NotSupportedError"}} {{DOMException}}
+          and abort these steps.
+        </li>
+        <li>
+          If the UA is not allowed to access any underlying <a>NFC Adapter</a>
+          (e.g. a user preference), then reject |p| with a
+          {{"NotReadableError"}} {{DOMException}}
+          and abort these steps.
+        </li>
+        <li>
+          If the request fails on all <a>NFC Adapters</a>, then
+          reject |p| with an {{NotFoundError}} {{DOMException}} and abort these steps.
+        </li>
+        <li>
+          Save the list of <a>NFC Adapters</a> that are polling for this
+          <a>browsing context</a> as <dfn>active adapter list</dfn>, to be referred
+          in the <a>abort NFC polling</a> steps.
+        </li>
+        <li>
+          Set [[\PollingActive]]</a> to `true`.
+        </li>
+        <li>
+          Resolve |p|.
+        </li>
+        <li>
+          Whenever the <a>UA</a> detects NFC technology, run the
+          <a>NFC detection algorithm</a>.
+        </li>
+      </ol>
+    </section>
+
+    <section><h3>The NFC detection algorithm</h3>
+      To run the <dfn>NFC detection algorithm</dfn>:
+      <ol class=algorithm id="parse-ndef">
+        <li>
+          If <a>NFC is suspended</a>, abort these steps.
+        </li>
+        <li>
+          Let |serialNumber:serialNumber| be the device identifier as a series of
+          numbers, or `null` if unavailable.
+        </li>
+        <li>
+          If |serialNumber| is not `null`, set it to the
+          <a>string</a> of U+003A (`:`) concatenating each number represented as
+          <a>ASCII hex digit</a>, in the same order.
+        </li>
+        <li>
+          <a>Fire an event</a> named "`tagfound`" at |navigator.nfc| using
+          <a>NFCTagFoundEvent</a> with its {{NFCTagFoundEvent/serialNumber}}
+          attribute initialized to |serialNumber|.
+        </li>
+        <li>
+          If |navigator.nfc.ndef|.<a>[[\PendingRead]]</a> is not `null`,
+          notify the {{NDEFReader.read}} algorithm to <dfn>resume reading</dfn>.
+        </li>
+        <li>
+          If |navigator.nfc.ndef|.<a>[[\PendingWrite]]</a> is not `null`,
+          notify the {{NDEFReader.write}} algorithm to <dfn>resume writing</dfn>.
+        </li>
+      </ol>
+    </section>
+
+    <section><h3>Aborting NFC polling</h3>
+      To attempt to <dfn>abort NFC polling</dfn>, run the following steps:
+      <ol class=algorithm>
+        <li>
+          Make a request to stop polling for <a>NFC tag</a>s on all
+          <a>NFC adapter</a>s in the <a>active adapter list</a>
+        </li>
+        <li>
+          Set <a>[[\PollingActive]]</a> to `false`.
+        </li>
+      </ol>
+    </section>
+  </section>
+
+  <section><h3>Releasing NFC</h3>
+    <p>
+      To <dfn>release NFC</dfn> on an <a>environment settings object</a>,
+      perform the following steps:
+    </p>
+    <ol id="steps-nfc-release">
+      <li>
+        Attempt to <a>abort NFC polling</a>.
+      </li>
+      <li>
+        Attempt to <a>abort pending NDEF operations</a>.
+      </li>
+      <li>
+        Release the NFC resources associated with the <a>browsing context</a>.
+      </li>
+      <li>
+        Clear all internal slots on |navigator.nfc| and |navigator.nfc.ndef|.
+      </li>
+    </ol>
+    <p>
+      The UA must <a>release NFC</a> given the document's
+      <a>relevant settings object</a> as additional
+      <a>unloading document cleanup steps</a>.
+    </p>
+    </section>
+  </section>
 
 <section> <h2>The NDEFReader object</h2>
   <p>
-    The <dfn>NDEFReader</dfn> is an object that exposes NFC functionality to the
+    The <dfn>NDEFReader</dfn> is an object attached to |navigator.nfc| that
+    exposes NFC functionality to the
     <a>browsing context</a>: reading <a>NDEF messages</a> when a device, such
     as a tag, is within the magnetic induction field. Also, it is used for
     writing <a>NDEF messages</a> to <a>NFC tag</a>s within range.
@@ -2178,49 +2326,17 @@
     typedef (DOMString or BufferSource or NDEFMessageInit) NDEFMessageSource;
 
     [SecureContext, Exposed=Window]
-    interface NDEFReader : EventTarget {
-      attribute EventHandler onreading;
-      attribute EventHandler onreadingerror;
-
-      Promise&lt;undefined&gt; scan(optional NDEFScanOptions options={});
+    interface NDEFReader {
+      Promise&lt;NDEFMessage&gt; read(optional NDEFReadOptions options={});
       Promise&lt;undefined&gt; write(NDEFMessageSource message,
                                      optional NDEFWriteOptions options={});
-    };
-
-    [SecureContext, Exposed=Window]
-    interface NDEFReadingEvent : Event {
-      constructor(DOMString type, NDEFReadingEventInit readingEventInitDict);
-
-      readonly attribute DOMString serialNumber;
-      [SameObject] readonly attribute NDEFMessage message;
-    };
-
-    dictionary NDEFReadingEventInit : EventInit {
-      DOMString? serialNumber = "";
-      required NDEFMessageInit message;
     };
   </pre>
   <p>
     The <dfn>NDEFMessageSource</dfn> is a union type representing argument types
     accepted by the {{NDEFReader/write()}} method.
   </p>
-  <p data-dfn-for="NDEFReadingEvent">
-    The <dfn>NDEFReadingEvent</dfn> is the event being dispatched on new NFC readings.
-    The <dfn>serialNumber</dfn> property represents the serial number of
-    the device used for anti-collision and identification, or empty string in case none
-    is available. The <dfn>message</dfn> is an <a>NDEFMessage</a> object.
-  </p>
-  <p data-dfn-for="NDEFReadingEventInit">
-    <dfn>NDEFReadingEventInit</dfn> is used to initialize a new event with a serial number
-    and the <a>NDEFMessageInit</a> data via the <dfn>message</dfn> member.
-    If <dfn>serialNumber</dfn> is not present or is `null`,
-    empty string will be used to init the event.
-  </p>
-  <p class="note">
-    Though most tags will have a stable unique identifier (UID), not all
-    have one and some tags even create a random number on each read.
-    The serial number usually consists of 4 or 7 numbers, separated by `:`.
-  </p>
+
   <p>
     An {{NDEFReader}} object has the following <a data-cite=
     "ECMASCRIPT#sec-object-internal-methods-and-internal-slots">
@@ -2236,62 +2352,21 @@
     </thead>
     <tbody data-link-for="NDEFReader">
      <tr>
-      <tr>
-        <td><dfn>[[\ScanAbortSignal]]</dfn></td>
-        <td>`undefined`</td>
-        <td>
-          The {{NDEFScanOptions}}.signal to abort the operation.
-        </td>
-      </tr>
-     <tr>
-      <td><dfn>[[\WriteOptions]]</dfn></td>
-      <td>`null`</td>
-      <td>
-        The {{NDEFWriteOptions}} value for writing.
-      </td>
+       <td><dfn>[[\PendingRead]]</dfn></td>
+       <td>`null`</td>
+       <td>
+         The pending |promise:Promise| of a {{NDEFReader/read()}}.
+       </td>
      </tr>
      <tr>
-      <td><dfn>[[\WriteMessage]]</dfn></td>
-      <td>`null`</td>
-      <td>
-        The {{NDEFMessage}} to be written.
-        It is initially unset.
-      </td>
+       <td><dfn>[[\PendingWrite]]</dfn></td>
+       <td>`null`</td>
+       <td>
+         The pending |promise:Promise| of a {{NDEFReader/write()}}.
+       </td>
      </tr>
     </tbody>
   </table>
-
-  <p>
-    The <dfn data-dfn-for="NDEFReader">onreading</dfn> is an {{EventHandler}}
-    which is called to notify that new reading is available.
-  </p>
-  <p>
-    The <dfn data-dfn-for="NDEFReader">onreadingerror</dfn> is an {{EventHandler}}
-    which is called to notify that an error happened during reading.
-  </p>
-
-  <section><h3>Aborting pending write operation</h3>
-  <div>
-    To attempt to <dfn>abort a pending write operation</dfn> on an
-    <a>environment settings object</a>, perform the following steps:
-    <ol class=algorithm>
-      <li>
-        If there is no <a>pending write tuple</a> |tuple|, abort these steps.
-      </li>
-      <li>
-        If |tuple|'s writer has already initiated an ongoing NFC data transfer,
-        abort these steps.
-      </li>
-      <li>
-        Reject |tuple|'s promise with an {{"AbortError"}} {{DOMException}}
-        and abort these steps.
-        <p class=note>
-          Rejecting the promise will clear the <a>pending write tuple</a>.
-        </p>
-      </li>
-    </ol>
-  </div>
-  </section>
 
   <section data-dfn-for="NDEFWriteOptions">
     <h3>The <dfn>NDEFWriteOptions</dfn> dictionary</h3>
@@ -2305,8 +2380,7 @@
       When the value of the <dfn>overwrite</dfn> property is
       `false`, the <a href="#steps-write">write algorithm</a>
       will read the <a>NFC tag</a> to determine if it has
-      <a>NDEF</a> records on it, and if yes, it will not
-      execute any pending write.
+      <a>NDEF</a> records on it, and if yes, it will not write to it.
     </p>
     <p>
       The <dfn>signal</dfn> property allows to abort
@@ -2314,40 +2388,132 @@
     </p>
   </section>
 
-  <section data-dfn-for="NDEFScanOptions">
-    <h3>The <dfn>NDEFScanOptions</dfn> dictionary</h3>
+  <section data-dfn-for="NDEFReadOptions">
+    <h3>The <dfn>NDEFReadOptions</dfn> dictionary</h3>
       <p>
         To stop listening to NDEF messages, an [= AbortSignal/aborted flag =]
-        can be used in the <a>NDEFScanOptions</a> dictionary:
+        can be used in the <a>NDEFReadOptions</a> dictionary:
       </p>
       <pre class="idl">
-        dictionary NDEFScanOptions {
+        dictionary NDEFReadOptions {
           AbortSignal signal;
         };
       </pre>
       <p>
         The <dfn>signal</dfn> property allows to abort the
-      {{NDEFReader/scan()}} operation.
+      {{NDEFReader/read()}} operation.
       </p>
-  </section> <!-- NDEFScanOptions -->
+  </section>
 
-  <section id="writing-content">
-    <h3><dfn>Writing content</dfn></h3>
+  <section><h3>Aborting NDEF operations</h3>
+    <div>
+      To attempt to <dfn>abort a pending write</dfn> on |reader|,
+      run the following steps:
+      <ol class=algorithm>
+        <li>
+          If |reader|.<a>[[\PendingWrite]]</a> is `null`, abort
+          these steps.
+        </li>
+        <li>
+          If there is an ongoing NFC write data transfer, request the underlying
+          platform to cancel the write operation. If that is successful,
+          reject |reader|.<a>[[\PendingWrite]]</a> with an
+          {{"AbortError"}} {{DOMException}}.
+        </li>
+        <li>
+          Set |reader|.<a>[[\PendingWrite]]</a> to `null`.
+        </li>
+      </ol>
+    </div>
+    <div>
+      To attempt to <dfn>abort a pending read</dfn> on |reader|,
+      run the following steps:
+      <ol class=algorithm>
+        <li>
+          If |reader|.<a>[[\PendingRead]]</a> is `null`, abort
+          these steps.
+        </li>
+        <li>
+          If there is an ongoing NFC write data transfer, request the underlying
+          platform to cancel the write operation. If that is successful,
+          reject |reader|.<a>[[\PendingRead]]</a> with an
+          {{"AbortError"}} {{DOMException}}.
+        </li>
+        <li>
+          Set |reader|.<a>[[\PendingRead]]</a> to `null`.
+        </li>
+      </ol>
+    </div>
+    <div>
+      To attempt to <dfn>abort pending NDEF operations</dfn>, run the following steps:
+      <ol class=algorithm>
+        <li>Attempt to <a>abort a pending write</a> on |navigator.nfc.ndef|.</li>
+        <li>Attempt to <a>abort a pending read</a> on |navigator.nfc.ndef|.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="steps-write"><h3>The <strong>write()</strong> method</h3>
     <p>
       This section describes how to write an <a>NDEF message</a>
-      to an <a>NFC tag</a> when it is next time in proximity range before a
-      timer expires. At any time there is a maximum of one
-      <a>NDEF message</a> that can be set for writing for an <a>origin</a> until
-      the current message is sent or the write is aborted.
+      to an <a>NFC tag</a> when comes into proximity range.
+      At any time there is a maximum of one <a>NDEF message</a> that can be set
+      for writing for an <a>origin</a> until the current message is sent or the
+      write is aborted.
     </p>
-    <section><h3>The <strong>write()</strong> method</h3>
-      <div id="steps-write">
-        The
-        <dfn>NDEFReader.write</dfn> method, when invoked, MUST run the
-        <dfn>write a message</dfn> algorithm:
+    <div>
+      The <dfn>NDEFReader.write</dfn> method, when invoked, MUST run the
+      following steps:
         <ol class=algorithm>
           <li>
-            Let |p:Promise| be a new {{Promise}} object.
+            Let |p:Promise| be a new {{Promise}} object. Return |p| and
+            execute the next steps <a>in parallel</a>.
+          </li>
+          <li>
+            If <a>NFC is suspended</a>, reject |p| with a {{"NotAllowedError"}}
+            {{DOMException}} and abort these steps.
+          </li>
+          <li>
+            If the <a>obtain permission</a> steps return `false`, then
+            reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
+            abort these steps.
+          </li>
+          <li>
+            If there is no underlying <a>NFC Adapter</a>, or if a connection
+            cannot be established, then reject |p| with a
+            {{"NotSupportedError"}} {{DOMException}}
+            and abort these steps.
+          </li>
+          <li>
+            If the UA is not allowed to access the underlying <a>NFC Adapter</a>
+            (e.g. a user preference), then reject |p| with a
+            {{"NotReadableError"}} {{DOMException}}
+            and abort these steps.
+          </li>
+          <li>
+            Let |startPolling:boolean| be `true` if <a>NFC polling is inactive</a> 
+            and otherwise to `false`.
+            <p class="note">
+              Writing will temporarily <a>start NFC polling</a> if that is not
+              active, until the first writing is done, when the temporary polling is
+              aborted.
+            </p>
+          </li>
+          <li>
+            [=promise/React=] to |p|:
+            If |p| was settled (fulfilled or rejected), then:
+            <ol>
+              <li>
+                Set |navigator.nfc.ndef|.<a>[[\PendingWrite]]</a> to `null`.
+              </li>
+              <li>
+                If |startPolling| is `true`, attempt to <a>abort NFC polling</a>.
+              </li>
+            </ol>
+          </li>
+          <li>
+            If |startPolling| is `true`, <a>start NFC polling</a>.
+            If that fails, reject |p| and abort these steps.
           </li>
           <li>
             Let |message:NDEFMessageSource| be the first argument.
@@ -2369,161 +2535,83 @@
             add the following abort steps</a> to |signal|:
               <ol>
                 <li>
-                  Run the <a>abort a pending write operation</a> on the
-                  <a>environment settings object</a>.
+                  Run the <a>abort a pending write</a> on |navigator.nfc.ndef|.
                 </li>
               </ol>
           </li>
           <li>
-            [=promise/React=] to |p|:
-            <ol>
-              <li>
-                If |p| was settled (fulfilled or rejected), then clear the
-                <a>pending write tuple</a> if it exists.
-              </li>
-            </ol>
+            An implementation MAY reject |p| with
+            a {{"NotSupportedError"}} {{DOMException}}
+            and abort these steps.
+            <p class="note">
+              The UA might abort message write at this point. The reasons
+              for termination are implementation details. For example, the
+              implementation might be unable to support the requested
+              operation.
+            </p>
           </li>
           <li>
-            Return |p| and run the following steps <a>in parallel</a>:
-            <ol>
-              <li>
-                If the <a>obtain permission</a> steps return `false`, then
-                reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
-                abort these steps.
-              </li>
-              <li>
-                If there is no underlying <a>NFC Adapter</a>, or if a connection
-                cannot be established, then reject |p| with a
-                {{"NotSupportedError"}} {{DOMException}}
-                and abort these steps.
-              </li>
-              <li>
-                If the UA is not allowed to access the underlying <a>NFC Adapter</a>
-                (e.g. a user preference), then reject |p| with a
-                {{"NotReadableError"}} {{DOMException}}
-                and abort these steps.
-              </li>
-              <li>
-                If pushing data is not supported by the underlying
-                <a>NFC Adapter</a>, then reject |p| with a {{"NotSupportedError"}}
-                {{DOMException}} and abort these steps.
-              </li>
-              <li>
-                An implementation MAY reject |p| with
-                a {{"NotSupportedError"}} {{DOMException}}
-                and abort these steps.
-                <p class="note">
-                  The UA might abort message write at this point. The reasons
-                  for termination are implementation details. For example, the
-                  implementation might be unable to support the requested
-                  operation.
-                </p>
-              </li>
-              <li>
-                Let |output| be the notation for the <a>NDEF message</a>
-                to be created by UA, as the result of invoking
-                <a>create NDEF message</a> with |message| and `""`.
-                If this throws an exception, reject |p| with that
-                exception and abort these steps.
-              </li>
-              <li>
-                Attempt to <a>abort a pending write operation</a>.
-                <p class="note">
-                  A write replaces all previously configured write operations.
-                </p>
-              </li>
-              <li>
-                Set `this`.[[\WriteOptions]] to |options|.
-              </li>
-              <li>
-                Set `this`.[[\WriteMessage]] to |output|.
-              </li>
-              <li>
-                Set <a>pending write tuple</a> to (`this`, |p|).
-              </li>
-              <li>
-                Run the <a>start the NFC write</a> steps whenever an
-                <a>NFC tag</a> |device| comes within communication range.
-                <p class="note">
-                  If <a>NFC is suspended</a>, continue waiting until promise is
-                  aborted by the user or an <a>NFC tag</a> comes within
-                  communication range.
-                </p>
-              </li>
-            </ol>
-            </li>
-          </li>
-        </ol>
-      </div>
-
-      <div id="steps-start-nfc-write">
-        To <dfn>start the NFC write</dfn>, run these steps:
-        <ol class=algorithm>
-          <li>
-            Let |p:Promise| be the <a>pending write tuple</a>'s promise.
+            Let |output| be the notation for the {{NDEFMessage}}
+            to be created by UA, as the result of invoking
+            <a>create NDEF message</a> with |message| and `""`.
+            If this throws an exception, reject |p| with that
+            exception and abort these steps.
           </li>
           <li>
-            Let |writer| be the <a>pending write tuple</a>'s writer.
+            Attempt to <a>abort a pending write</a> on |navigator.nfc.ndef|.
+            <p class="note">
+              A write invocation replaces all previously configured write operations.
+            </p>
           </li>
           <li>
-            Let |options:NDEFWriteOptions| be |writer|.[[\WriteOptions]].
+            Set |reader|.<a>[[\PendingWrite]]</a> to |p|.
+          </li>
+          <li>
+            Wait until the <a>NFC detection algorithm</a> runs the 
+            <a>resume writing</a> step.
           </li>
           <li>
             If the <a>NFC tag</a> in proximity range does not expose
-            <a>NDEF</a> technology for formatting or writing, then
-            reject |p| with a {{"NotSupportedError"}} {{DOMException}} and
-            return |p|.
+            <a>NDEF</a> technology for NDEF formatting or writing, then
+            reject |p| with a {{"NotSupportedError"}} {{DOMException}}.
           </li>
           <li>
-            Verify that <a href="#nfc-is-suspended">NFC is not suspended</a>.
+            If |device| is an <a>NFC tag</a> and if |options|'s overwrite is
+            `false`, read the tag to check whether there are <a>NDEF</a>
+            records on the tag. If yes, then reject |p| with a
+            {{"NotAllowedError"}} {{DOMException}} and return |p|.
           </li>
           <li>
-            In case of success, run the following steps:
-            <ol>
-              <li>
-                If |device| is an <a>NFC tag</a> and if |options|'s overwrite is
-                `false`, read the tag to check whether there are <a>NDEF</a>
-                records on the tag. If yes, then reject |p| with a
-                {{"NotAllowedError"}} {{DOMException}} and return |p|.
-              </li>
-              <li>
-                Let |output:NDEFMessage| be |writer|.[[\WriteMessage]].
-              </li>
-              <li>
-                Initiate data transfer to |device| using
-                |output| as buffer, using the <a>NFC adapter</a>
-                in communication range with |device|.
-                <p class="note">
-                  If the <a>NFC tag</a> in proximity range is unformatted and
-                  <a>NDEF</a>-formatable, format it and write |output| as
-                  buffer.
-                </p>
-                <p class="note">
-                  Multiple adapters should be used sequentially by users.
-                  There is very little likelihood that a simultaneous tap
-                  will happen on two or multiple different and connected
-                  <a>NFC adapter</a>s.
-                  If it happens, the user will likely need to repeat the
-                  taps until success, preferably one device at a time.
-                  The error here gives an indication that the operation
-                  needs to be repeated. Otherwise the user may think the
-                  operation succeeded on all connected <a>NFC adapter</a>s.
-                </p>
-              </li>
-              <li>
-                If the transfer fails, reject |p| with
-                {{"NetworkError"}} {{DOMException}}
-                and abort these steps.
-              </li>
-              <li>
-                When the transfer has completed, resolve |p|.
-              </li>
-            </ol>
+            Initiate data transfer to |device| using
+            |output| as buffer, using the <a>NFC adapter</a>
+            in communication range with |device|.
+            <p class="note">
+              If the <a>NFC tag</a> in proximity range is unformatted and
+              <a>NDEF</a>-formatable, format it and write |output| as
+              buffer.
+            </p>
+            <p class="note">
+              Multiple adapters should be used sequentially by users.
+              There is very little likelihood that a simultaneous tap
+              will happen on two or multiple different and connected
+              <a>NFC adapter</a>s.
+              If it happens, the user will likely need to repeat the
+              taps until success, preferably one device at a time.
+              The error here gives an indication that the operation
+              needs to be repeated. Otherwise the user may think the
+              operation succeeded on all connected <a>NFC adapter</a>s.
+            </p>
+          </li>
+          <li>
+            If the transfer fails, reject |p| with {{"NetworkError"}}
+            {{DOMException}} and abort these steps.
+          </li>
+          <li>
+            When the transfer has completed, resolve |p|.
           </li>
         </ol>
-      </div>
-    </section>
-  </section> <!-- Writing content -->
+    </div>
+  </section>
 
   <section><h3>Creating NDEF message</h3>
     <div>
@@ -3422,192 +3510,153 @@
     </section>
   </section>
 
-  <section> <h3>Listening for content</h3>
+  <section> <h3>The <strong>read()</strong> method</h3>
     <p>
-      To listen for <a>NFC content</a>, the client MUST activate an
-      {{NDEFReader}} instance by calling <a>NDEFReader.scan()</a>. When attaching
-      an event listener for the "`reading`" event on it, <a>NFC content</a> is
-      accessible to the client.
+      As opposed to <a>NDEFReader.write</a>, which will temporarily
+      <a>start NFC polling</a> if that is not active, in order to listen for
+      <a>NFC content</a>, clients should make sure to <a>start NFC polling</a>
+      before being able to read <a>NFC content</a>.
     </p>
-    <p>
-      If there is a  <a>pending read tuple</a> whose |reader| is an
-      {{NDEFReader}} instance, then the <a>UA</a> MUST listen to
-      <a>NDEF message</a>s on all connected NFC adapters.
-    </p>
-
-    <section> <h3>The <strong>scan()</strong> method</h3>
-      <p>
-        Incoming <a>NFC content</a> is matched using {{NDEFReader}} instances.
-      </p>
-      <div>
-        When the <dfn>NDEFReader.scan</dfn> method is invoked, the UA
-        MUST run the following
-        <dfn id="steps-listen">NFC listen algorithm</dfn>:
+    <div>
+      When the <dfn>NDEFReader.read</dfn> method is invoked, the UA
+      MUST run the following steps:
         <ol class=algorithm>
           <li>
-            Let |p:Promise| be a new {{Promise}} object.
+            Let |p:Promise| be a new {{Promise}} object. Return |p| and run
+            the next steps <a>in parallel</a>.
           </li>
           <li>
-            Let |reader:NDEFReader| be the {{NDEFReader}} instance.
+            If <a>NFC is suspended</a>, reject |p| with a {{"NotAllowedError"}}
+            {{DOMException}} and abort these steps.
+          </li>
+          <li>
+            If the <a>obtain permission</a> steps return `false`, then
+            reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
+            abort these steps.
+          </li>
+          <li>
+            If there is no underlying <a>NFC Adapter</a>, or if a connection
+            cannot be established, then reject |p| with a
+            {{"NotSupportedError"}} {{DOMException}}
+            and abort these steps.
+          </li>
+          <li>
+            If the UA is not allowed to access the underlying <a>NFC Adapter</a>
+            (e.g. a user preference), then reject |p| with a
+            {{"NotReadableError"}} {{DOMException}}
+            and abort these steps.
+          </li>
+          <li>
+            Let |startPolling:boolean| be `true` if <a>NFC polling is inactive</a> 
+            and otherwise to `false`.
+            <p class="note">
+              Reading will temporarily <a>start NFC polling</a> if that is not
+              active, until the first reading is done, when the temporary polling is
+              aborted.
+            </p>
+          </li>
+          <li>
+            [=promise/React=] to |p|:
+            If |p| was settled (fulfilled or rejected), then:
+            <ol>
+              <li>
+                Set |navigator.nfc.ndef|.<a>[[\PendingRead]]</a> to `null`.
+              </li>
+              <li>
+                If |startPolling| is `true`, attempt to <a>abort NFC polling</a>.
+              </li>
+            </ol>
+          </li>
+          <li>
+            If |startPolling| is `true`, <a>start NFC polling</a>.
+            If that fails, reject |p| with a {{"NotReadableError"}} {{DOMException}} and abort 
+            these steps.
+          </li>
+          <li>
+            Let |reader:NDEFReader| be the |navigator.nfc.ndef| instance.
           </li>
           <li>
             Let |options| be first argument.
           </li>
           <li>
-            [= list/For each =] |key| → |value| of |options|:
-            <ol>
-              <li>
-                If |key| equals "`signal`" and |value| is not `undefined`, set
-                |reader|.<a>[[\ScanAbortSignal]]</a> to |value|.
-              </li>
-            </ol>
+            Let |signal:AbortSignal| be the |options|’ dictionary member
+            of the same name if present, or `null` otherwise.
           </li>
           <li>
-            If |reader|.<a>[[\ScanAbortSignal]]</a>'s [= AbortSignal/aborted flag =] is
-            set, then reject |p| with a {{"AbortError"}} {{DOMException}}
-            and return |p|.
+            If |signal|'s [= AbortSignal/aborted flag =] is
+            set, then reject |p| with a {{"AbortError"}} {{DOMException}}.
           </li>
           <li>
-            If |reader|.<a>[[\ScanAbortSignal]]</a> is not `null`, then
+            If |signal| is not `null`, then
             <a data-cite="dom#abortsignal-abort-algorithms">add the following
-            abort steps</a> to |reader|.<a>[[\ScanAbortSignal]]</a>:
+            abort steps</a> to |signal|:
             <ol>
               <li>
-                Clear the <a>pending read tuple</a>.
-              </li>
-              <li>
-                Make a request to stop listening to <a>NDEF message</a>s
-                on all <a>NFC adapter</a>s.
+                Attempt to <a>abort a pending read</a> on |reader|.
               </li>
             </ol>
           </li>
           <li>
-            Return |p| and run the following steps <a>in parallel</a>:
+            Set |navigator.nfc.ndef|.<a>[[\PendingRead]]</a> to |p|.
+          </li>
+          <li>
+            Attempt to <a>abort a pending read</a> on |navigator.nfc.ndef|.
+            <p class="note">
+              A read invocation replaces all previously started read operations.
+            </p>
+          </li>
+          <li>
+            Wait until the <a>NFC detection algorithm</a> runs the 
+            <a>resume reading</a> step.
+          </li>
+          <li>
+            If the <a>NFC tag</a> in proximity range does not expose <a>NDEF</a>
+            technology for reading or formatting, reject |p| with a {{"NotSupportedError"}} 
+            {{DOMException}} and abort these steps.
+          </li>
+          <li>
+            Let |message:NDEFMessage| be a new <a>NDEFMessage</a> object, with
+            |message|'s records set to the empty <a>list</a>.
+          </li>
+          <li>
+            If the <a>NFC tag</a> in proximity range is unformatted and is
+            NDEF-formattable, let |input| be `null`.
+            Otherwise, let |input| be the notation for the <a>NDEF message</a>
+            which has been received.
+            <p class="note">
+               The UA SHOULD represent an unformatted <a>NFC tag</a> as an
+               <a>NDEF message</a> containing no <a>NDEF record</a>s, i.e. an empty
+               array for its {{NDEFMessage/records}} property.
+            </p>
+          </li>
+          <li>
+            [= list/For each =] <a>NDEF record</a> which is part of |input|, run the
+            following sub-steps:
             <ol>
               <li>
-                If the <a>obtain permission</a> steps return `false`, then
-                reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
-                abort these steps.
+                Let |ndef| be the notation for the current <a>NDEF record</a> with
+                |typeNameField:number| corresponding to the <a>TNF field</a> and
+                |payload:byte sequence| corresponding to the <a>PAYLOAD field</a>
+                data.
               </li>
               <li>
-                If there is no underlying <a>NFC Adapter</a>, or if a connection
-                cannot be established, then reject |p| with a
-                {{"NotSupportedError"}} {{DOMException}}
-                and abort these steps.
+                Let |record:NDEFRecord| be the result of <a>parse an NDEF record</a>
+                given |ndef| and `""`.
               </li>
               <li>
-                If the UA is not allowed to access the underlying <a>NFC Adapter</a>
-                (e.g. a user preference), then reject |p| with a
-                {{"NotReadableError"}} {{DOMException}}
-                and abort these steps.
-              </li>
-              <li>
-                Set the <a>pending read tuple</a> to (|p|, |reader|).
-              </li>
-              <li>
-                Resolve |p|.
-              </li>
-              <li>
-                Whenever the <a>UA</a> detects NFC technology, run the
-                <a>NFC reading algorithm</a>.
+                 If |record| is not `null`, <a>append</a> |record| to |message|'s
+                 records.
               </li>
             </ol>
+          </li>
+          <li>
+            Resolve |p| with |message|.
           </li>
         </ol>
       </div>
-    </section>
-
-    <section><h3>The NFC reading algorithm</h3>
-    To receive <a>NDEF</a> content, run the <dfn>NFC reading algorithm</dfn>:
-    <ol class=algorithm id="parse-ndef">
-      <li>
-        If <a>NFC is suspended</a>, abort these steps.
-      </li>
-      <li>
-        If the <a>NFC tag</a> in proximity range does not expose <a>NDEF</a>
-        technology for reading or formatting, run the following sub-steps:
-        <ol>
-          <li>
-            If there is a <a>pending read tuple</a> whose |reader| is an
-            {{NDEFReader}} instance, fire an event</a> named "`readingerror`" at
-            |reader|.
-          </li>
-          <li>
-            Abort these steps.
-          </li>
-        </ol>
-      </li>
-      <li>
-        Let |serialNumber:serialNumber| be the device identifier as a series of
-        numbers, or `null` if unavailable.
-      </li>
-      <li>
-        If |serialNumber| is not `null`, set it to the
-        <a>string</a> of U+003A (`:`) concatenating each number represented as
-        <a>ASCII hex digit</a>, in the same order.
-      </li>
-      <li>
-        Let |message:NDEFMessage| be a new <a>NDEFMessage</a> object, with
-        |message|'s records set to the empty <a>list</a>.
-      </li>
-      <li>
-        If the <a>NFC tag</a> in proximity range is unformatted and is
-        NDEF-formattable, let |input| be `null`.
-        Otherwise, let |input| be the notation for the <a>NDEF message</a>
-        which has been received.
-        <p class="note">
-           The UA SHOULD represent an unformatted <a>NFC tag</a> as an
-           <a>NDEF message</a> containing no <a>NDEF record</a>s, i.e. an empty
-           array for its {{NDEFMessage/records}} property.
-        </p>
-      </li>
-      <li>
-        [= list/For each =] <a>NDEF record</a> which is part of |input|, run the
-        following sub-steps:
-        <ol>
-          <li>
-            Let |ndef| be the notation for the current <a>NDEF record</a> with
-            |typeNameField:number| corresponding to the <a>TNF field</a> and
-            |payload:byte sequence| corresponding to the <a>PAYLOAD field</a>
-            data.
-          </li>
-          <li>
-            Let |record:NDEFRecord| be the result of <a>parse an NDEF record</a>
-            given |ndef| and `""`.
-          </li>
-          <li>
-             If |record| is not `null`, <a>append</a> |record| to |message|'s
-             records.
-          </li>
-        </ol>
-      </li>
-      <li>
-        If <a href="#nfc-is-suspended">NFC is not suspended</a>, run the
-        <a>dispatch NFC content</a> steps with given |serialNumber|
-        and |message|.
-      </li>
-    </ol>
-    </section>
-
-    <section data-link-for="NDEFReadingEvent"><h3>Dispatching NFC content</h3>
-    <p>
-      To <dfn>dispatch NFC content</dfn> given a |serialNumber:serialNumber|
-      of type <a>serialNumber</a> and a |message:NDEFMessage|
-      of type <a>NDEFMessage</a>, run these steps:
-    </p>
-    <ol class=algorithm>
-      <li>
-        If there is a <a>pending read tuple</a> whose |reader| is an
-        {{NDEFReader}} instance, <a>fire an event</a> named "`reading`" at
-        |reader| using <a>NDEFReadingEvent</a> with its <a>serialNumber</a>
-        attribute initialized to |serialNumber| and <a>message</a> attribute
-        initialized to |message|.
-      </li>
-    </ol>
-    </section>
   </section>
 
-  <section id="steps-receiving">
+  <section id="steps-parse">
   <h3>Parsing content</h3>
 
   <section><h3>Parsing records from bytes</h3>
@@ -4883,7 +4932,7 @@
       <p>
         Writing <a>NFC content</a> to an <a>NFC tag</a> MUST
         <a>obtain permission</a>.
-        See the [[[#writing-content]]] section.
+        See the [[[#steps-write]]] section.
       </p>
       <p>
         All permission that are preserved beyond the current
