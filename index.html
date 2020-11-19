@@ -2414,10 +2414,10 @@
                 </p>
               </li>
               <li>
-                Set `this`.[[\WriteOptions]] to |options|.
+                Set `this`.<a>[[\WriteOptions]]</a> to |options|.
               </li>
               <li>
-                Set `this`.[[\WriteMessage]] to |output|.
+                Set `this`.<a>[[\WriteMessage]]</a> to |output|.
               </li>
               <li>
                 Set <a>pending write tuple</a> to (`this`, |p|).
@@ -2447,7 +2447,7 @@
             Let |writer| be the <a>pending write tuple</a>'s writer.
           </li>
           <li>
-            Let |options:NDEFWriteOptions| be |writer|.[[\WriteOptions]].
+            Let |options:NDEFWriteOptions| be |writer|.<a>[[\WriteOptions]]</a>.
           </li>
           <li>
             If the <a>NFC tag</a> in proximity range does not expose
@@ -2468,7 +2468,7 @@
                 {{"NotAllowedError"}} {{DOMException}} and return |p|.
               </li>
               <li>
-                Let |output:NDEFMessage| be |writer|.[[\WriteMessage]].
+                Let |output:NDEFMessage| be |writer|.<a>[[\WriteMessage]]</a>.
               </li>
               <li>
                 Initiate data transfer to |device| using
