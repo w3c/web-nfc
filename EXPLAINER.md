@@ -258,6 +258,34 @@ From speaking about the feature at multiple events over the years, it is clear
 that web developers have been quite positive about the ability to use NFC from
 the web.
 
+## Changes done after Origin Trial (OT)
+
+### Removed NDEF scan option for filtering
+
+The OT feedback was the filtering feature was not needed very much, and applications
+can easily implement it.
+
+### Merged NDEFWriter into NDEFReader
+
+Once scan filtering was removed, there was no point in keeping separate objects
+for reading and writing NDEF tags. Hence `NDEFWriter.write` became
+`NDEFReader.write`.
+
+### Removed NDEF write option for ignoring read
+
+When a tag is written, it is also read. With merging the reading and writing
+objects, this option became unneeded. There is an [example](https://w3c.github.io/web-nfc/#handling-initial-reads-while-writing) included on how to ignore reads when writing.
+
+### Replaced `onerror` with `onreadingerror`
+
+Since the merge of `NDEFWriter` and `NDEFReader`, the former `onerror` event on
+`NDEFReader` still relates to scans, but it could be interpreted to be also
+relevant on writes, which is not the case. This change clarifies the error is
+only relevant for scans.
+
+
+These changes mark the [Chrome Origin Trial](https://developers.chrome.com/origintrials/#/view_trial/236438980436951041) complete.
+
 ## References & acknowledgements
 
 Thanks to Jeffrey Yasskin, Anne van Kesteren, Anssi Kostiainen, Domenic
