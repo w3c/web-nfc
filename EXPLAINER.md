@@ -274,8 +274,7 @@ for reading and writing NDEF tags. Hence `NDEFWriter.write` became
 ### Removed NDEF write option for ignoring read
 
 When a tag is written, it is also read. With merging the reading and writing
-objects, this option became unneeded. There is an example included on how to
-ignore reads when writing.
+objects, this option became unneeded. There is an [example](https://w3c.github.io/web-nfc/#handling-initial-reads-while-writing) included on how to ignore reads when writing.
 
 ### Replaced `onerror` with `onreadingerror`
 
@@ -285,7 +284,7 @@ relevant on writes, which is not the case. This change clarifies the error is
 only relevant for scans.
 
 
-These changes mark the Chrome Origin Trial complete.
+These changes mark the [Chrome Origin Trial](https://developers.chrome.com/origintrials/#/view_trial/236438980436951041) complete.
 
 ## References & acknowledgements
 
