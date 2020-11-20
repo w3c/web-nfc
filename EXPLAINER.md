@@ -258,7 +258,7 @@ From speaking about the feature at multiple events over the years, it is clear
 that web developers have been quite positive about the ability to use NFC from
 the web.
 
-## Changes done after the Chrome Origin Trials (OT)
+## Changes done after Origin Trial (OT)
 
 ### Removed NDEF scan option for filtering
 
