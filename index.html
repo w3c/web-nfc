@@ -2312,6 +2312,11 @@
             Let |p:Promise| be a new {{Promise}} object.
           </li>
           <li>
+            If not currently executing in the currently active <a>top-level
+            browsing context</a>, then reject |p| with and
+            {{"InvalidStateError"}} {{DOMException}} and return |p|.
+          </li>
+          <li>
             Let |message:NDEFMessageSource| be the first argument.
           </li>
           <li>
@@ -3408,6 +3413,11 @@
         <ol class=algorithm>
           <li>
             Let |p:Promise| be a new {{Promise}} object.
+          </li>
+          <li>
+            If not currently executing in the currently active <a>top-level
+            browsing context</a>, then reject |p| with and
+            {{"InvalidStateError"}} {{DOMException}} and return |p|.
           </li>
           <li>
             Let |reader:NDEFReader| be the {{NDEFReader}} instance.
