@@ -3886,15 +3886,15 @@
         on second <a>byte</a> to the |languageLength| + `1` byte, inclusive.
       </li>
       <li>
+        Let |buffer:byte sequence| be the <a>byte sequence</a> of the rest of the
+        |ndefRecords|'s <a>PAYLOAD field</a> (excluding |header| and |languageLength| number of bytes).
+      </li>
+      <li>
         Set |record|'s <a>lang</a> to |language|.
       </li>
       <li>
         Set |record|'s <a>encoding</a> be "`utf-8`" if bit `7` ([=MB field=]) of
         |header| is equal to the value `0`, or else "`utf-16be`".
-      </li>
-      <li>
-        Let |buffer:byte sequence| be the <a>byte sequence</a> of
-        |ndefRecords|'s <a>PAYLOAD field</a>.
       </li>
       <li>
         Set |record|'s <a>data</a> to |buffer|.
