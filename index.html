@@ -2241,7 +2241,10 @@
         Reject |tuple|'s promise with an {{"InvalidStateError"}} {{DOMException}}.
       </li>
       <li>
-        Clear the <a>pending read tuple</a> and abort these steps.
+        Stop the <a>dispatch NFC content</a> steps.
+      </li>
+      <li>
+        Clear the <a>pending read tuple</a>.
       </li>
     </ol>
   </div>
@@ -2260,14 +2263,10 @@
       Attempt to <a>abort a pending write operation</a>.
     </li>
     <li>
-      Stop the <a>dispatch NFC content</a> steps.
+      Attempt to <a>abort a pending scan operation</a>.
     </li>
     <li>
-      Clear the <a>pending read tuple</a>.
-    </li>
-    <li>
-      Release the NFC resources associated with |nfc| on the
-      underlying platform.
+      Release the NFC resources on the underlying platform.
     </li>
   </ol>
   <p>
