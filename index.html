@@ -2532,7 +2532,7 @@
                 Let |records| be the list « |textRecord| ».
               </li>
               <li>
-                Set |source|'s <a>records</a> to |records|.
+                Set |source|'s records to |records|.
               </li>
             </ul>
             <dt>{{BufferSource}}</dt>
@@ -2546,13 +2546,13 @@
                   Let |records| be the list « |mimeRecord| ».
                 </li>
                 <li>
-                  Set |source|'s <a>records</a> to |records|.
+                  Set |source|'s records to |records|.
                 </li>
             </ul>
             <dt>{{NDEFMessageInit}}</dt>
             <ul>
               <li>
-                If |source|'s <a>records</a> [= list/is empty =], [= exception/throw =]
+                If |source|'s records [= list/is empty =], [= exception/throw =]
                 a {{TypeError}} and abort these steps.
               </li>
             </ul>
@@ -2570,7 +2570,7 @@
         </li>
         <li>
           [= list/For each =] |record:NDEFRecordInit| in the <a>list</a>
-          |source|'s <a>records</a>, run the following steps:
+          |source|'s records, run the following steps:
           <ol>
             <li>
               Let |ndef| be the result of running <a>create NDEF record</a>
