@@ -2225,6 +2225,28 @@
   </div>
   </section>
 
+  <section><h3>Aborting pending scan operation</h3>
+  <div>
+    To attempt to <dfn>abort a pending scan operation</dfn> on an
+    <a>environment settings object</a>, perform the following steps:
+    <ol class=algorithm>
+      <li>
+        If there is no <a>pending read tuple</a> |tuple|, abort these steps.
+      </li>
+      <li>
+        If |tuple|'s reader has already initiated an ongoing NFC data transfer,
+        abort these steps.
+      </li>
+      <li>
+        Reject |tuple|'s promise with an {{"InvalidStateError"}} {{DOMException}}.
+      </li>
+      <li>
+        Clear the <a>pending read tuple</a> and abort these steps.
+      </li>
+    </ol>
+  </div>
+  </section>
+
   <section><h3>Releasing NFC</h3>
   <p>
     To <dfn>release NFC</dfn> on an <a>environment settings object</a>,
@@ -3418,6 +3440,9 @@
             If not currently executing in the currently active <a>top-level
             browsing context</a>, then reject |p| with and
             {{"InvalidStateError"}} {{DOMException}} and return |p|.
+          </li>
+          <li>
+            Attempt to <a>abort a pending scan operation</a>.
           </li>
           <li>
             Let |reader:NDEFReader| be the {{NDEFReader}} instance.
