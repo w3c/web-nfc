@@ -3437,11 +3437,17 @@
           </li>
           <li>
             If not currently executing in the currently active <a>top-level
-            browsing context</a>, then reject |p| with and
+            browsing context</a>, then reject |p| with an
             {{"InvalidStateError"}} {{DOMException}} and return |p|.
           </li>
           <li>
-            Attempt to <a>abort a pending scan operation</a>.
+            If there is a <a>pending read tuple</a> |tuple|, then reject |p|
+            with an {{"InvalidStateError"}} {{DOMException}} and return |p|.
+            <p class="note">
+              Note that scans need to be explicitly aborted before a new scan
+              could be done, and this behavior is different from writes, which
+              automatically abort and replace pending writes.
+            </p>
           </li>
           <li>
             Let |reader:NDEFReader| be the {{NDEFReader}} instance.
