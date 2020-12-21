@@ -3431,7 +3431,7 @@
           <li>
             If |signal| is not `null`, then
             <a data-cite="dom#abortsignal-abort-algorithms">
-            add the following <dfn>abort the pending scans</dfn> steps</a>
+            add the following <dfn>clean up the pending scan</dfn> steps</a>
             to |signal|:
             <ol>
               <li>
@@ -3449,7 +3449,7 @@
             <ol>
               <li>
                 If |p| was settled (fulfilled or rejected), then
-                <a>abort the pending scans</a>.
+                <a>clean up the pending scan</a>.
               </li>
             </ol>
           </li>
@@ -3471,6 +3471,11 @@
                 If the UA is not allowed to access the underlying <a>NFC Adapter</a>
                 (e.g. a user preference), then reject |p| with a
                 {{"NotReadableError"}} {{DOMException}}
+                and abort these steps.
+              </li>
+              <li>
+                If |reader| is already in the <a>activated reader objects</a>,
+                then reject |p| with a {{"InvalidStateError"}} {{DOMException}}
                 and abort these steps.
               </li>
               <li>
