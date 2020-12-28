@@ -2079,11 +2079,10 @@
       </td>
      </tr>
      <tr>
-      <td><dfn>[[\PendingRead]]</dfn></td>
+      <td><dfn>[[\ActivatedReaderList]]</dfn></td>
       <td>empty <a>set</a></td>
       <td>
-        A &lt;|promise:Promise|, |reader:NDEFReader|&gt; tuple where |promise|
-        holds a {{Promise}} and |reader| holds an {{NDEFReader}}.
+        A <a>set</a> of {{NDEFReader}} instances.
       </td>
      </tr>
      <tr>
@@ -2097,8 +2096,8 @@
     </tbody>
   </table>
   <p>
-    The <dfn>pending read tuple</dfn> is the value of the
-    <a>[[\PendingRead]]</a> internal slot.
+    The <dfn>activated reader objects</dfn> is the value of the
+    <a>[[\ActivatedReaderList]]</a> internal slot.
   </p>
   <p>
     The <dfn>pending write tuple</dfn> is the value of the
@@ -2204,8 +2203,8 @@
 
   <section><h3>Aborting pending write operation</h3>
   <div>
-    To attempt to <dfn>abort a pending write operation</dfn> on an
-    <a>environment settings object</a>, perform the following steps:
+    To attempt to <dfn>abort a pending write operation</dfn>,
+    run the following steps:
     <ol class=algorithm>
       <li>
         If there is no <a>pending write tuple</a> |tuple|, abort these steps.
@@ -2238,14 +2237,10 @@
       Attempt to <a>abort a pending write operation</a>.
     </li>
     <li>
-      Stop the <a>dispatch NFC content</a> steps.
+      Clear the <a>activated reader objects</a>.
     </li>
     <li>
-      Clear the <a>pending read tuple</a>.
-    </li>
-    <li>
-      Release the NFC resources associated with |nfc| on the
-      underlying platform.
+      Release the NFC resources on the underlying platform.
     </li>
   </ol>
   <p>
@@ -2510,7 +2505,7 @@
                 Let |records| be the list « |textRecord| ».
               </li>
               <li>
-                Set |source|'s <a>records</a> to |records|.
+                Set |source|'s records to |records|.
               </li>
             </ul>
             <dt>{{BufferSource}}</dt>
@@ -2524,13 +2519,13 @@
                   Let |records| be the list « |mimeRecord| ».
                 </li>
                 <li>
-                  Set |source|'s <a>records</a> to |records|.
+                  Set |source|'s records to |records|.
                 </li>
             </ul>
             <dt>{{NDEFMessageInit}}</dt>
             <ul>
               <li>
-                If |source|'s <a>records</a> [= list/is empty =], [= exception/throw =]
+                If |source|'s records [= list/is empty =], [= exception/throw =]
                 a {{TypeError}} and abort these steps.
               </li>
             </ul>
@@ -2548,7 +2543,7 @@
         </li>
         <li>
           [= list/For each =] |record:NDEFRecordInit| in the <a>list</a>
-          |source|'s <a>records</a>, run the following steps:
+          |source|'s records, run the following steps:
           <ol>
             <li>
               Let |ndef| be the result of running <a>create NDEF record</a>
@@ -3397,9 +3392,9 @@
       accessible to the client.
     </p>
     <p>
-      If there is a  <a>pending read tuple</a> whose |reader| is an
-      {{NDEFReader}} instance, then the <a>UA</a> MUST listen to
-      <a>NDEF message</a>s on all connected NFC adapters.
+      If there are any {{NDEFReader}} instances in <a>activated reader objects</a>
+      then the <a>UA</a> MUST listen to <a>NDEF message</a>s on all connected
+      NFC adapters.
     </p>
 
     <section> <h3>The <strong>scan()</strong> method</h3>
@@ -3416,7 +3411,7 @@
           </li>
           <li>
             If not currently executing in the currently active <a>top-level
-            browsing context</a>, then reject |p| with and
+            browsing context</a>, then reject |p| with an
             {{"InvalidStateError"}} {{DOMException}} and return |p|.
           </li>
           <li>
@@ -3436,23 +3431,16 @@
           <li>
             If |signal| is not `null`, then
             <a data-cite="dom#abortsignal-abort-algorithms">
-            add the following abort steps</a> to |signal|:
-              <ol>
-                <li>
-                  Clear the <a>pending read tuple</a> .
-                </li>
-                <li>
-                  Make a request to stop listening to <a>NDEF message</a>s
-                  on all <a>NFC adapter</a>s.
-                </li>
-              </ol>
-          </li>
-          <li>
-            [=promise/React=] to |p|:
+            add the following <dfn>clean up the pending scan</dfn> steps</a>
+            to |signal|:
             <ol>
               <li>
-                If |p| was settled (fulfilled or rejected), then clear the
-                <a>pending read tuple</a>.
+                Remove |reader| from the <a>activated reader objects</a>.
+              </li>
+              <li>
+                If the <a>activated reader objects</a> [= list/is empty =],
+                then make a request to stop listening to <a>NDEF message</a>s
+                on all <a>NFC adapter</a>s.
               </li>
             </ol>
           </li>
@@ -3477,7 +3465,12 @@
                 and abort these steps.
               </li>
               <li>
-                Set the <a>pending read tuple</a> to (|p|, |reader|).
+                If |reader| is already in the <a>activated reader objects</a>,
+                then reject |p| with an {{"InvalidStateError"}} {{DOMException}}
+                and abort these steps.
+              </li>
+              <li>
+                Add |reader| to the <a>activated reader objects</a>.
               </li>
               <li>
                 Resolve |p|.
@@ -3502,10 +3495,14 @@
         If the <a>NFC tag</a> in proximity range does not expose <a>NDEF</a>
         technology for reading or formatting, run the following sub-steps:
         <ol>
-          <li>
-            If there is a <a>pending read tuple</a> whose |reader| is an
-            {{NDEFReader}} instance, fire an event</a> named "`readingerror`" at
-            |reader|.
+          <li>[= list/For each =]
+            {{NDEFReader}} instance |reader:NDEFReader| in the
+            <a>activated reader objects</a>, run the following sub-steps:
+            <ol>
+              <li>
+                <a>Fire an event</a> named "`error`" at |reader|.
+              </li>
+            </ol>
           </li>
           <li>
             Abort these steps.
@@ -3572,11 +3569,16 @@
     </p>
     <ol class=algorithm>
       <li>
-        If there is a <a>pending read tuple</a> whose |reader| is an
-        {{NDEFReader}} instance, <a>fire an event</a> named "`reading`" at
-        |reader| using <a>NDEFReadingEvent</a> with its <a>serialNumber</a>
-        attribute initialized to |serialNumber| and <a>message</a> attribute
-        initialized to |message|.
+        [= list/For each =] {{NDEFReader}} instance |reader:NDEFReader| in
+        the <a>activated reader objects</a>,
+        <ol>
+          <li>
+            <a>fire an event</a> named "`reading`" at |reader| using
+            <a>NDEFReadingEvent</a> with its <a>serialNumber</a> attribute
+            initialized to |serialNumber| and its <a>message</a> attribute
+            initialized to |message|.
+          </li>
+        </ol>
       </li>
     </ol>
     </section>
