@@ -965,7 +965,7 @@
       object. Note that this does not guarantee that NFC hardware is available.
     </p>
     <pre class="example">
-      if ('NDEFReader' in window) { /* ... Scan and write NDEF Tags */ }
+      if ("NDEFReader" in window) { /* Scan and write NDEF Tags */ }
     </pre>
   </section>
 
@@ -1024,7 +1024,7 @@
     <pre class="example">
       const ndef = new NDEFReader();
       try {
-        ndef.write({
+        await ndef.write({
           records: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
         });
       } catch {
@@ -1080,7 +1080,7 @@
 
   <section> <h3>Scheduling a write with a timeout</h3>
     <p>
-      It can sometime be useful to set a time limit on a write operation.
+      It can sometimes be useful to set a time limit on a write operation.
       Like you ask the user to touch a tag, and if no tag is found within
       a certain amount of time, then you time out.
     </p>
@@ -1091,10 +1091,8 @@
       function write(data, { timeout } = {}) {
         return new Promise((resolve, reject) => {
           const ctlr = new AbortController();
-          ctlr.signal.onabort = _ => reject("Time is up, bailing out!");
-          if (typeof timeout == "number") {
-            setTimeout(() => ctlr.abort(), timeout);
-          }
+          ctlr.signal.onabort = () => reject("Time is up, bailing out!");
+          setTimeout(() => ctlr.abort(), timeout);
 
           ndef.addEventListener("reading", event => {
             ndef.write(data, { signal: ctlr.signal }).then(resolve, reject);
@@ -1105,7 +1103,7 @@
       await ndef.scan();
       try {
         // Let's wait for 5 seconds only.
-        write("Hello World", { timeout: 5_000 });
+        await write("Hello World", { timeout: 5_000 });
       } catch(err) {
         console.error("Something went wrong", err);
       } finally {
@@ -1117,7 +1115,7 @@
   <section> <h3>Handle scanning errors</h3>
     <p>
       This example shows what happens when {{NDEFReader/scan}} promise rejects and
-      {{NDEFReader/onreadingerror}} is fired.
+      `readingerror` is fired.
     </p>
     <pre class="example">
       const ndef = new NDEFReader();
@@ -1162,7 +1160,7 @@
 
       read().then(({ serialNumber }) => {
         console.log(serialNumber);
-      })
+      });
     </pre>
   </section>
 
@@ -1175,13 +1173,11 @@
     <pre class="example">
       const ndef = new NDEFReader();
       await ndef.scan();
-      ndef.onreading = (event) => {
-        const message = event.message;
-
-        if (message.records.length == 0 ||     // unformatted tag
-            message.records[0].recordType == 'empty' ) {  // empty record
-          ndef.write({
-            records: [{ recordType: "text", data: 'Hello World' }]
+      ndef.onreading = async ({ message }) => {
+        if (message.records.length == 0 ||               // unformatted tag
+            message.records[0].recordType == "empty") {  // empty record
+          await ndef.write({
+            records: [{ recordType: "text", data: "Hello World" }]
           });
           return;
         }
@@ -1200,7 +1196,7 @@
               if (record.mediaType === "application/json") {
                 console.log(`JSON: ${JSON.parse(decoder.decode(record.data))}`);
               }
-              else if (record.mediaType.startsWith('image/')) {
+              else if (record.mediaType.startsWith("image/")) {
                 const blob = new Blob([record.data], { type: record.mediaType });
 
                 const img = document.createElement("img");
@@ -1224,22 +1220,22 @@
   <section> <h3>Save and restore game progress with an NFC tag</h3>
     <p>
       Filtering of relevant data sources can be done by the use of
-      a custom record identifier, in this case "`my-game-progress`".
+      a custom record identifier, in this case "`/my-game-progress`".
       When we read the data, we immediately update the game progress by issuing
       a write with a custom NDEF data layout.
     </p>
     <pre class="example">
       const ndef = new NDEFReader();
       await ndef.scan();
-      ndef.onreading = async (event) => {
-        if (event.message.id !== "my-game-progress")
+      ndef.onreading = async ({ message }) => {
+        if (message.records[0]?.id !== "/my-game-progress")
           return;
-        console.log(`Game state: ${ JSON.stringify(event.message.records) }`);
+        console.log(`Game state: ${ JSON.stringify(message.records) }`);
 
         const encoder = new TextEncoder();
         const newMessage = {
           records: [{
-            id: "my-game-progress",
+            id: "/my-game-progress",
             recordType: "mime",
             mediaType: "application/json",
             data: encoder.encode(JSON.stringify({
@@ -1265,7 +1261,7 @@
       ndef.onreading = (event) => {
         const decoder = new TextDecoder();
         for (const record of event.message.records) {
-          if (record.mediaType === 'application/json') {
+          if (record.mediaType === "application/json") {
             const json = JSON.parse(decoder.decode(record.data));
             const article =/^[aeio]/i.test(json.title) ? "an" : "a";
             console.log(`${json.name} is ${article} ${json.title}`);
@@ -1274,7 +1270,7 @@
       };
 
       const encoder = new TextEncoder();
-      ndef.write({
+      await ndef.write({
         records: [
           {
             recordType: "mime",
@@ -1302,7 +1298,7 @@
     </p>
     <pre class="example">
       const ndef = new NDEFReader();
-
+      await ndef.scan();
       ndef.onreading = async (event) => {
         const decoder = new TextDecoder();
         for (const record of event.message.records) {
@@ -1317,8 +1313,6 @@
           console.log(`Write failed :-( try again: ${error}.`);
         }
       };
-
-      ndef.scan();
     </pre>
   </section>
 
@@ -1328,19 +1322,19 @@
     </p>
     <pre class="example">
       const ndef = new NDEFReader();
-      const controller = new AbortController();
+      const ctrl = new AbortController();
 
-      await ndef.scan({ signal: controller.signal });
-      ndef.onreading = (event) => {
+      await ndef.scan({ signal: ctrl.signal });
+      ndef.onreading = () => {
         console.log("NDEF message read.");
       };
 
-      controller.signal.onabort = event => {
+      ctrl.signal.onabort = () => {
         console.log("We're done waiting for NDEF messages.");
       };
 
       // Stop listening to NDEF messages after 3s.
-      setTimeout(() => controller.abort(), 3_000);
+      setTimeout(() => ctrl.abort(), 3_000);
     </pre>
   </section>
 
@@ -1348,7 +1342,7 @@
     <pre class="example">
       const ndef = new NDEFReader();
       const encoder = new TextEncoder();
-      ndef.write({ records: [
+      await ndef.write({ records: [
         {
           recordType: "smart-poster",  // Sp
           data: { records: [
@@ -1452,7 +1446,7 @@
     </p>
     <pre class="example">
       const ndef = new NDEFReader();
-      ndef.write({ records: [
+      await ndef.write({ records: [
         {
           recordType: "example.game:a",
           data: {
@@ -1486,7 +1480,7 @@
     <pre class="example">
       const encoder = new TextEncoder();
       const ndef = new NDEFReader();
-      ndef.write({ records: [
+      await ndef.write({ records: [
         {
           recordType: "example.com:shoppingItem", // External record
           data: {
@@ -1509,10 +1503,8 @@
       await ndef.scan();
       ndef.onreading = (event) => {
         const shoppingItemRecord = event.message.records[0];
-        if (!shoppingItemRecord ||
-            shoppingItemRecord.recordType !== "example.com:shoppingItem") {
+        if (shoppingItemRecord?.recordType !== "example.com:shoppingItem")
           return;
-        }
 
         const [nameRecord, descriptionRecord] = shoppingItemRecord.toRecords();
 
