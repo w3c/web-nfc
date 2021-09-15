@@ -2523,9 +2523,15 @@
                 Increment |recordsDepth| by one.
               </li>
               <li>
-                If |recordsDepth| > `2`, [= exception/throw =] a {{TypeError}} and abort these steps.
+                If |recordsDepth| > `2`, [= exception/throw =] a {{TypeError}}
+                and abort these steps.
                 <p class="issue" data-number="620">
-                  Infinite loops are not allowed by Web IDL.
+                  To prevent infinite loops, Web IDL bans dictionaries from
+                  including themselves as members. As the `data` dictionaries
+                  will have to have been created by a developer before
+                  initiating the function call, these will in practice be
+                  finite, so we work around this by using `any` as the
+                  member type and enforcing limits on allowed sub-records.
                 </p>
               </li>
             </ul>
