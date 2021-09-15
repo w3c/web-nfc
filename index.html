@@ -1574,7 +1574,7 @@
         USVString encoding;
         USVString lang;
 
-        any data;
+        any data; // DOMString or BufferSource or NDEFMessageInit
       };
     </pre>
     <p>
@@ -2374,7 +2374,7 @@
               <li>
                 Let |output| be the notation for the <a>NDEF message</a>
                 to be created by UA, as the result of invoking
-                <a>create NDEF message</a> with |message|, `""`, and 0.
+                <a>create NDEF message</a> with |message|, `""`, and `0`.
                 If this throws an exception, reject |p| with that
                 exception and abort these steps.
               </li>
