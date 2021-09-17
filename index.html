@@ -2525,11 +2525,12 @@
               <li>
                 If |recordsDepth| > `32`, [= exception/throw =] a {{TypeError}}
                 and abort these steps.
-                <p class="issue" data-number="620">
+                <p class="note">
                   For practical purposes there is only so much room for storing
                   an NDEF message and so, this specification sets a limit on
                   the depth of nested messages which developers are unlikely to
-                  hit.
+                  hit. See <a href="https://github.com/w3c/web-nfc/issues/620">
+                  issue #620</a>.
                 </p>
               </li>
             </ul>
