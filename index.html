@@ -1551,8 +1551,6 @@
       <a>NDEFRecord</a> interface:
     </p>
     <pre class="idl">
-      typedef (DOMString or BufferSource or NDEFMessageInit) NDEFRecordDataSource;
-
       [SecureContext, Exposed=Window]
       interface NDEFRecord {
         constructor(NDEFRecordInit recordInit);
@@ -1576,7 +1574,7 @@
         USVString encoding;
         USVString lang;
 
-        NDEFRecordDataSource data;
+        any data; // DOMString or BufferSource or NDEFMessageInit
       };
     </pre>
     <p>
@@ -2376,7 +2374,7 @@
               <li>
                 Let |output| be the notation for the <a>NDEF message</a>
                 to be created by UA, as the result of invoking
-                <a>create NDEF message</a> with |message| and `""`.
+                <a>create NDEF message</a> with |message|, `""`, and `0`.
                 If this throws an exception, reject |p| with that
                 exception and abort these steps.
               </li>
@@ -2481,8 +2479,9 @@
 
   <section><h3>Creating NDEF message</h3>
     <div>
-      To <dfn>create NDEF message</dfn> given a
-      |source:NDEFMessageSource| and |context:string|, run these steps:
+      To <dfn>create NDEF message</dfn> given |source:NDEFMessageSource|,
+      |context:string|, and |recordsDepth:unsigned short|,
+      run these steps:
       <ol class=algorithm id="create-web-nfc-message"
           data-link-for="NDEFMessageSource">
         <li>Switch on |source:NDEFMessageSource|'s type:
@@ -2520,6 +2519,20 @@
                 If |source|'s records [= list/is empty =], [= exception/throw =]
                 a {{TypeError}} and abort these steps.
               </li>
+              <li>
+                Increment |recordsDepth| by one.
+              </li>
+              <li>
+                If |recordsDepth| > `32`, [= exception/throw =] a {{TypeError}}
+                and abort these steps.
+                <p class="note">
+                  For practical purposes there is only so much room for storing
+                  an NDEF message and so, this specification sets a limit on
+                  the depth of nested messages which developers are unlikely to
+                  hit. See <a href="https://github.com/w3c/web-nfc/issues/620">
+                  issue #620</a>.
+                </p>
+              </li>
             </ul>
             <dt>unmatched type</dt>
             <ul>
@@ -2539,10 +2552,10 @@
           <ol>
             <li>
               Let |ndef| be the result of running <a>create NDEF record</a>
-              given |record:NDEFRecordInit| and |context|, or make sure the
-              underlying platform provides equivalent values to |ndef|.
-              If the algorithm throws an exception |e|, reject |promise| with
-              |e| and abort these steps.
+              given |record:NDEFRecordInit|, |context|, and |recordsDepth| or
+              make sure the underlying platform provides equivalent values to
+              |ndef|. If the algorithm throws an exception |e|, reject
+              |promise| with |e| and abort these steps.
             </li>
             <li>
               Add |ndef| to |output|.
@@ -2597,8 +2610,8 @@
 
     <section><h3>Creating NDEF record</h3>
       <div>
-        To <dfn>create NDEF record</dfn> given |record:NDEFRecordInit|
-        and |context:string|, run these steps:
+        To <dfn>create NDEF record</dfn> given |record:NDEFRecordInit|,
+        |context:string|, and |recordsDepth:unsigned short|, run these steps:
         <ol data-link-for="NDEFRecordInit">
           <li>
             Let |ndef| be the representation of an <a>NDEF record</a> to be
@@ -2624,9 +2637,9 @@
           </li>
           <li>
             Switching on |record|'s <a>recordType</a>, invoke the algorithm
-            specified below with |record|, |ndef| and |context| and return the
-            result. If an exception |e| is thrown, reject |promise| with |e|
-            and abort these steps.
+            specified below with |record|, |ndef|, |context| and |recordsDepth|
+            and return the result. If an exception |e| is thrown, reject |promise|
+            with |e| and abort these steps.
             <dl>
               <dt>"`empty`"</dt>
               <ul>
@@ -2681,18 +2694,18 @@
               </li>
               <li>
                 Return the result of running
-                <a>map local type to NDEF</a> given |record|, |ndef| and
-                |context|. If that throws an exception |e|, reject |promise|
-                with |e| and abort these steps.
+                <a>map local type to NDEF</a> given |record|, |ndef|,
+                |context|, and |recordsDepth|. If that throws an exception |e|,
+                reject |promise| with |e| and abort these steps.
               </li>
             </ul>
           </li>
           <li>
             If running <a>validate external type</a> on |record|'s
             <a>recordType</a> returns `true`,
-            return <a>map external data to NDEF</a> given |record|, |ndef| and
-            |context|. If that throws an exception |e|, reject |promise|
-            with |e| and abort these steps.
+            return <a>map external data to NDEF</a> given |record|, |ndef|,
+            |context|, and |recordsDepth|. If that throws an exception |e|,
+            reject |promise| with |e| and abort these steps.
           </li>
           <li>
             Otherwise, [= exception/throw =] a {{TypeError}} and abort
@@ -2804,8 +2817,8 @@
 
     <section><h3>Mapping empty record to NDEF</h3>
       <div>
-        To <dfn>map empty record to NDEF</dfn> given a |record:NDEFRecordInit|
-        |ndef| and |context:string|, run these steps:
+        To <dfn>map empty record to NDEF</dfn> given |record:NDEFRecordInit|,
+        |ndef|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <!--
           <li>
@@ -2841,8 +2854,8 @@
 
     <section><h3>Mapping string to NDEF</h3>
       <div>
-        To <dfn>map text to NDEF</dfn> given a |record:NDEFRecordInit|, |ndef|
-        and |context:string|, run these steps:
+        To <dfn>map text to NDEF</dfn> given |record:NDEFRecordInit| and |ndef|,
+        run these steps:
         <p class="note">
           This is useful when clients specifically want to write text in a
           [=well-known type record=].
@@ -2995,8 +3008,8 @@
 
     <section><h3>Mapping URL to NDEF</h3>
       <div>
-        To <dfn>map a URL to NDEF</dfn> given a |record:NDEFRecordInit|, |ndef|
-        and |context:string|, run these steps:
+        To <dfn>map a URL to NDEF</dfn> given |record:NDEFRecordInit| and |ndef|,
+        run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
@@ -3081,8 +3094,8 @@
 
     <section><h3>Mapping binary data to NDEF</h3>
       <div>
-        To <dfn>map binary data to NDEF</dfn> given a |record:NDEFRecordInit|,
-        |ndef| and |context:string|, run these steps:
+        To <dfn>map binary data to NDEF</dfn> given |record:NDEFRecordInit| and
+        |ndef|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecord">
           <li>
             If the type of a |record|'s <a>data</a> is not
@@ -3139,8 +3152,8 @@
 
     <section><h3>Mapping external data to NDEF</h3>
       <div>
-        To <dfn>map external data to NDEF</dfn> given a |record:NDEFRecordInit|,
-        |ndef| and |context:string|, run these steps:
+        To <dfn>map external data to NDEF</dfn> given |record:NDEFRecordInit|,
+        |ndef|, and |recordsDepth:unsigned short|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <!--
           <li>
@@ -3192,7 +3205,7 @@
               <li>
                 Set the |ndef|'s <a>PAYLOAD field</a> to the result of running
                 the <a>create NDEF message</a> given |record|'s <a>data</a>
-                and `"external"`.
+                `"external"`, and |recordsDepth|.
               </li>
               <li>
                 Set the |ndef|'s <a>PAYLOAD LENGTH field</a> to the length of
@@ -3209,8 +3222,9 @@
 
     <section><h3>Mapping local type to NDEF</h3>
       <div>
-        To <dfn>map local type to NDEF</dfn> given a |record:NDEFRecordInit|,
-        |ndef| and |context:string|, run these steps:
+        To <dfn>map local type to NDEF</dfn> given |record:NDEFRecordInit|,
+        |ndef|, |context:string|, and |recordsDepth:unsigned short|,
+        run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
@@ -3274,7 +3288,7 @@
               <li>
                 Set the |ndef|'s <a>PAYLOAD field</a> to the result of running
                 the <a>create NDEF message</a> given |record|'s <a>data</a>
-                and `"local"`.
+                `"local"`, and |recordsDepth|.
               </li>
               <li>
                 Set the |ndef|'s <a>PAYLOAD LENGTH field</a> to the length of
@@ -3291,8 +3305,8 @@
 
     <section><h3>Mapping smart poster to NDEF</h3>
       <div>
-        To <dfn>map smart poster to NDEF</dfn>, given a |record:NDEFRecordInit|
-        |ndef| and |context:string|, run these steps:
+        To <dfn>map smart poster to NDEF</dfn>, given |record:NDEFRecordInit|,
+        |ndef|, and |recordsDepth:unsigned short|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
@@ -3312,8 +3326,8 @@
           </li>
           <li>
             Set |ndef|'s <a>PAYLOAD field</a> to the result of running the
-            <a>create NDEF message</a> given |record|'s <a>data</a> and
-            `"smart-poster"`.
+            <a>create NDEF message</a> given |record|'s <a>data</a>,
+            `"smart-poster"`, and |recordsDepth|.
           </li>
           <li>
             Set |ndef|'s <a>PAYLOAD LENGTH field</a> to the length of
@@ -3328,8 +3342,8 @@
 
     <section><h3>Mapping absolute-URL to NDEF</h3>
       <div>
-        To <dfn>map absolute-URL to NDEF</dfn> given a |record:NDEFRecordInit|
-        |ndef| and |context:string|, run these steps:
+        To <dfn>map absolute-URL to NDEF</dfn> given |record:NDEFRecordInit|,
+        |ndef|, and |context:string|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecord">
           <li>
             If |context| is `"smart-poster"`,
