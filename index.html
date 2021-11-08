@@ -2118,6 +2118,39 @@
     according to the algorithmic steps described in this specification.
   </section>
 
+  <section> <h3>The {{NDEFReadingEvent}} constructor</h3>
+    The {{NDEFReadingEvent}} constructor given |type| and |init| MUST perform
+    the following steps:
+    <ol class=algorithm>
+      <li>
+        Let |event| be the result of running the steps from
+        <a href="https://dom.spec.whatwg.org/#concept-event-constructor">
+        DOM Event constructor</a> given |type| and `null`.
+      </li>
+      <li>
+        Let |event|'s |serialNumber| be |init|'s |serialNumber|.
+        <p class="note">
+          The |serialNumber| is set by the <a>NFC reading algorithm</a>.
+        </p>
+      </li>
+      <li>
+        Let |event|'s |message| be |init|'s |message|.
+      </li>
+      <li>
+        Return |event|.
+      </li>
+    </ol>
+  </section>
+
+  <section> <h3>The {{NDEFReader}} constructor</h3>
+    The {{NDEFReader}} constructor given |type| and |init| MUST perform
+    the following steps:
+    <ol class=algorithm>
+      <li>
+      </li>
+    </ol>
+  </section>
+
   <section><h3>Obtaining permission</h3>
     <p>
       The
