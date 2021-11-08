@@ -135,7 +135,7 @@
   </style>
 </head>
 
-<body data-cite="MIMESNIFF SECURE-CONTEXTS PERMISSIONS ENCODING PAGE-VISIBILITY">
+<body data-cite="MIMESNIFF SECURE-CONTEXTS PERMISSIONS ENCODING">
 
 <!-- - - - - - - - - - - - - - - - Abstract - - - - - - - - - - - - - - - - -->
 <section id="abstract">
@@ -885,7 +885,7 @@
     <p>
       Reading an <a>NFC tag</a> containing an <a>NDEF message</a>, while the
       {{Document}} of the <a>top-level browsing context</a> using Web NFC is
-      <a>visible</a>. For instance, a web page instructs the user to tap an NFC
+      visible. For instance, a web page instructs the user to tap an NFC
       tag, and then receives information from the tag.
     </p>
   </section>
@@ -2166,17 +2166,16 @@
 
   <section><h3>Handling visibility change</h3>
     <p>
-      When the user agent determines that the
-      <dfn data-cite="PAGE-VISIBILITY#dfn-visibility-states">visibility
-      state</dfn> of the [=environment settings object / responsible document=]
-      of the <a>current settings object</a> changes, it must run these steps:
+      When the user agent <a href="https://html.spec.whatwg.org/#update-the-visibility-state">updates the visibility state</a>
+      of the [=environment settings object / responsible document=]
+      of the <a>current settings object</a>, it must run these steps:
     </p>
     <ol class="algorithm">
       <li>Let |document:Document| be the [=environment settings object /
       responsible document=] of the <a>current settings object</a>.
       </li>
       <li>
-        If |document|'s <a>visibility state</a> is `"visible"`,
+        If |document|'s {{Document/visibilityState}} is `"visible"`,
         <a>resume NFC</a> and abort these steps.
       </li>
       <li>
@@ -4843,8 +4842,8 @@
     <section> <h4>Visible document</h4>
       <p>
         Web NFC functionality is allowed only for the {{Document}} of the
-        <a>top-level browsing context</a>, which must be
-        <dfn data-cite="PAGE-VISIBILITY#dom-visibilitystate-visible">visible</dfn>.
+        <a>top-level browsing context</a>, where its 
+        {{Document/visibilityState}} is `"visible"`.
       </p>
       <p>
         This also means that UAs should block access to the NFC radio if
