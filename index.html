@@ -3647,10 +3647,18 @@
         the <a>activated reader objects</a>,
         <ol>
           <li>
-            <a>fire an event</a> named "`reading`" at |reader| using
-            <a>NDEFReadingEvent</a> with its <a>serialNumber</a> attribute
+            Let |init| be a [=new=] {{NDEFReadingEventInit}} dictionary,
+            with its <a>serialNumber</a> attribute
             initialized to |serialNumber| and its <a>message</a> attribute
             initialized to |message|.
+          </li>
+          <li>
+            Let |event| be a [=new=] {{NDEFReadingEvent}} given "`reading`"
+            and |init|.
+          </li>
+          <li>
+            <a>fire an event</a> named "`reading`" at |reader| using
+            |event|.
           </li>
         </ol>
       </li>
