@@ -1543,6 +1543,19 @@
       The <dfn>NDEFMessageInit</dfn> dictionary is used to initialize an
       <a>NDEF message</a>.
     </p>
+
+    <section> <h3>The {{NDEFMessage}} constructor</h3>
+      The <code>new NDEFMessage(init)</code> constructor steps are:
+      <ol class=algorithm>
+        <li>
+          Let [=this=] be the result of running the <a>create NDEF message</a> steps with |init:NDEFMessageSource|, `""` and `0`.
+          If this throws an exception, re-throw the exception and abort these steps.
+        </li>
+        <li>
+          Return [=this=].
+        </li>
+      </ol>
+    </section>
   </section>
 
   <section data-dfn-for="NDEFRecord"> <h3>The <dfn>NDEFRecord</dfn> interface</h3>
@@ -1677,7 +1690,6 @@
         {{"NotSupportedError"}} {{DOMException}} and abort these steps.
       </li>
     </ol>
-  </section> <!-- NDEFRecord dictionary -->
 
   <section>
     <h2>The <dfn>record type</dfn> string</h2>
@@ -1943,6 +1955,21 @@
     </tr>
   </table>
   </section>
+
+  <section> <h3>The {{NDEFRecord}} constructor</h3>
+    The <code>new NDEFRecord(init)</code> constructor steps are:
+    <ol class=algorithm>
+      <li>
+        Let [=this=] be the result of running the <a>create NDEF record</a> steps with |init|, `""` and `0`.
+        If this throws an exception, re-throw the exception and abort these steps.
+      </li>
+      <li>
+        Return [=this=].
+      </li>
+    </ol>
+  </section>
+</section> <!-- NDEFRecord -->
+
 </section> <!-- Data types and content -->
 
 
@@ -2118,6 +2145,47 @@
     according to the algorithmic steps described in this specification.
   </section>
 
+  <section> <h3>The {{NDEFReader}} constructor</h3>
+    The <code>new NDEFReader()</code> constructor steps are:
+    <ol class=algorithm>
+      <li>
+        Initialize [=this=].{{NDEFReader/[[WriteOptions]]}} to `null`.
+      </li>
+      <li>
+        Initialize [=this=].{{NDEFReader/[[WriteMessage]]}} to `null`.
+      </li>
+      <li>
+        Return [=this=].
+      </li>
+    </ol>
+  </section>
+
+  <section> <h3>The {{NDEFReadingEvent}} constructor</h3>
+    The <code>new NDEFReadingEvent(type, init)</code> constructor steps are:
+    <ol class=algorithm>
+      <li>
+        Let [=this=] be the result of running the steps for
+        <a href="https://dom.spec.whatwg.org/#concept-event-constructor">
+        DOM Event constructor</a> given |type| and `null`.
+      </li>
+      <li>
+        If that throws, re-throw the error and abort these steps.
+      </li>
+      <li>
+        Let [=this=].{{NDEFReadingEvent/serialNumber}} be |init|'s |serialNumber|.
+        <p class="note">
+          The |serialNumber| is set by the <a>NFC reading algorithm</a>.
+        </p>
+      </li>
+      <li>
+        Let [=this=].{{NDEFReadingEvent/message}} be |init|'s |message|.
+      </li>
+      <li>
+        Return [=this=].
+      </li>
+    </ol>
+  </section>
+
   <section><h3>Obtaining permission</h3>
     <p>
       The
@@ -2264,7 +2332,7 @@
   <section data-dfn-for="NDEFScanOptions">
     <h3>The <dfn>NDEFScanOptions</dfn> dictionary</h3>
       <p>
-        To stop listening to NDEF messages, an [= AbortSignal/aborted flag =]
+        To stop listening to NDEF messages, an {{AbortSignal}}
         can be used in the <a>NDEFScanOptions</a> dictionary:
       </p>
       <pre class="idl">
@@ -2312,7 +2380,7 @@
             of the same name if present, or `null` otherwise.
           </li>
           <li>
-            If |signal|’s [= AbortSignal/aborted flag =] is set, then reject |p|
+            If |signal|’s {{AbortSignal}} is set, then reject |p|
             with an {{"AbortError"}} {{DOMException}} and return |p|.
           </li>
           <li>
@@ -3431,7 +3499,7 @@
             of the same name if present, or `null` otherwise.
           </li>
           <li>
-            If |signal|’s [= AbortSignal/aborted flag =] is set, then reject |p|
+            If |signal|’s {{AbortSignal}} is set, then reject |p|
             with an {{"AbortError"}} {{DOMException}} and return |p|.
           </li>
           <li>
@@ -3578,10 +3646,18 @@
         the <a>activated reader objects</a>,
         <ol>
           <li>
-            <a>fire an event</a> named "`reading`" at |reader| using
-            <a>NDEFReadingEvent</a> with its <a>serialNumber</a> attribute
+            Let |init| be a [=new=] {{NDEFReadingEventInit}} dictionary,
+            with its <a>serialNumber</a> attribute
             initialized to |serialNumber| and its <a>message</a> attribute
             initialized to |message|.
+          </li>
+          <li>
+            Let |event| be a [=new=] {{NDEFReadingEvent}} given "`reading`"
+            and |init|.
+          </li>
+          <li>
+            <a>fire an event</a> named "`reading`" at |reader| using
+            |event|.
           </li>
         </ol>
       </li>
