@@ -22,7 +22,7 @@ declare type NDEFRecordDataSource = string | BufferSource | NDEFMessageInit
 interface Window {
   NDEFRecord: NDEFRecord
 }
-type NDEFRecordTypes = string | "absolute-url" | "empty" | "mime" | "smart-poster" | "text" | "unknown" | "URL";
+type NDEFRecordTypes = string | "absolute-url" | "empty" | "mime" | "smart-poster" | "text" | "unknown" | "url";
 
 declare class NDEFRecord {
   constructor(recordInit: NDEFRecordInit)
