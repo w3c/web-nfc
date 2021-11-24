@@ -2263,10 +2263,6 @@
 
   <section data-dfn-for="NDEFScanOptions">
     <h3>The <dfn>NDEFScanOptions</dfn> dictionary</h3>
-      <p>
-        To stop listening to NDEF messages, an [= AbortSignal/aborted flag =]
-        can be used in the <a>NDEFScanOptions</a> dictionary:
-      </p>
       <pre class="idl">
         dictionary NDEFScanOptions {
           AbortSignal signal;
@@ -2312,8 +2308,8 @@
             of the same name if present, or `null` otherwise.
           </li>
           <li>
-            If |signal|’s [= AbortSignal/aborted flag =] is set, then reject |p|
-            with an {{"AbortError"}} {{DOMException}} and return |p|.
+            If |signal| is [= AbortSignal/aborted =], then reject |p|
+            with |signal|'s [=AbortSignal/abort reason=] and return |p|.
           </li>
           <li>
             If |signal| is not `null`, then
@@ -3431,8 +3427,8 @@
             of the same name if present, or `null` otherwise.
           </li>
           <li>
-            If |signal|’s [= AbortSignal/aborted flag =] is set, then reject |p|
-            with an {{"AbortError"}} {{DOMException}} and return |p|.
+            If |signal| is [= AbortSignal/aborted =], then reject |p|
+            with |signal|'s [=AbortSignal/abort reason=] and return |p|.
           </li>
           <li>
             If |signal| is not `null`, then
