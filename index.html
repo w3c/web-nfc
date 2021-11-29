@@ -917,25 +917,25 @@
     </p>
   </section>
 
-  <section> <h3>Making an <a>NFC tag</a> read only</h3>
+  <section> <h3>Making an <a>NFC tag</a> read-only</h3>
     <div>
-      The user opens a web page which can make an <a>NFC tag</a> read only.
+      The user opens a web page which can make an <a>NFC tag</a> read-only.
       The operations may be one of the following:
       <ol>
         <li>
-          Making a non-formatted <a>NFC tag</a> read only.
+          Making a non-formatted <a>NFC tag</a> read-only.
         </li>
         <li>
-          Making an empty, but formatted <a>NFC tag</a> read only.
+          Making an empty, but formatted <a>NFC tag</a> read-only.
         </li>
         <li>
           Making an <a>NFC tag</a> which already contains an
-          <a>NDEF message</a> read only.
+          <a>NDEF message</a> read-only.
         </li>
       </ol>
     </div>
     <p class="note">
-      Note that making an <a>NFC tag</a> read only always involves
+      Note that making an <a>NFC tag</a> read-only always involves
       a read operation.
     </p>
   </section>
@@ -999,7 +999,7 @@
     </p>
     <p>
       An NFC reader works by polling, so in order to be able to
-      write to a tag or making it read only, a tag first needs to be found and
+      write to a tag or making it read-only, a tag first needs to be found and
       read, which means that polling needs to be initialized first.
     </p>
     <p>
@@ -1539,14 +1539,14 @@
     </pre>
   </section>
 
-  <section> <h3>Make an NFC tag read only</h3>
+  <section> <h3>Make an NFC tag read-only</h3>
     <p>
-      Making an NFC tag read only is straightforward.
+      Making an NFC tag read-only is straightforward.
     </p>
     <pre class="example">
       const ndef = new NDEFReader();
       ndef.makeReadOnly().then(() => {
-        console.log("NFC tag has been made read only.");
+        console.log("NFC tag has been made read-only.");
       }).catch(error => {
         console.log(`Operation failed: ${error}`);
       });
@@ -1557,7 +1557,7 @@
         await ndef.write("Hello world");
         console.log("Message written.");
         await ndef.makeReadOnly();
-        console.log("NFC tag has been made read only after writing to it.");
+        console.log("NFC tag has been made read-only after writing to it.");
       } catch (error) {
         console.log(`Operation failed: ${error}`);
       }
@@ -2276,16 +2276,16 @@
   </div>
   </section>
 
-  <section><h3>Aborting pending makeReadOnly operation</h3>
+  <section><h3>Aborting pending make read-only operation</h3>
   <div>
-    To attempt to <dfn>abort a pending makeReadOnly operation</dfn>,
+    To attempt to <dfn>abort a pending make read-only operation</dfn>,
     run the following steps:
     <ol class=algorithm>
       <li>
         If there is no <a>pending makeReadOnly tuple</a> |tuple|, abort these steps.
       </li>
       <li>
-        If |tuple|'s writer has already made an NFC tag read only,
+        If |tuple|'s writer has already made an NFC tag read-only,
         abort these steps.
       </li>
       <li>
@@ -3485,18 +3485,18 @@
   </section>
 
   <section id="making-content-read-only">
-    <h3><dfn>Making content read only</dfn></h3>
+    <h3><dfn>Making content read-only</dfn></h3>
     <p>
-      This section describes how to make an <a>NFC tag</a> read only when it is
+      This section describes how to make an <a>NFC tag</a> read-only when it is
       in proximity range. At any time there is a maximum of one request for an
-      <a>origin</a> until the <a>NFC tag</a> is made read only or the operation
+      <a>origin</a> until the <a>NFC tag</a> is made read-only or the operation
       is aborted.
     </p>
     <section><h3>The <strong>makeReadOnly()</strong> method</h3>
       <div id="steps-make-read-only">
         The
         <dfn>NDEFReader.makeReadOnly</dfn> method, when invoked, MUST run the
-        <dfn>make a NFC tag read only</dfn> algorithm:
+        <dfn>make a NFC tag read-only</dfn> algorithm:
         <ol class=algorithm>
           <li>
             Let |p:Promise| be a new {{Promise}} object.
@@ -3523,7 +3523,7 @@
             add the following abort steps</a> to |signal|:
               <ol>
                 <li>
-                  Run the <a>abort a pending makeReadOnly operation</a> on the
+                  Run the <a>abort a pending make read-only operation</a> on the
                   <a>environment settings object</a>.
                 </li>
               </ol>
@@ -3568,16 +3568,17 @@
                 </p>
               </li>
               <li>
-                Attempt to <a>abort a pending makeReadOnly operation</a>.
+                Attempt to <a>abort a pending make read-only operation</a>.
                 <p class="note">
-                  A makeReadOnly operation replaces all previously configured makeReadOnly operations.
+                  A make read-only operation replaces all previously configured
+                  make read-only operations.
                 </p>
               </li>
               <li>
                 Set <a>pending makeReadOnly tuple</a> to (`this`, |p|).
               </li>
               <li>
-                Run the <a>start the NFC makeReadOnly</a> steps whenever an
+                Run the <a>start the NFC make read-only</a> steps whenever an
                 <a>NFC tag</a> |device| comes within communication range.
                 <p class="note">
                   If <a>NFC is suspended</a>, continue waiting until promise is
@@ -3592,7 +3593,7 @@
       </div>
 
       <div id="steps-start-nfc-make-read-only">
-        To <dfn>start the NFC makeReadOnly</dfn>, run these steps:
+        To <dfn>start the NFC make read-only</dfn>, run these steps:
         <ol class=algorithm>
           <li>
             Let |p:Promise| be the <a>pending makeReadOnly tuple</a>'s promise.
@@ -3610,7 +3611,7 @@
             In case of success, run the following steps:
             <ol>
               <li>
-                Make |device| read only, using the <a>NFC adapter</a>
+                Make |device| read-only, using the <a>NFC adapter</a>
                 in communication range with |device|.
               </li>
               <li>
@@ -4909,7 +4910,7 @@
           a web page can write only a tag that can be connected to its
           <a>origin</a>.
           Or, allow overwriting since tags not meant to be written can be
-          protected by making them read only.
+          protected by making them read-only.
           Use <a>NDEF signature</a> to detect a modification of NFC tags.
         </dd>
       </dl>
