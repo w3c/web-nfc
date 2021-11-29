@@ -917,6 +917,29 @@
     </p>
   </section>
 
+  <section> <h3>Making an <a>NFC tag</a> read only</h3>
+    <div>
+      The user opens a web page which can make an <a>NFC tag</a> read only.
+      The operations may be one of the following:
+      <ol>
+        <li>
+          Making a non-formatted <a>NFC tag</a> read only.
+        </li>
+        <li>
+          Making an empty, but formatted <a>NFC tag</a> read only.
+        </li>
+        <li>
+          Making an <a>NFC tag</a> which already contains an
+          <a>NDEF message</a> read only.
+        </li>
+      </ol>
+    </div>
+    <p class="note">
+      Note that making an <a>NFC tag</a> read only always involves
+      also a read operation.
+    </p>
+  </section>
+
   <section> <h3>Support for multiple NFC adapters</h3>
     <p>
       Users may attach one or more external <a>NFC adapter</a>s to their
@@ -976,23 +999,24 @@
     </p>
     <p>
       An NFC reader works by polling, so in order to be able to
-      write to a tag, a tag first needs to be found and read, which
-      means that polling needs to be initialized first.
+      write to a tag or making it read only, a tag first needs to be found and
+      read, which means that polling needs to be initialized first.
     </p>
     <p>
       If polling is not initiated already by first calling `scan()`,
-      then the `write()` method will initiate it temporarily until a
-      tag was found and read, and writing to it was attempted.
+      then the `write()` and `makeReadOnly()` methods will initiate it
+      temporarily until a tag was found and read, and the operation was
+      attempted.
     </p>
     <p>
-      This means that the flow is that first a read it performed
-      as the tag is first found, then followed by a write.
+      This means that the flow is that first a read is performed
+      as the tag is first found, then followed by a writing operation.
     </p>
     <p>
       This means that if `scan()` is running and you have an event
       listener for the `reading` event, it will be dispatched once
-      during a `write()` operation, which might not be the intended
-      behavior.
+      during a `write()` or `makeReadOnly()` operation, which might not be the
+      intended behavior.
     </p>
     <p>
       In the following sections we will discuss how you can easily
@@ -1041,7 +1065,7 @@
     </p>
     <p>
       For this reason, it is recommended calling `write()` from a `reading`
-      event.
+      event. Same applies to `makeReadOnly()`.
     </p>
       The below example shows how to coordinate between a common `reading`
       handler and one used specifically for a single write.
@@ -1514,6 +1538,31 @@
       };
     </pre>
   </section>
+
+  <section> <h3>Make an NFC tag read only</h3>
+    <p>
+      Making an NFC tag read only is straightforward.
+    </p>
+    <pre class="example">
+      const ndef = new NDEFReader();
+      ndef.makeReadOnly().then(() => {
+        console.log("NFC tag has been made read only.");
+      }).catch(error => {
+        console.log(`Operation failed: ${error}`);
+      });
+    </pre>
+    <pre class="example">
+      const ndef = new NDEFReader();
+      try {
+        await ndef.write("Hello world");
+        console.log("Message written.");
+        await ndef.makeReadOnly();
+        console.log("NFC tag has been made read only after writing to it.");
+      } catch (error) {
+        console.log(`Operation failed: ${error}`);
+      }
+    </pre>
+  </section>
 </section> <!-- Usage examples -->
 
 <!-- - - - - - - - - - - - - Data representation - - - - - - - - - - - - - -->
@@ -1967,6 +2016,7 @@
       Promise&lt;undefined&gt; scan(optional NDEFScanOptions options={});
       Promise&lt;undefined&gt; write(NDEFMessageSource message,
                                      optional NDEFWriteOptions options={});
+      Promise&lt;undefined&gt; makeReadOnly(optional NDEFMakeReadOnlyOptions options={});
     };
 
     [SecureContext, Exposed=Window]
@@ -2083,7 +2133,15 @@
         A &lt;|promise:Promise|, |writer:NDEFReader|&gt; tuple where |promise|
         holds a pending {{Promise}} and |writer| holds an {{NDEFReader}}.
       </td>
-      </tr>
+    </tr>
+    <tr>
+     <td><dfn>[[\PendingMakeReadOnly]]</dfn></td>
+     <td>empty</td>
+     <td>
+       A &lt;|promise:Promise|, |writer:NDEFReader|&gt; tuple where |promise|
+       holds a pending {{Promise}} and |writer| holds an {{NDEFReader}}.
+     </td>
+   </tr>
     </tbody>
   </table>
   <p>
@@ -2093,6 +2151,10 @@
   <p>
     The <dfn>pending write tuple</dfn> is the value of the
     <a>[[\PendingWrite]]</a> internal slot.
+  </p>
+  <p>
+    The <dfn>pending makeReadOnly tuple</dfn> is the value of the
+    <a>[[\PendingMakeReadOnly]]</a> internal slot.
   </p>
   <p>
     <dfn id="nfc-is-suspended">NFC is suspended</dfn> if the
@@ -2214,6 +2276,29 @@
   </div>
   </section>
 
+  <section><h3>Aborting pending makeReadOnly operation</h3>
+  <div>
+    To attempt to <dfn>abort a pending makeReadOnly operation</dfn>,
+    run the following steps:
+    <ol class=algorithm>
+      <li>
+        If there is no <a>pending makeReadOnly tuple</a> |tuple|, abort these steps.
+      </li>
+      <li>
+        If |tuple|'s writer has already made an NFC tag read only,
+        abort these steps.
+      </li>
+      <li>
+        Reject |tuple|'s promise with an {{"AbortError"}} {{DOMException}}
+        and abort these steps.
+        <p class=note>
+          Rejecting the promise will clear the <a>pending makeReadOnly tuple</a>.
+        </p>
+      </li>
+    </ol>
+  </div>
+  </section>
+
   <section><h3>Releasing NFC</h3>
   <p>
     To <dfn>release NFC</dfn> on an <a>environment settings object</a>,
@@ -2258,6 +2343,19 @@
     <p>
       The <dfn>signal</dfn> property allows to abort
       the {{NDEFReader/write()}} operation.
+    </p>
+  </section>
+
+  <section data-dfn-for="NDEFMakeReadOnlyOptions">
+    <h3>The <dfn>NDEFMakeReadOnlyOptions</dfn> dictionary</h3>
+    <pre class="idl">
+      dictionary NDEFMakeReadOnlyOptions {
+        AbortSignal? signal;
+      };
+    </pre>
+    <p>
+      The <dfn>signal</dfn> property allows to abort
+      the {{NDEFReader/makeReadOnly()}} operation.
     </p>
   </section>
 
@@ -3385,6 +3483,150 @@
       </div>
     </section>
   </section>
+
+  <section id="making-content-read-only">
+    <h3><dfn>Making content read only</dfn></h3>
+    <p>
+      This section describes how to make an <a>NFC tag</a> read only when it is
+      in proximity range. At any time there is a maximum of one request for an
+      <a>origin</a> until the <a>NFC tag</a> is made read only or the operation
+      is aborted.
+    </p>
+    <section><h3>The <strong>makeReadOnly()</strong> method</h3>
+      <div id="steps-make-read-only">
+        The
+        <dfn>NDEFReader.makeReadOnly</dfn> method, when invoked, MUST run the
+        <dfn>make a NFC tag read only</dfn> algorithm:
+        <ol class=algorithm>
+          <li>
+            Let |p:Promise| be a new {{Promise}} object.
+          </li>
+          <li>
+            If not currently executing in the currently active <a>top-level
+            browsing context</a>, then reject |p| with and
+            {{"InvalidStateError"}} {{DOMException}} and return |p|.
+          </li>
+          <li>
+            Let |options:NDEFMakeReadOnlyOptions| be the second argument.
+          </li>
+          <li>
+            Let |signal:AbortSignal| be the |options|’ dictionary member
+            of the same name if present, or `null` otherwise.
+          </li>
+          <li>
+            If |signal| is [= AbortSignal/aborted =], then reject |p|
+            with |signal|'s [=AbortSignal/abort reason=] and return |p|.
+          </li>
+          <li>
+            If |signal| is not `null`, then
+            <a data-cite="dom#abortsignal-abort-algorithms">
+            add the following abort steps</a> to |signal|:
+              <ol>
+                <li>
+                  Run the <a>abort a pending makeReadOnly operation</a> on the
+                  <a>environment settings object</a>.
+                </li>
+              </ol>
+          </li>
+          <li>
+            [=promise/React=] to |p|:
+            <ol>
+              <li>
+                If |p| was settled (fulfilled or rejected), then clear the
+                <a>pending write tuple</a> if it exists.
+              </li>
+            </ol>
+          </li>
+          <li>
+            Return |p| and run the following steps <a>in parallel</a>:
+            <ol>
+              <li>
+                If the <a>obtain permission</a> steps return `false`, then
+                reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
+                abort these steps.
+              </li>
+              <li>
+                If there is no underlying <a>NFC Adapter</a>, or if a connection
+                cannot be established, then reject |p| with a
+                {{"NotSupportedError"}} {{DOMException}}
+                and abort these steps.
+              </li>
+              <li>
+                If the UA is not allowed to access the underlying <a>NFC Adapter</a>
+                (e.g. a user preference), then reject |p| with a
+                {{"NotReadableError"}} {{DOMException}}
+                and abort these steps.
+              </li>
+              <li>
+                An implementation MAY reject |p| with
+                a {{"NotSupportedError"}} {{DOMException}}
+                and abort these steps.
+                <p class="note">
+                  The UA might abort at this point. The reasons for termination
+                  are implementation details. For example, the implementation
+                  might be unable to support the requested operation.
+                </p>
+              </li>
+              <li>
+                Attempt to <a>abort a pending makeReadOnly operation</a>.
+                <p class="note">
+                  A makeReadOnly operation replaces all previously configured makeReadOnly operations.
+                </p>
+              </li>
+              <li>
+                Set <a>pending makeReadOnly tuple</a> to (`this`, |p|).
+              </li>
+              <li>
+                Run the <a>start the NFC makeReadOnly</a> steps whenever an
+                <a>NFC tag</a> |device| comes within communication range.
+                <p class="note">
+                  If <a>NFC is suspended</a>, continue waiting until promise is
+                  aborted by the user or an <a>NFC tag</a> comes within
+                  communication range.
+                </p>
+              </li>
+            </ol>
+            </li>
+          </li>
+        </ol>
+      </div>
+
+      <div id="steps-start-nfc-make-read-only">
+        To <dfn>start the NFC makeReadOnly</dfn>, run these steps:
+        <ol class=algorithm>
+          <li>
+            Let |p:Promise| be the <a>pending makeReadOnly tuple</a>'s promise.
+          </li>
+          <li>
+            If the <a>NFC tag</a> in proximity range does not expose
+            <a>NDEF</a> technology for formatting, then
+            reject |p| with a {{"NotSupportedError"}} {{DOMException}} and
+            return |p|.
+          </li>
+          <li>
+            Verify that <a href="#nfc-is-suspended">NFC is not suspended</a>.
+          </li>
+          <li>
+            In case of success, run the following steps:
+            <ol>
+              <li>
+                Make |device| read only, using the <a>NFC adapter</a>
+                in communication range with |device|.
+              </li>
+              <li>
+                If the operation fails, reject |p| with
+                {{"NetworkError"}} {{DOMException}}
+                and abort these steps.
+              </li>
+              <li>
+                When the transfer has completed, resolve |p|.
+              </li>
+            </ol>
+          </li>
+        </ol>
+      </div>
+    </section>
+  </section> <!-- making-content-read-only content -->
 
   <section> <h3>Listening for content</h3>
     <p>
