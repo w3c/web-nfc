@@ -3625,7 +3625,7 @@
                 When the operation has completed, resolve |p|.
               </li>
               <p class="note">
-                This operation is a one-way process and cannot be reverted.
+                This operation is a one-way process and cannot be reversed.
                 Once an NFC tag has been made read-only, it can't be written
                 anymore.
               </p>
@@ -4897,7 +4897,8 @@
       <dl>
         <dt><strong>Threat description</strong></dt>
         <dd>
-          An NFC tag is being modified without user consent.
+          An NFC tag is being modified without user consent, potentially
+          irreversibly by making it read-only.
           This might enable further attacks using a malicious tag
           or can be a Denial of Service attack to make one or more tags
           unusable.
@@ -4912,7 +4913,8 @@
         </dd>
         <dt><strong>Mitigation, comments</strong></dt>
         <dd>
-          Require permission and user prompt needed for writing tags.
+          Require permission and user prompt needed for writing to tags and
+          making them read-only.
           Or, control what tags can be written by a given web page, for instance
           a web page can write only a tag that can be connected to its
           <a>origin</a>.
