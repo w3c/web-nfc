@@ -2243,8 +2243,18 @@
         <a>resume NFC</a> and abort these steps.
       </li>
       <li>
-        Otherwise, <a>suspend NFC</a> and attempt to <a>abort a pending
-        write operation</a>.
+        Otherwise, perform these steps:
+        <ol>
+          <li>
+            <a>Suspend NFC</a>.
+          </li>
+          <li>
+            Attempt to <a>abort a pending write operation</a>.
+          </li>
+          <li>
+            Attempt to <a>abort a pending make read-only operation</a>.
+          </li>
+        </ol>
       </li>
     </ol>
     <p>
@@ -2312,6 +2322,9 @@
     </li>
     <li>
       Attempt to <a>abort a pending write operation</a>.
+    </li>
+    <li>
+      Attempt to <a>abort a pending make read-only operation</a>.
     </li>
     <li>
       Clear the <a>activated reader objects</a>.
