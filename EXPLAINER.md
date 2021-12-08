@@ -34,9 +34,9 @@ solutions.
 
 ## Goals
 
-Read and write to NFC tags/cards using the NDEF standards, in an easy webby
-manner, while being flexible enough to integrate easily with existing NDEF based
-solutions.
+Read, lock, and write to NFC tags/cards using the NDEF standards, in an easy
+webby manner, while being flexible enough to integrate easily with existing NDEF
+based solutions.
 
 Make sure the API is extendable to cover more NFC use-cases, like non-NDEF, in
 the future.
@@ -69,8 +69,8 @@ Lots of examples can be found here: https://w3c.github.io/web-nfc/#examples
 
 Among different use-cases, NFC allows users to take their NFC enabled device
 such as a phone and touch NFC tags (sticker, card and the like). The platform,
-or a certain application can then at this moment read the content and write
-new content back.
+or a certain application can then at this moment read the content, write new
+content back, and make NFC tag permanently read-only.
 
 Web NFC allows to build web experiences that can do the above, thus exchange
 data between the web enabled device and NFC tags.
@@ -167,6 +167,7 @@ const ndef = new NDEFReader();
 await ndef.scan({ signal: abortController.signal });
 
 await ndef.write("foo", { signal: abortController.signal });
+await ndef.makeReadOnly({ signal: abortController.signal });
 
 document.querySelector("#abortButton").onclick = event => {
   abortController.abort();
