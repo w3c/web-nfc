@@ -2184,42 +2184,33 @@
 
   <section><h3>Obtaining permission</h3>
     <p>
-      The
-      <a href="https://www.w3.org/TR/permissions/#dictdef-permissiondescriptor">
-      <dfn>Web NFC permission name</dfn></a> is
-      <a href="https://github.com/w3c/permissions/issues/47">defined</a> as
-      "`nfc`".
+      The Web NFC API is a [=default powerful feature=] which is identified by
+      the [=powerful feature/name=] "<code>nfc</code>".
     </p>
     <div>
       To <dfn>obtain permission</dfn>, run these steps:
       <ol class=algorithm>
         <li>
-          Run the
-          <a>query a permission</a> steps for the
-          <a>Web NFC permission name</a> until completion.
-          <ol>
-            <li>
-              If it resolved with {{PermissionState["granted"]}}
-              (i.e. permission has been granted to the <a>origin</a> and
-              <a>global object</a> using the [[[PERMISSIONS]]] API),
-              return `true`.
-            </li>
-            <li>
-              Otherwise, if it resolved with {{PermissionState["prompt"]}},
-              then optionally
-              <a data-lt="request permission to use">request permission</a>
-              from the user for the <a>Web NFC permission name</a>.
-              If that is granted, return `true`.
-              <p class="issue" data-number="482">
-                The <a data-lt="request permission to use">request permission</a>
-                steps are not yet clearly defined.
-                At this point the UA asks the user about the policy to be used
-                with the <a>Web NFC permission name</a> for the given
-                <a>origin</a> and <a>global object</a>, if the user grants
-                permission, return `true`.
-              </p>
-            </li>
-          </ol>
+          Let |state:PermissionState|</var> be the result of
+          [=getting the current permission state=] with "<code>nfc</code>".
+        </li>
+        <li>
+          If |state| is {{PermissionState["granted"]}} (i.e. permission has been
+          granted to the <a>origin</a> and <a>global object</a> using the
+          [[[PERMISSIONS]]] API), return `true`.
+        </li>
+        <li>
+          Otherwise, if |state| is {{PermissionState["prompt"]}}, then optionally
+          <a>request permission to use</a> "<code>nfc</code>" from the user. If
+          that is granted, return `true`.
+          <p class="issue" data-number="482">
+            The <a data-lt="request permission to use">request permission</a>
+            steps are not yet clearly defined.
+            At this point the UA asks the user about the policy to be used
+            with "<code>nfc</code>" for the given <a>origin</a> and
+            <a>global object</a>, if the user grants permission, return
+            `true`.
+          </p>
         </li>
         <li>
           Return `false`.
@@ -5103,7 +5094,7 @@
     <section> <h4>Visible document</h4>
       <p>
         Web NFC functionality is allowed only for the {{Document}} of the
-        <a>top-level browsing context</a>, where its 
+        <a>top-level browsing context</a>, where its
         {{Document/visibilityState}} is `"visible"`.
       </p>
       <p>
