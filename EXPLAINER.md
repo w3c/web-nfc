@@ -57,6 +57,28 @@ The API does not support controlling who can change the content on an NDEF
 tag. However, the API supports making an NDEF tag permanently read-only, see the
 [examples](https://w3c.github.io/web-nfc/#make-an-nfc-tag-permanently-read-only).
 
+```js
+const ndef = new NDEFReader();
+try {
+  await ndef.write({
+    records: [
+      {
+        recordType: "url",
+        data: "https://www.louvre.fr/en/explore/visitor-trails/the-louvre-s-masterpieces"
+      },
+      {
+        recordType: "text", data: "The Louvre's Masterpieces"
+      }
+    ]
+  });
+  console.log("NFC tag written.");
+  await ndef.makeReadOnly();
+  console.log("NFC tag has been made permanently read-only.");
+} catch (error) {
+  console.log(`NDEF operation failed: ${error}`);
+}
+```
+
 ## API shape and examples
 
 The API has gone through multiple iterations and have had feedback from Mozilla,
@@ -293,8 +315,11 @@ only relevant for scans.
 ### Added the `makeReadOnly()` method
 
 Justified in [issue 558](https://github.com/w3c/web-nfc/issues/558) and by feedback
-received on Twitter. It seems like web developers would like to be able to
-"lock" NFC tags with Web NFC. [PR 632](https://github.com/w3c/web-nfc/pull/632/files)
+received on Twitter. Developers would like to be able to "lock" NFC tags with
+Web NFC, in order to prevent further changes of the information written on tag,
+for instance in the case of information tags in a museum or other public points
+of interest.
+[PR 632](https://github.com/w3c/web-nfc/pull/632/files)
 addressed that need by introducing an abortable `makeReadOnly()` method on the
 `NDEFReader` object.
 
