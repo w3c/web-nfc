@@ -53,6 +53,32 @@ post-it notes, anyone can read them, and unless read-only, anyone can write
 them. Web NFC does not handle automatic encryption or signing of NFC content
 (with NDEF signatures): handling PKI infrastructure is left to applications.
 
+The API does not support controlling who can change the content on an NDEF
+tag. However, the API supports making an NDEF tag permanently read-only, see the
+[examples](https://w3c.github.io/web-nfc/#make-an-nfc-tag-permanently-read-only).
+
+```js
+const ndef = new NDEFReader();
+try {
+  await ndef.write({
+    records: [
+      {
+        recordType: "url",
+        data: "https://www.louvre.fr/en/explore/visitor-trails/the-louvre-s-masterpieces"
+      },
+      {
+        recordType: "text", data: "The Louvre's Masterpieces"
+      }
+    ]
+  });
+  console.log("NFC tag written.");
+  await ndef.makeReadOnly();
+  console.log("NFC tag has been made permanently read-only.");
+} catch (error) {
+  console.log(`NDEF operation failed: ${error}`);
+}
+```
+
 ## API shape and examples
 
 The API has gone through multiple iterations and have had feedback from Mozilla,
@@ -275,7 +301,9 @@ for reading and writing NDEF tags. Hence `NDEFWriter.write` became
 ### Removed NDEF write option for ignoring read
 
 When a tag is written, it is also read. With merging the reading and writing
-objects, this option became unneeded. There is an [example](https://w3c.github.io/web-nfc/#handling-initial-reads-while-writing) included on how to ignore reads when writing.
+objects, this option became unneeded. There is an
+[example](https://w3c.github.io/web-nfc/#handling-initial-reads-while-writing)
+included on how to ignore reads when writing.
 
 ### Replaced `onerror` with `onreadingerror`
 
@@ -284,6 +312,16 @@ Since the merge of `NDEFWriter` and `NDEFReader`, the former `onerror` event on
 relevant on writes, which is not the case. This change clarifies the error is
 only relevant for scans.
 
+### Added the `makeReadOnly()` method
+
+Justified in [issue 558](https://github.com/w3c/web-nfc/issues/558) and by feedback
+received on Twitter. Developers would like to be able to "lock" NFC tags with
+Web NFC, in order to prevent further changes of the information written on tag,
+for instance in the case of information tags in a museum or other public points
+of interest.
+[PR 632](https://github.com/w3c/web-nfc/pull/632/files)
+addressed that need by introducing an abortable `makeReadOnly()` method on the
+`NDEFReader` object.
 
 These changes mark the [Chrome Origin Trial](https://developers.chrome.com/origintrials/#/view_trial/236438980436951041) complete.
 
