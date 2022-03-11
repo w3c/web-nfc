@@ -2215,12 +2215,13 @@
   <section><h3>Handling visibility change</h3>
     <p>
       When the user agent <a href="https://html.spec.whatwg.org/#update-the-visibility-state">updates the visibility state</a>
-      of the [=environment settings object / responsible document=]
-      of the <a>current settings object</a>, it must run these steps:
+      of the <a>current settings object</a>'s <a>relevant global object</a>'s
+      <a>associated <code>Document</code></a> it must run these steps:
     </p>
     <ol class="algorithm">
-      <li>Let |document:Document| be the [=environment settings object /
-      responsible document=] of the <a>current settings object</a>.
+      <li>
+        Let |document:Document| be the <a>associated <code>Document</code></a>
+        of the <a>current settings object</a>'s <a>relevant global object</a>.
       </li>
       <li>
         If |document|'s {{Document/visibilityState}} is `"visible"`,
