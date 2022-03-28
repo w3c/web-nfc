@@ -2214,17 +2214,11 @@
 
   <section><h3>Handling visibility change</h3>
     <p>
-      When the user agent <a href="https://html.spec.whatwg.org/#update-the-visibility-state">updates the visibility state</a>
-      of the <a>current settings object</a>'s <a>relevant global object</a>'s
-      <a>associated <code>Document</code></a> it must run these steps:
+      The <a href="https://html.spec.whatwg.org/#page-visibility-change-steps">page visibility change steps</a> for this specification, given |visibilityState| and |document|, are:
     </p>
     <ol class="algorithm">
       <li>
-        Let |document:Document| be the <a>associated <code>Document</code></a>
-        of the <a>current settings object</a>'s <a>relevant global object</a>.
-      </li>
-      <li>
-        If |document|'s {{Document/visibilityState}} is `"visible"`,
+        If |visibilityState| is `"visible"`,
         <a>resume NFC</a> and abort these steps.
       </li>
       <li>
