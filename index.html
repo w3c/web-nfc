@@ -2833,14 +2833,15 @@
       </p>
       <ol class=algorithm id="split-external-type">
         <li>
+          If `U+003A` (`:`) is not found in |input|, return failure.
+        </li>
+        <li>
           Let |domain| be the |input| from the start of |input| up to
-          but excluding the first occurrence of `U+003A` (`:`), or return failure
-          if that is not found.
+          but excluding the first occurrence of `U+003A` (`:`).
         </li>
         <li>
           Let |type| be the |input| after the first occurrence, if any, of
-          `U+003A` (`:`) up to the end of |input|, or return failure if that is
-          not found.
+          `U+003A` (`:`) up to the end of |input|.
         </li>
         <li>
           Return the |domain| and |type| pair.
@@ -2850,13 +2851,13 @@
         To <dfn>validate external type</dfn> given |input:USVString|, run
         these steps:
       </p>
-      <ol class=algorithm id="split-external-type">
+      <ol class=algorithm id="validate-external-type">
         <li>
           Let |domain| and |type| be the result of running [=split external type=], or
           return `false` if failure.
         </li>
         <li>
-          If |domain| is not a [=valid domain string=], return failure.
+          If |domain| is not a [=valid domain string=], return `false`.
         </li>
         <li>
           If |type| contains [=code points=] that are not
@@ -2864,7 +2865,7 @@
           `U+0028` `LEFT PARENTHESIS` (`(`), `U+0029` `RIGHT PARENTHESIS` (`)`),
           `U+002A` (`*`), `U+002B` (`+`), `U+002C` (`,`), `U+002D` (`-`),
           `U+002E` (`.`), `U+003B` (`;`), `U+003D` (`=`), `U+0040` (`@`),
-          `U+005F` (`_`), return failure.
+          `U+005F` (`_`), return `false`.
         </li>
         <li>
           Return `true`.
@@ -3242,7 +3243,7 @@
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
-            [= exception/throw =] a {{TypeError}}.
+            [= exception/throw =] a {{TypeError}} and abort these steps.
           </li>
           <li>
             Let |domain| and |type| be the result of running [=split external type=] with
@@ -3253,12 +3254,12 @@
             domain to ASCII</a> with |domain| and true.
           </li>
           <aside class="note">
-            The recordType is user set and in UTF-8 encoding, allowing for international domain names as part of the
-            custom type such as "håndværker.dk:abc". When writing that to the NDEF it has to be converted to ASCII
+            The record's <a>recordType</a> is is user set and in UTF-8 encoding, allowing for international domain names as part of the
+            custom type such as "håndværker.dk:abc". When writing that value to an NDEF record it has to be converted to ASCII
             bytes and after the conversion this would be represented as "xn--hndvrker-9zan.dk:abc".
           </aside>
           <li>
-            Let |customTypeName| be |domain|, ":" and |type| concatenated.
+            Let |customTypeName| be |domain|, "`:`" and |type| concatenated.
           </li>
           <li>
             If |customTypeName| is not a {{USVString}} or its length exceeds 255 bytes, [= exception/throw =] a {{TypeError}}.
@@ -3269,7 +3270,7 @@
           <li>
             If the type of a |record|'s <a>data</a> is not
             {{BufferSource}} or {{NDEFMessageInit}}, [= exception/throw =] a
-            {{TypeError}}.
+            {{TypeError}} and abort these steps.
           </li>
           <li>
             Set |ndef|'s <a>TNF field</a> to `4`
@@ -4455,6 +4456,9 @@
         <li>
           Let |domain| and |type| be the result of running [=split external type=] with the value of |ndefRecord|'s <a>TYPE field</a>.
         </li>
+        <aside class="note">
+          The above step is ensures to work due to earlier validation of the external type.
+        </aside>
         <li>
           Let |domain| be the result of running <a href="https://www.unicode.org/reports/tr46/#ToUnicode">Unicode ToUnicode</a>
           with |domain_name| set to |domain|, |CheckHyphens| set to false, |CheckBidi| set to true, |CheckJoiners| set to true,
@@ -4465,7 +4469,7 @@
           be presented as "håndværker.dk:abc" after the above conversion.
         </aside>
         <li>
-          Set |record|'s <a>recordType</a> to |domain|, ":" and |type| concatenated.
+          Set |record|'s <a>recordType</a> to |domain|, "`:`" and |type| concatenated.
         </li>
         <li>
           Set |record|'s <a>mediaType</a> to `null`.
