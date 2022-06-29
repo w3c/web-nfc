@@ -3249,12 +3249,15 @@
             Let |domain| and |type| be the result of running [=split external type=] with
             |record|'s <a>recordType</a>.
           </li>
+          <aside class="note">
+            The above step is ensures to work due to earlier validation of the external type.
+          </aside>
           <li>
             Let |domain| be the result of running <a href="https://url.spec.whatwg.org/#concept-domain-to-ascii">
             domain to ASCII</a> with |domain| and true.
           </li>
           <aside class="note">
-            The record's <a>recordType</a> is is user set and in UTF-8 encoding, allowing for international domain names as part of the
+            The record's <a>recordType</a> is user set and in UTF-8 encoding, allowing for international domain names as part of the
             custom type such as "håndværker.dk:abc". When writing that value to an NDEF record it has to be converted to ASCII
             bytes and after the conversion this would be represented as "xn--hndvrker-9zan.dk:abc".
           </aside>
@@ -4454,15 +4457,15 @@
       a |record:NDEFRecord|, run these steps:
       <ol class=algorithm data-link-for="NDEFRecord">
         <li>
+          If running [=validate external type=] on record's |ndefRecord|'s <a>TYPE field</a> returns `false`, return `null`.
+        </li>
+        <li>
           Let |domain| and |type| be the result of running [=split external type=] with the value of |ndefRecord|'s <a>TYPE field</a>.
         </li>
-        <aside class="note">
-          The above step is ensures to work due to earlier validation of the external type.
-        </aside>
         <li>
           Let |domain| be the result of running <a href="https://www.unicode.org/reports/tr46/#ToUnicode">Unicode ToUnicode</a>
           with |domain_name| set to |domain|, |CheckHyphens| set to false, |CheckBidi| set to true, |CheckJoiners| set to true,
-          |UseSTD3ASCIIRules| set to true, and |Transitional_Processing| set to false.
+          |UseSTD3ASCIIRules| set to true, and |Transitional_Processing| set to false. If result contains any errors, return `null`.
         </li>
         <aside class="note">
           The <a>TYPE field</a> contains a domain part stored as ASCII, so for instance "xn--hndvrker-9zan.dk:abc" would
