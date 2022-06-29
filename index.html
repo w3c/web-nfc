@@ -3241,6 +3241,13 @@
         To <dfn>map external data to NDEF</dfn> given |record:NDEFRecordInit|,
         |ndef|, and |recordsDepth:unsigned short|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
+          <!--
+          <li>
+            If |context| is `"smart-poster"`,
+            If |record|'s <a>mediaType</a> is not `undefined`,
+            [= exception/throw =] a {{TypeError}} and abort these steps.
+          </li>
+          -->
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
             [= exception/throw =] a {{TypeError}} and abort these steps.
