@@ -1717,8 +1717,7 @@
         |bytes| and `"external"`.
       </li>
       <li>
-        Otherwise, [= exception/throw =] a
-        {{"NotSupportedError"}} {{DOMException}} and abort these steps.
+        Otherwise, [= exception/throw =] a {{"NotSupportedError"}}.
       </li>
     </ol>
   </section> <!-- NDEFRecord dictionary -->
@@ -2257,8 +2256,7 @@
         abort these steps.
       </li>
       <li>
-        Reject |tuple|'s promise with an {{"AbortError"}} {{DOMException}}
-        and abort these steps.
+        Reject |tuple|'s promise with an {{"AbortError"}} and abort these steps.
         <p class=note>
           Rejecting the promise will clear the <a>pending write tuple</a>.
         </p>
@@ -2280,7 +2278,7 @@
         abort these steps.
       </li>
       <li>
-        Reject |tuple|'s promise with an {{"AbortError"}} {{DOMException}}
+        Reject |tuple|'s promise with an {{"AbortError"}}
         and abort these steps.
         <p class=note>
           Rejecting the promise will clear the <a>pending makeReadOnly tuple</a>.
@@ -2387,7 +2385,7 @@
           <li>
             If not currently executing in the currently active <a>top-level
             browsing context</a>, then reject |p| with and
-            {{"InvalidStateError"}} {{DOMException}} and return |p|.
+            {{"InvalidStateError"}} and return |p|.
           </li>
           <li>
             Let |message:NDEFMessageSource| be the first argument.
@@ -2428,30 +2426,27 @@
             <ol>
               <li>
                 If the <a>obtain permission</a> steps return `false`, then
-                reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
+                reject |p| with a {{"NotAllowedError"}} and
                 abort these steps.
               </li>
               <li>
                 If there is no underlying <a>NFC Adapter</a>, or if a connection
                 cannot be established, then reject |p| with a
-                {{"NotSupportedError"}} {{DOMException}}
-                and abort these steps.
+                {{"NotSupportedError"}} and abort these steps.
               </li>
               <li>
                 If the UA is not allowed to access the underlying <a>NFC Adapter</a>
                 (e.g. a user preference), then reject |p| with a
-                {{"NotReadableError"}} {{DOMException}}
-                and abort these steps.
+                {{"NotReadableError"}} and abort these steps.
               </li>
               <li>
                 If pushing data is not supported by the underlying
                 <a>NFC Adapter</a>, then reject |p| with a {{"NotSupportedError"}}
-                {{DOMException}} and abort these steps.
+                and abort these steps.
               </li>
               <li>
                 An implementation MAY reject |p| with
-                a {{"NotSupportedError"}} {{DOMException}}
-                and abort these steps.
+                a {{"NotSupportedError"}} and abort these steps.
                 <p class="note">
                   The UA might abort message write at this point. The reasons
                   for termination are implementation details. For example, the
@@ -2511,7 +2506,7 @@
           <li>
             If the <a>NFC tag</a> in proximity range does not expose
             <a>NDEF</a> technology for formatting or writing, then
-            reject |p| with a {{"NotSupportedError"}} {{DOMException}} and
+            reject |p| with a {{"NotSupportedError"}} and
             return |p|.
           </li>
           <li>
@@ -2524,7 +2519,7 @@
                 If |device| is an <a>NFC tag</a> and if |options|'s overwrite is
                 `false`, read the tag to check whether there are <a>NDEF</a>
                 records on the tag. If yes, then reject |p| with a
-                {{"NotAllowedError"}} {{DOMException}} and return |p|.
+                {{"NotAllowedError"}} and return |p|.
               </li>
               <li>
                 Let |output:NDEFMessage| be |writer|.<a>[[\WriteMessage]]</a>.
@@ -2552,8 +2547,7 @@
               </li>
               <li>
                 If the transfer fails, reject |p| with
-                {{"NetworkError"}} {{DOMException}}
-                and abort these steps.
+                {{"NetworkError"}} and abort these steps.
               </li>
               <li>
                 When the transfer has completed, resolve |p|.
@@ -2605,27 +2599,26 @@
             <ul>
               <li>
                 If |source|'s records [= list/is empty =], [= exception/throw =]
-                a {{TypeError}} and abort these steps.
+                a {{TypeError}}.
               </li>
               <li>
                 Increment |recordsDepth| by one.
               </li>
               <li>
-                If |recordsDepth| > `32`, [= exception/throw =] a {{TypeError}}
-                and abort these steps.
-                <p class="note">
+                If |recordsDepth| > `32`, [= exception/throw =] a {{TypeError}}.
+                <aside class="note">
                   For practical purposes there is only so much room for storing
                   an NDEF message and so, this specification sets a limit on
                   the depth of nested messages which developers are unlikely to
                   hit. See <a href="https://github.com/w3c/web-nfc/issues/620">
                   issue #620</a>.
-                </p>
+                </aside>
               </li>
             </ul>
             <dt>unmatched type</dt>
             <ul>
               <li>
-                [= exception/throw =] a {{TypeError}} and abort these steps.
+                [= exception/throw =] a {{TypeError}}.
               </li>
             </ul>
           </dl>
@@ -2670,7 +2663,7 @@
             If |context| is `"smart-poster"` and |records| does not contain
             exactly one <a>URI record</a>, or if it contains more than one
             <a>type record</a>, <a>size record</a> or <a>action record</a>,
-            throw {{TypeError}} and abort these steps.
+            [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
             If |context| is `"smart-poster"`, move the <a>URI record</a> to
@@ -2885,7 +2878,7 @@
         </li>
         <li>
           If |localTypeName| is not a {{USVString}} or its length exceeds 255
-          bytes, return `false` and abort these steps.
+          bytes, return `false`.
         </li>
         <li>
           If |localTypeName| does not start with a lowercase character or a
@@ -2909,16 +2902,16 @@
           <!--
           <li>
             If |context| is `"smart-poster"`,
-            [= exception/throw =] a {{TypeError}} and abort these steps.
+            [= exception/throw =] a {{TypeError}}.
           </li>
           -->
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
-            [= exception/throw =] a {{TypeError}} and abort these steps.
+            [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
             If |record|'s <a>id</a> is not `undefined`,
-            [= exception/throw =] a {{TypeError}} and abort these steps.
+            [= exception/throw =] a {{TypeError}}.
           </li>
           <li>Set the
             |ndef|'s <a>TNF field</a> to `0` (<a>empty record</a>).
@@ -2953,7 +2946,7 @@
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
-            [= exception/throw =] a {{TypeError}} and abort these steps.
+            [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
             If the type of |record|'s <a>data</a> is not {{DOMString}} or
@@ -2993,7 +2986,7 @@
                 <li>
                   If |encoding label| is not equal to "`utf-8`", "`utf-16`",
                   "`utf-16le`" or "`utf-16be`" [= exception/throw =] a
-                  {{TypeError}} and abort these steps.
+                  {{TypeError}}.
                 </li>
               </ol>
             </dl>
@@ -3099,11 +3092,11 @@
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
-            [= exception/throw =] a {{TypeError}} and abort these steps.
+            [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
             If |record|'s <a>data</a> is not a {{DOMString}},
-            [= exception/throw =] a {{TypeError}} and abort these steps.
+            [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
             Let |url:URL| be the result of
@@ -3111,7 +3104,7 @@
           </li>
           <li>
             If |url| is failure, [= exception/throw =] a
-            {{SyntaxError}} and abort these steps.
+            {{SyntaxError}}.
           </li>
           <li>
             Let |serializedURL:string| be
@@ -3185,8 +3178,7 @@
         <ol class=algorithm data-link-for="NDEFRecord">
           <li>
             If the type of a |record|'s <a>data</a> is not
-            {{BufferSource}}, [= exception/throw =] a {{TypeError}}
-            and abort these steps.
+            {{BufferSource}}, [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
             Let |mimeType| be the <a>MIME type</a>
@@ -3201,8 +3193,7 @@
           <!--
           <li>
             If |context| is `"smart-poster"` and |mimeType| does not
-            start with `"image/"` or `"video/"`, throw <a>TypeError</a>
-            and abort these steps.
+            start with `"image/"` or `"video/"`, [= exception/throw =] a {{TypeError}}.
           </li>
           -->
           <li>
@@ -3244,12 +3235,12 @@
           <!--
           <li>
             If |context| is `"smart-poster"`,
-            [= exception/throw =] a {{TypeError}} and abort these steps.
+            [= exception/throw =] a {{TypeError}}.
           </li>
           -->
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
-            [= exception/throw =] a {{TypeError}} and abort these steps.
+            [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
             Let |domain| and |type| be the result of running [=split external type=] with
@@ -3279,7 +3270,7 @@
           <li>
             If the type of a |record|'s <a>data</a> is not
             {{BufferSource}} or {{NDEFMessageInit}}, [= exception/throw =] a
-            {{TypeError}} and abort these steps.
+            {{TypeError}}.
           </li>
           <li>
             Set |ndef|'s <a>TNF field</a> to `4`
@@ -3335,12 +3326,12 @@
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
-            [= exception/throw =] a {{TypeError}} and abort these steps.
+            [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
             If the type of a |record|'s <a>data</a> is not
             {{BufferSource}} or {{NDEFMessageInit}}, [= exception/throw =] a
-            {{TypeError}} and abort these steps.
+            {{TypeError}}.
           </li>
           <li>
             Set |ndef|'s <a>TNF field</a> to `1`
@@ -3359,7 +3350,7 @@
             If |context| is `"smart-poster"`, |localTypeName| is
             <strong>"`s`" (`0x73`)</strong> and if the type of
             |record|'s <a>data</a> is not {{BufferSource}} or its byte length
-            is bigger than 4, [= exception/throw =] a {{TypeError}} and abort these steps.
+            is bigger than 4, [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
             If |context| is `"smart-poster"`, |localTypeName| is
@@ -3417,12 +3408,11 @@
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
-            [= exception/throw =] a {{TypeError}} and abort these steps.
+            [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
             If the type of a |record|'s <a>data</a> is not
-            {{NDEFMessageInit}}, [= exception/throw =] a {{TypeError}}
-            and abort these steps.
+            {{NDEFMessageInit}}, [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
             Set |ndef|'s <a>TNF field</a> to `1`
@@ -3454,7 +3444,7 @@
         <ol class=algorithm data-link-for="NDEFRecord">
           <li>
             If |context| is `"smart-poster"`,
-            [= exception/throw =] a {{TypeError}} and abort these steps.
+            [= exception/throw =] a {{TypeError}}.
             <p class="note">
               The [[NDEF-SMARTPOSTER]] specification allows only one URL in
               a <a>smart poster</a> and that MUST be a single <a>URI record</a>.
@@ -3462,16 +3452,16 @@
           </li>
           <li>
             If |record|'s <a>mediaType</a> is not `undefined`,
-            [= exception/throw =] a {{TypeError}} and abort these steps.
+            [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
             If |record|'s <a>data</a> is not a {{DOMString}},
-            [= exception/throw =] a {{TypeError}} and abort these steps.
+            [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
             If the result of <a data-lt="url parser">parsing</a> |record|'s
             <a>data</a> is failure, [= exception/throw =] a
-            {{SyntaxError}} and abort these steps.
+            {{SyntaxError}}.
           </li>
           <li>
             Set |arrayBuffer| to |record|'s <a>data</a>.
@@ -3517,7 +3507,7 @@
           <li>
             If not currently executing in the currently active <a>top-level
             browsing context</a>, then reject |p| with and
-            {{"InvalidStateError"}} {{DOMException}} and return |p|.
+            {{"InvalidStateError"}} and return |p|.
           </li>
           <li>
             Let |options:NDEFMakeReadOnlyOptions| be the second argument.
@@ -3555,24 +3545,24 @@
             <ol>
               <li>
                 If the <a>obtain permission</a> steps return `false`, then
-                reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
+                reject |p| with a {{"NotAllowedError"}} and
                 abort these steps.
               </li>
               <li>
                 If there is no underlying <a>NFC Adapter</a>, or if a connection
                 cannot be established, then reject |p| with a
-                {{"NotSupportedError"}} {{DOMException}}
+                {{"NotSupportedError"}}
                 and abort these steps.
               </li>
               <li>
                 If the UA is not allowed to access the underlying <a>NFC Adapter</a>
                 (e.g. a user preference), then reject |p| with a
-                {{"NotReadableError"}} {{DOMException}}
+                {{"NotReadableError"}}
                 and abort these steps.
               </li>
               <li>
                 An implementation MAY reject |p| with
-                a {{"NotSupportedError"}} {{DOMException}}
+                a {{"NotSupportedError"}}
                 and abort these steps.
                 <p class="note">
                   The UA might abort at this point. The reasons for termination
@@ -3614,7 +3604,7 @@
           <li>
             If the <a>NFC tag</a> in proximity range does not expose
             <a>NDEF</a> technology for formatting, then
-            reject |p| with a {{"NotSupportedError"}} {{DOMException}} and
+            reject |p| with a {{"NotSupportedError"}} and
             return |p|.
           </li>
           <li>
@@ -3629,7 +3619,7 @@
               </li
               <li>
                 If the operation fails, reject |p| with
-                {{"NetworkError"}} {{DOMException}}
+                {{"NetworkError"}}
                 and abort these steps.
               </li>
               <li>
@@ -3675,7 +3665,7 @@
           <li>
             If not currently executing in the currently active <a>top-level
             browsing context</a>, then reject |p| with an
-            {{"InvalidStateError"}} {{DOMException}} and return |p|.
+            {{"InvalidStateError"}} and return |p|.
           </li>
           <li>
             Let |reader:NDEFReader| be the {{NDEFReader}} instance.
@@ -3712,24 +3702,24 @@
             <ol>
               <li>
                 If the <a>obtain permission</a> steps return `false`, then
-                reject |p| with a {{"NotAllowedError"}} {{DOMException}} and
+                reject |p| with a {{"NotAllowedError"}} and
                 abort these steps.
               </li>
               <li>
                 If there is no underlying <a>NFC Adapter</a>, or if a connection
                 cannot be established, then reject |p| with a
-                {{"NotSupportedError"}} {{DOMException}}
+                {{"NotSupportedError"}}
                 and abort these steps.
               </li>
               <li>
                 If the UA is not allowed to access the underlying <a>NFC Adapter</a>
                 (e.g. a user preference), then reject |p| with a
-                {{"NotReadableError"}} {{DOMException}}
+                {{"NotReadableError"}}
                 and abort these steps.
               </li>
               <li>
                 If |reader| is already in the <a>activated reader objects</a>,
-                then reject |p| with an {{"InvalidStateError"}} {{DOMException}}
+                then reject |p| with an {{"InvalidStateError"}}
                 and abort these steps.
               </li>
               <li>
@@ -3854,7 +3844,7 @@
     |context: string|, run these steps:
     <ol class=algorithm>
       <li>
-        If the length of |bytes| is `0`, return `null` and abort these steps.
+        If the length of |bytes| is `0`, return `null`.
       </li>
       <li>
         Let |records| be the empty list.
@@ -3864,13 +3854,11 @@
         sub-steps:
         <ol>
           <li>
-            If the remaining length of |bytes| is less than `3`, return `null`
-            and abort these sub-steps.
+            If the remaining length of |bytes| is less than `3`, return `null`.
           </li>
           <li>
             If any of the following steps requires reading bytes beyond the
-            remaining length of |bytes|, return `null` and abort these
-            sub-steps.
+            remaining length of |bytes|, return `null`.
           </li>
           <li>
             Let |ndef| be the notation for the current <a>NDEF record</a>.
@@ -3884,8 +3872,7 @@
               </li>
               <li>
                 If this is the first iteration of these sub-steps and
-                |messageBegin| is `false`, return `null` and abort these
-                sub-steps.
+                |messageBegin| is `false`, return `null`.
               </li>
               <li>
                 Let |messageEnd:boolean| (<a>ME field</a>) be bit 6 of |header|.
@@ -3974,7 +3961,7 @@
         If |context| is `"smart-poster"` and |records| does not contain
         exactly one <a>URI record</a>, or if it contains more than one
         <a>type record</a>, <a>size record</a> or <a>action record</a>,
-        throw {{TypeError}} and abort these steps.
+        [= exception/throw =] a {{TypeError}}.
       </li>
       <!--
       <li>
@@ -4075,7 +4062,7 @@
             <ol>
               <li>
                 If |context| is not `"external"` or `"smart-poster"`,
-                [= exception/throw =] a {{TypeError}} and abort these steps.
+                [= exception/throw =] a {{TypeError}}.
               </li>
               <li>
                 Set |record| to the result of running
@@ -4084,8 +4071,7 @@
             </ol>
           </li>
           <li>
-            Otherwise [= exception/throw =] a {{TypeError}} and abort these
-            steps.
+            Otherwise [= exception/throw =] a {{TypeError}}.
           </li>
         </ol>
       </li>
@@ -4116,7 +4102,7 @@
         properties.
       </li>
       <li>
-        Otherwise [= exception/throw =] a {{TypeError}} and abort these steps.
+        Otherwise [= exception/throw =] a {{TypeError}}.
       </li>
     </ol>
   </div>
@@ -4300,7 +4286,7 @@
       </li>
       <li>
         If |ndefRecord|'s <a>PAYLOAD field</a> has not exactly 4 bytes,
-        [= exception/throw =] a {{TypeError}} and abort these steps.
+        [= exception/throw =] a {{TypeError}}.
       </li>
       <li>
         Let |buffer:byte sequence| be the <a>byte sequence</a> of
@@ -4358,7 +4344,7 @@
       </li>
       <li>
         If |ndefRecord|'s <a>PAYLOAD field</a> has not exactly 1 byte,
-        [= exception/throw =] a {{TypeError}} and abort these steps.
+        [= exception/throw =] a {{TypeError}}.
       </li>
       <li>
         Let |buffer:byte sequence| be the <a>byte sequence</a> of
