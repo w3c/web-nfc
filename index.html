@@ -1712,7 +1712,7 @@
         `"smart-poster"`.
       </li>
       <li>
-        If running <a>validate external type</a> on |recordType| returns `true`,
+        If running <a>validate external type</a> on |recordType| returns true,
         then return the result of running <a>parse records from bytes</a> given
         |bytes| and `"external"`.
       </li>
@@ -1926,35 +1926,35 @@
       <td>0</td>
       <td><i>unused</i></td>
       <td>"`empty`"</td>
-      <td>`null`</td>
+      <td>null</td>
     </tr>
     <tr>
       <td>[=Well-known type record=]</td>
       <td>1</td>
       <td>"`T`"</td>
       <td>"`text`"</td>
-      <td>`null`</td>
+      <td>null</td>
     </tr>
     <tr>
       <td>[=Well-known type record=]</td>
       <td>1</td>
       <td>"`U`"</td>
       <td>"`url`"</td>
-      <td>`null`</td>
+      <td>null</td>
     </tr>
     <tr>
       <td>[=Well-known type record=]</td>
       <td>1</td>
       <td>"`Sp`"</td>
       <td nowrap>"`smart-poster`"</td>
-      <td>`null`</td>
+      <td>null</td>
     </tr>
     <tr>
       <td>[=Local type=] record*</td>
       <td>1</td>
       <td>[=local type name=], e.g., "`act`", "`s`", and "`t`"</td>
       <td>[=local type name=] prefixed by a colon `U+003A` (`:`), e.g., "`:act`", "`:s`", and "`:t`"</td>
-      <td>`null`</td>
+      <td>null</td>
     </tr>
     <tr>
       <td>[=MIME type record=]</td>
@@ -1968,21 +1968,21 @@
       <td>3</td>
       <td>URL</td>
       <td>"`absolute-url`"</td>
-      <td>`null`</td>
+      <td>null</td>
     </tr>
     <tr>
       <td>[=External type record=]</a></td>
       <td>4</td>
       <td>[=external type name=]</td>
       <td>[=external type name=]</td>
-      <td>`null`</td>
+      <td>null</td>
     </tr>
     <tr>
       <td><a>Unknown record</a></td>
       <td>5</td>
       <td><i>unused</i></td>
       <td>"`unknown`"</td>
-      <td>`null`</td>
+      <td>null</td>
     </tr>
   </table>
   </section>
@@ -2039,7 +2039,7 @@
   <p data-dfn-for="NDEFReadingEventInit">
     <dfn>NDEFReadingEventInit</dfn> is used to initialize a new event with a serial number
     and the <a>NDEFMessageInit</a> data via the <dfn>message</dfn> member.
-    If <dfn>serialNumber</dfn> is not present or is `null`,
+    If <dfn>serialNumber</dfn> is not present or is null,
     empty string will be used to init the event.
   </p>
   <p class="note">
@@ -2063,14 +2063,14 @@
     <tbody>
      <tr>
       <td><dfn>[[\WriteOptions]]</dfn></td>
-      <td>`null`</td>
+      <td>null</td>
       <td>
         The {{NDEFWriteOptions}} value for writing.
       </td>
      </tr>
      <tr>
       <td><dfn>[[\WriteMessage]]</dfn></td>
-      <td>`null`</td>
+      <td>null</td>
       <td>
         The {{NDEFMessage}} to be written.
         It is initially unset.
@@ -2106,11 +2106,11 @@
     <tbody>
      <tr>
       <td><dfn>[[\Suspended]]</dfn></td>
-      <td>`false`</td>
+      <td>false</td>
       <td>
         A boolean flag indicating whether NFC functionality is
         <a href="#nfc-suspended">suspended</a> or not, initially
-        `false`.
+        false.
       </td>
      </tr>
      <tr>
@@ -2152,15 +2152,15 @@
   </p>
   <p>
     <dfn id="nfc-is-suspended">NFC is suspended</dfn> if the
-    <a>[[\Suspended]]</a> internal slot is `true`.
+    <a>[[\Suspended]]</a> internal slot is true.
   </p>
   <p>
     To <dfn id="suspend-nfc">suspend NFC</dfn>, set the <a>[[\Suspended]]</a>
-    internal slot to `true`.
+    internal slot to true.
   </p>
   <p>
     To <dfn id="resume-nfc">resume NFC</dfn>, set the <a>[[\Suspended]]</a>
-    internal slot to `false`.
+    internal slot to false.
   </p>
   <p class="note">
     Internal slots are used only as a notation in this specification, and
@@ -2189,23 +2189,23 @@
         <li>
           If |state| is {{PermissionState["granted"]}} (i.e. permission has been
           granted to the <a>origin</a> and <a>global object</a> using the
-          [[[PERMISSIONS]]] API), return `true`.
+          [[[PERMISSIONS]]] API), return true.
         </li>
         <li>
           Otherwise, if |state| is {{PermissionState["prompt"]}}, then optionally
           <a>request permission to use</a> "<code>nfc</code>" from the user. If
-          that is granted, return `true`.
+          that is granted, return true.
           <p class="issue" data-number="482">
             The <a data-lt="request permission to use">request permission</a>
             steps are not yet clearly defined.
             At this point the UA asks the user about the policy to be used
             with "<code>nfc</code>" for the given <a>origin</a> and
             <a>global object</a>, if the user grants permission, return
-            `true`.
+            true.
           </p>
         </li>
         <li>
-          Return `false`.
+          Return false.
         </li>
       </ol>
     </div>
@@ -2327,7 +2327,7 @@
     </pre>
     <p>
       When the value of the <dfn>overwrite</dfn> property is
-      `false`, the <a href="#steps-write">write algorithm</a>
+      false, the <a href="#steps-write">write algorithm</a>
       will read the <a>NFC tag</a> to determine if it has
       <a>NDEF</a> records on it, and if yes, it will not
       execute any pending write.
@@ -2395,14 +2395,14 @@
           </li>
           <li>
             Let |signal:AbortSignal| be the |options|’ dictionary member
-            of the same name if present, or `null` otherwise.
+            of the same name if present, or null otherwise.
           </li>
           <li>
             If |signal| is [= AbortSignal/aborted =], then reject |p|
             with |signal|'s [=AbortSignal/abort reason=] and return |p|.
           </li>
           <li>
-            If |signal| is not `null`, then
+            If |signal| is not null, then
             <a data-cite="dom#abortsignal-abort-algorithms">
             add the following abort steps</a> to |signal|:
               <ol>
@@ -2425,7 +2425,7 @@
             Return |p| and run the following steps <a>in parallel</a>:
             <ol>
               <li>
-                If the <a>obtain permission</a> steps return `false`, then
+                If the <a>obtain permission</a> steps return false, then
                 reject |p| with a {{"NotAllowedError"}} and
                 abort these steps.
               </li>
@@ -2517,7 +2517,7 @@
             <ol>
               <li>
                 If |device| is an <a>NFC tag</a> and if |options|'s overwrite is
-                `false`, read the tag to check whether there are <a>NDEF</a>
+                false, read the tag to check whether there are <a>NDEF</a>
                 records on the tag. If yes, then reject |p| with a
                 {{"NotAllowedError"}} and return |p|.
               </li>
@@ -2699,7 +2699,7 @@
             created by the UA.
           </li>
           <li>
-            If |record|'s <a>id</a> is not `undefined`:
+            If |record|'s <a>id</a> is not undefined:
             <ul>
               <li>
                 Let |identifier| be |record|'s <a>id</a>.
@@ -2770,7 +2770,7 @@
               </li>
               <li>
                 If running the <a>validate local type</a> steps on |record|'s
-                <a>recordType</a> returns `false`, reject |promise| with a
+                <a>recordType</a> returns false, reject |promise| with a
                 {{TypeError}} and abort these steps.
               </li>
               <li>
@@ -2783,7 +2783,7 @@
           </li>
           <li>
             If running <a>validate external type</a> on |record|'s
-            <a>recordType</a> returns `true`,
+            <a>recordType</a> returns true,
             return <a>map external data to NDEF</a> given |record|, |ndef|,
             |context|, and |recordsDepth|. If that throws an exception |e|,
             reject |promise| with |e| and abort these steps.
@@ -2847,10 +2847,10 @@
       <ol class=algorithm id="validate-external-type">
         <li>
           Let |domain| and |type| be the result of running [=split external type=], or
-          return `false` if failure.
+          return false if failure.
         </li>
         <li>
-          If |domain| is not a [=valid domain string=], return `false`.
+          If |domain| is not a [=valid domain string=], return false.
         </li>
         <li>
           If |type| contains [=code points=] that are not
@@ -2858,10 +2858,10 @@
           `U+0028` `LEFT PARENTHESIS` (`(`), `U+0029` `RIGHT PARENTHESIS` (`)`),
           `U+002A` (`*`), `U+002B` (`+`), `U+002C` (`,`), `U+002D` (`-`),
           `U+002E` (`.`), `U+003B` (`;`), `U+003D` (`=`), `U+0040` (`@`),
-          `U+005F` (`_`), return `false`.
+          `U+005F` (`_`), return false.
         </li>
         <li>
-          Return `true`.
+          Return true.
         </li>
       </ol>
     </section>
@@ -2878,18 +2878,18 @@
         </li>
         <li>
           If |localTypeName| is not a {{USVString}} or its length exceeds 255
-          bytes, return `false`.
+          bytes, return false.
         </li>
         <li>
           If |localTypeName| does not start with a lowercase character or a
-          number, return `false`.
+          number, return false.
         </li>
         <li>
           If |input| is equal to the <a>record type</a> of any <a>NDEF record</a>
-          defined in its containing <a>NDEF message</a>, return `false`.
+          defined in its containing <a>NDEF message</a>, return false.
         </li>
         <li>
-          Return `true`.
+          Return true.
         </li>
       </ol>
     </section>
@@ -2906,11 +2906,11 @@
           </li>
           -->
           <li>
-            If |record|'s <a>mediaType</a> is not `undefined`,
+            If |record|'s <a>mediaType</a> is not undefined,
             [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
-            If |record|'s <a>id</a> is not `undefined`,
+            If |record|'s <a>id</a> is not undefined,
             [= exception/throw =] a {{TypeError}}.
           </li>
           <li>Set the
@@ -2945,7 +2945,7 @@
         </p>
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
-            If |record|'s <a>mediaType</a> is not `undefined`,
+            If |record|'s <a>mediaType</a> is not undefined,
             [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
@@ -2969,7 +2969,7 @@
               <dt>{{DOMString}}</dt>
               <ol>
                 <li>
-                  If |record|'s <a>encoding</a> is neither `undefined` nor
+                  If |record|'s <a>encoding</a> is neither undefined nor
                   "`utf-8`", [= exception/throw =] a {{TypeError}} and abort
                   these steps.
                 </li>
@@ -3091,7 +3091,7 @@
         run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
-            If |record|'s <a>mediaType</a> is not `undefined`,
+            If |record|'s <a>mediaType</a> is not undefined,
             [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
@@ -3239,7 +3239,7 @@
           </li>
           -->
           <li>
-            If |record|'s <a>mediaType</a> is not `undefined`,
+            If |record|'s <a>mediaType</a> is not undefined,
             [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
@@ -3325,7 +3325,7 @@
         run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
-            If |record|'s <a>mediaType</a> is not `undefined`,
+            If |record|'s <a>mediaType</a> is not undefined,
             [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
@@ -3407,7 +3407,7 @@
         |ndef|, and |recordsDepth:unsigned short|, run these steps:
         <ol class=algorithm data-link-for="NDEFRecordInit">
           <li>
-            If |record|'s <a>mediaType</a> is not `undefined`,
+            If |record|'s <a>mediaType</a> is not undefined,
             [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
@@ -3451,7 +3451,7 @@
             </p>
           </li>
           <li>
-            If |record|'s <a>mediaType</a> is not `undefined`,
+            If |record|'s <a>mediaType</a> is not undefined,
             [= exception/throw =] a {{TypeError}}.
           </li>
           <li>
@@ -3514,14 +3514,14 @@
           </li>
           <li>
             Let |signal:AbortSignal| be the |options|’ dictionary member
-            of the same name if present, or `null` otherwise.
+            of the same name if present, or null otherwise.
           </li>
           <li>
             If |signal| is [= AbortSignal/aborted =], then reject |p|
             with |signal|'s [=AbortSignal/abort reason=] and return |p|.
           </li>
           <li>
-            If |signal| is not `null`, then
+            If |signal| is not null, then
             <a data-cite="dom#abortsignal-abort-algorithms">
             add the following abort steps</a> to |signal|:
               <ol>
@@ -3544,7 +3544,7 @@
             Return |p| and run the following steps <a>in parallel</a>:
             <ol>
               <li>
-                If the <a>obtain permission</a> steps return `false`, then
+                If the <a>obtain permission</a> steps return false, then
                 reject |p| with a {{"NotAllowedError"}} and
                 abort these steps.
               </li>
@@ -3675,14 +3675,14 @@
           </li>
           <li>
             Let |signal:AbortSignal| be the |options|’ dictionary member
-            of the same name if present, or `null` otherwise.
+            of the same name if present, or null otherwise.
           </li>
           <li>
             If |signal| is [= AbortSignal/aborted =], then reject |p|
             with |signal|'s [=AbortSignal/abort reason=] and return |p|.
           </li>
           <li>
-            If |signal| is not `null`, then
+            If |signal| is not null, then
             <a data-cite="dom#abortsignal-abort-algorithms">
             add the following <dfn>clean up the pending scan</dfn> steps</a>
             to |signal|:
@@ -3701,7 +3701,7 @@
             Return |p| and run the following steps <a>in parallel</a>:
             <ol>
               <li>
-                If the <a>obtain permission</a> steps return `false`, then
+                If the <a>obtain permission</a> steps return false, then
                 reject |p| with a {{"NotAllowedError"}} and
                 abort these steps.
               </li>
@@ -3764,10 +3764,10 @@
       </li>
       <li>
         Let |serialNumber:serialNumber| be the device identifier as a series of
-        numbers, or `null` if unavailable.
+        numbers, or null if unavailable.
       </li>
       <li>
-        If |serialNumber| is not `null`, set it to the
+        If |serialNumber| is not null, set it to the
         <a>string</a> of U+003A (`:`) concatenating each number represented as
         <a>ASCII hex digit</a>, in the same order.
       </li>
@@ -3777,7 +3777,7 @@
       </li>
       <li>
         If the <a>NFC tag</a> in proximity range is unformatted and is
-        NDEF-formattable, let |input| be `null`.
+        NDEF-formattable, let |input| be null.
         Otherwise, let |input| be the notation for the <a>NDEF message</a>
         which has been received.
         <p class="note">
@@ -3801,7 +3801,7 @@
             given |ndef| and `""`.
           </li>
           <li>
-             If |record| is not `null`, <a>append</a> |record| to |message|'s
+             If |record| is not null, <a>append</a> |record| to |message|'s
              records.
           </li>
         </ol>
@@ -3844,7 +3844,7 @@
     |context: string|, run these steps:
     <ol class=algorithm>
       <li>
-        If the length of |bytes| is `0`, return `null`.
+        If the length of |bytes| is `0`, return null.
       </li>
       <li>
         Let |records| be the empty list.
@@ -3854,11 +3854,11 @@
         sub-steps:
         <ol>
           <li>
-            If the remaining length of |bytes| is less than `3`, return `null`.
+            If the remaining length of |bytes| is less than `3`, return null.
           </li>
           <li>
             If any of the following steps requires reading bytes beyond the
-            remaining length of |bytes|, return `null`.
+            remaining length of |bytes|, return null.
           </li>
           <li>
             Let |ndef| be the notation for the current <a>NDEF record</a>.
@@ -3872,7 +3872,7 @@
               </li>
               <li>
                 If this is the first iteration of these sub-steps and
-                |messageBegin| is `false`, return `null`.
+                |messageBegin| is false, return null.
               </li>
               <li>
                 Let |messageEnd:boolean| (<a>ME field</a>) be bit 6 of |header|.
@@ -3898,7 +3898,7 @@
             (<a>TYPE LENGTH field</a>) of |bytes|.
           </li>
           <li>
-            If |shortRecord| is `true`, let |payloadLength:number|
+            If |shortRecord| is true, let |payloadLength:number|
             be the integer value of next byte (<a>PAYLOAD LENGTH field</a>) of
             |bytes|.
           </li>
@@ -3907,7 +3907,7 @@
             bytes of |bytes|.
           </li>
           <li>
-            If |hasIdLength| is `true`, let |idLength:number| be
+            If |hasIdLength| is true, let |idLength:number| be
             the integer value of next byte (<a>ID LENGTH field</a>) of |bytes|,
             otherwise let it be `0`.
           </li>
@@ -3930,10 +3930,10 @@
             given |ndef| and |context|.
           </li>
           <li>
-            If |record| is not `null`, <a>append</a> |record| to |records|.
+            If |record| is not null, <a>append</a> |record| to |records|.
           </li>
           <li>
-            If |messageEnd| is `true`,
+            If |messageEnd| is true,
             <ol>
               <li>
                 If <a>check parsed records</a> given |records| and |context|
@@ -3983,7 +3983,7 @@
       </li>
       -->
       <li>
-        Otherwise return `true`.
+        Otherwise return true.
       </li>
     </ol>
   </section>
@@ -3997,26 +3997,26 @@
         Set |record|'s <a>id</a> to |ndef|'s |id:string|.
       </li>
       <li>
-        Set |record|'s <a>lang</a> to `null`.
+        Set |record|'s <a>lang</a> to null.
       </li>
       <li>
-        Set |record|'s <a>encoding</a> to `null`.
+        Set |record|'s <a>encoding</a> to null.
       </li>
       <li>
         If |ndef|'s |typeNameField:number| (<a>TNF field</a>) is `0`
         (<a>empty record</a>):
         <ol>
           <li>
-            Set |record|'s <a>id</a> to `null`.
+            Set |record|'s <a>id</a> to null.
           </li>
           <li>
             Set |record|'s <a>recordType</a> to "`empty`".
           </li>
           <li>
-            Set |record|'s <a>mediaType</a> to `null`.
+            Set |record|'s <a>mediaType</a> to null.
           </li>
           <li>
-            Set |record|'s <a>data</a> to `null`.
+            Set |record|'s <a>data</a> to null.
           </li>
         </ol>
       </li>
@@ -4058,7 +4058,7 @@
           </li>
           <li>
             If running the <a>validate local type</a> steps on
-            |ndef|'s |type:string| returns `true`,
+            |ndef|'s |type:string| returns true,
             <ol>
               <li>
                 If |context| is not `"external"` or `"smart-poster"`,
@@ -4117,11 +4117,11 @@
         Set |record|'s <a>recordType</a> to "`text`".
       </li>
       <li>
-        Set |record|'s <a>mediaType</a> to `null`.
+        Set |record|'s <a>mediaType</a> to null.
       </li>
       <li>
         If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set
-        |record|'s <a>data</a> to `null` and return |record|.
+        |record|'s <a>data</a> to null and return |record|.
       </li>
       <li>
         Let |header:byte| be the first <a>byte</a> of |ndefRecord|'s
@@ -4204,11 +4204,11 @@
         Set |record|'s <a>recordType</a> to "`url`".
       </li>
       <li>
-        Set |record|'s <a>mediaType</a> to `null`.
+        Set |record|'s <a>mediaType</a> to null.
       </li>
       <li>
         If |ndefRecord|'s <a>PAYLOAD field</a> is not present,
-        set |record|'s <a>data</a> to `null` and return |record|.
+        set |record|'s <a>data</a> to null and return |record|.
       </li>
       <li>
         Let |buffer:byte sequence| be the <a>byte sequence</a> of
@@ -4252,11 +4252,11 @@
         Set |record|'s <a>recordType</a> to "`smart-poster`".
       </li>
       <li>
-        Set |record|'s <a>mediaType</a> to `null`.
+        Set |record|'s <a>mediaType</a> to null.
       </li>
       <li>
         If |ndefRecord|'s <a>PAYLOAD field</a> is not present, set
-        |record|'s <a>data</a> to `null` and return |record|.
+        |record|'s <a>data</a> to null and return |record|.
       </li>
       <li>
         Let |buffer:byte sequence| be the <a>byte sequence</a> of
@@ -4282,7 +4282,7 @@
         Set |record|'s <a>recordType</a> to "`:s`".
       </li>
       <li>
-        Set |record|'s <a>mediaType</a> to `null`.
+        Set |record|'s <a>mediaType</a> to null.
       </li>
       <li>
         If |ndefRecord|'s <a>PAYLOAD field</a> has not exactly 4 bytes,
@@ -4313,7 +4313,7 @@
         Set |record|'s <a>recordType</a> to "`:t`".
       </li>
       <li>
-        Set |record|'s <a>mediaType</a> to `null`.
+        Set |record|'s <a>mediaType</a> to null.
       </li>
       <li>
         Let |buffer:byte sequence| be the <a>byte sequence</a> of
@@ -4340,7 +4340,7 @@
         Set |record|'s <a>recordType</a> to "`:act`".
       </li>
       <li>
-        Set |record|'s <a>mediaType</a> to `null`.
+        Set |record|'s <a>mediaType</a> to null.
       </li>
       <li>
         If |ndefRecord|'s <a>PAYLOAD field</a> has not exactly 1 byte,
@@ -4374,7 +4374,7 @@
         |ndef|'s |type:string|.
       </li>
       <li>
-        Set |record|'s <a>mediaType</a> to `null`.
+        Set |record|'s <a>mediaType</a> to null.
       </li>
       <li>
         Let |buffer:byte sequence| be the <a>byte sequence</a> of
@@ -4406,7 +4406,7 @@
         <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
           |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise
-          `null`.
+          null.
         </li>
         <li>
           Set |record|'s <a>data</a> to |buffer|.
@@ -4427,7 +4427,7 @@
           Set |record|'s <a>recordType</a> to "`absolute-url`".
         </li>
         <li>
-          Set |record|'s <a>mediaType</a> to `null`.
+          Set |record|'s <a>mediaType</a> to null.
         </li>
         <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
@@ -4449,7 +4449,7 @@
       a |record:NDEFRecord|, run these steps:
       <ol class=algorithm data-link-for="NDEFRecord">
         <li>
-          If running [=validate external type=] on record's |ndefRecord|'s <a>TYPE field</a> returns `false`, return `null`.
+          If running [=validate external type=] on record's |ndefRecord|'s <a>TYPE field</a> returns false, return null.
         </li>
         <li>
           Let |domain| and |type| be the result of running [=split external type=] with the value of |ndefRecord|'s <a>TYPE field</a>.
@@ -4457,7 +4457,7 @@
         <li>
           Let |domain| be the result of running <a href="https://www.unicode.org/reports/tr46/#ToUnicode">Unicode ToUnicode</a>
           with |domain_name| set to |domain|, |CheckHyphens| set to false, |CheckBidi| set to true, |CheckJoiners| set to true,
-          |UseSTD3ASCIIRules| set to true, and |Transitional_Processing| set to false. If result contains any errors, return `null`.
+          |UseSTD3ASCIIRules| set to true, and |Transitional_Processing| set to false. If result contains any errors, return null.
         </li>
         <aside class="note">
           The <a>TYPE field</a> contains a domain part stored as ASCII, so for instance "xn--hndvrker-9zan.dk:abc" would
@@ -4467,12 +4467,12 @@
           Set |record|'s <a>recordType</a> to |domain|, "`:`" and |type| concatenated.
         </li>
         <li>
-          Set |record|'s <a>mediaType</a> to `null`.
+          Set |record|'s <a>mediaType</a> to null.
         </li>
         <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
           |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise
-          `null`.
+          null.
         </li>
         <li>
           Set |record|'s <a>data</a> to |buffer|.
@@ -4493,12 +4493,12 @@
           Set |record|'s <a>recordType</a> to "`unknown`".
         </li>
         <li>
-          Set |record|'s <a>mediaType</a> to `null`.
+          Set |record|'s <a>mediaType</a> to null.
         </li>
         <li>
           Let |buffer:byte sequence| be the <a>byte sequence</a> of
           |ndefRecords|'s <a>PAYLOAD field</a> if that exists, or otherwise
-          `null`.
+          null.
         </li>
         <li>
           Set |record|'s <a>data</a> to |buffer|.
