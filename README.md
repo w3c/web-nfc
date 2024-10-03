@@ -11,6 +11,14 @@ This is the repository for the [Web NFC Community Group](https://www.w3.org/comm
 * [Web NFC Security and Privacy Questionnaire](https://github.com/w3c/web-nfc/blob/gh-pages/security-privacy-questionnaire.md)
 * [Web NFC Community Group Charter](https://w3c.github.io/web-nfc/charter/)
 
+## Documentation
+
+* [Chrome for Developers: Interact with NFC devices on Chrome for Android](https://developer.chrome.com/docs/capabilities/nfc)
+
+## Testimonials
+
+* [Capital One: Using Web NFC for authentication on Android mobile devices](https://www.capitalone.com/tech/software-engineering/web-nfc-for-authentication-android/)
+
 ## Code of conduct
 
 We are committed to providing a friendly, safe and welcoming environment for all. Please read and
