@@ -39,7 +39,7 @@
       logos: [
         {
           src: 'images/webnfc-logo.svg',
-          url: "https://w3c.github.io/web-nfc/",
+          url: "https://w3c-cg.github.io/web-nfc/",
           alt: "Web NFC logo",
           width: 95,
           height: 68,
@@ -51,13 +51,13 @@
       xref: "web-platform",
       localBiblio: {
         "NFC-SECURITY": {
-          href: "https://w3c.github.io/web-nfc/archive/security-privacy.html",
+          href: "https://w3c-cg.github.io/web-nfc/archive/security-privacy.html",
           title: "Web NFC Security and Privacy",
           publisher: "W3C",
           date: "25 April 2015",
         },
         "NFC-USECASES": {
-          href: "https://w3c.github.io/web-nfc/use-cases.html",
+          href: "https://w3c-cg.github.io/web-nfc/use-cases.html",
           title: "Web NFC Use Cases",
           publisher: "W3C",
           date: "25 April 2015",
@@ -870,7 +870,7 @@
     A few NFC user scenarios have been enumerated
     <a href="http://www.w3.org/2009/dap/wiki/Near_field_communications_%28NFC%29#Use_cases_submitted_to_DAP_mailing_list">
     here</a> and in the
-    <a href="https://w3c.github.io/web-nfc/use-cases.html">Web NFC Use Cases</a>
+    <a href="https://w3c-cg.github.io/web-nfc/use-cases.html">Web NFC Use Cases</a>
     document. The rudimentary Web NFC interactions are the following.
   </p>
 
@@ -1044,7 +1044,7 @@
       const ndef = new NDEFReader();
       try {
         await ndef.write({
-          records: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
+          records: [{ recordType: "url", data: "https://w3c-cg.github.io/web-nfc/" }]
         });
       } catch {
         console.log("Write failed :-( try again.");
